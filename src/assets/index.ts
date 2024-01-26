@@ -16,4 +16,5 @@ export const Images = {
   checkList: require('./list-check.png'),
   undo: require('./undo.png'),
   redo: require('./redo.png'),
+  link: require('./link.png'),
 };

@@ -1,4 +1,5 @@
 export enum EditorActionType {
+  Link = 'link',
   ToggleBold = 'toggle-bold',
   ToggleItalic = 'toggle-italic',
   ToggleUnderline = 'toggle-underline',
@@ -14,6 +15,7 @@ export enum EditorActionType {
 }
 // Actions with no payload
 type RegularActions =
+  | EditorActionType.Link
   | EditorActionType.ToggleBold
   | EditorActionType.ToggleItalic
   | EditorActionType.ToggleUnderline
@@ -28,7 +30,7 @@ type RegularActions =
 
 export interface RegularAction {
   type: RegularActions;
-  payload?: undefined;
+  payload?: any;
 }
 
 export type Level = 2 | 1 | 3 | 4 | 5 | 6;

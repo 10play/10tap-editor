@@ -2,6 +2,7 @@ import { Images } from '../../assets';
 import { EditorActionType } from '../../types/Actions';
 import { type EditorState } from '../../types/EditorState';
 import { type Editor } from '../useEditor';
+import { ToolbarContext } from './Toolbar';
 
 export const ToolbarItems = {
   ...EditorActionType,
@@ -28,8 +29,18 @@ export interface ToolbarAction {
 
 export const getToolbarActions = (
   editor: Editor,
-  editorState: EditorState
+  editorState: EditorState,
+  changeToolBarContext: (contextType: ToolbarContext) => void
 ): Record<ToolbarItemType, ToolbarAction> => ({
+  [ToolbarItems.Link]: {
+    type: EditorActionType.Link,
+    onPress: () => {
+      changeToolBarContext(ToolbarContext.Link);
+    },
+    active: editorState.isLinkActive,
+    disabled: !editorState.isLinkActive && !editorState.canAddLink,
+    image: Images.link,
+  },
   [ToolbarItems.ToggleBold]: {
     type: EditorActionType.ToggleBold,
     onPress: () => editor.toggleBold(),
@@ -153,6 +164,7 @@ export const getToolbarActions = (
 });
 
 export const DEFAULT_TOOLBAR_ITEMS: ToolbarItemType[] = [
+  ToolbarItems.Link,
   ToolbarItems.ToggleBold,
   ToolbarItems.ToggleItalic,
   ToolbarItems.ToggleUnderline,

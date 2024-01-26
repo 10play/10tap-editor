@@ -1,4 +1,7 @@
 export interface EditorState {
+  activeLink: string | undefined;
+  canAddLink: boolean;
+  isLinkActive: boolean;
   canToggleBold: boolean;
   canToggleItalic: boolean;
   canToggleUnderline: boolean;

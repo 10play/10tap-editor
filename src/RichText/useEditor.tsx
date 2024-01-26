@@ -14,6 +14,7 @@ import { type EditorState } from '../types/EditorState';
 type Subscription<T> = (cb: (val: T) => void) => () => void;
 export interface Editor {
   webviewRef: RefObject<WebView>;
+  editLink: (newLink: string) => void;
   toggleBold: () => void;
   toggleItalic: () => void;
   toggleUnderline: () => void;
@@ -32,6 +33,9 @@ export interface Editor {
 }
 
 const DEFAULT_STATE: EditorState = {
+  activeLink: undefined,
+  canAddLink: false,
+  isLinkActive: false,
   canToggleBold: false,
   canToggleItalic: false,
   canToggleUnderline: false,
@@ -108,9 +112,12 @@ export const useEditor = (): Editor => {
   const sink = () => sendAction({ type: EditorActionType.Sink });
   const undo = () => sendAction({ type: EditorActionType.Undo });
   const redo = () => sendAction({ type: EditorActionType.Redo });
+  const editLink = (newLink: string) =>
+    sendAction({ type: EditorActionType.Link, payload: newLink });
 
   return {
     webviewRef,
+    editLink,
     toggleBold,
     toggleItalic,
     toggleUnderline,

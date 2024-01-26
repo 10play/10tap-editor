@@ -3590,6 +3590,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tiptap/extension-link@npm:^2.1.16":
+  version: 2.1.16
+  resolution: "@tiptap/extension-link@npm:2.1.16"
+  dependencies:
+    linkifyjs: ^4.1.0
+  peerDependencies:
+    "@tiptap/core": ^2.0.0
+    "@tiptap/pm": ^2.0.0
+  checksum: 0e32c37be1c9abeab48cffd2d9fabc541baa9674e32569733e52d1ee2624ac04643d1667d52fa8cc55a38456e1b01309f51df0971f90da47b1e9549d9b5c7535
+  languageName: node
+  linkType: hard
+
 "@tiptap/extension-list-item@npm:^2.1.16":
   version: 2.1.16
   resolution: "@tiptap/extension-list-item@npm:2.1.16"
@@ -9593,6 +9605,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"linkifyjs@npm:^4.1.0":
+  version: 4.1.3
+  resolution: "linkifyjs@npm:4.1.3"
+  checksum: 023d467499a717a49ebbfa256a80cb2811a3b038ff2593e5be0fb8a4715b0a63bf80c571838e19e120833d5b9874464f3a1448965c8eebbde8c19458b3a6c6e4
+  languageName: node
+  linkType: hard
+
 "load-json-file@npm:^4.0.0":
   version: 4.0.0
   resolution: "load-json-file@npm:4.0.0"
@@ -13380,6 +13399,7 @@ __metadata:
     "@evilmartians/lefthook": ^1.5.0
     "@react-native/eslint-config": ^0.72.2
     "@release-it/conventional-changelog": ^5.0.0
+    "@tiptap/extension-link": ^2.1.16
     "@tiptap/extension-task-item": ^2.1.16
     "@tiptap/extension-task-list": ^2.1.16
     "@tiptap/extension-underline": ^2.1.16

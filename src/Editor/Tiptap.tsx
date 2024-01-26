@@ -1,15 +1,27 @@
 import debounce from 'lodash/debounce';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { EditorContent, useEditor } from '@tiptap/react';
 import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import TaskList from '@tiptap/extension-task-list';
+import Link from '@tiptap/extension-link';
 import TaskItem from '@tiptap/extension-task-item';
 import { EditorMessage, EditorMessageType } from '../types/Messaging';
 import { EditorAction, EditorActionType } from '../types/Actions';
+import { blueBackgroundPlugin } from './plugins/HighlightSelection';
 
-const extensions = [StarterKit, Underline, TaskList, TaskItem];
+const extensions = [
+  StarterKit,
+  Underline,
+  TaskList,
+  TaskItem,
+  Link.configure({
+    openOnClick: false,
+    autolink: true,
+  }),
+  blueBackgroundPlugin,
+];
 
 const content = '<p>Hello World!</p>';
 
@@ -22,6 +34,9 @@ const sendStateUpdate = debounce((editor: Editor) => {
   sendMessage({
     type: EditorMessageType.StateUpdate,
     payload: {
+      activeLink: editor.getAttributes('link').href,
+      canAddLink: !editor.state.selection.empty,
+      isLinkActive: editor.isActive('link'),
       canToggleBold: editor.can().toggleBold(),
       canToggleItalic: editor.can().toggleItalic(),
       canToggleBulletList: editor.can().toggleBulletList(),
@@ -65,6 +80,35 @@ export default function Tiptap() {
     const handleEditorAction = (action: EditorAction) => {
       const { type, payload } = action;
       switch (type) {
+        case EditorActionType.Link:
+          // cancelled
+          if (payload === null) {
+            return;
+          }
+
+          // empty
+          if (payload === '') {
+            editor
+              .chain()
+              .focus()
+              .extendMarkRange('link')
+              .unsetLink()
+              .setTextSelection(editor.state.selection.from)
+              .run();
+
+            return;
+          }
+
+          // update link
+          editor
+            .chain()
+            .focus()
+            .extendMarkRange('link')
+            .setLink({ href: payload })
+            .setTextSelection(editor.state.selection.from)
+            .run();
+          // editor.chain().focus().toggleBold().run();
+          break;
         case EditorActionType.ToggleBold:
           editor.chain().focus().toggleBold().run();
           break;
