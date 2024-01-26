@@ -40,6 +40,7 @@ export const RichText = (props: RichTextProps) => {
     <WebView
       style={RichTextStyles.fullScreen}
       source={source}
+      hideKeyboardAccessoryView={true}
       onMessage={onWebviewMessage}
       ref={props.editor.webviewRef}
       webviewDebuggingEnabled={__DEV__}
