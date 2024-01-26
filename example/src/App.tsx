@@ -1,25 +1,43 @@
-import * as React from 'react';
+import React from 'react';
+import { SafeAreaView, View } from 'react-native';
+import {
+  RichText,
+  TenTapView,
+  Toolbar,
+  useEditor,
+  useKeyboardUp,
+} from 'tentap';
 
-import { StyleSheet, View } from 'react-native';
-import { TenTapView } from 'tentap';
+// const exampleOfSmallEditorStyles = {
+//   height: 100,
+//   width: 200,
+//   borderWidth: 1,
+//   borderColor: 'black',
+// };
 
-export default function App() {
+const exampleOfFullScreenEditorStyles = {
+  flex: 1,
+};
+
+function App() {
+  // Editor is basically a ref to the webview with extra functions (might be confusing?)
+  const editor = useEditor();
+  const isKeyboardUp = useKeyboardUp();
+  const [hideToolbar, _setHideToolbar] = React.useState(false);
+
+  const toolbarVisible = isKeyboardUp && !hideToolbar;
+
   return (
-    <View style={styles.container}>
-      <TenTapView color="#32a852" style={styles.box} />
-    </View>
+    <SafeAreaView style={{ flex: 1 }}>
+      {/* <TextInput onFocus={() => setHideToolbar(true)} onBlur={() => setHideToolbar(false)} /> */}
+      {/* Native Fabric (with old arch support) View */}
+      <TenTapView />
+      <View style={{ ...exampleOfFullScreenEditorStyles }}>
+        <RichText editor={editor} DEV />
+      </View>
+      <Toolbar editor={editor} visible={toolbarVisible} />
+    </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  box: {
-    width: 60,
-    height: 60,
-    marginVertical: 20,
-  },
-});
+export default App;

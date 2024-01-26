@@ -23,6 +23,7 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "esnext",
-    "verbatimModuleSyntax": true
-  }
+    "verbatimModuleSyntax": true,
+  },
+  "exclude": ["./src/Editor"]
 }
