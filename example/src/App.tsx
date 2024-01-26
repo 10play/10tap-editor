@@ -1,12 +1,6 @@
 import React from 'react';
 import { SafeAreaView, View } from 'react-native';
-import {
-  RichText,
-  TenTapView,
-  Toolbar,
-  useEditor,
-  useKeyboardUp,
-} from 'tentap';
+import { RichText, Toolbar, useEditor, useKeyboardUp } from 'tentap';
 
 // const exampleOfSmallEditorStyles = {
 //   height: 100,
@@ -31,8 +25,8 @@ function App() {
     <SafeAreaView style={{ flex: 1 }}>
       {/* <TextInput onFocus={() => setHideToolbar(true)} onBlur={() => setHideToolbar(false)} /> */}
       {/* Native Fabric (with old arch support) View */}
-      <TenTapView />
       <View style={{ ...exampleOfFullScreenEditorStyles }}>
+        {/* <TenTapView color="#32a852" style={{ width: 50, height: 50 }} /> */}
         <RichText editor={editor} DEV />
       </View>
       <Toolbar editor={editor} visible={toolbarVisible} />

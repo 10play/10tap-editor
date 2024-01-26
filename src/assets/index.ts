@@ -17,4 +17,3 @@ export const Images = {
   undo: require('./undo.png'),
   redo: require('./redo.png'),
 };
-console.log(Images.bold);
