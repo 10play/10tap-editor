@@ -29,23 +29,6 @@
     return self;
 }
 
-- (instancetype)initWithFrame:(CGRect)frame {
-    self = [super initWithFrame:frame];
-    if (self) {
-    }
-    return self;
-}
-
-- (void)setText:(NSString *)text {
-    _text = text;
-    self.textField.text = text;
-}
-
-- (void)setPlaceholder:(NSString *)placeholder {
-    _placeholder = placeholder;
-    self.textField.placeholder = placeholder;
-}
-
 - (void)setInputTag:(NSNumber *)inputTag {
     _inputTag = inputTag;
     if(self.bridge == nil)
@@ -59,14 +42,26 @@
     if(inputField != nil) {
         // Create input controller
         UIInputViewController *inputController = [[UIInputViewController alloc] init];
-        UIInputView *inputView = [[UIInputView alloc] initWithFrame:CGRectMake(0, 0, 300, 300) inputViewStyle:UIInputViewStyleKeyboard];
+        UIInputView *inputView = [[UIInputView alloc] initWithFrame:CGRectZero inputViewStyle:UIInputViewStyleKeyboard];
+        inputView.allowsSelfSizing = YES;
+        inputView.translatesAutoresizingMaskIntoConstraints = NO;
         inputController.inputView = inputView;
         
         // Create Keyboard
         UIView *customKeyboard = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 300, 300)];
+        customKeyboard.translatesAutoresizingMaskIntoConstraints = NO;
+        customKeyboard.backgroundColor = [UIColor redColor];
+
         // Add keyboard to inputView
         [inputView addSubview:customKeyboard];
         
+        customKeyboard.translatesAutoresizingMaskIntoConstraints = NO;
+        [customKeyboard.leadingAnchor constraintEqualToAnchor:inputView.leadingAnchor].active = YES;
+        [customKeyboard.trailingAnchor constraintEqualToAnchor:inputView.trailingAnchor].active = YES;
+        [customKeyboard.topAnchor constraintEqualToAnchor:inputView.topAnchor].active = YES;
+        [customKeyboard.bottomAnchor constraintEqualToAnchor:inputView.bottomAnchor].active = YES;
+        [customKeyboard.heightAnchor constraintEqualToConstant:customKeyboard.frame.size.height].active = YES;
+        [inputView setNeedsLayout];
         // Create helper view
         HelperViewTemp *helperView = [[HelperViewTemp alloc] initWithFrame:CGRectZero];
         // Don't know why this is done

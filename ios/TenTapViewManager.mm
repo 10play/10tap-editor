@@ -19,7 +19,5 @@ RCT_EXPORT_MODULE(TenTapView)
 }
 
 RCT_EXPORT_VIEW_PROPERTY(inputTag, NSNumber)
-RCT_EXPORT_VIEW_PROPERTY(text, NSString)
-RCT_EXPORT_VIEW_PROPERTY(placeholder, NSString)
 
 @end
