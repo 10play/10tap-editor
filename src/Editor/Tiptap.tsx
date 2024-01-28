@@ -36,7 +36,6 @@ const sendStateUpdate = debounce((editor: Editor) => {
     payload: {
       activeLink: editor.getAttributes('link').href,
       canAddLink: !editor.state.selection.empty,
-      isLinkActive: editor.isActive('link'),
       canToggleBold: editor.can().toggleBold(),
       canToggleItalic: editor.can().toggleItalic(),
       canToggleBulletList: editor.can().toggleBulletList(),
@@ -53,6 +52,7 @@ const sendStateUpdate = debounce((editor: Editor) => {
         .sinkListItem(editor.state.schema.nodes.listItem.name),
       canUndo: editor.can().undo(),
       canRedo: editor.can().redo(),
+      isLinkActive: editor.isActive('link'),
       isBoldActive: editor.isActive('bold'),
       isItalicActive: editor.isActive('italic'),
       isUnderlineActive: editor.isActive('underline'),
@@ -107,7 +107,6 @@ export default function Tiptap() {
             .setLink({ href: payload })
             .setTextSelection(editor.state.selection.from)
             .run();
-          // editor.chain().focus().toggleBold().run();
           break;
         case EditorActionType.ToggleBold:
           editor.chain().focus().toggleBold().run();

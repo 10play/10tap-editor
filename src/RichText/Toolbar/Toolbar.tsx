@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import { type Editor } from '../useEditor';
 import { useEditorState } from '../useEditorState';
-import React, { useMemo } from 'react';
+import React, { useMemo, type RefObject } from 'react';
 import {
   type ToolbarAction,
   type ToolbarItemType,
@@ -15,9 +15,11 @@ import {
   getToolbarActions,
 } from './actions';
 import { EditLinkBar } from './EditLinkBar';
+import { CustomKeyboard } from '../CustomKeyboard';
 
 interface ToolbarProps {
   editor: Editor;
+  rootRef: RefObject<any>;
   visible?: boolean;
   keyboardAware?: boolean;
   items?: ToolbarItemType[];
@@ -55,10 +57,12 @@ const toolbarStyles = StyleSheet.create({
 export enum ToolbarContext {
   Main,
   Link,
+  Color,
 }
 
 export function Toolbar({
   editor,
+  rootRef,
   visible,
   keyboardAware = true,
   items = DEFAULT_TOOLBAR_ITEMS,
@@ -77,42 +81,60 @@ export function Toolbar({
     return items.map((item) => allActions[item]);
   }, [editor, editorState, items, setToolbarContext]);
 
-  const toolbar =
-    toolbarContext === ToolbarContext.Main ? (
-      <FlatList
-        data={toolbarItems}
-        style={[
-          toolbarStyles.toolbar,
-          !visible ? toolbarStyles.hidden : undefined,
-        ]}
-        renderItem={({ item: { onPress, disabled, active, image } }) => {
-          return (
-            <TouchableOpacity
-              onPress={onPress}
-              disabled={disabled}
-              style={[
-                toolbarStyles.toolbarButton,
-                active ? toolbarStyles.active : undefined,
-                disabled ? toolbarStyles.disabled : undefined,
-              ]}
-            >
-              <Image source={image} width={40} />
-            </TouchableOpacity>
-          );
-        }}
-        horizontal
+  const renderToolbar = () => {
+    switch (toolbarContext) {
+      case ToolbarContext.Main:
+      case ToolbarContext.Color:
+        return (
+          <FlatList
+            data={toolbarItems}
+            style={[
+              toolbarStyles.toolbar,
+              !visible ? toolbarStyles.hidden : undefined,
+            ]}
+            renderItem={({ item: { onPress, disabled, active, image } }) => {
+              return (
+                <TouchableOpacity
+                  onPress={onPress}
+                  disabled={disabled}
+                  style={[
+                    toolbarStyles.toolbarButton,
+                    active ? toolbarStyles.active : undefined,
+                    disabled ? toolbarStyles.disabled : undefined,
+                  ]}
+                >
+                  <Image source={image} width={40} />
+                </TouchableOpacity>
+              );
+            }}
+            horizontal
+          />
+        );
+      case ToolbarContext.Link:
+        return (
+          <EditLinkBar
+            initialLink={editorState.activeLink}
+            onBlur={() => setToolbarContext(ToolbarContext.Main)}
+            onEditLink={(link) => {
+              editor.editLink(link);
+              editor.webviewRef.current &&
+                editor.webviewRef.current.requestFocus();
+              setToolbarContext(ToolbarContext.Main);
+            }}
+          />
+        );
+    }
+  };
+
+  const toolbar = (
+    <>
+      {renderToolbar()}
+      <CustomKeyboard
+        rootRef={rootRef}
+        color={toolbarContext === ToolbarContext.Color}
       />
-    ) : (
-      <EditLinkBar
-        initialLink={editorState.activeLink}
-        onBlur={() => setToolbarContext(ToolbarContext.Main)}
-        onEditLink={(link) => {
-          editor.editLink(link);
-          editor.webviewRef.current && editor.webviewRef.current.requestFocus();
-          setToolbarContext(ToolbarContext.Main);
-        }}
-      />
-    );
+    </>
+  );
 
   if (keyboardAware) {
     return (

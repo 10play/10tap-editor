@@ -12,6 +12,7 @@ export const ToolbarItems = {
   ToggleH4: 'toggle-h4',
   ToggleH5: 'toggle-h5',
   ToggleH6: 'toggle-h6',
+  ShowColor: 'show-color',
 } as const;
 
 type ValueOf<T> = T[keyof T];
@@ -30,8 +31,24 @@ export interface ToolbarAction {
 export const getToolbarActions = (
   editor: Editor,
   editorState: EditorState,
-  changeToolBarContext: (contextType: ToolbarContext) => void
+  changeToolBarContext: React.Dispatch<React.SetStateAction<ToolbarContext>>
 ): Record<ToolbarItemType, ToolbarAction> => ({
+  [ToolbarItems.ShowColor]: {
+    type: ToolbarItems.ShowColor,
+    onPress: () => {
+      changeToolBarContext((prev) => {
+        if (prev === ToolbarContext.Color) {
+          editor.webviewRef.current?.requestFocus();
+          return ToolbarContext.Main;
+        } else {
+          return ToolbarContext.Color;
+        }
+      });
+    },
+    active: false,
+    disabled: false,
+    image: Images.h1,
+  },
   [ToolbarItems.Link]: {
     type: EditorActionType.Link,
     onPress: () => {
@@ -164,6 +181,7 @@ export const getToolbarActions = (
 });
 
 export const DEFAULT_TOOLBAR_ITEMS: ToolbarItemType[] = [
+  ToolbarItems.ShowColor,
   ToolbarItems.Link,
   ToolbarItems.ToggleBold,
   ToolbarItems.ToggleItalic,

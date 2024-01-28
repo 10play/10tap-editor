@@ -1,20 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-import {
-  Button,
-  // Button,
-  // Keyboard,
-  SafeAreaView,
-  View,
-  // View,
-  findNodeHandle,
-} from 'react-native';
-import {
-  RichText,
-  TenTapView,
-  // Toolbar,
-  useEditor,
-  useKeyboardUp,
-} from 'tentap';
+import React, { useRef } from 'react';
+import { SafeAreaView } from 'react-native';
+import { RichText, Toolbar, useEditor, useKeyboardUp } from 'tentap';
 
 // const exampleOfSmallEditorStyles = {
 //   height: 100,
@@ -31,54 +17,19 @@ function App() {
   // Editor is basically a ref to the webview with extra functions (might be confusing?)
   const editor = useEditor();
   const isKeyboardUp = useKeyboardUp();
-  // const [hideToolbar, _setHideToolbar] = React.useState(false);
-  // const [color, setColor] = React.useState('#32a852');
-  // const [speed, setSpeed] = React.useState(1000);
+  const [hideToolbar, _setHideToolbar] = React.useState(false);
   const TapRef = useRef(null);
-  const inputTagRef = useRef<number | undefined>(undefined);
-  const [inputTag, setInputTag] = useState<number | undefined>(undefined);
 
-  useEffect(() => {
-    if (!isKeyboardUp) {
-      setInputTag(undefined);
-    }
-  }, [isKeyboardUp]);
-
-  useEffect(() => {
-    if (TapRef.current) {
-      const reactTag = findNodeHandle(TapRef.current);
-      if (reactTag) inputTagRef.current = reactTag;
-      console.log(reactTag);
-    }
-  }, [inputTag]);
-
-  // const toolbarVisible = isKeyboardUp && !hideToolbar;
+  const toolbarVisible = isKeyboardUp && !hideToolbar;
 
   return (
     <>
-      <SafeAreaView style={{ flex: 1, justifyContent: 'center' }}>
+      <SafeAreaView style={{ flex: 1, justifyContent: 'center' }} ref={TapRef}>
         {/* <TextInput onFocus={() => setHideToolbar(true)} onBlur={() => setHideToolbar(false)} /> */}
         {/* <View style={{ ...exampleOfFullScreenEditorStyles }}> */}
-        {/* Native Fabric (with old arch support) View */}
-        <View ref={TapRef} style={{ flex: 1 }}>
-          <RichText editor={editor} DEV />
-          <Button
-            title="Click"
-            onPress={() => {
-              setInputTag(inputTagRef.current);
-            }}
-          />
-        </View>
-        {/* <RichText editor={editor} DEV /> */}
-        {/* </View> */}
-        {/* <Toolbar editor={editor} visible={toolbarVisible} /> */}
+        <RichText editor={editor} DEV />
+        <Toolbar editor={editor} visible={toolbarVisible} rootRef={TapRef} />
       </SafeAreaView>
-      <TenTapView
-        style={{ flex: 1 }}
-        text="Hey"
-        placeholder="TypeHersddffssde"
-        inputTag={inputTag}
-      ></TenTapView>
     </>
   );
 }
