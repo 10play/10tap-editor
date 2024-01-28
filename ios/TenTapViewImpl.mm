@@ -32,21 +32,6 @@
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-//        // Initialize the text field
-//        _textField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, 200, 50)];
-//        _textField.placeholder = self.placeholder;
-//        _textField.backgroundColor = [UIColor lightGrayColor];
-//
-//        // Create the custom input view
-//        UIView *customInputView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, 300)];
-//        customInputView.backgroundColor = [UIColor lightGrayColor]; // Set your custom color or styling
-//
-//        // Add any additional customizations to your input view here
-//
-//        // Set the custom view as the input view for the text field
-//        _textField.inputView = customInputView;
-
-//        [self addSubview:_textField];
     }
     return self;
 }
@@ -91,28 +76,32 @@
     UIView* inputField = [self.bridge.uiManager viewForReactTag:inputTag];
     if(inputField != nil) {
         // Create keyboard
-        UIView *customInputView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 300, 300)];
-        customInputView.backgroundColor = [UIColor lightGrayColor];
+        UIView *customKeyboard = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 300, 300)];
+        customKeyboard.backgroundColor = [UIColor lightGrayColor];
         UIInputViewController *inputController = [[UIInputViewController alloc] init];
-//        inputController.inputView =
+        inputController.inputView = customKeyboard;
+//        [inputController.inputView addSubview:customKeyboard];
         
         // Create helper view
-//        HelperViewTemp *helperView = [[HelperViewTemp alloc] initWithFrame:CGRectZero];
-//        NSLog(@"Found input view");
-//        // Don't know why this is done
-//        UIView *firstResponder = [self getFirstResponder:inputField];
-//        helperView.inputAccessoryView = firstResponder.inputAccessoryView;
-//
-//
-//        helperView.backgroundColor = [UIColor clearColor];
-//
-//        [inputField.superview addSubview:helperView];
-//        [inputField.superview sendSubviewToBack:helperView];
-//
-//        helperView.inputViewController = customInputView;
-//        [helperView reloadInputViews];
-//        [helperView becomeFirstResponder];
-//        return;
+        HelperViewTemp *helperView = [[HelperViewTemp alloc] initWithFrame:CGRectZero];
+        NSLog(@"Found input view");
+        // Don't know why this is done
+        UIView *firstResponder = [self getFirstResponder:inputField];
+        helperView.inputAccessoryView = firstResponder.inputAccessoryView;
+
+
+        helperView.backgroundColor = [UIColor clearColor];
+
+        [inputField.superview addSubview:helperView];
+        [inputField.superview sendSubviewToBack:helperView];
+
+        helperView.inputViewController = inputController;
+        [helperView reloadInputViews];
+        [helperView becomeFirstResponder];
+        
+        inputField.backgroundColor = [UIColor redColor];
+        helperView.backgroundColor = [UIColor greenColor];
+        return;
     }
     NSLog(@"No input field");
 }
@@ -131,17 +120,6 @@
         WKWebView *webView = [self findFirstWKWebViewInView:self.superview];
         if (webView) {
             NSLog(@"Found a WebView: %@");
-            
-            
-            // Create the custom input view
-//            UIView *customInputView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, 300)];
-//            customInputView.backgroundColor = [UIColor lightGrayColor]; // Set your custom color or styling
-            
-            // Add any additional customizations to your input view here
-
-            // Set the custom view as the input view for the text field
-//            webView.inputView = customInputView;
-//            webView.inputViewController.
         } else {
             NSLog(@"No WebView found in the superview.");
         }

@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  Button,
   // Button,
   // Keyboard,
   SafeAreaView,
+  View,
   // View,
   findNodeHandle,
 } from 'react-native';
@@ -11,7 +13,7 @@ import {
   TenTapView,
   // Toolbar,
   useEditor,
-  // useKeyboardUp,
+  useKeyboardUp,
 } from 'tentap';
 
 // const exampleOfSmallEditorStyles = {
@@ -28,17 +30,24 @@ import {
 function App() {
   // Editor is basically a ref to the webview with extra functions (might be confusing?)
   const editor = useEditor();
-  // const isKeyboardUp = useKeyboardUp();
+  const isKeyboardUp = useKeyboardUp();
   // const [hideToolbar, _setHideToolbar] = React.useState(false);
   // const [color, setColor] = React.useState('#32a852');
   // const [speed, setSpeed] = React.useState(1000);
   const TapRef = useRef(null);
+  const inputTagRef = useRef<number | undefined>(undefined);
   const [inputTag, setInputTag] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    if (!isKeyboardUp) {
+      setInputTag(undefined);
+    }
+  }, [isKeyboardUp]);
 
   useEffect(() => {
     if (TapRef.current) {
       const reactTag = findNodeHandle(TapRef.current);
-      if (reactTag) setInputTag(reactTag);
+      if (reactTag) inputTagRef.current = reactTag;
       console.log(reactTag);
     }
   }, [inputTag]);
@@ -46,22 +55,31 @@ function App() {
   // const toolbarVisible = isKeyboardUp && !hideToolbar;
 
   return (
-    <SafeAreaView style={{ flex: 1, justifyContent: 'center' }} ref={TapRef}>
-      {/* <TextInput onFocus={() => setHideToolbar(true)} onBlur={() => setHideToolbar(false)} /> */}
-      {/* <View style={{ ...exampleOfFullScreenEditorStyles }}> */}
-      {/* Native Fabric (with old arch support) View */}
+    <>
+      <SafeAreaView style={{ flex: 1, justifyContent: 'center' }}>
+        {/* <TextInput onFocus={() => setHideToolbar(true)} onBlur={() => setHideToolbar(false)} /> */}
+        {/* <View style={{ ...exampleOfFullScreenEditorStyles }}> */}
+        {/* Native Fabric (with old arch support) View */}
+        <View ref={TapRef} style={{ flex: 1 }}>
+          <RichText editor={editor} DEV />
+          <Button
+            title="Click"
+            onPress={() => {
+              setInputTag(inputTagRef.current);
+            }}
+          />
+        </View>
+        {/* <RichText editor={editor} DEV /> */}
+        {/* </View> */}
+        {/* <Toolbar editor={editor} visible={toolbarVisible} /> */}
+      </SafeAreaView>
       <TenTapView
         style={{ flex: 1 }}
         text="Hey"
         placeholder="TypeHersddffssde"
         inputTag={inputTag}
-      >
-        <RichText editor={editor} DEV />
-      </TenTapView>
-      {/* <RichText editor={editor} DEV /> */}
-      {/* </View> */}
-      {/* <Toolbar editor={editor} visible={toolbarVisible} /> */}
-    </SafeAreaView>
+      ></TenTapView>
+    </>
   );
 }
 
