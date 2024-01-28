@@ -10,6 +10,7 @@ import TaskItem from '@tiptap/extension-task-item';
 import { EditorMessage, EditorMessageType } from '../types/Messaging';
 import { EditorAction, EditorActionType } from '../types/Actions';
 import { blueBackgroundPlugin } from './plugins/HighlightSelection';
+import focusListener from './utils/focusListener';
 
 const extensions = [
   StarterKit,
@@ -52,6 +53,7 @@ const sendStateUpdate = debounce((editor: Editor) => {
         .sinkListItem(editor.state.schema.nodes.listItem.name),
       canUndo: editor.can().undo(),
       canRedo: editor.can().redo(),
+      isFocused: focusListener.isFocused,
       isLinkActive: editor.isActive('link'),
       isBoldActive: editor.isActive('bold'),
       isItalicActive: editor.isActive('italic'),

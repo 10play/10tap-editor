@@ -1,7 +1,6 @@
 export interface EditorState {
   activeLink: string | undefined;
   canAddLink: boolean;
-  isLinkActive: boolean;
   canToggleBold: boolean;
   canToggleItalic: boolean;
   canToggleUnderline: boolean;
@@ -14,6 +13,8 @@ export interface EditorState {
   canToggleOrderedList: boolean;
   canToggleBulletList: boolean;
   canToggleCheckList: boolean;
+  isFocused: boolean;
+  isLinkActive: boolean;
   isBoldActive: boolean;
   isItalicActive: boolean;
   isUnderlineActive: boolean;

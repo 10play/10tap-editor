@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import { type Editor } from '../useEditor';
 import { useEditorState } from '../useEditorState';
-import React, { useMemo, type RefObject } from 'react';
+import React, { useEffect, useMemo, type RefObject } from 'react';
 import {
   type ToolbarAction,
   type ToolbarItemType,
@@ -80,6 +80,13 @@ export function Toolbar({
     );
     return items.map((item) => allActions[item]);
   }, [editor, editorState, items, setToolbarContext]);
+
+  useEffect(() => {
+    if (editorState.isFocused) {
+      // When focused on editor toolbar should be main
+      setToolbarContext(ToolbarContext.Main);
+    }
+  }, [editorState.isFocused]);
 
   const renderToolbar = () => {
     switch (toolbarContext) {

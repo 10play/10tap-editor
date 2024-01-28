@@ -35,7 +35,6 @@ export interface Editor {
 const DEFAULT_STATE: EditorState = {
   activeLink: undefined,
   canAddLink: false,
-  isLinkActive: false,
   canToggleBold: false,
   canToggleItalic: false,
   canToggleUnderline: false,
@@ -48,6 +47,8 @@ const DEFAULT_STATE: EditorState = {
   canSink: false,
   canUndo: false,
   canRedo: false,
+  isFocused: false,
+  isLinkActive: false,
   isBoldActive: false,
   isItalicActive: false,
   isUnderlineActive: false,
