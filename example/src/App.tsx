@@ -23,14 +23,12 @@ function App() {
   const toolbarVisible = isKeyboardUp && !hideToolbar;
 
   return (
-    <>
-      <SafeAreaView style={{ flex: 1, justifyContent: 'center' }} ref={TapRef}>
-        {/* <TextInput onFocus={() => setHideToolbar(true)} onBlur={() => setHideToolbar(false)} /> */}
-        {/* <View style={{ ...exampleOfFullScreenEditorStyles }}> */}
-        <RichText editor={editor} DEV />
-        <Toolbar editor={editor} visible={toolbarVisible} rootRef={TapRef} />
-      </SafeAreaView>
-    </>
+    <SafeAreaView style={{ flex: 1, justifyContent: 'center' }} ref={TapRef}>
+      {/* <TextInput onFocus={() => setHideToolbar(true)} onBlur={() => setHideToolbar(false)} /> */}
+      {/* <View style={{ ...exampleOfFullScreenEditorStyles }}> */}
+      <RichText editor={editor} DEV />
+      <Toolbar editor={editor} visible={toolbarVisible} rootRef={TapRef} />
+    </SafeAreaView>
   );
 }
 

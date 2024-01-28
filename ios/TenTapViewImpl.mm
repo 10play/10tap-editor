@@ -6,7 +6,6 @@
 @interface HelperViewTemp : UIView
 
 @property (nullable, nonatomic, readwrite, strong) UIInputViewController *inputViewController;
-@property (nullable, readwrite, strong) UIView *inputAccessoryView;
 @property (nonatomic) BOOL keepInSuperviewOnResign;
 
 @end
@@ -64,10 +63,6 @@
         [inputView setNeedsLayout];
         // Create helper view
         HelperViewTemp *helperView = [[HelperViewTemp alloc] initWithFrame:CGRectZero];
-        // Don't know why this is done
-        UIView *firstResponder = [self getFirstResponder:inputField];
-        helperView.inputAccessoryView = firstResponder.inputAccessoryView;
-
 
         helperView.backgroundColor = [UIColor clearColor];
 
@@ -80,24 +75,6 @@
         return;
     }
     NSLog(@"No input field");
-}
-
--(UIView*)getFirstResponder:(UIView*)view
-{
-    if (view == nil || [view isFirstResponder])
-    {
-        return view;
-    }
-    
-    for (UIView *subview in view.subviews)
-    {
-        UIView *firstResponder = [self getFirstResponder:subview];
-        if(firstResponder != nil)
-        {
-            return firstResponder;
-        }
-    }
-    return nil;
 }
 
 @end
