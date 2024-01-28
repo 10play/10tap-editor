@@ -55,20 +55,19 @@
         inputController.inputView = inputView;
         
         // Create Keyboard
-        UIView *customKeyboard = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 300, 300)];
+        RCTRootView *customKeyboard = [[RCTRootView alloc] initWithBridge:self.bridge moduleName:@"keyboard.color" initialProperties:nil];
+
         customKeyboard.translatesAutoresizingMaskIntoConstraints = NO;
-        customKeyboard.backgroundColor = [UIColor redColor];
 
         // Add keyboard to inputView
         [inputView addSubview:customKeyboard];
-        
-        customKeyboard.translatesAutoresizingMaskIntoConstraints = NO;
-        [customKeyboard.leadingAnchor constraintEqualToAnchor:inputView.leadingAnchor].active = YES;
-        [customKeyboard.trailingAnchor constraintEqualToAnchor:inputView.trailingAnchor].active = YES;
-        [customKeyboard.topAnchor constraintEqualToAnchor:inputView.topAnchor].active = YES;
-        [customKeyboard.bottomAnchor constraintEqualToAnchor:inputView.bottomAnchor].active = YES;
-        [customKeyboard.heightAnchor constraintEqualToConstant:customKeyboard.frame.size.height].active = YES;
+        [customKeyboard.leadingAnchor constraintEqualToAnchor:inputController.view.leadingAnchor].active = YES;
+        [customKeyboard.trailingAnchor constraintEqualToAnchor:inputController.view.trailingAnchor].active = YES;
+        [customKeyboard.topAnchor constraintEqualToAnchor:inputController.view.topAnchor].active = YES;
+        [customKeyboard.bottomAnchor constraintEqualToAnchor:inputController.view.bottomAnchor].active = YES;
+        [customKeyboard.heightAnchor constraintEqualToConstant:[self.keyboardHeight floatValue]].active = YES;
         [inputView setNeedsLayout];
+        
         // Create helper view
         HelperViewTemp *helperView = [[HelperViewTemp alloc] initWithFrame:CGRectZero];
 
@@ -82,7 +81,10 @@
         [helperView becomeFirstResponder];
         return;
     }
-    NSLog(@"No input field");
+}
+
+- (void) setKeyboardHeight:(NSNumber *)keyboardHeight{
+    _keyboardHeight = keyboardHeight;
 }
 
 @end

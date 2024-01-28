@@ -3,6 +3,7 @@ import type { ViewProps } from 'react-native';
 import type { Int32 } from 'react-native/Libraries/Types/CodegenTypes';
 
 interface NativeProps extends ViewProps {
+  keyboardHeight: Int32;
   text?: string;
   placeholder?: string;
   inputTag?: Int32;
