@@ -1,6 +1,18 @@
-import React from 'react';
-import { SafeAreaView, View } from 'react-native';
-import { RichText, Toolbar, useEditor, useKeyboardUp } from 'tentap';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  // Button,
+  // Keyboard,
+  SafeAreaView,
+  // View,
+  findNodeHandle,
+} from 'react-native';
+import {
+  RichText,
+  TenTapView,
+  // Toolbar,
+  useEditor,
+  // useKeyboardUp,
+} from 'tentap';
 
 // const exampleOfSmallEditorStyles = {
 //   height: 100,
@@ -9,27 +21,46 @@ import { RichText, Toolbar, useEditor, useKeyboardUp } from 'tentap';
 //   borderColor: 'black',
 // };
 
-const exampleOfFullScreenEditorStyles = {
-  flex: 1,
-};
+// const exampleOfFullScreenEditorStyles = {
+//   flex: 1,
+// };
 
 function App() {
   // Editor is basically a ref to the webview with extra functions (might be confusing?)
   const editor = useEditor();
-  const isKeyboardUp = useKeyboardUp();
-  const [hideToolbar, _setHideToolbar] = React.useState(false);
+  // const isKeyboardUp = useKeyboardUp();
+  // const [hideToolbar, _setHideToolbar] = React.useState(false);
+  // const [color, setColor] = React.useState('#32a852');
+  // const [speed, setSpeed] = React.useState(1000);
+  const TapRef = useRef(null);
+  const [inputTag, setInputTag] = useState<number | undefined>(undefined);
 
-  const toolbarVisible = isKeyboardUp && !hideToolbar;
+  useEffect(() => {
+    if (TapRef.current) {
+      const reactTag = findNodeHandle(TapRef.current);
+      if (reactTag) setInputTag(reactTag);
+      console.log(reactTag);
+    }
+  }, [inputTag]);
+
+  // const toolbarVisible = isKeyboardUp && !hideToolbar;
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, justifyContent: 'center' }} ref={TapRef}>
       {/* <TextInput onFocus={() => setHideToolbar(true)} onBlur={() => setHideToolbar(false)} /> */}
+      {/* <View style={{ ...exampleOfFullScreenEditorStyles }}> */}
       {/* Native Fabric (with old arch support) View */}
-      <View style={{ ...exampleOfFullScreenEditorStyles }}>
-        {/* <TenTapView color="#32a852" style={{ width: 50, height: 50 }} /> */}
+      <TenTapView
+        style={{ flex: 1 }}
+        text="Hey"
+        placeholder="TypeHersddffssde"
+        inputTag={inputTag}
+      >
         <RichText editor={editor} DEV />
-      </View>
-      <Toolbar editor={editor} visible={toolbarVisible} />
+      </TenTapView>
+      {/* <RichText editor={editor} DEV /> */}
+      {/* </View> */}
+      {/* <Toolbar editor={editor} visible={toolbarVisible} /> */}
     </SafeAreaView>
   );
 }

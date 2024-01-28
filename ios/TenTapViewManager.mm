@@ -2,6 +2,7 @@
 #import <React/RCTUIManager.h>
 #import "RCTBridge.h"
 #import "Utils.h"
+#import "TenTapViewImpl.h"
 
 @interface TenTapViewManager : RCTViewManager
 @end
@@ -12,12 +13,13 @@ RCT_EXPORT_MODULE(TenTapView)
 
 - (UIView *)view
 {
-  return [[UIView alloc] init];
+  TenTapViewImpl *view = [[TenTapViewImpl alloc] init];
+  view.bridge = self.bridge;
+  return view;
 }
 
-RCT_CUSTOM_VIEW_PROPERTY(color, NSString, UIView)
-{
-  [view setBackgroundColor: [Utils hexStringToColor:json]];
-}
+RCT_EXPORT_VIEW_PROPERTY(inputTag, NSNumber)
+RCT_EXPORT_VIEW_PROPERTY(text, NSString)
+RCT_EXPORT_VIEW_PROPERTY(placeholder, NSString)
 
 @end

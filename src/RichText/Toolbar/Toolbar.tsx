@@ -74,7 +74,6 @@ export function Toolbar({
       editorState,
       setToolbarContext
     );
-    console.log('ddd3323', items);
     return items.map((item) => allActions[item]);
   }, [editor, editorState, items, setToolbarContext]);
 
