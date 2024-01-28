@@ -6,15 +6,23 @@
 @interface HelperViewTemp : UIView
 
 @property (nullable, nonatomic, readwrite, strong) UIInputViewController *inputViewController;
-@property (nonatomic) BOOL keepInSuperviewOnResign;
 
 @end
 
 @implementation HelperViewTemp
 
+// In order for our keyboard to popup - our helper view (which contains the inputViewController) must be first responder
 - (BOOL)canBecomeFirstResponder
 {
     return YES;
+}
+
+- (BOOL)resignFirstResponder
+{
+    // Once no longer first responder (blur) - remove self from super view
+    BOOL rv = [super resignFirstResponder];
+    [self removeFromSuperview];
+    return rv;
 }
 
 @end
