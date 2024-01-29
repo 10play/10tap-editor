@@ -11,9 +11,9 @@
 
 @implementation HelperViewTemp
 
-// In order for our keyboard to popup - our helper view (which contains the inputViewController) must be first responder
 - (BOOL)canBecomeFirstResponder
 {
+    // In order for our keyboard to popup - our helper view (which contains the inputViewController) must be first responder
     return YES;
 }
 
@@ -61,16 +61,20 @@
 
         // Add keyboard to inputView
         [inputView addSubview:customKeyboard];
-        [customKeyboard.leadingAnchor constraintEqualToAnchor:inputController.view.leadingAnchor].active = YES;
-        [customKeyboard.trailingAnchor constraintEqualToAnchor:inputController.view.trailingAnchor].active = YES;
-        [customKeyboard.topAnchor constraintEqualToAnchor:inputController.view.topAnchor].active = YES;
-        [customKeyboard.bottomAnchor constraintEqualToAnchor:inputController.view.bottomAnchor].active = YES;
-        [customKeyboard.heightAnchor constraintEqualToConstant:[self.keyboardHeight floatValue]].active = YES;
+        
+        // Activate constraints
+        [NSLayoutConstraint activateConstraints:@[
+            [customKeyboard.leadingAnchor constraintEqualToAnchor:inputController.view.leadingAnchor],
+            [customKeyboard.trailingAnchor constraintEqualToAnchor:inputController.view.trailingAnchor],
+            [customKeyboard.topAnchor constraintEqualToAnchor:inputController.view.topAnchor],
+            [customKeyboard.bottomAnchor constraintEqualToAnchor:inputController.view.bottomAnchor],
+            [customKeyboard.heightAnchor constraintEqualToConstant:[self.keyboardHeight floatValue]]
+        ]];
         [inputView setNeedsLayout];
         
         // Create helper view
+        // This view will contain our custom inputController and will be the first responder
         HelperViewTemp *helperView = [[HelperViewTemp alloc] initWithFrame:CGRectZero];
-
         helperView.backgroundColor = [UIColor clearColor];
 
         [inputField.superview addSubview:helperView];
