@@ -31,7 +31,8 @@ export interface ToolbarAction {
 export const getToolbarActions = (
   editor: Editor,
   editorState: EditorState,
-  changeToolBarContext: React.Dispatch<React.SetStateAction<ToolbarContext>>
+  changeToolBarContext: React.Dispatch<React.SetStateAction<ToolbarContext>>,
+  toolbarContext: ToolbarContext
 ): Record<ToolbarItemType, ToolbarAction> => ({
   [ToolbarItems.ShowColor]: {
     type: ToolbarItems.ShowColor,
@@ -45,9 +46,9 @@ export const getToolbarActions = (
         }
       });
     },
-    active: false,
+    active: toolbarContext === ToolbarContext.Color,
     disabled: false,
-    image: Images.h1,
+    image: Images.platte,
   },
   [ToolbarItems.Link]: {
     type: EditorActionType.Link,

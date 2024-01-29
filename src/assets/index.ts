@@ -17,4 +17,5 @@ export const Images = {
   undo: require('./undo.png'),
   redo: require('./redo.png'),
   link: require('./link.png'),
+  platte: require('./palette.png'),
 };

@@ -76,10 +76,11 @@ export function Toolbar({
     const allActions = getToolbarActions(
       editor,
       editorState,
-      setToolbarContext
+      setToolbarContext,
+      toolbarContext
     );
     return items.map((item) => allActions[item]);
-  }, [editor, editorState, items, setToolbarContext]);
+  }, [editor, editorState, items, setToolbarContext, toolbarContext]);
 
   useEffect(() => {
     if (editorState.isFocused) {
