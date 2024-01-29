@@ -7,6 +7,7 @@ import { StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native';
 import { TouchableOpacity } from 'react-native';
 import { Text } from 'react-native';
+import { EditorHelper } from './EditorHelper';
 
 const useKeyboardHeight = () => {
   const [keyboardHeight, setKeyboardHeight] = React.useState(0);
@@ -69,7 +70,6 @@ const colors = [
 ];
 
 const ColorKeyboard = () => {
-  console.log('JIngolo');
   return (
     <View style={keyboardStyles.keyboardContainer}>
       <ScrollView style={styles.container}>
@@ -77,7 +77,12 @@ const ColorKeyboard = () => {
           <CustomButton
             key={index}
             title={color.charAt(0).toUpperCase() + color.slice(1)}
-            onPress={() => console.log(color)}
+            onPress={() => {
+              EditorHelper.editorLastInstance &&
+                EditorHelper.editorLastInstance.changeColor(color);
+              EditorHelper.editorLastInstance &&
+                EditorHelper.editorLastInstance.webviewRef.current?.requestFocus();
+            }}
             backgroundColor={color}
           />
         ))}

@@ -1,4 +1,5 @@
 export enum EditorActionType {
+  ChangeColor = 'change-color',
   Link = 'link',
   ToggleBold = 'toggle-bold',
   ToggleItalic = 'toggle-italic',
@@ -15,6 +16,7 @@ export enum EditorActionType {
 }
 // Actions with no payload
 type RegularActions =
+  | EditorActionType.ChangeColor
   | EditorActionType.Link
   | EditorActionType.ToggleBold
   | EditorActionType.ToggleItalic

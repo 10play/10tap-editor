@@ -6,6 +6,8 @@ import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import TaskList from '@tiptap/extension-task-list';
 import Link from '@tiptap/extension-link';
+import TextStyle from '@tiptap/extension-text-style';
+import { Color } from '@tiptap/extension-color';
 import TaskItem from '@tiptap/extension-task-item';
 import { EditorMessage, EditorMessageType } from '../types/Messaging';
 import { EditorAction, EditorActionType } from '../types/Actions';
@@ -22,6 +24,8 @@ const extensions = [
     autolink: true,
   }),
   blueBackgroundPlugin,
+  TextStyle,
+  Color,
 ];
 
 const content = '<p>Hello World!</p>';
@@ -109,6 +113,9 @@ export default function Tiptap() {
             .setLink({ href: payload })
             .setTextSelection(editor.state.selection.from)
             .run();
+          break;
+        case EditorActionType.ChangeColor:
+          editor.chain().focus().setColor(payload).run();
           break;
         case EditorActionType.ToggleBold:
           editor.chain().focus().toggleBold().run();

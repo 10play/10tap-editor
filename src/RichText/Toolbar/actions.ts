@@ -12,7 +12,6 @@ export const ToolbarItems = {
   ToggleH4: 'toggle-h4',
   ToggleH5: 'toggle-h5',
   ToggleH6: 'toggle-h6',
-  ShowColor: 'show-color',
 } as const;
 
 type ValueOf<T> = T[keyof T];
@@ -34,8 +33,8 @@ export const getToolbarActions = (
   changeToolBarContext: React.Dispatch<React.SetStateAction<ToolbarContext>>,
   toolbarContext: ToolbarContext
 ): Record<ToolbarItemType, ToolbarAction> => ({
-  [ToolbarItems.ShowColor]: {
-    type: ToolbarItems.ShowColor,
+  [ToolbarItems.ChangeColor]: {
+    type: ToolbarItems.ChangeColor,
     onPress: () => {
       changeToolBarContext((prev) => {
         if (prev === ToolbarContext.Color) {
@@ -182,7 +181,7 @@ export const getToolbarActions = (
 });
 
 export const DEFAULT_TOOLBAR_ITEMS: ToolbarItemType[] = [
-  ToolbarItems.ShowColor,
+  ToolbarItems.ChangeColor,
   ToolbarItems.Link,
   ToolbarItems.ToggleBold,
   ToolbarItems.ToggleItalic,

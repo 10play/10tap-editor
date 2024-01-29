@@ -10,6 +10,7 @@ import {
   EditorActionType,
 } from '../types/Actions';
 import { type EditorState } from '../types/EditorState';
+import { EditorHelper } from './EditorHelper';
 
 type Subscription<T> = (cb: (val: T) => void) => () => void;
 export interface Editor {
@@ -27,6 +28,7 @@ export interface Editor {
   sink: () => void;
   undo: () => void;
   redo: () => void;
+  changeColor: (color: string) => void;
   getEditorState: () => EditorState;
   _updateEditorState: (state: EditorState) => void;
   _subscribeToEditorStateUpdate: Subscription<EditorState>;
@@ -94,6 +96,8 @@ export const useEditor = (): Editor => {
     });
   };
 
+  const changeColor = (newColor: string) =>
+    sendAction({ type: EditorActionType.ChangeColor, payload: newColor });
   const toggleBold = () => sendAction({ type: EditorActionType.ToggleBold });
   const toggleItalic = () =>
     sendAction({ type: EditorActionType.ToggleItalic });
@@ -116,7 +120,7 @@ export const useEditor = (): Editor => {
   const editLink = (newLink: string) =>
     sendAction({ type: EditorActionType.Link, payload: newLink });
 
-  return {
+  const editorInstance = {
     webviewRef,
     editLink,
     toggleBold,
@@ -131,8 +135,13 @@ export const useEditor = (): Editor => {
     sink,
     undo,
     redo,
+    changeColor,
     getEditorState,
     _updateEditorState,
     _subscribeToEditorStateUpdate,
-  };
+  } as Editor;
+
+  EditorHelper.setEditorLastInstance(editorInstance);
+
+  return editorInstance;
 };

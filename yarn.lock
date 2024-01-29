@@ -3502,6 +3502,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tiptap/extension-color@npm:^2.1.16":
+  version: 2.1.16
+  resolution: "@tiptap/extension-color@npm:2.1.16"
+  peerDependencies:
+    "@tiptap/core": ^2.0.0
+    "@tiptap/extension-text-style": ^2.0.0
+  checksum: 86ff6635e7b1f0273a2451705cf16ff23d621c31f13079dd66fc781228c560c0188290ac00142b653802f0b52922e0c11856a7d7a43b37e8641227a675e2518d
+  languageName: node
+  linkType: hard
+
 "@tiptap/extension-document@npm:^2.1.16":
   version: 2.1.16
   resolution: "@tiptap/extension-document@npm:2.1.16"
@@ -3654,6 +3664,15 @@ __metadata:
   peerDependencies:
     "@tiptap/core": ^2.0.0
   checksum: 43470dacb7bb3a9ae47a22ee82ec898ec9e73f7fbd08e8cb6c7a26edc57722626b37f11eca75efaac4fb1845e6f0e735bbd08f796963b760538c99490751017e
+  languageName: node
+  linkType: hard
+
+"@tiptap/extension-text-style@npm:^2.1.16":
+  version: 2.1.16
+  resolution: "@tiptap/extension-text-style@npm:2.1.16"
+  peerDependencies:
+    "@tiptap/core": ^2.0.0
+  checksum: e321d4456d108af0937f8f9898d2e06cce1555fe9b0423b421f9ce9f5d2a080641fea7684c0c78a6e2a9b6f3d8196b73761e35729291ecf90fa1cafcae130038
   languageName: node
   linkType: hard
 
@@ -13399,9 +13418,11 @@ __metadata:
     "@evilmartians/lefthook": ^1.5.0
     "@react-native/eslint-config": ^0.72.2
     "@release-it/conventional-changelog": ^5.0.0
+    "@tiptap/extension-color": ^2.1.16
     "@tiptap/extension-link": ^2.1.16
     "@tiptap/extension-task-item": ^2.1.16
     "@tiptap/extension-task-list": ^2.1.16
+    "@tiptap/extension-text-style": ^2.1.16
     "@tiptap/extension-underline": ^2.1.16
     "@tiptap/pm": ^2.1.16
     "@tiptap/react": ^2.1.16
