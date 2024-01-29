@@ -1,40 +1,12 @@
 import React from 'react';
-import { TenTapView } from 'tentap';
-import { useRefHandle } from '../utils/useRefHandle';
-import { Keyboard, View } from 'react-native';
-import { AppRegistry } from 'react-native';
-import { StyleSheet } from 'react-native';
-import { ScrollView } from 'react-native';
-import { TouchableOpacity } from 'react-native';
-import { Text } from 'react-native';
-import { EditorHelper } from './EditorHelper';
-
-const useKeyboardHeight = () => {
-  const [keyboardHeight, setKeyboardHeight] = React.useState(0);
-  React.useEffect(() => {
-    const listener = Keyboard.addListener('keyboardDidShow', (e) => {
-      setKeyboardHeight(e.endCoordinates.height);
-    });
-    return () => listener.remove();
-  }, []);
-  return keyboardHeight;
-};
-
-interface CustomKeyboardProps {
-  rootRef: React.RefObject<any>;
-  color: boolean;
-}
-
-export const CustomKeyboard = ({ rootRef, color }: CustomKeyboardProps) => {
-  const refHandle = useRefHandle(rootRef);
-  const keyboardHeight = useKeyboardHeight();
-  return (
-    <TenTapView
-      inputTag={color ? refHandle : undefined}
-      keyboardHeight={keyboardHeight}
-    />
-  );
-};
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { EditorHelper } from '../EditorHelper';
 
 const colors = [
   'red',
@@ -62,14 +34,9 @@ const colors = [
   'khaki',
   'gold',
   'plum',
-  // 'sienna',
-  // 'tan',
-  // 'peach',
-  // 'mint',
-  // 'skyblue',
 ];
 
-const ColorKeyboard = () => {
+export const ColorKeyboard = () => {
   const activeColor =
     EditorHelper.editorLastInstance?.getEditorState().activeColor;
   const activeHighlight =
@@ -164,5 +131,3 @@ const keyboardStyles = StyleSheet.create({
     height: '100%',
   },
 });
-
-AppRegistry.registerComponent('keyboard.color', () => ColorKeyboard);

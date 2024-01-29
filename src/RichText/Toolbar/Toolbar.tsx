@@ -15,8 +15,8 @@ import {
   getToolbarActions,
 } from './actions';
 import { EditLinkBar } from './EditLinkBar';
-import { CustomKeyboard } from '../CustomKeyboard';
 import { Platform } from 'react-native';
+import { CustomKeyboard } from '../Keyboard';
 
 interface ToolbarProps {
   editor: Editor;
