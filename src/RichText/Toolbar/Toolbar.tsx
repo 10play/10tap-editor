@@ -16,6 +16,7 @@ import {
 } from './actions';
 import { EditLinkBar } from './EditLinkBar';
 import { CustomKeyboard } from '../CustomKeyboard';
+import { Platform } from 'react-native';
 
 interface ToolbarProps {
   editor: Editor;
@@ -147,7 +148,7 @@ export function Toolbar({
   if (keyboardAware) {
     return (
       <KeyboardAvoidingView
-        behavior="padding" // TODO android
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={toolbarStyles.keyboardAvoidingView}
       >
         {toolbar}

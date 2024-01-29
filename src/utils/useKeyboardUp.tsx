@@ -1,14 +1,20 @@
 import React from 'react';
 import { useEffect } from 'react';
-import { Keyboard } from 'react-native';
+import type { KeyboardEventName } from 'react-native';
+import { Keyboard, Platform } from 'react-native';
+
+const showEvent: KeyboardEventName =
+  Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+const hideEvent: KeyboardEventName =
+  Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
 
 export const useKeyboardUp = () => {
   const [isKeyboardUp, setIsKeyboardUp] = React.useState(false);
   useEffect(() => {
-    const showSubscription = Keyboard.addListener('keyboardWillShow', () => {
+    const showSubscription = Keyboard.addListener(showEvent, () => {
       setIsKeyboardUp(true);
     });
-    const hideSubscription = Keyboard.addListener('keyboardWillHide', () => {
+    const hideSubscription = Keyboard.addListener(hideEvent, () => {
       setIsKeyboardUp(false);
     });
 
