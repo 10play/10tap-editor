@@ -1,4 +1,6 @@
 export interface EditorState {
+  activeHighlight: string | undefined;
+  activeColor: string | undefined;
   activeLink: string | undefined;
   canAddLink: boolean;
   canToggleBold: boolean;

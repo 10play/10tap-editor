@@ -33,6 +33,14 @@ export const getToolbarActions = (
   changeToolBarContext: React.Dispatch<React.SetStateAction<ToolbarContext>>,
   toolbarContext: ToolbarContext
 ): Record<ToolbarItemType, ToolbarAction> => ({
+  [ToolbarItems.ChangeHighlight]: {
+    // TODO: this is weird I have to add it here
+    type: ToolbarItems.ChangeHighlight,
+    onPress: () => {},
+    active: false,
+    disabled: false,
+    image: Images.platte,
+  },
   [ToolbarItems.ChangeColor]: {
     type: ToolbarItems.ChangeColor,
     onPress: () => {

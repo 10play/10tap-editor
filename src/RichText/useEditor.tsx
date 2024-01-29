@@ -29,12 +29,15 @@ export interface Editor {
   undo: () => void;
   redo: () => void;
   changeColor: (color: string) => void;
+  changeHighlight: (color: string) => void;
   getEditorState: () => EditorState;
   _updateEditorState: (state: EditorState) => void;
   _subscribeToEditorStateUpdate: Subscription<EditorState>;
 }
 
 const DEFAULT_STATE: EditorState = {
+  activeHighlight: undefined,
+  activeColor: undefined,
   activeLink: undefined,
   canAddLink: false,
   canToggleBold: false,
@@ -98,6 +101,8 @@ export const useEditor = (): Editor => {
 
   const changeColor = (newColor: string) =>
     sendAction({ type: EditorActionType.ChangeColor, payload: newColor });
+  const changeHighlight = (newColor: string) =>
+    sendAction({ type: EditorActionType.ChangeHighlight, payload: newColor });
   const toggleBold = () => sendAction({ type: EditorActionType.ToggleBold });
   const toggleItalic = () =>
     sendAction({ type: EditorActionType.ToggleItalic });
@@ -136,6 +141,7 @@ export const useEditor = (): Editor => {
     undo,
     redo,
     changeColor,
+    changeHighlight,
     getEditorState,
     _updateEditorState,
     _subscribeToEditorStateUpdate,

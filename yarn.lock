@@ -3571,6 +3571,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tiptap/extension-highlight@npm:^2.1.16":
+  version: 2.1.16
+  resolution: "@tiptap/extension-highlight@npm:2.1.16"
+  peerDependencies:
+    "@tiptap/core": ^2.0.0
+  checksum: a5bf54241012e175632f8349ce7fe9ec9fb1ec4d4de3563c6133a2cca98b59bc8a8555ac89e1bcab1131182306627b6c6d4e5d49d09bc889afcf8f811480c50f
+  languageName: node
+  linkType: hard
+
 "@tiptap/extension-history@npm:^2.1.16":
   version: 2.1.16
   resolution: "@tiptap/extension-history@npm:2.1.16"
@@ -13419,6 +13428,7 @@ __metadata:
     "@react-native/eslint-config": ^0.72.2
     "@release-it/conventional-changelog": ^5.0.0
     "@tiptap/extension-color": ^2.1.16
+    "@tiptap/extension-highlight": ^2.1.16
     "@tiptap/extension-link": ^2.1.16
     "@tiptap/extension-task-item": ^2.1.16
     "@tiptap/extension-task-list": ^2.1.16

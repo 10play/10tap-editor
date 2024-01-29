@@ -9,6 +9,7 @@ import Link from '@tiptap/extension-link';
 import TextStyle from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 import TaskItem from '@tiptap/extension-task-item';
+import Highlight from '@tiptap/extension-highlight';
 import { EditorMessage, EditorMessageType } from '../types/Messaging';
 import { EditorAction, EditorActionType } from '../types/Actions';
 import { blueBackgroundPlugin } from './plugins/HighlightSelection';
@@ -26,6 +27,7 @@ const extensions = [
   blueBackgroundPlugin,
   TextStyle,
   Color,
+  Highlight.configure({ multicolor: true }),
 ];
 
 const content = '<p>Hello World!</p>';
@@ -39,6 +41,8 @@ const sendStateUpdate = debounce((editor: Editor) => {
   sendMessage({
     type: EditorMessageType.StateUpdate,
     payload: {
+      activeHighlight: editor.getAttributes('highlight').color,
+      activeColor: editor.getAttributes('textStyle').color,
       activeLink: editor.getAttributes('link').href,
       canAddLink: !editor.state.selection.empty,
       canToggleBold: editor.can().toggleBold(),
@@ -113,6 +117,9 @@ export default function Tiptap() {
             .setLink({ href: payload })
             .setTextSelection(editor.state.selection.from)
             .run();
+          break;
+        case EditorActionType.ChangeHighlight:
+          editor.chain().focus().toggleHighlight({ color: payload }).run();
           break;
         case EditorActionType.ChangeColor:
           editor.chain().focus().setColor(payload).run();
