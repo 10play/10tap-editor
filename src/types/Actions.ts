@@ -43,4 +43,18 @@ interface HeadingAction {
   payload: Level;
 }
 
-export type EditorAction = RegularAction | HeadingAction;
+export enum EditorUpdateSettings {
+  UpdateScrollThresholdAndMargin = 'update-scroll-threshold-and-margin',
+}
+
+type EditorUpdateSettingsActions =
+  EditorUpdateSettings.UpdateScrollThresholdAndMargin;
+export interface EditorUpdateSettingsAction {
+  type: EditorUpdateSettingsActions;
+  payload?: any;
+}
+
+export type EditorAction =
+  | RegularAction
+  | HeadingAction
+  | EditorUpdateSettingsAction;

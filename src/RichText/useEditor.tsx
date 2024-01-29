@@ -8,6 +8,7 @@ import {
   type EditorAction,
   type Level,
   EditorActionType,
+  EditorUpdateSettings,
 } from '../types/Actions';
 import { type EditorState } from '../types/EditorState';
 import { EditorHelper } from './EditorHelper';
@@ -29,6 +30,7 @@ export interface Editor {
   undo: () => void;
   redo: () => void;
   changeColor: (color: string) => void;
+  updateScrollThresholdAndMargin: (offset: number) => void;
   changeHighlight: (color: string) => void;
   getEditorState: () => EditorState;
   _updateEditorState: (state: EditorState) => void;
@@ -99,6 +101,11 @@ export const useEditor = (): Editor => {
     });
   };
 
+  const updateScrollThresholdAndMargin = (bottom: number) =>
+    sendAction({
+      type: EditorUpdateSettings.UpdateScrollThresholdAndMargin,
+      payload: bottom,
+    });
   const changeColor = (newColor: string) =>
     sendAction({ type: EditorActionType.ChangeColor, payload: newColor });
   const changeHighlight = (newColor: string) =>
@@ -142,6 +149,7 @@ export const useEditor = (): Editor => {
     redo,
     changeColor,
     changeHighlight,
+    updateScrollThresholdAndMargin,
     getEditorState,
     _updateEditorState,
     _subscribeToEditorStateUpdate,

@@ -11,7 +11,11 @@ import { Color } from '@tiptap/extension-color';
 import TaskItem from '@tiptap/extension-task-item';
 import Highlight from '@tiptap/extension-highlight';
 import { EditorMessage, EditorMessageType } from '../types/Messaging';
-import { EditorAction, EditorActionType } from '../types/Actions';
+import {
+  EditorAction,
+  EditorActionType,
+  EditorUpdateSettings,
+} from '../types/Actions';
 import { blueBackgroundPlugin } from './plugins/HighlightSelection';
 import focusListener from './utils/focusListener';
 
@@ -117,6 +121,14 @@ export default function Tiptap() {
             .setLink({ href: payload })
             .setTextSelection(editor.state.selection.from)
             .run();
+          break;
+        case EditorUpdateSettings.UpdateScrollThresholdAndMargin:
+          editor.setOptions({
+            editorProps: {
+              scrollThreshold: { top: 0, bottom: payload, right: 0, left: 0 },
+              scrollMargin: { top: 0, bottom: payload, right: 0, left: 0 },
+            },
+          });
           break;
         case EditorActionType.ChangeHighlight:
           editor.chain().focus().toggleHighlight({ color: payload }).run();

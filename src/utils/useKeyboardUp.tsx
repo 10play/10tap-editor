@@ -3,13 +3,15 @@ import { useEffect } from 'react';
 import { Keyboard } from 'react-native';
 
 export const useKeyboardUp = () => {
-  const [isKeyboardUp, setIsKeyboardUp] = React.useState(false);
+  const [isKeyboardUp, setIsKeyboardUp] = React.useState<number | undefined>(
+    undefined
+  );
   useEffect(() => {
-    const showSubscription = Keyboard.addListener('keyboardWillShow', () => {
-      setIsKeyboardUp(true);
+    const showSubscription = Keyboard.addListener('keyboardWillShow', (e) => {
+      setIsKeyboardUp(e.endCoordinates.height);
     });
     const hideSubscription = Keyboard.addListener('keyboardWillHide', () => {
-      setIsKeyboardUp(false);
+      setIsKeyboardUp(undefined);
     });
 
     return () => {

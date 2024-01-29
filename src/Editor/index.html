@@ -10,11 +10,15 @@
       margin: 0;
       padding: 0;
     }
-    #root div .ProseMirror {
+    #root > div {
+      overflow: auto;
+      height: 100%;
       position: absolute;
+      width: 100%;
       top: 0;
       bottom: 0;
-      width: 100%;
+    }
+    #root div .ProseMirror {
     }
     .ProseMirror:focus {
       outline: none;
