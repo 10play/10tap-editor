@@ -1,8 +1,8 @@
 package com.tentap
 
-import android.app.Activity
 import android.content.Context
 import android.util.Log
+import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
@@ -13,6 +13,7 @@ import com.facebook.react.uimanager.LayoutShadowNode
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.UIManagerModule
 import com.facebook.react.uimanager.annotations.ReactProp
+import com.facebook.yoga.YogaDisplay
 
 
 @ReactModule(name = TenTapViewManager.NAME)
@@ -43,28 +44,30 @@ class TenTapViewManager :
     view.setOnChildAdded {
       UiThreadUtil.runOnUiThread(
         Runnable {
-          setKeyboardHeight(keyboardHeight)
+          setCustomKeyboardHeight(keyboardHeight)
 //          setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
           hideSoftKeyboard(view)
         })
     }
 
-    view.setOnChildRemoved { UiThreadUtil.runOnUiThread(
-      Runnable {
-        Log.i(LOG_TAG, "DID HIDE");
-        setKeyboardHeight(0)
-//        var mode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE or
-//          WindowManager.LayoutParams.SOFT_INPUT_IS_FORWARD_NAVIGATION
-//        setSoftInputMode(mode)
-        showSoftKeyboard()
-      })
+    view.setOnChildRemoved {
+      UiThreadUtil.runOnUiThread(
+        Runnable {
+          showSoftKeyboard()
+          setCustomKeyboardHeight(0)
+          var mode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+//          setSoftInputMode(mode)
+        })
     }
+    tenTapView = view
     return view
   }
 
   override fun createShadowNodeInstance(context: ReactApplicationContext): LayoutShadowNode {
     shadowNode = super.createShadowNodeInstance(context)
-    shadowNode.setStyleHeight(0f)
+    shadowNode.setDisplay(YogaDisplay.NONE)
+//    shadowNode.setStyleHeight(0f)
+    Log.i(LOG_TAG, "HOLA")
     return shadowNode;
   }
 
@@ -76,34 +79,28 @@ class TenTapViewManager :
     return reactContext.currentActivity?.window
   }
   private fun setSoftInputMode(mode: Int) {
-    var window = getWindow()
-    if(window == null){
-      Log.e(LOG_TAG, "BO")
-    }
+    var window: Window? = getWindow()
     window?.setSoftInputMode(mode)
   }
 
-  private fun setKeyboardHeight(height: Int){
+  private fun setCustomKeyboardHeight(height: Int){
     try {
-       Log.i(LOG_TAG, "SETTING H TO $height")
-        dispatchUIUpdate(Runnable {
-          shadowNode.setStyleHeight(keyboardHeight.toFloat())
-          if(height == 0){
-            shadowNode.flex = 0f
-//            shadowNode.layoutParent?.calculateLayout()
-          }else {
-            shadowNode.flex = 1f
-          }
-        })
+      dispatchUIUpdate(Runnable {
+        if(height == 0){
+          shadowNode.setDisplay(YogaDisplay.NONE)
+        }else {
+          shadowNode.setDisplay(YogaDisplay.FLEX)
+        }
+      })
     }catch (e: Exception){
       Log.e(LOG_TAG, e.localizedMessage, e);
     }
   }
+
   private fun hideSoftKeyboard(view: TenTapView?){
     val focusedView = view?.rootView?.findFocus()
     if(focusedView != null && mInputMethodManager != null){
       mInputMethodManager.hideSoftInputFromWindow(focusedView.windowToken, 0);
-      focusedView.clearFocus()
     }
   }
 
@@ -124,6 +121,7 @@ class TenTapViewManager :
     lateinit var mInputMethodManager: InputMethodManager
     lateinit var reactContext: ThemedReactContext
     lateinit var shadowNode: LayoutShadowNode
+    lateinit var tenTapView: TenTapView
     var keyboardHeight: Int = 0
   }
 }

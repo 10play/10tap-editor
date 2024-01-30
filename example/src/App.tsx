@@ -21,13 +21,14 @@ function App() {
   const TapRef = useRef(null);
 
   const toolbarVisible = isKeyboardUp && !hideToolbar;
+  console.log(toolbarVisible);
 
   return (
     <SafeAreaView style={{ flex: 1, justifyContent: 'center' }} ref={TapRef}>
       {/* <TextInput onFocus={() => setHideToolbar(true)} onBlur={() => setHideToolbar(false)} /> */}
       {/* <View style={{ ...exampleOfFullScreenEditorStyles }}> */}
       <RichText editor={editor} DEV />
-      <Toolbar editor={editor} visible={toolbarVisible} rootRef={TapRef} />
+      <Toolbar editor={editor} visible={true} rootRef={TapRef} />
     </SafeAreaView>
   );
 }
