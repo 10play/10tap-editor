@@ -2,39 +2,40 @@ import debounce from 'lodash/debounce';
 import React, { useEffect } from 'react';
 import { EditorContent, useEditor } from '@tiptap/react';
 import { Editor } from '@tiptap/core';
-import StarterKit from '@tiptap/starter-kit';
-import Underline from '@tiptap/extension-underline';
-import TaskList from '@tiptap/extension-task-list';
-import Link from '@tiptap/extension-link';
-import TextStyle from '@tiptap/extension-text-style';
-import { Color } from '@tiptap/extension-color';
-import TaskItem from '@tiptap/extension-task-item';
-import Highlight from '@tiptap/extension-highlight';
+// import StarterKit from '@tiptap/starter-kit';
+// import TaskList from '@tiptap/extension-task-list';
+// import Link from '@tiptap/extension-link';
+// import TextStyle from '@tiptap/extension-text-style';
+// import { Color } from '@tiptap/extension-color';
+// import TaskItem from '@tiptap/extension-task-item';
+// import Highlight from '@tiptap/extension-highlight';
 import { EditorMessage, EditorMessageType } from '../types/Messaging';
-import {
-  EditorAction,
-  EditorActionType,
-  EditorUpdateSettings,
-} from '../types/Actions';
-import { blueBackgroundPlugin } from './plugins/HighlightSelection';
 import focusListener from './utils/focusListener';
+import { TenTapStartKit } from './plugins/StarterKit';
+import { UnderlineBridge } from './plugins/underline';
+import { EditorState } from '../types/EditorState';
+// import { blueBackgroundPlugin } from './plugins/HighlightSelection';
 
-const extensions = [
-  StarterKit,
-  Underline,
-  TaskList,
-  TaskItem,
-  Link.configure({
-    openOnClick: false,
-    autolink: true,
-  }),
-  blueBackgroundPlugin,
-  TextStyle,
-  Color,
-  Highlight.configure({ multicolor: true }),
-];
+const tenTapExtensions = [
+  // blueBackgroundPlugin,
+  TenTapStartKit,
+  UnderlineBridge,
+  // TaskList,
+  // TaskItem,
+  // Link.configure({
+  //   openOnClick: false,
+  //   autolink: true,
+  // }),
+  // TextStyle,
+  // Color,
+  // Highlight.configure({ multicolor: true }),
+].filter(
+  (e) => !window.whiteListPlugins || window.whiteListPlugins.includes(e.name)
+);
 
-const content = '<p>Hello World!</p>';
+const extensions = tenTapExtensions.map((e) => e.tiptapPlugin);
+
+const content = '<p>Hello <u>World!</u></p>';
 
 const sendMessage = (message: EditorMessage) => {
   // @ts-ignore TODO fix type
@@ -42,40 +43,29 @@ const sendMessage = (message: EditorMessage) => {
 };
 
 const sendStateUpdate = debounce((editor: Editor) => {
+  let payload = {
+    activeHighlight: editor.getAttributes('highlight').color,
+    activeColor: editor.getAttributes('textStyle').color,
+    activeLink: editor.getAttributes('link').href,
+    canAddLink: !editor.state.selection.empty,
+    // start
+
+    // Underline
+
+    // canToggleCheckList: false,
+    isLinkActive: editor.isActive('link'),
+    isCheckListActive: editor.isActive('taskList'),
+    // core
+    isFocused: focusListener.isFocused,
+  };
+
+  const state = tenTapExtensions.reduce((acc, e) => {
+    return Object.assign(acc, e.extendEditorState(editor));
+  }, payload) as EditorState;
+
   sendMessage({
     type: EditorMessageType.StateUpdate,
-    payload: {
-      activeHighlight: editor.getAttributes('highlight').color,
-      activeColor: editor.getAttributes('textStyle').color,
-      activeLink: editor.getAttributes('link').href,
-      canAddLink: !editor.state.selection.empty,
-      canToggleBold: editor.can().toggleBold(),
-      canToggleItalic: editor.can().toggleItalic(),
-      canToggleBulletList: editor.can().toggleBulletList(),
-      canToggleUnderline: editor.can().toggleUnderline(),
-      canToggleCheckList: editor.can().toggleTaskList(),
-      canToggleHeading: editor.can().toggleHeading({ level: 1 }),
-      canToggleOrderedList: editor.can().toggleOrderedList(),
-      canToggleStrikethrough: editor.can().toggleStrike(),
-      canLift: editor
-        .can()
-        .liftListItem(editor.state.schema.nodes.listItem.name),
-      canSink: editor
-        .can()
-        .sinkListItem(editor.state.schema.nodes.listItem.name),
-      canUndo: editor.can().undo(),
-      canRedo: editor.can().redo(),
-      isFocused: focusListener.isFocused,
-      isLinkActive: editor.isActive('link'),
-      isBoldActive: editor.isActive('bold'),
-      isItalicActive: editor.isActive('italic'),
-      isUnderlineActive: editor.isActive('underline'),
-      isStrikethroughActive: editor.isActive('strike'),
-      isBulletListActive: editor.isActive('bulletList'),
-      isCheckListActive: editor.isActive('taskList'),
-      isOrderedListActive: editor.isActive('orderedList'),
-      headingLevel: editor.getAttributes('heading')?.level,
-    },
+    payload: state,
   });
 }, 10);
 
@@ -91,96 +81,58 @@ export default function Tiptap() {
   useEffect(() => {
     if (!editor) return;
     // Subscribe to editor message
-    const handleEditorAction = (action: EditorAction) => {
-      const { type, payload } = action;
-      switch (type) {
-        case EditorActionType.Link:
-          // cancelled
-          if (payload === null) {
-            return;
-          }
+    const handleEditorAction = (action: any) => {
+      tenTapExtensions.forEach((e) => {
+        e.onTenTapMessage(editor, action);
+      });
+      // const { type, payload } = action;
+      // switch (type) {
+      //   case EditorActionType.ToggleCheckList:
+      //     editor.chain().focus().toggleTaskList().run();
+      //     break;
+      //   case EditorActionType.Link:
+      //     // cancelled
+      //     if (payload === null) {
+      //       return;
+      //     }
 
-          // empty
-          if (payload === '') {
-            editor
-              .chain()
-              .focus()
-              .extendMarkRange('link')
-              .unsetLink()
-              .setTextSelection(editor.state.selection.from)
-              .run();
+      //     // empty
+      //     if (payload === '') {
+      //       editor
+      //         .chain()
+      //         .focus()
+      //         .extendMarkRange('link')
+      //         .unsetLink()
+      //         .setTextSelection(editor.state.selection.from)
+      //         .run();
 
-            return;
-          }
+      //       return;
+      //     }
 
-          // update link
-          editor
-            .chain()
-            .focus()
-            .extendMarkRange('link')
-            .setLink({ href: payload })
-            .setTextSelection(editor.state.selection.from)
-            .run();
-          break;
-        case EditorUpdateSettings.UpdateScrollThresholdAndMargin:
-          editor.setOptions({
-            editorProps: {
-              scrollThreshold: { top: 0, bottom: payload, right: 0, left: 0 },
-              scrollMargin: { top: 0, bottom: payload, right: 0, left: 0 },
-            },
-          });
-          break;
-        case EditorActionType.ChangeHighlight:
-          editor.chain().focus().toggleHighlight({ color: payload }).run();
-          break;
-        case EditorActionType.ChangeColor:
-          editor.chain().focus().setColor(payload).run();
-          break;
-        case EditorActionType.ToggleBold:
-          editor.chain().focus().toggleBold().run();
-          break;
-        case EditorActionType.ToggleItalic:
-          editor.chain().focus().toggleItalic().run();
-          break;
-        case EditorActionType.ToggleUnderline:
-          editor.chain().focus().toggleUnderline().run();
-          break;
-        case EditorActionType.ToggleStrikethrough:
-          editor.chain().focus().toggleStrike().run();
-          break;
-        case EditorActionType.ToggleBulletList:
-          editor.chain().focus().toggleBulletList().run();
-          break;
-        case EditorActionType.ToggleOrderedList:
-          editor.chain().focus().toggleOrderedList().run();
-          break;
-        case EditorActionType.ToggleCheckList:
-          editor.chain().focus().toggleTaskList().run();
-          break;
-        case EditorActionType.ToggleHeading:
-          editor.chain().focus().toggleHeading({ level: payload }).run();
-          break;
-        case EditorActionType.Lift:
-          editor
-            .chain()
-            .focus()
-            .liftListItem(editor.schema.nodes.listItem.name)
-            .run();
-          break;
-        case EditorActionType.Sink:
-          editor
-            .chain()
-            .focus()
-            .sinkListItem(editor.schema.nodes.listItem.name)
-            .run();
-          break;
-        case EditorActionType.Undo:
-          editor.chain().focus().undo().run();
-          break;
-        case EditorActionType.Redo:
-          editor.chain().focus().redo().run();
-          break;
-      }
+      //     // update link
+      //     editor
+      //       .chain()
+      //       .focus()
+      //       .extendMarkRange('link')
+      //       .setLink({ href: payload })
+      //       .setTextSelection(editor.state.selection.from)
+      //       .run();
+      //     break;
+      //   case EditorUpdateSettings.UpdateScrollThresholdAndMargin:
+      //     editor.setOptions({
+      //       editorProps: {
+      //         scrollThreshold: { top: 0, bottom: payload, right: 0, left: 0 },
+      //         scrollMargin: { top: 0, bottom: payload, right: 0, left: 0 },
+      //       },
+      //     });
+      //     break;
+      //   case EditorActionType.ChangeHighlight:
+      //     editor.chain().focus().toggleHighlight({ color: payload }).run();
+      //     break;
+      //   case EditorActionType.ChangeColor:
+      //     editor.chain().focus().setColor(payload).run();
+      //     break;
+      // }
     };
     const handleWebviewMessage = (event: MessageEvent | Event) => {
       if (!(event instanceof MessageEvent)) return; // TODO check android

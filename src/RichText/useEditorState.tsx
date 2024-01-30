@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { type Editor } from './useEditor';
+import type { EditorInstance } from '../types';
 
-export const useEditorState = (editor: Editor) => {
+export const useEditorState = (editor: EditorInstance) => {
   const [editorState, setEditorState] = useState(editor.getEditorState());
 
   useEffect(() => {

@@ -1,6 +1,14 @@
 import React, { useRef } from 'react';
 import { SafeAreaView, View } from 'react-native';
-import { RichText, Toolbar, useEditor, useKeyboardUp } from 'tentap';
+import {
+  RichText,
+  TenTapStartKit,
+  Toolbar,
+  UnderlineBridge,
+  // UnderlineBridge,
+  useEditor,
+  useKeyboardUp,
+} from 'tentap';
 
 // const exampleOfSmallEditorStyles = {
 //   height: 100,
@@ -15,7 +23,8 @@ const exampleOfFullScreenEditorStyles = {
 
 function App() {
   // Editor is basically a ref to the webview with extra functions (might be confusing?)
-  const editor = useEditor();
+  const editor = useEditor({ plugins: [TenTapStartKit, UnderlineBridge] });
+
   const isKeyboardUp = useKeyboardUp();
   const [hideToolbar, _setHideToolbar] = React.useState(false);
   const TapRef = useRef(null);
@@ -23,7 +32,7 @@ function App() {
   const toolbarVisible = !!isKeyboardUp && !hideToolbar;
 
   return (
-    <SafeAreaView style={{ flex: 1 }} ref={TapRef}>
+    <SafeAreaView style={{ ...exampleOfFullScreenEditorStyles }} ref={TapRef}>
       <View style={{ ...exampleOfFullScreenEditorStyles }}>
         <RichText avoidIosKeyboard editor={editor} DEV />
       </View>

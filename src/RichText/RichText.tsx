@@ -10,11 +10,11 @@ import {
 import editorHTML from '../Editor/build/index.html';
 
 import { type EditorMessage, EditorMessageType } from '../types/Messaging';
-import { type Editor } from './useEditor';
 import { useKeyboardUp } from '../utils';
+import type { EditorInstance } from '../types';
 
 interface RichTextProps extends WebViewProps {
-  editor: Editor;
+  editor: EditorInstance;
   DEV?: boolean;
   avoidIosKeyboard?: boolean;
 }
@@ -65,6 +65,13 @@ export const RichText = (props: RichTextProps) => {
       scrollEnabled={false}
       style={RichTextStyles.fullScreen}
       source={source}
+      injectedJavaScriptBeforeContentLoaded={
+        editor.plugins
+          ? `window.whiteListPlugins = [${editor.plugins
+              .map((plugin) => `'${plugin.name}'`)
+              .join(',')}];`
+          : undefined
+      }
       hideKeyboardAccessoryView={true}
       onMessage={onWebviewMessage}
       ref={props.editor.webviewRef}

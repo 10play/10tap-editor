@@ -1,12 +1,12 @@
-import type { Editor } from './useEditor';
+import type { EditorInstance } from '../types';
 
 class _EditorHelper {
-  editorLastInstance: Editor | undefined;
+  editorLastInstance: EditorInstance | undefined;
   constructor() {
     this.editorLastInstance = undefined;
   }
 
-  setEditorLastInstance(editorLastInstance: Editor) {
+  setEditorLastInstance(editorLastInstance: EditorInstance) {
     this.editorLastInstance = editorLastInstance;
   }
 }

@@ -1,73 +1,23 @@
-import { type RefObject, useRef } from 'react';
+import { useRef } from 'react';
 import WebView from 'react-native-webview';
 import {
   type EditorActionMessage,
   EditorMessageType,
 } from '../types/Messaging';
-import {
-  type EditorAction,
-  type Level,
-  EditorActionType,
-  EditorUpdateSettings,
-} from '../types/Actions';
+import { EditorActionType, EditorUpdateSettings } from '../types/Actions';
 import { type EditorState } from '../types/EditorState';
 import { EditorHelper } from './EditorHelper';
+import type { EditorInstance } from '../types';
+import type BaseTenTapPlugin from '../Editor/plugins/base';
 
 type Subscription<T> = (cb: (val: T) => void) => () => void;
-export interface Editor {
-  webviewRef: RefObject<WebView>;
-  editLink: (newLink: string) => void;
-  toggleBold: () => void;
-  toggleItalic: () => void;
-  toggleUnderline: () => void;
-  toggleStrikethrough: () => void;
-  toggleBulletList: () => void;
-  toggleOrderedList: () => void;
-  toggleCheckList: () => void;
-  toggleHeading: (level: Level) => void;
-  lift: () => void;
-  sink: () => void;
-  undo: () => void;
-  redo: () => void;
-  changeColor: (color: string) => void;
-  updateScrollThresholdAndMargin: (offset: number) => void;
-  changeHighlight: (color: string) => void;
-  getEditorState: () => EditorState;
-  _updateEditorState: (state: EditorState) => void;
-  _subscribeToEditorStateUpdate: Subscription<EditorState>;
-}
 
-const DEFAULT_STATE: EditorState = {
-  activeHighlight: undefined,
-  activeColor: undefined,
-  activeLink: undefined,
-  canAddLink: false,
-  canToggleBold: false,
-  canToggleItalic: false,
-  canToggleUnderline: false,
-  canToggleStrikethrough: false,
-  canToggleBulletList: false,
-  canToggleOrderedList: false,
-  canToggleCheckList: false,
-  canToggleHeading: false,
-  canLift: false,
-  canSink: false,
-  canUndo: false,
-  canRedo: false,
-  isFocused: false,
-  isLinkActive: false,
-  isBoldActive: false,
-  isItalicActive: false,
-  isUnderlineActive: false,
-  isBulletListActive: false,
-  isOrderedListActive: false,
-  isCheckListActive: false,
-  isStrikethroughActive: false,
-  headingLevel: undefined,
-};
-export const useEditor = (): Editor => {
+export const useEditor = (options?: {
+  plugins?: BaseTenTapPlugin<any, any, any>[];
+}): EditorInstance => {
   const webviewRef = useRef<WebView>(null);
-  const editorStateRef = useRef<EditorState>(DEFAULT_STATE);
+  // Till we will implement default per plugin
+  const editorStateRef = useRef<EditorState | {}>({});
   const editorStateSubsRef = useRef<((state: EditorState) => void)[]>([]);
 
   const _updateEditorState = (editorState: EditorState) => {
@@ -94,7 +44,7 @@ export const useEditor = (): Editor => {
     webviewRef.current?.postMessage(JSON.stringify(message));
   };
 
-  const sendAction = (action: EditorAction) => {
+  const sendAction = (action: any) => {
     sendMessage({
       type: EditorMessageType.Action,
       payload: action,
@@ -110,52 +60,33 @@ export const useEditor = (): Editor => {
     sendAction({ type: EditorActionType.ChangeColor, payload: newColor });
   const changeHighlight = (newColor: string) =>
     sendAction({ type: EditorActionType.ChangeHighlight, payload: newColor });
-  const toggleBold = () => sendAction({ type: EditorActionType.ToggleBold });
-  const toggleItalic = () =>
-    sendAction({ type: EditorActionType.ToggleItalic });
-  const toggleUnderline = () =>
-    sendAction({ type: EditorActionType.ToggleUnderline });
-  const toggleStrikethrough = () =>
-    sendAction({ type: EditorActionType.ToggleStrikethrough });
-  const toggleBulletList = () =>
-    sendAction({ type: EditorActionType.ToggleBulletList });
-  const toggleOrderedList = () =>
-    sendAction({ type: EditorActionType.ToggleOrderedList });
+
   const toggleCheckList = () =>
     sendAction({ type: EditorActionType.ToggleCheckList });
-  const toggleHeading = (level: Level) =>
-    sendAction({ type: EditorActionType.ToggleHeading, payload: level });
-  const lift = () => sendAction({ type: EditorActionType.Lift });
-  const sink = () => sendAction({ type: EditorActionType.Sink });
-  const undo = () => sendAction({ type: EditorActionType.Undo });
-  const redo = () => sendAction({ type: EditorActionType.Redo });
   const editLink = (newLink: string) =>
     sendAction({ type: EditorActionType.Link, payload: newLink });
 
   const editorInstance = {
+    plugins: options?.plugins,
     webviewRef,
     editLink,
-    toggleBold,
-    toggleItalic,
-    toggleUnderline,
-    toggleStrikethrough,
-    toggleBulletList,
-    toggleOrderedList,
     toggleCheckList,
-    toggleHeading,
-    lift,
-    sink,
-    undo,
-    redo,
     changeColor,
     changeHighlight,
     updateScrollThresholdAndMargin,
     getEditorState,
     _updateEditorState,
     _subscribeToEditorStateUpdate,
-  } as Editor;
+  };
 
-  EditorHelper.setEditorLastInstance(editorInstance);
+  const editorInstanceExtendByPlugins = (options?.plugins || []).reduce(
+    (acc, cur) => {
+      return Object.assign(acc, cur.extendEditor(sendAction));
+    },
+    editorInstance
+  ) as EditorInstance;
 
-  return editorInstance;
+  EditorHelper.setEditorLastInstance(editorInstanceExtendByPlugins);
+
+  return editorInstanceExtendByPlugins;
 };

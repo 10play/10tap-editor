@@ -5,24 +5,19 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
-import { type Editor } from '../useEditor';
 import { useEditorState } from '../useEditorState';
-import React, { useEffect, useMemo, type RefObject } from 'react';
-import {
-  type ToolbarAction,
-  type ToolbarItemType,
-  DEFAULT_TOOLBAR_ITEMS,
-  getToolbarActions,
-} from './actions';
+import React, { useEffect, type RefObject } from 'react';
+import { DEFAULT_TOOLBAR_ITEMS, type ToolbarItem } from './actions';
 import { EditLinkBar } from './EditLinkBar';
 import { CustomKeyboard } from '../CustomKeyboard';
+import type { EditorInstance } from '../../types';
 
 interface ToolbarProps {
-  editor: Editor;
+  editor: EditorInstance;
   rootRef: RefObject<any>;
   visible?: boolean;
   keyboardAware?: boolean;
-  items?: ToolbarItemType[];
+  items?: ToolbarItem[];
 }
 
 const toolbarStyles = StyleSheet.create({
@@ -72,16 +67,6 @@ export function Toolbar({
     ToolbarContext.Main
   );
 
-  const toolbarItems: ToolbarAction[] = useMemo(() => {
-    const allActions = getToolbarActions(
-      editor,
-      editorState,
-      setToolbarContext,
-      toolbarContext
-    );
-    return items.map((item) => allActions[item]);
-  }, [editor, editorState, items, setToolbarContext, toolbarContext]);
-
   useEffect(() => {
     if (editorState.isFocused) {
       // When focused on editor toolbar should be main
@@ -89,13 +74,15 @@ export function Toolbar({
     }
   }, [editorState.isFocused]);
 
+  const args = { editor, editorState, setToolbarContext, toolbarContext };
+
   const renderToolbar = () => {
     switch (toolbarContext) {
       case ToolbarContext.Main:
       case ToolbarContext.Color:
         return (
           <FlatList
-            data={toolbarItems}
+            data={items}
             style={[
               toolbarStyles.toolbar,
               !visible ? toolbarStyles.hidden : undefined,
@@ -103,15 +90,15 @@ export function Toolbar({
             renderItem={({ item: { onPress, disabled, active, image } }) => {
               return (
                 <TouchableOpacity
-                  onPress={onPress}
-                  disabled={disabled}
+                  onPress={onPress(args)}
+                  disabled={disabled(args)}
                   style={[
                     toolbarStyles.toolbarButton,
-                    active ? toolbarStyles.active : undefined,
-                    disabled ? toolbarStyles.disabled : undefined,
+                    active(args) ? toolbarStyles.active : undefined,
+                    disabled(args) ? toolbarStyles.disabled : undefined,
                   ]}
                 >
-                  <Image source={image} width={40} />
+                  <Image source={image(args)} width={40} />
                 </TouchableOpacity>
               );
             }}

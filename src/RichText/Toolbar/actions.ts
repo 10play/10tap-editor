@@ -1,7 +1,7 @@
 import { Images } from '../../assets';
 import { EditorActionType } from '../../types/Actions';
+import type { EditorInstance } from '../../types';
 import { type EditorState } from '../../types/EditorState';
-import { type Editor } from '../useEditor';
 import { ToolbarContext } from './Toolbar';
 
 export const ToolbarItems = {
@@ -14,195 +14,200 @@ export const ToolbarItems = {
   ToggleH6: 'toggle-h6',
 } as const;
 
-type ValueOf<T> = T[keyof T];
-export type ToolbarItemType = Exclude<
-  ValueOf<typeof ToolbarItems>,
-  EditorActionType.ToggleHeading
->;
-export interface ToolbarAction {
-  type: ToolbarItemType | EditorActionType.ToggleHeading;
-  onPress: () => void;
-  active: boolean;
-  disabled: boolean;
-  image: any;
+type ArgsToolbarCB = {
+  editor: EditorInstance;
+  editorState: EditorState;
+  setToolbarContext: (ToolbarContext: ToolbarContext) => void;
+  toolbarContext: ToolbarContext;
+};
+export interface ToolbarItem {
+  onPress: ({
+    editor,
+    editorState,
+    setToolbarContext,
+    toolbarContext,
+  }: ArgsToolbarCB) => () => void;
+  active: ({
+    editor,
+    editorState,
+    setToolbarContext,
+    toolbarContext,
+  }: ArgsToolbarCB) => boolean;
+  disabled: ({
+    editor,
+    editorState,
+    setToolbarContext,
+    toolbarContext,
+  }: ArgsToolbarCB) => boolean;
+  image: ({
+    editor,
+    editorState,
+    setToolbarContext,
+    toolbarContext,
+  }: ArgsToolbarCB) => any;
 }
 
-export const getToolbarActions = (
-  editor: Editor,
-  editorState: EditorState,
-  changeToolBarContext: React.Dispatch<React.SetStateAction<ToolbarContext>>,
-  toolbarContext: ToolbarContext
-): Record<ToolbarItemType, ToolbarAction> => ({
-  [ToolbarItems.ChangeHighlight]: {
-    // TODO: this is weird I have to add it here
-    type: ToolbarItems.ChangeHighlight,
-    onPress: () => {},
-    active: false,
-    disabled: false,
-    image: Images.platte,
+export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
+  // {
+  //   // TODO: this is weird I have to add it here
+  //   type: ToolbarItems.ChangeHighlight,
+  //   onPress: () => () => {},
+  //   active: () => false,
+  //   disabled: () => false,
+  //   image: () => Images.platte,
+  // },
+  // {
+  //   type: ToolbarItems.ChangeColor,
+  //   onPress:
+  //     ({ editor, setToolbarContext }) =>
+  //     () => {
+  //       setToolbarContext((prev) => {
+  //         if (prev === ToolbarContext.Color) {
+  //           editor.webviewRef.current?.requestFocus();
+  //           return ToolbarContext.Main;
+  //         } else {
+  //           return ToolbarContext.Color;
+  //         }
+  //       });
+  //     },
+  //   active: ({ toolbarContext }) => toolbarContext === ToolbarContext.Color,
+  //   disabled: () => false,
+  //   image: () => Images.platte,
+  // },
+  // {
+  //   type: EditorActionType.Link,
+  //   onPress:
+  //     ({ setToolbarContext }) =>
+  //     () => {
+  //       setToolbarContext(ToolbarContext.Link);
+  //     },
+  //   active: ({ editorState }) => editorState.isLinkActive,
+  //   disabled: ({ editorState }) =>
+  //     !editorState.isLinkActive && !editorState.canAddLink,
+  //   image: () => Images.link,
+  // },
+  {
+    onPress:
+      ({ editor }) =>
+      () =>
+        editor.toggleBold(),
+    active: ({ editorState }) => editorState.isBoldActive,
+    disabled: ({ editorState }) => !editorState.canToggleBold,
+    image: () => Images.bold,
   },
-  [ToolbarItems.ChangeColor]: {
-    type: ToolbarItems.ChangeColor,
-    onPress: () => {
-      changeToolBarContext((prev) => {
-        if (prev === ToolbarContext.Color) {
-          editor.webviewRef.current?.requestFocus();
-          return ToolbarContext.Main;
-        } else {
-          return ToolbarContext.Color;
-        }
-      });
-    },
-    active: toolbarContext === ToolbarContext.Color,
-    disabled: false,
-    image: Images.platte,
+  // {
+  //   type: EditorActionType.ToggleItalic,
+  //   onPress: ({ editor }) =>  () => editor.toggleItalic(),
+  //   active: ({ editorState }) =>  editorState.isItalicActive,
+  //   disabled: ({ editorState }) =>  !editorState.canToggleItalic,
+  //   image: () => Images.italic,
+  // },
+  {
+    onPress:
+      ({ editor }) =>
+      () =>
+        editor.toggleUnderline(),
+    active: ({ editorState }) => editorState.isUnderlineActive,
+    disabled: ({ editorState }) => !editorState.canToggleUnderline,
+    image: () => Images.underline,
   },
-  [ToolbarItems.Link]: {
-    type: EditorActionType.Link,
-    onPress: () => {
-      changeToolBarContext(ToolbarContext.Link);
-    },
-    active: editorState.isLinkActive,
-    disabled: !editorState.isLinkActive && !editorState.canAddLink,
-    image: Images.link,
-  },
-  [ToolbarItems.ToggleBold]: {
-    type: EditorActionType.ToggleBold,
-    onPress: () => editor.toggleBold(),
-    active: editorState.isBoldActive,
-    disabled: !editorState.canToggleBold,
-    image: Images.bold,
-  },
-  [ToolbarItems.ToggleItalic]: {
-    type: EditorActionType.ToggleItalic,
-    onPress: () => editor.toggleItalic(),
-    active: editorState.isItalicActive,
-    disabled: !editorState.canToggleItalic,
-    image: Images.italic,
-  },
-  [ToolbarItems.ToggleUnderline]: {
-    type: EditorActionType.ToggleUnderline,
-    onPress: () => editor.toggleUnderline(),
-    active: editorState.isUnderlineActive,
-    disabled: !editorState.canToggleUnderline,
-    image: Images.underline,
-  },
-  [ToolbarItems.ToggleStrikethrough]: {
-    type: EditorActionType.ToggleStrikethrough,
-    onPress: () => editor.toggleStrikethrough(),
-    active: editorState.isStrikethroughActive,
-    disabled: !editorState.canToggleStrikethrough,
-    image: Images.strikethrough,
-  },
-  [ToolbarItems.ToggleH1]: {
-    type: EditorActionType.ToggleHeading,
-    onPress: () => editor.toggleHeading(1),
-    active: editorState.headingLevel === 1,
-    disabled: !editorState.canToggleHeading,
-    image: Images.h1,
-  },
-  [ToolbarItems.ToggleH2]: {
-    type: EditorActionType.ToggleHeading,
-    onPress: () => editor.toggleHeading(2),
-    active: editorState.headingLevel === 2,
-    disabled: !editorState.canToggleHeading,
-    image: Images.h2,
-  },
-  [ToolbarItems.ToggleH3]: {
-    type: EditorActionType.ToggleHeading,
-    onPress: () => editor.toggleHeading(3),
-    active: editorState.headingLevel === 3,
-    disabled: !editorState.canToggleHeading,
-    image: Images.h3,
-  },
-  [ToolbarItems.ToggleH4]: {
-    type: EditorActionType.ToggleHeading,
-    onPress: () => editor.toggleHeading(4),
-    active: editorState.headingLevel === 4,
-    disabled: !editorState.canToggleHeading,
-    image: Images.h4,
-  },
-  [ToolbarItems.ToggleH5]: {
-    type: EditorActionType.ToggleHeading,
-    onPress: () => editor.toggleHeading(5),
-    active: editorState.headingLevel === 5,
-    disabled: !editorState.canToggleHeading,
-    image: Images.h5,
-  },
-  [ToolbarItems.ToggleH6]: {
-    type: EditorActionType.ToggleHeading,
-    onPress: () => editor.toggleHeading(6),
-    active: editorState.headingLevel === 6,
-    disabled: !editorState.canToggleHeading,
-    image: Images.h6,
-  },
-  [ToolbarItems.ToggleOrderedList]: {
-    type: EditorActionType.ToggleOrderedList,
-    onPress: () => editor.toggleOrderedList(),
-    active: editorState.isOrderedListActive,
-    disabled: !editorState.canToggleOrderedList,
-    image: Images.orderedList,
-  },
-  [ToolbarItems.ToggleBulletList]: {
-    type: EditorActionType.ToggleBulletList,
-    onPress: () => editor.toggleBulletList(),
-    active: editorState.isBulletListActive,
-    disabled: !editorState.canToggleBulletList,
-    image: Images.bulletList,
-  },
-  [ToolbarItems.ToggleCheckList]: {
-    type: EditorActionType.ToggleCheckList,
-    onPress: () => editor.toggleCheckList(),
-    active: editorState.isCheckListActive,
-    disabled: !editorState.canToggleCheckList,
-    image: Images.checkList,
-  },
-  [ToolbarItems.Sink]: {
-    type: EditorActionType.Sink,
-    onPress: () => editor.sink(),
-    active: false,
-    disabled: !editorState.canSink,
-    image: Images.indent,
-  },
-  [ToolbarItems.Lift]: {
-    type: EditorActionType.Lift,
-    onPress: () => editor.lift(),
-    active: false,
-    disabled: !editorState.canLift,
-    image: Images.outdent,
-  },
+  // {
+  //   type: EditorActionType.ToggleStrikethrough,
+  //   onPress: ({ editor }) => () => editor.toggleStrikethrough(),
+  //   active: ({ editorState }) => editorState.isStrikethroughActive,
+  //   disabled: ({ editorState }) => !editorState.canToggleStrikethrough,
+  //   image: () => Images.strikethrough,
+  // },
+  // {
+  //   type: EditorActionType.ToggleHeading,
+  //   onPress: ({ editor }) => () => editor.toggleHeading(1),
+  //   active: ({ editorState }) => editorState.headingLevel === 1,
+  //   disabled: ({ editorState }) => !editorState.canToggleHeading,
+  //   image: () => Images.h1,
+  // },
+  // {
+  //   type: EditorActionType.ToggleHeading,
+  //   onPress: ({ editor }) => () => editor.toggleHeading(2),
+  //   active: ({ editorState }) => editorState.headingLevel === 2,
+  //   disabled: ({ editorState }) => !editorState.canToggleHeading,
+  //   image: () => Images.h2,
+  // },
+  // {
+  //   type: EditorActionType.ToggleHeading,
+  //   onPress: ({ editor }) =>  () => editor.toggleHeading(3),
+  //   active: ({ editorState }) => editorState.headingLevel === 3,
+  //   disabled: !editorState.canToggleHeading,
+  //   image: Images.h3,
+  // },
+  // {
+  //   type: EditorActionType.ToggleHeading,
+  //   onPress: () => editor.toggleHeading(4),
+  //   active: editorState.headingLevel === 4,
+  //   disabled: !editorState.canToggleHeading,
+  //   image: Images.h4,
+  // },
+  // {
+  //   type: EditorActionType.ToggleHeading,
+  //   onPress: () => editor.toggleHeading(5),
+  //   active: editorState.headingLevel === 5,
+  //   disabled: !editorState.canToggleHeading,
+  //   image: Images.h5,
+  // },
+  // {
+  //   type: EditorActionType.ToggleHeading,
+  //   onPress: () => editor.toggleHeading(6),
+  //   active: editorState.headingLevel === 6,
+  //   disabled: !editorState.canToggleHeading,
+  //   image: Images.h6,
+  // },
+  // {
+  //   type: EditorActionType.ToggleOrderedList,
+  //   onPress: () => editor.toggleOrderedList(),
+  //   active: editorState.isOrderedListActive,
+  //   disabled: !editorState.canToggleOrderedList,
+  //   image: Images.orderedList,
+  // },
+  // {
+  //   type: EditorActionType.ToggleBulletList,
+  //   onPress: () => editor.toggleBulletList(),
+  //   active: editorState.isBulletListActive,
+  //   disabled: !editorState.canToggleBulletList,
+  //   image: Images.bulletList,
+  // },
+  // {
+  //   type: EditorActionType.ToggleCheckList,
+  //   onPress: () => editor.toggleCheckList(),
+  //   active: editorState.isCheckListActive,
+  //   disabled: !editorState.canToggleCheckList,
+  //   image: Images.checkList,
+  // },
+  // {
+  //   type: EditorActionType.Sink,
+  //   onPress: () => editor.sink(),
+  //   active: false,
+  //   disabled: !editorState.canSink,
+  //   image: Images.indent,
+  // },
+  // {
+  //   type: EditorActionType.Lift,
+  //   onPress: () => editor.lift(),
+  //   active: false,
+  //   disabled: !editorState.canLift,
+  //   image: Images.outdent,
+  // },
 
-  [ToolbarItems.Undo]: {
-    type: EditorActionType.Undo,
-    onPress: () => editor.undo(),
-    active: false,
-    disabled: !editorState.canUndo,
-    image: Images.undo,
-  },
-  [ToolbarItems.Redo]: {
-    type: EditorActionType.Redo,
-    onPress: () => editor.redo(),
-    active: false,
-    disabled: !editorState.canRedo,
-    image: Images.redo,
-  },
-});
-
-export const DEFAULT_TOOLBAR_ITEMS: ToolbarItemType[] = [
-  ToolbarItems.ChangeColor,
-  ToolbarItems.Link,
-  ToolbarItems.ToggleBold,
-  ToolbarItems.ToggleItalic,
-  ToolbarItems.ToggleUnderline,
-  ToolbarItems.ToggleStrikethrough,
-  ToolbarItems.ToggleH1,
-  ToolbarItems.ToggleH2,
-  ToolbarItems.ToggleH3,
-  ToolbarItems.ToggleOrderedList,
-  ToolbarItems.ToggleBulletList,
-  ToolbarItems.ToggleCheckList,
-  ToolbarItems.Lift,
-  ToolbarItems.Sink,
-  ToolbarItems.Undo,
-  ToolbarItems.Redo,
+  // {
+  //   type: EditorActionType.Undo,
+  //   onPress: () => editor.undo(),
+  //   active: false,
+  //   disabled: !editorState.canUndo,
+  //   image: Images.undo,
+  // },
+  // {
+  //   type: EditorActionType.Redo,
+  //   onPress: () => editor.redo(),
+  //   active: false,
+  //   disabled: !editorState.canRedo,
+  //   image: Images.redo,
+  // },
 ];
