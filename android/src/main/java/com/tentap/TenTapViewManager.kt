@@ -1,7 +1,9 @@
 package com.tentap
 
 import android.content.Context
+import android.graphics.Rect
 import android.util.Log
+import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
@@ -49,13 +51,9 @@ class TenTapViewManager :
     }
 
     view.setOnChildRemoved {
-      UiThreadUtil.runOnUiThread(
-        Runnable {
-          setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
-          showSoftKeyboard()
-          setCustomKeyboardVisibility(false)
-        })
+      showSoftKeyboard()
     }
+    setupKeyboardShowListener()
     tenTapView = view
     return view
   }
@@ -80,6 +78,7 @@ class TenTapViewManager :
 
   private fun setCustomKeyboardVisibility(visible: Boolean){
     dispatchUIUpdate(Runnable {
+      customKeyboardShown = visible
       if(!visible){
         shadowNode.setDisplay(YogaDisplay.NONE)
       }else {
@@ -101,9 +100,36 @@ class TenTapViewManager :
     }
   }
 
+  private fun setupKeyboardShowListener() {
+    val rootView = reactContext.currentActivity?.findViewById<View>(android.R.id.content)
+    rootView?.getViewTreeObserver()?.addOnGlobalLayoutListener {
+      val r = Rect()
+      rootView.getWindowVisibleDisplayFrame(r)
+      val screenHeight = rootView.rootView.height
+      val keypadHeight = screenHeight - r.bottom
+
+      if (keypadHeight > 312) { // Threshold for keyboard visibility
+        // Keyboard is shown
+        onKeyboardShown()
+      }
+    }
+  }
+
+  private fun onKeyboardShown() {
+    if(customKeyboardShown){
+      UiThreadUtil.runOnUiThread(Runnable {
+        setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        setCustomKeyboardVisibility(false)
+      })
+    }
+  }
+
+
+
   companion object {
     const val NAME = "TenTapView"
     const val LOG_TAG = "TenTapView"
+    var customKeyboardShown = false;
     lateinit var mInputMethodManager: InputMethodManager
     lateinit var reactContext: ThemedReactContext
     lateinit var shadowNode: LayoutShadowNode
