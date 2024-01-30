@@ -41,6 +41,7 @@ export const ColorKeyboard = () => {
     EditorHelper.editorLastInstance?.getEditorState().activeColor;
   const activeHighlight =
     EditorHelper.editorLastInstance?.getEditorState().activeHighlight;
+
   return (
     <View style={keyboardStyles.keyboardContainer}>
       <Text style={styles.listHead}>Color:</Text>

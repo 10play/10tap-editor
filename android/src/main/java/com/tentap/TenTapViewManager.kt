@@ -44,8 +44,8 @@ class TenTapViewManager :
     view.setOnChildAdded {
       UiThreadUtil.runOnUiThread(
         Runnable {
+          setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
           setCustomKeyboardHeight(keyboardHeight)
-//          setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
           hideSoftKeyboard(view)
         })
     }
@@ -53,10 +53,9 @@ class TenTapViewManager :
     view.setOnChildRemoved {
       UiThreadUtil.runOnUiThread(
         Runnable {
+          setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
           showSoftKeyboard()
           setCustomKeyboardHeight(0)
-          var mode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-//          setSoftInputMode(mode)
         })
     }
     tenTapView = view
