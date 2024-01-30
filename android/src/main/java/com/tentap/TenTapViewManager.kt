@@ -2,7 +2,6 @@ package com.tentap
 
 import android.content.Context
 import android.util.Log
-import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
@@ -12,7 +11,6 @@ import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.uimanager.LayoutShadowNode
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.UIManagerModule
-import com.facebook.react.uimanager.annotations.ReactProp
 import com.facebook.yoga.YogaDisplay
 
 
@@ -45,7 +43,7 @@ class TenTapViewManager :
       UiThreadUtil.runOnUiThread(
         Runnable {
           setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
-          setCustomKeyboardHeight(keyboardHeight)
+          setCustomKeyboardVisibility(true)
           hideSoftKeyboard(view)
         })
     }
@@ -55,7 +53,7 @@ class TenTapViewManager :
         Runnable {
           setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
           showSoftKeyboard()
-          setCustomKeyboardHeight(0)
+          setCustomKeyboardVisibility(false)
         })
     }
     tenTapView = view
@@ -65,8 +63,6 @@ class TenTapViewManager :
   override fun createShadowNodeInstance(context: ReactApplicationContext): LayoutShadowNode {
     shadowNode = super.createShadowNodeInstance(context)
     shadowNode.setDisplay(YogaDisplay.NONE)
-//    shadowNode.setStyleHeight(0f)
-    Log.i(LOG_TAG, "HOLA")
     return shadowNode;
   }
 
@@ -82,18 +78,14 @@ class TenTapViewManager :
     window?.setSoftInputMode(mode)
   }
 
-  private fun setCustomKeyboardHeight(height: Int){
-    try {
-      dispatchUIUpdate(Runnable {
-        if(height == 0){
-          shadowNode.setDisplay(YogaDisplay.NONE)
-        }else {
-          shadowNode.setDisplay(YogaDisplay.FLEX)
-        }
-      })
-    }catch (e: Exception){
-      Log.e(LOG_TAG, e.localizedMessage, e);
-    }
+  private fun setCustomKeyboardVisibility(visible: Boolean){
+    dispatchUIUpdate(Runnable {
+      if(!visible){
+        shadowNode.setDisplay(YogaDisplay.NONE)
+      }else {
+        shadowNode.setDisplay(YogaDisplay.FLEX)
+      }
+    })
   }
 
   private fun hideSoftKeyboard(view: TenTapView?){
@@ -109,11 +101,6 @@ class TenTapViewManager :
     }
   }
 
-  @ReactProp(name = "keyboardHeight")
-  override fun setKeyboardHeight(view: TenTapView?, value: Int) {
-    keyboardHeight = value
-  }
-
   companion object {
     const val NAME = "TenTapView"
     const val LOG_TAG = "TenTapView"
@@ -121,6 +108,5 @@ class TenTapViewManager :
     lateinit var reactContext: ThemedReactContext
     lateinit var shadowNode: LayoutShadowNode
     lateinit var tenTapView: TenTapView
-    var keyboardHeight: Int = 0
   }
 }

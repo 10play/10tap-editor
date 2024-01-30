@@ -19,7 +19,8 @@ export const CustomKeyboardAndroid = ({ color }: CustomKeyboardProps) => {
   const keyboardHeight = useKeyboardHeight();
 
   return (
-    <TenTapView keyboardHeight={keyboardHeight}>
+    // Keyboard height is not used on native in android
+    <TenTapView keyboardHeight={0}>
       {color && (
         <View style={{ height: keyboardHeight }}>
           <ColorKeyboard />
