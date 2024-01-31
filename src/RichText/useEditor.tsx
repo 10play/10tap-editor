@@ -61,13 +61,9 @@ export const useEditor = (options?: {
   const changeHighlight = (newColor: string) =>
     sendAction({ type: EditorActionType.ChangeHighlight, payload: newColor });
 
-  const editLink = (newLink: string) =>
-    sendAction({ type: EditorActionType.Link, payload: newLink });
-
   const editorInstance = {
     plugins: options?.plugins,
     webviewRef,
-    editLink,
     changeColor,
     changeHighlight,
     updateScrollThresholdAndMargin,

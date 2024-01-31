@@ -15,6 +15,7 @@ import { TenTapStartKit } from './plugins/StarterKit';
 import { UnderlineBridge } from './plugins/underline';
 import { EditorState } from '../types/EditorState';
 import { TaskListBridge } from './plugins/tasklist';
+import { LinkBridge } from './plugins/link';
 // import { blueBackgroundPlugin } from './plugins/HighlightSelection';
 
 const tenTapExtensions = [
@@ -22,11 +23,7 @@ const tenTapExtensions = [
   TenTapStartKit,
   UnderlineBridge,
   TaskListBridge,
-  // TaskItem,
-  // Link.configure({
-  //   openOnClick: false,
-  //   autolink: true,
-  // }),
+  LinkBridge,
   // TextStyle,
   // Color,
   // Highlight.configure({ multicolor: true }),
@@ -47,12 +44,7 @@ const sendStateUpdate = debounce((editor: Editor) => {
   let payload = {
     activeHighlight: editor.getAttributes('highlight').color,
     activeColor: editor.getAttributes('textStyle').color,
-    activeLink: editor.getAttributes('link').href,
-    canAddLink: !editor.state.selection.empty,
-    // start
 
-    // Underline
-    isLinkActive: editor.isActive('link'),
     // core
     isFocused: focusListener.isFocused,
   };
@@ -85,34 +77,7 @@ export default function Tiptap() {
       });
       // const { type, payload } = action;
       // switch (type) {
-      //   case EditorActionType.Link:
-      //     // cancelled
-      //     if (payload === null) {
-      //       return;
-      //     }
 
-      //     // empty
-      //     if (payload === '') {
-      //       editor
-      //         .chain()
-      //         .focus()
-      //         .extendMarkRange('link')
-      //         .unsetLink()
-      //         .setTextSelection(editor.state.selection.from)
-      //         .run();
-
-      //       return;
-      //     }
-
-      //     // update link
-      //     editor
-      //       .chain()
-      //       .focus()
-      //       .extendMarkRange('link')
-      //       .setLink({ href: payload })
-      //       .setTextSelection(editor.state.selection.from)
-      //       .run();
-      //     break;
       //   case EditorUpdateSettings.UpdateScrollThresholdAndMargin:
       //     editor.setOptions({
       //       editorProps: {

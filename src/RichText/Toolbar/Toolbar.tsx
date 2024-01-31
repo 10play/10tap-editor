@@ -111,7 +111,7 @@ export function Toolbar({
             initialLink={editorState.activeLink}
             onBlur={() => setToolbarContext(ToolbarContext.Main)}
             onEditLink={(link) => {
-              editor.editLink(link);
+              editor.setLink(link);
               editor.webviewRef.current &&
                 editor.webviewRef.current.requestFocus();
               setToolbarContext(ToolbarContext.Main);

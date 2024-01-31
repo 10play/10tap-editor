@@ -74,18 +74,17 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
   //   disabled: () => false,
   //   image: () => Images.platte,
   // },
-  // {
-  //   type: EditorActionType.Link,
-  //   onPress:
-  //     ({ setToolbarContext }) =>
-  //     () => {
-  //       setToolbarContext(ToolbarContext.Link);
-  //     },
-  //   active: ({ editorState }) => editorState.isLinkActive,
-  //   disabled: ({ editorState }) =>
-  //     !editorState.isLinkActive && !editorState.canAddLink,
-  //   image: () => Images.link,
-  // },
+  {
+    onPress:
+      ({ setToolbarContext }) =>
+      () => {
+        setToolbarContext(ToolbarContext.Link);
+      },
+    active: ({ editorState }) => editorState.isLinkActive,
+    disabled: ({ editorState }) =>
+      !editorState.isLinkActive && !editorState.canSetLink,
+    image: () => Images.link,
+  },
   {
     onPress:
       ({ editor }) =>

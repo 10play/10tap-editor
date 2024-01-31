@@ -4,5 +4,6 @@ export * from './RichText';
 export * from './Editor/plugins/StarterKit';
 export * from './Editor/plugins/underline';
 export * from './Editor/plugins/tasklist';
+export * from './Editor/plugins/link';
 export * from './types';
 export * from './utils';
