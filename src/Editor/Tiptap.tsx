@@ -14,13 +14,14 @@ import focusListener from './utils/focusListener';
 import { TenTapStartKit } from './plugins/StarterKit';
 import { UnderlineBridge } from './plugins/underline';
 import { EditorState } from '../types/EditorState';
+import { TaskListBridge } from './plugins/tasklist';
 // import { blueBackgroundPlugin } from './plugins/HighlightSelection';
 
 const tenTapExtensions = [
   // blueBackgroundPlugin,
   TenTapStartKit,
   UnderlineBridge,
-  // TaskList,
+  TaskListBridge,
   // TaskItem,
   // Link.configure({
   //   openOnClick: false,
@@ -33,7 +34,7 @@ const tenTapExtensions = [
   (e) => !window.whiteListPlugins || window.whiteListPlugins.includes(e.name)
 );
 
-const extensions = tenTapExtensions.map((e) => e.tiptapExtension);
+const extensions = tenTapExtensions.map((e) => e.tiptapExtension).flat();
 
 const content = '<p>Hello <u>World!</u></p>';
 
@@ -51,10 +52,7 @@ const sendStateUpdate = debounce((editor: Editor) => {
     // start
 
     // Underline
-
-    // canToggleCheckList: false,
     isLinkActive: editor.isActive('link'),
-    isCheckListActive: editor.isActive('taskList'),
     // core
     isFocused: focusListener.isFocused,
   };
@@ -87,9 +85,6 @@ export default function Tiptap() {
       });
       // const { type, payload } = action;
       // switch (type) {
-      //   case EditorActionType.ToggleCheckList:
-      //     editor.chain().focus().toggleTaskList().run();
-      //     break;
       //   case EditorActionType.Link:
       //     // cancelled
       //     if (payload === null) {

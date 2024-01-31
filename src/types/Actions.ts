@@ -3,7 +3,6 @@ export enum EditorActionType {
   ChangeColor = 'change-color',
   Link = 'link',
   ToggleUnderline = 'toggle-underline',
-  ToggleCheckList = 'toggle-check-list',
   // start
 }
 // Actions with no payload
@@ -11,7 +10,6 @@ type RegularActions =
   | EditorActionType.ChangeHighlight
   | EditorActionType.ChangeColor
   | EditorActionType.Link
-  | EditorActionType.ToggleCheckList
   | EditorActionType.ToggleUnderline;
 
 export interface RegularAction {

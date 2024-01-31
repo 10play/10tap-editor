@@ -7,10 +7,8 @@ export interface EditorState {
   activeColor: string | undefined;
   activeLink: string | undefined;
   canAddLink: boolean;
-  canToggleCheckList: boolean;
   isFocused: boolean;
   isLinkActive: boolean;
-  isCheckListActive: boolean;
 }
 
 type Subscription<T> = (cb: (val: T) => void) => () => void;
@@ -18,7 +16,6 @@ type Subscription<T> = (cb: (val: T) => void) => () => void;
 export interface EditorInstance {
   webviewRef: RefObject<WebView>;
   editLink: (newLink: string) => void;
-  toggleCheckList: () => void;
   changeColor: (color: string) => void;
   updateScrollThresholdAndMargin: (offset: number) => void;
   changeHighlight: (color: string) => void;

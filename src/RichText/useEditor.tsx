@@ -61,8 +61,6 @@ export const useEditor = (options?: {
   const changeHighlight = (newColor: string) =>
     sendAction({ type: EditorActionType.ChangeHighlight, payload: newColor });
 
-  const toggleCheckList = () =>
-    sendAction({ type: EditorActionType.ToggleCheckList });
   const editLink = (newLink: string) =>
     sendAction({ type: EditorActionType.Link, payload: newLink });
 
@@ -70,7 +68,6 @@ export const useEditor = (options?: {
     plugins: options?.plugins,
     webviewRef,
     editLink,
-    toggleCheckList,
     changeColor,
     changeHighlight,
     updateScrollThresholdAndMargin,

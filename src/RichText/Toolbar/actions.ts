@@ -106,6 +106,15 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     onPress:
       ({ editor }) =>
       () =>
+        editor.toggleTaskList(),
+    active: ({ editorState }) => editorState.isTaskListActive,
+    disabled: ({ editorState }) => !editorState.canToggleTaskList,
+    image: () => Images.checkList,
+  },
+  {
+    onPress:
+      ({ editor }) =>
+      () =>
         editor.toggleUnderline(),
     active: ({ editorState }) => editorState.isUnderlineActive,
     disabled: ({ editorState }) => !editorState.canToggleUnderline,
@@ -173,13 +182,6 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
   //   active: editorState.isBulletListActive,
   //   disabled: !editorState.canToggleBulletList,
   //   image: Images.bulletList,
-  // },
-  // {
-  //   type: EditorActionType.ToggleCheckList,
-  //   onPress: () => editor.toggleCheckList(),
-  //   active: editorState.isCheckListActive,
-  //   disabled: !editorState.canToggleCheckList,
-  //   image: Images.checkList,
   // },
   // {
   //   type: EditorActionType.Sink,
