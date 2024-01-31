@@ -50,14 +50,6 @@ export interface ToolbarItem {
 }
 
 export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
-  // {
-  //   // TODO: this is weird I have to add it here
-  //   type: ToolbarItems.ChangeHighlight,
-  //   onPress: () => () => {},
-  //   active: () => false,
-  //   disabled: () => false,
-  //   image: () => Images.platte,
-  // },
   {
     onPress:
       ({ editor, setToolbarContext }) =>
@@ -95,13 +87,15 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     disabled: ({ editorState }) => !editorState.canToggleBold,
     image: () => Images.bold,
   },
-  // {
-  //   type: EditorActionType.ToggleItalic,
-  //   onPress: ({ editor }) =>  () => editor.toggleItalic(),
-  //   active: ({ editorState }) =>  editorState.isItalicActive,
-  //   disabled: ({ editorState }) =>  !editorState.canToggleItalic,
-  //   image: () => Images.italic,
-  // },
+  {
+    onPress:
+      ({ editor }) =>
+      () =>
+        editor.toggleItalic(),
+    active: ({ editorState }) => editorState.isItalicActive,
+    disabled: ({ editorState }) => !editorState.canToggleItalic,
+    image: () => Images.italic,
+  },
   {
     onPress:
       ({ editor }) =>
@@ -120,96 +114,121 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     disabled: ({ editorState }) => !editorState.canToggleUnderline,
     image: () => Images.underline,
   },
-  // {
-  //   type: EditorActionType.ToggleStrikethrough,
-  //   onPress: ({ editor }) => () => editor.toggleStrikethrough(),
-  //   active: ({ editorState }) => editorState.isStrikethroughActive,
-  //   disabled: ({ editorState }) => !editorState.canToggleStrikethrough,
-  //   image: () => Images.strikethrough,
-  // },
-  // {
-  //   type: EditorActionType.ToggleHeading,
-  //   onPress: ({ editor }) => () => editor.toggleHeading(1),
-  //   active: ({ editorState }) => editorState.headingLevel === 1,
-  //   disabled: ({ editorState }) => !editorState.canToggleHeading,
-  //   image: () => Images.h1,
-  // },
-  // {
-  //   type: EditorActionType.ToggleHeading,
-  //   onPress: ({ editor }) => () => editor.toggleHeading(2),
-  //   active: ({ editorState }) => editorState.headingLevel === 2,
-  //   disabled: ({ editorState }) => !editorState.canToggleHeading,
-  //   image: () => Images.h2,
-  // },
-  // {
-  //   type: EditorActionType.ToggleHeading,
-  //   onPress: ({ editor }) =>  () => editor.toggleHeading(3),
-  //   active: ({ editorState }) => editorState.headingLevel === 3,
-  //   disabled: !editorState.canToggleHeading,
-  //   image: Images.h3,
-  // },
-  // {
-  //   type: EditorActionType.ToggleHeading,
-  //   onPress: () => editor.toggleHeading(4),
-  //   active: editorState.headingLevel === 4,
-  //   disabled: !editorState.canToggleHeading,
-  //   image: Images.h4,
-  // },
-  // {
-  //   type: EditorActionType.ToggleHeading,
-  //   onPress: () => editor.toggleHeading(5),
-  //   active: editorState.headingLevel === 5,
-  //   disabled: !editorState.canToggleHeading,
-  //   image: Images.h5,
-  // },
-  // {
-  //   type: EditorActionType.ToggleHeading,
-  //   onPress: () => editor.toggleHeading(6),
-  //   active: editorState.headingLevel === 6,
-  //   disabled: !editorState.canToggleHeading,
-  //   image: Images.h6,
-  // },
-  // {
-  //   type: EditorActionType.ToggleOrderedList,
-  //   onPress: () => editor.toggleOrderedList(),
-  //   active: editorState.isOrderedListActive,
-  //   disabled: !editorState.canToggleOrderedList,
-  //   image: Images.orderedList,
-  // },
-  // {
-  //   type: EditorActionType.ToggleBulletList,
-  //   onPress: () => editor.toggleBulletList(),
-  //   active: editorState.isBulletListActive,
-  //   disabled: !editorState.canToggleBulletList,
-  //   image: Images.bulletList,
-  // },
-  // {
-  //   type: EditorActionType.Sink,
-  //   onPress: () => editor.sink(),
-  //   active: false,
-  //   disabled: !editorState.canSink,
-  //   image: Images.indent,
-  // },
-  // {
-  //   type: EditorActionType.Lift,
-  //   onPress: () => editor.lift(),
-  //   active: false,
-  //   disabled: !editorState.canLift,
-  //   image: Images.outdent,
-  // },
-
-  // {
-  //   type: EditorActionType.Undo,
-  //   onPress: () => editor.undo(),
-  //   active: false,
-  //   disabled: !editorState.canUndo,
-  //   image: Images.undo,
-  // },
-  // {
-  //   type: EditorActionType.Redo,
-  //   onPress: () => editor.redo(),
-  //   active: false,
-  //   disabled: !editorState.canRedo,
-  //   image: Images.redo,
-  // },
+  {
+    onPress:
+      ({ editor }) =>
+      () =>
+        editor.toggleStrikethrough(),
+    active: ({ editorState }) => editorState.isStrikethroughActive,
+    disabled: ({ editorState }) => !editorState.canToggleStrikethrough,
+    image: () => Images.strikethrough,
+  },
+  {
+    onPress:
+      ({ editor }) =>
+      () =>
+        editor.toggleHeading(1),
+    active: ({ editorState }) => editorState.headingLevel === 1,
+    disabled: ({ editorState }) => !editorState.canToggleHeading,
+    image: () => Images.h1,
+  },
+  {
+    onPress:
+      ({ editor }) =>
+      () =>
+        editor.toggleHeading(2),
+    active: ({ editorState }) => editorState.headingLevel === 2,
+    disabled: ({ editorState }) => !editorState.canToggleHeading,
+    image: () => Images.h2,
+  },
+  {
+    onPress:
+      ({ editor }) =>
+      () =>
+        editor.toggleHeading(3),
+    active: ({ editorState }) => editorState.headingLevel === 3,
+    disabled: ({ editorState }) => !editorState.canToggleHeading,
+    image: () => Images.h3,
+  },
+  {
+    onPress:
+      ({ editor }) =>
+      () =>
+        editor.toggleHeading(4),
+    active: ({ editorState }) => editorState.headingLevel === 4,
+    disabled: ({ editorState }) => !editorState.canToggleHeading,
+    image: () => Images.h4,
+  },
+  {
+    onPress:
+      ({ editor }) =>
+      () =>
+        editor.toggleHeading(5),
+    active: ({ editorState }) => editorState.headingLevel === 5,
+    disabled: ({ editorState }) => !editorState.canToggleHeading,
+    image: () => Images.h5,
+  },
+  {
+    onPress:
+      ({ editor }) =>
+      () =>
+        editor.toggleHeading(6),
+    active: ({ editorState }) => editorState.headingLevel === 6,
+    disabled: ({ editorState }) => !editorState.canToggleHeading,
+    image: () => Images.h6,
+  },
+  {
+    onPress:
+      ({ editor }) =>
+      () =>
+        editor.toggleOrderedList(),
+    active: ({ editorState }) => editorState.isOrderedListActive,
+    disabled: ({ editorState }) => !editorState.canToggleOrderedList,
+    image: () => Images.orderedList,
+  },
+  {
+    onPress:
+      ({ editor }) =>
+      () =>
+        editor.toggleBulletList(),
+    active: ({ editorState }) => editorState.isBulletListActive,
+    disabled: ({ editorState }) => !editorState.canToggleBulletList,
+    image: () => Images.bulletList,
+  },
+  {
+    onPress:
+      ({ editor }) =>
+      () =>
+        editor.sink(),
+    active: () => false,
+    disabled: ({ editorState }) => !editorState.canSink,
+    image: () => Images.indent,
+  },
+  {
+    onPress:
+      ({ editor }) =>
+      () =>
+        editor.lift(),
+    active: () => false,
+    disabled: ({ editorState }) => !editorState.canLift,
+    image: () => Images.outdent,
+  },
+  {
+    onPress:
+      ({ editor }) =>
+      () =>
+        editor.undo(),
+    active: () => false,
+    disabled: ({ editorState }) => !editorState.canUndo,
+    image: () => Images.undo,
+  },
+  {
+    onPress:
+      ({ editor }) =>
+      () =>
+        editor.redo(),
+    active: () => false,
+    disabled: ({ editorState }) => !editorState.canRedo,
+    image: () => Images.redo,
+  },
 ];
