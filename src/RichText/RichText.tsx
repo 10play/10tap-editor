@@ -43,7 +43,6 @@ export const RichText = (props: RichTextProps) => {
     // On iOS we want to control the scroll and not use the scrollview that comes with react-native-webview
     // That's way we can get better exp on scroll and scroll to element when we need to
     if (avoidIosKeyboard && editor.webviewRef.current) {
-      console.log('avoidIosKeyboard', iosKeyboardHeight);
       if (iosKeyboardHeight) {
         editor.webviewRef.current.injectJavaScript(`
           document.querySelector('.ProseMirror').style.paddingBottom = '${

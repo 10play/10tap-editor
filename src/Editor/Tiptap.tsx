@@ -6,6 +6,7 @@ import { Editor } from '@tiptap/core';
 // import { Color } from '@tiptap/extension-color';
 // import Highlight from '@tiptap/extension-highlight';
 import { EditorMessage, EditorMessageType } from '../types/Messaging';
+import { EditorUpdateSettings } from '../types/Actions';
 import focusListener from './utils/focusListener';
 import { TenTapStartKit } from './plugins/StarterKit';
 import { UnderlineBridge } from './plugins/underline';
@@ -24,9 +25,6 @@ const tenTapExtensions = [
   LinkBridge,
   ColorBridge,
   HighlightBridge,
-  // TextStyle,
-  // Color,
-  // Highlight.configure({ multicolor: true }),
 ].filter(
   (e) => !window.whiteListPlugins || window.whiteListPlugins.includes(e.name)
 );
@@ -72,19 +70,19 @@ export default function Tiptap() {
       tenTapExtensions.forEach((e) => {
         e.onBridgeMessage(editor, action);
       });
-      // const { type, payload } = action;
-      // switch (type) {
-
-      //   case EditorUpdateSettings.UpdateScrollThresholdAndMargin:
-      //     editor.setOptions({
-      //       editorProps: {
-      //         scrollThreshold: { top: 0, bottom: payload, right: 0, left: 0 },
-      //         scrollMargin: { top: 0, bottom: payload, right: 0, left: 0 },
-      //       },
-      //     });
-      //     break;
-
-      // }
+      if (action.type === EditorUpdateSettings.UpdateScrollThresholdAndMargin) {
+        editor.setOptions({
+          editorProps: {
+            scrollThreshold: {
+              top: 0,
+              bottom: action.payload,
+              right: 0,
+              left: 0,
+            },
+            scrollMargin: { top: 0, bottom: action.payload, right: 0, left: 0 },
+          },
+        });
+      }
     };
     const handleWebviewMessage = (event: MessageEvent | Event) => {
       if (!(event instanceof MessageEvent)) return; // TODO check android
