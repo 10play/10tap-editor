@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { SafeAreaView, View } from 'react-native';
 import {
+  ColorBridge,
   LinkBridge,
   RichText,
   TaskListBridge,
@@ -26,7 +27,13 @@ const exampleOfFullScreenEditorStyles = {
 function App() {
   // Editor is basically a ref to the webview with extra functions (might be confusing?)
   const editor = useEditor({
-    plugins: [TenTapStartKit, UnderlineBridge, TaskListBridge, LinkBridge],
+    plugins: [
+      TenTapStartKit,
+      UnderlineBridge,
+      TaskListBridge,
+      LinkBridge,
+      ColorBridge,
+    ],
   });
 
   const isKeyboardUp = useKeyboardUp();

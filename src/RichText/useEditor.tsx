@@ -56,15 +56,13 @@ export const useEditor = (options?: {
       type: EditorUpdateSettings.UpdateScrollThresholdAndMargin,
       payload: bottom,
     });
-  const changeColor = (newColor: string) =>
-    sendAction({ type: EditorActionType.ChangeColor, payload: newColor });
+
   const changeHighlight = (newColor: string) =>
     sendAction({ type: EditorActionType.ChangeHighlight, payload: newColor });
 
   const editorInstance = {
     plugins: options?.plugins,
     webviewRef,
-    changeColor,
     changeHighlight,
     updateScrollThresholdAndMargin,
     getEditorState,

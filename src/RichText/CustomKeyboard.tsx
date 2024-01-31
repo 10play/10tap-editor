@@ -84,7 +84,7 @@ const ColorKeyboard = () => {
               key={index}
               onPress={() => {
                 EditorHelper.editorLastInstance &&
-                  EditorHelper.editorLastInstance.changeColor(color);
+                  EditorHelper.editorLastInstance.setColor(color);
                 EditorHelper.editorLastInstance &&
                   EditorHelper.editorLastInstance.webviewRef.current?.requestFocus();
               }}

@@ -17,7 +17,9 @@ export const ToolbarItems = {
 type ArgsToolbarCB = {
   editor: EditorInstance;
   editorState: EditorState;
-  setToolbarContext: (ToolbarContext: ToolbarContext) => void;
+  setToolbarContext: (
+    ToolbarContext: ToolbarContext | ((prev: ToolbarContext) => ToolbarContext)
+  ) => void;
   toolbarContext: ToolbarContext;
 };
 export interface ToolbarItem {
@@ -56,24 +58,23 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
   //   disabled: () => false,
   //   image: () => Images.platte,
   // },
-  // {
-  //   type: ToolbarItems.ChangeColor,
-  //   onPress:
-  //     ({ editor, setToolbarContext }) =>
-  //     () => {
-  //       setToolbarContext((prev) => {
-  //         if (prev === ToolbarContext.Color) {
-  //           editor.webviewRef.current?.requestFocus();
-  //           return ToolbarContext.Main;
-  //         } else {
-  //           return ToolbarContext.Color;
-  //         }
-  //       });
-  //     },
-  //   active: ({ toolbarContext }) => toolbarContext === ToolbarContext.Color,
-  //   disabled: () => false,
-  //   image: () => Images.platte,
-  // },
+  {
+    onPress:
+      ({ editor, setToolbarContext }) =>
+      () => {
+        setToolbarContext((prev) => {
+          if (prev === ToolbarContext.Color) {
+            editor.webviewRef.current?.requestFocus();
+            return ToolbarContext.Main;
+          } else {
+            return ToolbarContext.Color;
+          }
+        });
+      },
+    active: ({ toolbarContext }) => toolbarContext === ToolbarContext.Color,
+    disabled: () => false,
+    image: () => Images.platte,
+  },
   {
     onPress:
       ({ setToolbarContext }) =>

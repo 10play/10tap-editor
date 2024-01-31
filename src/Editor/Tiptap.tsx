@@ -2,12 +2,8 @@ import debounce from 'lodash/debounce';
 import React, { useEffect } from 'react';
 import { EditorContent, useEditor } from '@tiptap/react';
 import { Editor } from '@tiptap/core';
-// import StarterKit from '@tiptap/starter-kit';
-// import TaskList from '@tiptap/extension-task-list';
-// import Link from '@tiptap/extension-link';
 // import TextStyle from '@tiptap/extension-text-style';
 // import { Color } from '@tiptap/extension-color';
-// import TaskItem from '@tiptap/extension-task-item';
 // import Highlight from '@tiptap/extension-highlight';
 import { EditorMessage, EditorMessageType } from '../types/Messaging';
 import focusListener from './utils/focusListener';
@@ -16,6 +12,7 @@ import { UnderlineBridge } from './plugins/underline';
 import { EditorState } from '../types/EditorState';
 import { TaskListBridge } from './plugins/tasklist';
 import { LinkBridge } from './plugins/link';
+import { ColorBridge } from './plugins/color';
 // import { blueBackgroundPlugin } from './plugins/HighlightSelection';
 
 const tenTapExtensions = [
@@ -24,6 +21,7 @@ const tenTapExtensions = [
   UnderlineBridge,
   TaskListBridge,
   LinkBridge,
+  ColorBridge,
   // TextStyle,
   // Color,
   // Highlight.configure({ multicolor: true }),
@@ -43,8 +41,6 @@ const sendMessage = (message: EditorMessage) => {
 const sendStateUpdate = debounce((editor: Editor) => {
   let payload = {
     activeHighlight: editor.getAttributes('highlight').color,
-    activeColor: editor.getAttributes('textStyle').color,
-
     // core
     isFocused: focusListener.isFocused,
   };
