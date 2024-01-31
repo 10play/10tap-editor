@@ -33,7 +33,7 @@ const tenTapExtensions = [
   (e) => !window.whiteListPlugins || window.whiteListPlugins.includes(e.name)
 );
 
-const extensions = tenTapExtensions.map((e) => e.tiptapPlugin);
+const extensions = tenTapExtensions.map((e) => e.tiptapExtension);
 
 const content = '<p>Hello <u>World!</u></p>';
 
@@ -83,7 +83,7 @@ export default function Tiptap() {
     // Subscribe to editor message
     const handleEditorAction = (action: any) => {
       tenTapExtensions.forEach((e) => {
-        e.onTenTapMessage(editor, action);
+        e.onBridgeMessage(editor, action);
       });
       // const { type, payload } = action;
       // switch (type) {

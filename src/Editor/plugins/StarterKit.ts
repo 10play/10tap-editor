@@ -1,5 +1,5 @@
 import StarterKit from '@tiptap/starter-kit';
-import BaseTenTapPlugin from './base';
+import TenTapBridge from './base';
 
 type TenTapStartKitEditorState = {
   isBoldActive: boolean;
@@ -76,13 +76,13 @@ interface HeadingAction {
 
 type StarterKitMessage = ToggleAction | HeadingAction;
 
-export const TenTapStartKit = new BaseTenTapPlugin<
+export const TenTapStartKit = new TenTapBridge<
   TenTapStartKitEditorState,
   TenTapStartKitEditorInstance,
   StarterKitMessage
 >({
-  tiptapPlugin: StarterKit,
-  onTenTapMessage: (editor, message) => {
+  tiptapExtension: StarterKit,
+  onBridgeMessage: (editor, message) => {
     switch (message.type) {
       case StarterKitEditorActionType.ToggleBold:
         editor.chain().focus().toggleBold().run();
@@ -128,7 +128,7 @@ export const TenTapStartKit = new BaseTenTapPlugin<
 
     return false;
   },
-  extendEditor: (sendPluginMessage) => {
+  extendEditorInstance: (sendPluginMessage) => {
     const toggleBold = () => {
       console.log('try to toggle bold', sendPluginMessage);
       sendPluginMessage({ type: StarterKitEditorActionType.ToggleBold });

@@ -1,28 +1,28 @@
 import { Editor, Extension } from '@tiptap/core';
 
-class BaseTenTapPlugin<T, E, M> {
+class TenTapBridge<T, E, M> {
   name: string;
-  tiptapPlugin: Extension;
-  onTenTapMessage: (editor: Editor, message: M) => boolean;
+  tiptapExtension: Extension;
+  onBridgeMessage: (editor: Editor, message: M) => boolean;
   extendEditorState: (editor: Editor) => T;
-  extendEditor: (sendPluginMessage: (message: M) => void) => E;
+  extendEditorInstance: (sendPluginMessage: (message: M) => void) => E;
 
   constructor({
-    tiptapPlugin,
-    onTenTapMessage,
+    tiptapExtension,
+    onBridgeMessage,
     extendEditorState,
-    extendEditor,
+    extendEditorInstance,
   }: {
-    tiptapPlugin: any;
-    onTenTapMessage: (editor: Editor, message: M) => boolean;
+    tiptapExtension: any;
+    onBridgeMessage: (editor: Editor, message: M) => boolean;
     extendEditorState: (editor: Editor) => T;
-    extendEditor: (sendPluginMessage: (message: M) => void) => E;
+    extendEditorInstance: (sendPluginMessage: (message: M) => void) => E;
   }) {
-    this.name = tiptapPlugin.name;
-    this.tiptapPlugin = tiptapPlugin;
-    this.onTenTapMessage = onTenTapMessage;
+    this.name = tiptapExtension.name;
+    this.tiptapExtension = tiptapExtension;
+    this.onBridgeMessage = onBridgeMessage;
     this.extendEditorState = extendEditorState;
-    this.extendEditor = extendEditor;
+    this.extendEditorInstance = extendEditorInstance;
   }
 }
-export default BaseTenTapPlugin;
+export default TenTapBridge;

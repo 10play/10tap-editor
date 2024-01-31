@@ -1,5 +1,5 @@
 import Underline from '@tiptap/extension-underline';
-import BaseTenTapPlugin from './base';
+import TenTapBridge from './base';
 
 type UnderlineEditorState = {
   isUnderlineActive: boolean;
@@ -24,20 +24,20 @@ type UnderlineMessage = {
   payload?: undefined;
 };
 
-export const UnderlineBridge = new BaseTenTapPlugin<
+export const UnderlineBridge = new TenTapBridge<
   UnderlineEditorState,
   UnderlineEditorInstance,
   UnderlineMessage
 >({
-  tiptapPlugin: Underline,
-  onTenTapMessage: (editor, message) => {
+  tiptapExtension: Underline,
+  onBridgeMessage: (editor, message) => {
     if (message.type === UnderlineEditorActionType.ToggleUnderline) {
       editor.chain().focus().toggleUnderline().run();
     }
 
     return false;
   },
-  extendEditor: (sendPluginMessage) => {
+  extendEditorInstance: (sendPluginMessage) => {
     return {
       toggleUnderline: () =>
         sendPluginMessage({ type: UnderlineEditorActionType.ToggleUnderline }),
