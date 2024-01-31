@@ -2,13 +2,13 @@ import React, { useRef } from 'react';
 import { SafeAreaView, View } from 'react-native';
 import {
   ColorBridge,
+  HighlightBridge,
   LinkBridge,
   RichText,
   TaskListBridge,
   TenTapStartKit,
   Toolbar,
   UnderlineBridge,
-  // UnderlineBridge,
   useEditor,
   useKeyboardUp,
 } from 'tentap';
@@ -33,6 +33,7 @@ function App() {
       TaskListBridge,
       LinkBridge,
       ColorBridge,
+      HighlightBridge,
     ],
   });
 

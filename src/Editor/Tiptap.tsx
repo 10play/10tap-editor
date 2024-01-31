@@ -13,6 +13,7 @@ import { EditorState } from '../types/EditorState';
 import { TaskListBridge } from './plugins/tasklist';
 import { LinkBridge } from './plugins/link';
 import { ColorBridge } from './plugins/color';
+import { HighlightBridge } from './plugins/highlight';
 // import { blueBackgroundPlugin } from './plugins/HighlightSelection';
 
 const tenTapExtensions = [
@@ -22,6 +23,7 @@ const tenTapExtensions = [
   TaskListBridge,
   LinkBridge,
   ColorBridge,
+  HighlightBridge,
   // TextStyle,
   // Color,
   // Highlight.configure({ multicolor: true }),
@@ -40,7 +42,6 @@ const sendMessage = (message: EditorMessage) => {
 
 const sendStateUpdate = debounce((editor: Editor) => {
   let payload = {
-    activeHighlight: editor.getAttributes('highlight').color,
     // core
     isFocused: focusListener.isFocused,
   };
@@ -82,12 +83,7 @@ export default function Tiptap() {
       //       },
       //     });
       //     break;
-      //   case EditorActionType.ChangeHighlight:
-      //     editor.chain().focus().toggleHighlight({ color: payload }).run();
-      //     break;
-      //   case EditorActionType.ChangeColor:
-      //     editor.chain().focus().setColor(payload).run();
-      //     break;
+
       // }
     };
     const handleWebviewMessage = (event: MessageEvent | Event) => {

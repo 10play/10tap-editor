@@ -4,7 +4,7 @@ import {
   type EditorActionMessage,
   EditorMessageType,
 } from '../types/Messaging';
-import { EditorActionType, EditorUpdateSettings } from '../types/Actions';
+import { EditorUpdateSettings } from '../types/Actions';
 import { type EditorState } from '../types/EditorState';
 import { EditorHelper } from './EditorHelper';
 import type { EditorInstance } from '../types';
@@ -57,13 +57,9 @@ export const useEditor = (options?: {
       payload: bottom,
     });
 
-  const changeHighlight = (newColor: string) =>
-    sendAction({ type: EditorActionType.ChangeHighlight, payload: newColor });
-
   const editorInstance = {
     plugins: options?.plugins,
     webviewRef,
-    changeHighlight,
     updateScrollThresholdAndMargin,
     getEditorState,
     _updateEditorState,
