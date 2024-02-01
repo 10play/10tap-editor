@@ -140,6 +140,7 @@ export function Toolbar({
       {renderToolbar()}
       <CustomKeyboard
         rootRef={rootRef}
+        setToolbarContext={setToolbarContext}
         color={toolbarContext === ToolbarContext.Color}
       />
     </>

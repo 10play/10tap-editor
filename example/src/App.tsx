@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { SafeAreaView } from 'react-native';
-import { RichText, Toolbar, useEditor, useKeyboardUp } from 'tentap';
+import { RichText, Toolbar, useEditor, useKeyboard } from 'tentap';
 
 // const exampleOfSmallEditorStyles = {
 //   height: 100,
@@ -16,7 +16,7 @@ import { RichText, Toolbar, useEditor, useKeyboardUp } from 'tentap';
 function App() {
   // Editor is basically a ref to the webview with extra functions (might be confusing?)
   const editor = useEditor();
-  const isKeyboardUp = useKeyboardUp();
+  const { isKeyboardUp } = useKeyboard();
   const [hideToolbar, _setHideToolbar] = React.useState(false);
   const TapRef = useRef(null);
 

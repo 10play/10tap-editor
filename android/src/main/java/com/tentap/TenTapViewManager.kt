@@ -38,9 +38,13 @@ class TenTapViewManager :
   }
 
   public override fun createViewInstance(context: ThemedReactContext): TenTapView {
+    var view = TenTapView(context)
+
     mInputMethodManager = getInfoMethodManager(context);
     reactContext = context
-    var view = TenTapView(context)
+
+    // When a child (custom keyboard) is added to our component
+    // We change input mode, hide soft keyboard and show our custom keyboard
     view.setOnChildAdded {
       UiThreadUtil.runOnUiThread(
         Runnable {
@@ -50,6 +54,8 @@ class TenTapViewManager :
         })
     }
 
+    // When child is removed, we show soft keyboard and once it is show we hide
+    // our custom keyboard and change input mode
     view.setOnChildRemoved {
       showSoftKeyboard()
     }
@@ -116,6 +122,8 @@ class TenTapViewManager :
   }
 
   private fun onKeyboardShown() {
+    // After soft keyboard is shown if we are showing our custom keyboard
+    // we want to update input mode and hide our keyboard
     if(customKeyboardShown){
       UiThreadUtil.runOnUiThread(Runnable {
         setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
