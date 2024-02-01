@@ -99,7 +99,9 @@ export function Toolbar({
             data={toolbarItems}
             style={[
               toolbarStyles.toolbar,
-              !visible ? toolbarStyles.hidden : undefined,
+              !visible && !editorState.isFocused
+                ? toolbarStyles.hidden
+                : undefined,
             ]}
             renderItem={({ item: { onPress, disabled, active, image } }) => {
               return (
