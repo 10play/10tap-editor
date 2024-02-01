@@ -11,6 +11,8 @@ interface ToolbarProps {
   hidden?: boolean;
   keyboardAware?: boolean;
   items?: ToolbarItem[];
+  setActiveKeyboard: (id: string | undefined) => void;
+  activeKeyboard?: string;
 }
 
 const toolbarStyles = StyleSheet.create({
@@ -52,6 +54,8 @@ export function Toolbar({
   hidden,
   keyboardAware = true,
   items = DEFAULT_TOOLBAR_ITEMS,
+  setActiveKeyboard,
+  activeKeyboard,
 }: ToolbarProps) {
   const editorState = useEditorState(editor);
   const { isKeyboardUp } = useKeyboard();
@@ -62,7 +66,14 @@ export function Toolbar({
   const hideToolbar =
     hidden || (keyboardAware && !isKeyboardUp && !editorState.isFocused);
 
-  const args = { editor, editorState, setToolbarContext, toolbarContext };
+  const args = {
+    editor,
+    editorState,
+    setToolbarContext,
+    toolbarContext,
+    setActiveKeyboard,
+    activeKeyboard,
+  };
 
   switch (toolbarContext) {
     case ToolbarContext.Main:

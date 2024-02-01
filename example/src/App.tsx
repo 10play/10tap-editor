@@ -1,14 +1,12 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useRef } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
-  Text,
   View,
 } from 'react-native';
 import {
   ColorBridge,
-  DEFAULT_TOOLBAR_ITEMS,
   HighlightBridge,
   LinkBridge,
   RichText,
@@ -17,12 +15,8 @@ import {
   Toolbar,
   UnderlineBridge,
   useEditor,
-  useEditorState,
-  type EditorInstance,
 } from 'tentap';
 import { CustomKeyboard } from '../../src/RichText/Keyboard';
-import { CustomKeyboardExtension } from '../../src/RichText/Keyboard/CustomKeyboardExtension';
-import { Images } from '../../src/assets';
 import { ColorKeyboard } from '../../src/RichText/Keyboard/ColorKeyboard';
 
 // const exampleOfSmallEditorStyles = {
@@ -48,6 +42,7 @@ function App() {
     ],
   });
   const TapRef = useRef(null);
+  const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
 
   return (
     <SafeAreaView style={{ flex: 1, justifyContent: 'center' }} ref={TapRef}>
@@ -56,84 +51,30 @@ function App() {
       <View style={exampleOfFullScreenEditorStyles}>
         <RichText avoidIosKeyboard editor={editor} DEV />
       </View>
-      <TB editor={editor} tapRef={TapRef} />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{
+          position: 'absolute',
+          width: '100%',
+          bottom: 0,
+        }}
+      >
+        <Toolbar
+          activeKeyboard={activeKeyboard}
+          setActiveKeyboard={setActiveKeyboard}
+          editor={editor}
+          hidden={false}
+        />
+        <CustomKeyboard
+          rootRef={TapRef}
+          activeKeyboardID={activeKeyboard}
+          setActiveKeyboardID={setActiveKeyboard}
+          keyboards={[ColorKeyboard]}
+          editor={editor}
+        />
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
-
-const MyKeyboard = new CustomKeyboardExtension('custom', () => {
-  return (
-    <View style={{ flex: 1 }}>
-      <Text>Custom Keyboard</Text>
-    </View>
-  );
-});
-
-const TB = ({
-  editor,
-  tapRef,
-}: {
-  editor: EditorInstance;
-  tapRef: React.MutableRefObject<null>;
-}) => {
-  const editorState = useEditorState(editor);
-  const [hideToolbar, _setHideToolbar] = React.useState(false);
-  const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
-
-  useEffect(() => {
-    if (editorState.isFocused) {
-      setActiveKeyboard(undefined);
-    }
-  }, [editorState.isFocused]);
-
-  const toolbarItems = useMemo(() => {
-    return [
-      {
-        active: () => activeKeyboard === MyKeyboard.id,
-        disabled: () => false,
-        onPress:
-          ({ editor }) =>
-          () => {
-            const isActive = activeKeyboard === MyKeyboard.id;
-            if (isActive) editor.webviewRef.current?.requestFocus();
-            setActiveKeyboard(isActive ? undefined : MyKeyboard.id);
-          },
-        image: () => Images.bold,
-      },
-      {
-        onPress:
-          ({ editor }) =>
-          () => {
-            const isActive = activeKeyboard === ColorKeyboard.id;
-            if (isActive) editor.webviewRef.current?.requestFocus();
-            setActiveKeyboard(isActive ? undefined : ColorKeyboard.id);
-          },
-        active: () => activeKeyboard === ColorKeyboard.id,
-        disabled: () => false,
-        image: () => Images.platte,
-      },
-      ...DEFAULT_TOOLBAR_ITEMS,
-    ];
-  }, [activeKeyboard]);
-
-  return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{
-        position: 'absolute',
-        width: '100%',
-        bottom: 0,
-      }}
-    >
-      <Toolbar editor={editor} hidden={hideToolbar} items={toolbarItems} />
-      <CustomKeyboard
-        rootRef={tapRef}
-        activeKeyboardID={activeKeyboard}
-        setActiveKeyboardID={setActiveKeyboard}
-        keyboards={[ColorKeyboard, MyKeyboard]}
-      />
-    </KeyboardAvoidingView>
-  );
-};
 
 export default App;

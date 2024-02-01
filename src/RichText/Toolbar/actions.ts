@@ -3,6 +3,7 @@ import { EditorActionType } from '../../types/Actions';
 import type { EditorInstance } from '../../types';
 import { type EditorState } from '../../types/EditorState';
 import { ToolbarContext } from './Toolbar';
+import { ColorKeyboard } from '../Keyboard/ColorKeyboard';
 
 export const ToolbarItems = {
   ...EditorActionType,
@@ -21,6 +22,8 @@ type ArgsToolbarCB = {
     ToolbarContext: ToolbarContext | ((prev: ToolbarContext) => ToolbarContext)
   ) => void;
   toolbarContext: ToolbarContext;
+  activeKeyboard: string | undefined;
+  setActiveKeyboard: (id: string | undefined) => void;
 };
 export interface ToolbarItem {
   onPress: ({
@@ -50,6 +53,18 @@ export interface ToolbarItem {
 }
 
 export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
+  {
+    onPress:
+      ({ editor, setActiveKeyboard, activeKeyboard }) =>
+      () => {
+        const isActive = activeKeyboard === ColorKeyboard.id;
+        if (isActive) editor.webviewRef.current?.requestFocus();
+        setActiveKeyboard(isActive ? undefined : ColorKeyboard.id);
+      },
+    active: ({ activeKeyboard }) => activeKeyboard === ColorKeyboard.id,
+    disabled: () => false,
+    image: () => Images.platte,
+  },
   {
     onPress:
       ({ setToolbarContext }) =>
