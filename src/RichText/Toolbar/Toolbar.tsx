@@ -105,20 +105,4 @@ export function Toolbar({
         />
       );
   }
-
-  // const toolbar = (
-  //   <>
-  //     {renderToolbar()}
-  //     <CustomKeyboard
-  //       rootRef={rootRef}
-  //       setToolbarContext={setToolbarContext}
-  //       customKeyboard={
-  //         toolbarContext === ToolbarContext.Color ? ColorKeyboard : undefined
-  //       }
-  //       onKeyboardHideAndroid={() => {
-  //         setToolbarContext(ToolbarContext.Main);
-  //       }}
-  //     />
-  //   </>
-  // );
 }
