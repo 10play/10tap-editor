@@ -1,80 +1,44 @@
-import React, { useRef } from 'react';
+import React from 'react';
+import { View, Text, Button } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
 import {
-  KeyboardAvoidingView,
-  Platform,
-  SafeAreaView,
-  View,
-} from 'react-native';
-import {
-  ColorBridge,
-  HighlightBridge,
-  LinkBridge,
-  RichText,
-  TaskListBridge,
-  TenTapStartKit,
-  Toolbar,
-  UnderlineBridge,
-  useEditor,
-} from 'tentap';
-import { CustomKeyboard } from '../../src/RichText/Keyboard';
-import { ColorKeyboard } from '../../src/RichText/Keyboard/ColorKeyboard';
+  createNativeStackNavigator,
+  type NativeStackScreenProps,
+} from '@react-navigation/native-stack';
+import { Basic } from './Examples/Basic';
+import { CustomKeyboardExample } from './Examples/CustomKeyboardExample';
 
-// const exampleOfSmallEditorStyles = {
-//   height: 100,
-//   width: 200,
-//   borderWidth: 1,
-//   borderColor: 'black',
-// };
-
-const exampleOfFullScreenEditorStyles = {
-  flex: 1,
-};
-function App() {
-  // Editor is basically a ref to the webview with extra functions (might be confusing?)
-  const editor = useEditor({
-    plugins: [
-      TenTapStartKit,
-      UnderlineBridge,
-      TaskListBridge,
-      LinkBridge,
-      ColorBridge,
-      HighlightBridge,
-    ],
-  });
-  const TapRef = useRef(null);
-  const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
-
+const HomeScreen = ({ navigation }: NativeStackScreenProps<any, any, any>) => {
   return (
-    <SafeAreaView style={{ flex: 1, justifyContent: 'center' }} ref={TapRef}>
-      {/* <TextInput onFocus={() => setHideToolbar(true)} onBlur={() => setHideToolbar(false)} /> */}
-      {/* <View style={{ ...exampleOfFullScreenEditorStyles }}> */}
-      <View style={exampleOfFullScreenEditorStyles}>
-        <RichText autofocus avoidIosKeyboard editor={editor} DEV />
-      </View>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{
-          position: 'absolute',
-          width: '100%',
-          bottom: 0,
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Text>10Tap Rich Text Editor!</Text>
+      <Button
+        title="Basic Usage"
+        onPress={() => navigation.navigate('Basic')}
+      />
+      <Button
+        title="Custom Keyboard"
+        onPress={() => navigation.navigate('CustomKeyboard')}
+      />
+    </View>
+  );
+};
+
+const Stack = createNativeStackNavigator();
+const App = () => {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
         }}
       >
-        <Toolbar
-          activeKeyboard={activeKeyboard}
-          setActiveKeyboard={setActiveKeyboard}
-          editor={editor}
-          hidden={false}
-        />
-        <CustomKeyboard
-          rootRef={TapRef}
-          activeKeyboardID={activeKeyboard}
-          setActiveKeyboardID={setActiveKeyboard}
-          keyboards={[ColorKeyboard]}
-          editor={editor}
-        />
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        <Stack.Screen name="Examples" component={HomeScreen} />
+        <Stack.Screen name="Basic" component={Basic} />
+        <Stack.Screen name="CustomKeyboard" component={CustomKeyboardExample} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
-}
+};
 
 export default App;
