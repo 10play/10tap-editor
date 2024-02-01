@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet, TextInput } from 'react-native';
 import {
   WebView,
   type WebViewProps,
@@ -17,12 +17,29 @@ interface RichTextProps extends WebViewProps {
   editor: EditorInstance;
   DEV?: boolean;
   avoidIosKeyboard?: boolean;
+  autofocus?: boolean;
 }
+
+const styles = StyleSheet.create({
+  hiddenInput: {
+    display: 'none',
+    width: 0,
+    height: 0,
+    position: 'absolute',
+    flex: 1,
+    top: 0,
+    left: 0,
+  },
+});
 
 const DEV_SERVER_URL = 'http://localhost:3000';
 
-export const RichText = (props: RichTextProps) => {
-  const { DEV, editor, avoidIosKeyboard } = props;
+export const RichText = ({
+  DEV,
+  editor,
+  avoidIosKeyboard,
+  autofocus,
+}: RichTextProps) => {
   const { keyboardHeight: iosKeyboardHeight } = useKeyboard();
   const source: WebViewProps['source'] = DEV
     ? { uri: DEV_SERVER_URL }
@@ -33,6 +50,12 @@ export const RichText = (props: RichTextProps) => {
     // Parse the message sent from the editor
     const { type, payload } = JSON.parse(data) as EditorMessage;
     switch (type) {
+      case EditorMessageType.EditorReady:
+        if (autofocus) {
+          console.log('focus');
+          editor.focus('end');
+        }
+        break;
       case EditorMessageType.StateUpdate:
         editor._updateEditorState(payload);
         break;
@@ -60,40 +83,44 @@ export const RichText = (props: RichTextProps) => {
   }, [avoidIosKeyboard, editor, iosKeyboardHeight]);
 
   return (
-    <WebView
-      scrollEnabled={false}
-      style={RichTextStyles.fullScreen}
-      source={source}
-      injectedJavaScript={
-        editor.plugins
-          ? `
-            setTimeout(() => {
+    <>
+      {autofocus && Platform.OS === 'android' && (
+        <TextInput autoFocus style={styles.hiddenInput} />
+      )}
+      <WebView
+        scrollEnabled={false}
+        style={RichTextStyles.fullScreen}
+        source={source}
+        injectedJavaScript={
+          editor.plugins
+            ? `
+              setTimeout(() => {
 
-                  var css = \`${editor.plugins
-                    .map((e) => e.extendCSS)
-                    .join(' ')}\`,
-                  head = document.head || document.getElementsByTagName('head')[0],
-                  style = document.createElement('style');
-      
-              head.appendChild(style);
-      
-              style.type = 'text/css';
-              if (style.styleSheet){
-                // This is required for IE8 and below.
-                style.styleSheet.cssText = css;
-              } else {
-                style.appendChild(document.createTextNode(css));
-              }
-            }, 5000)
-            `
-          : undefined
-      }
-      hideKeyboardAccessoryView={true}
-      onMessage={onWebviewMessage}
-      ref={props.editor.webviewRef}
-      webviewDebuggingEnabled={__DEV__}
-      {...props}
-    />
+                    var css = \`${editor.plugins
+                      .map((e) => e.extendCSS)
+                      .join(' ')}\`,
+                    head = document.head || document.getElementsByTagName('head')[0],
+                    style = document.createElement('style');
+        
+                head.appendChild(style);
+        
+                style.type = 'text/css';
+                if (style.styleSheet){
+                  // This is required for IE8 and below.
+                  style.styleSheet.cssText = css;
+                } else {
+                  style.appendChild(document.createTextNode(css));
+                }
+              }, 5000)
+              `
+            : undefined
+        }
+        hideKeyboardAccessoryView={true}
+        onMessage={onWebviewMessage}
+        ref={editor.webviewRef}
+        webviewDebuggingEnabled={__DEV__}
+      />
+    </>
   );
 };
 

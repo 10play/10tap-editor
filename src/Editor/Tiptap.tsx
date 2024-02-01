@@ -41,6 +41,7 @@ const sendMessage = (message: EditorMessage) => {
 const sendStateUpdate = debounce((editor: Editor) => {
   let payload = {
     // core
+    isReady: true,
     isFocused: focusListener.isFocused,
   };
 
@@ -58,6 +59,8 @@ export default function Tiptap() {
   const editor = useEditor({
     extensions,
     content,
+    onCreate: () =>
+      sendMessage({ type: EditorMessageType.EditorReady, payload: null }),
     onUpdate: (onUpdate) => sendStateUpdate(onUpdate.editor),
     onSelectionUpdate: (onUpdate) => sendStateUpdate(onUpdate.editor),
     onTransaction: (onUpdate) => sendStateUpdate(onUpdate.editor),
@@ -90,6 +93,9 @@ export default function Tiptap() {
       console.log('Received message from webview', { type, payload });
       switch (type) {
         case EditorMessageType.Action:
+          if (payload.type === EditorUpdateSettings.Focus) {
+            editor.commands.focus(payload.payload);
+          }
           // Handle actions
           handleEditorAction(payload);
           break;

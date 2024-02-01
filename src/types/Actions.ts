@@ -19,6 +19,7 @@ export interface RegularAction {
 
 export enum EditorUpdateSettings {
   UpdateScrollThresholdAndMargin = 'update-scroll-threshold-and-margin',
+  Focus = 'focus',
 }
 
 type EditorUpdateSettingsActions =

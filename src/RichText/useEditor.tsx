@@ -57,11 +57,20 @@ export const useEditor = (options?: {
       payload: bottom,
     });
 
+  const focus = (pos: 'start' | 'end' | 'all' | number | boolean | null) => {
+    webviewRef.current?.requestFocus();
+    sendAction({
+      type: EditorUpdateSettings.Focus,
+      payload: pos,
+    });
+  };
+
   const editorInstance = {
     plugins: options?.plugins,
     webviewRef,
     updateScrollThresholdAndMargin,
     getEditorState,
+    focus,
     _updateEditorState,
     _subscribeToEditorStateUpdate,
   };

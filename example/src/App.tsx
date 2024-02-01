@@ -49,7 +49,7 @@ function App() {
       {/* <TextInput onFocus={() => setHideToolbar(true)} onBlur={() => setHideToolbar(false)} /> */}
       {/* <View style={{ ...exampleOfFullScreenEditorStyles }}> */}
       <View style={exampleOfFullScreenEditorStyles}>
-        <RichText avoidIosKeyboard editor={editor} DEV />
+        <RichText autofocus avoidIosKeyboard editor={editor} DEV />
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
