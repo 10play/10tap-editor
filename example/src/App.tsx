@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { SafeAreaView, View } from 'react-native';
+import { SafeAreaView } from 'react-native';
 import {
   ColorBridge,
   HighlightBridge,
@@ -10,7 +10,6 @@ import {
   Toolbar,
   UnderlineBridge,
   useEditor,
-  useKeyboardUp,
 } from 'tentap';
 
 // const exampleOfSmallEditorStyles = {
@@ -20,9 +19,9 @@ import {
 //   borderColor: 'black',
 // };
 
-const exampleOfFullScreenEditorStyles = {
-  flex: 1,
-};
+// const exampleOfFullScreenEditorStyles = {
+//   flex: 1,
+// };
 
 function App() {
   // Editor is basically a ref to the webview with extra functions (might be confusing?)
@@ -36,19 +35,15 @@ function App() {
       HighlightBridge,
     ],
   });
-
-  const isKeyboardUp = useKeyboardUp();
   const [hideToolbar, _setHideToolbar] = React.useState(false);
   const TapRef = useRef(null);
 
-  const toolbarVisible = !!isKeyboardUp && !hideToolbar;
-
   return (
-    <SafeAreaView style={{ ...exampleOfFullScreenEditorStyles }} ref={TapRef}>
-      <View style={{ ...exampleOfFullScreenEditorStyles }}>
-        <RichText avoidIosKeyboard editor={editor} DEV />
-      </View>
-      <Toolbar editor={editor} visible={toolbarVisible} rootRef={TapRef} />
+    <SafeAreaView style={{ flex: 1, justifyContent: 'center' }} ref={TapRef}>
+      {/* <TextInput onFocus={() => setHideToolbar(true)} onBlur={() => setHideToolbar(false)} /> */}
+      {/* <View style={{ ...exampleOfFullScreenEditorStyles }}> */}
+      <RichText editor={editor} DEV />
+      <Toolbar editor={editor} hidden={hideToolbar} rootRef={TapRef} />
     </SafeAreaView>
   );
 }

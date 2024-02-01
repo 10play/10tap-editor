@@ -10,7 +10,7 @@ import {
 import editorHTML from '../Editor/build/index.html';
 
 import { type EditorMessage, EditorMessageType } from '../types/Messaging';
-import { useKeyboardUp } from '../utils';
+import { useKeyboard } from '../utils';
 import type { EditorInstance } from '../types';
 
 interface RichTextProps extends WebViewProps {
@@ -23,7 +23,7 @@ const DEV_SERVER_URL = 'http://localhost:3000';
 
 export const RichText = (props: RichTextProps) => {
   const { DEV, editor, avoidIosKeyboard } = props;
-  const iosKeyboardHeight = useKeyboardUp();
+  const { keyboardHeight: iosKeyboardHeight } = useKeyboard();
   const source: WebViewProps['source'] = DEV
     ? { uri: DEV_SERVER_URL }
     : { html: editorHTML };

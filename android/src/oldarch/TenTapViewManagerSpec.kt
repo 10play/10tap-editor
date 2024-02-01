@@ -1,9 +1,7 @@
 package com.tentap
 
-import android.view.View
-import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.uimanager.SimpleViewManager
+import android.view.ViewGroup
+import com.facebook.react.uimanager.ViewGroupManager
 
-abstract class TenTapViewManagerSpec<T : View> : SimpleViewManager<T>() {
-  abstract fun setColor(view: T?, value: String?)
+abstract class TenTapViewManagerSpec<T : ViewGroup> : ViewGroupManager<T>() {
 }

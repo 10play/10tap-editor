@@ -9,13 +9,15 @@ import { useEditorState } from '../useEditorState';
 import React, { useEffect, type RefObject } from 'react';
 import { DEFAULT_TOOLBAR_ITEMS, type ToolbarItem } from './actions';
 import { EditLinkBar } from './EditLinkBar';
-import { CustomKeyboard } from '../CustomKeyboard';
+import { Platform } from 'react-native';
+import { CustomKeyboard } from '../Keyboard';
+import { useKeyboard } from '../../utils';
 import type { EditorInstance } from '../../types';
 
 interface ToolbarProps {
   editor: EditorInstance;
   rootRef: RefObject<any>;
-  visible?: boolean;
+  hidden?: boolean;
   keyboardAware?: boolean;
   items?: ToolbarItem[];
 }
@@ -58,14 +60,18 @@ export enum ToolbarContext {
 export function Toolbar({
   editor,
   rootRef,
-  visible,
+  hidden,
   keyboardAware = true,
   items = DEFAULT_TOOLBAR_ITEMS,
 }: ToolbarProps) {
   const editorState = useEditorState(editor);
+  const { isKeyboardUp } = useKeyboard();
   const [toolbarContext, setToolbarContext] = React.useState<ToolbarContext>(
     ToolbarContext.Main
   );
+
+  const hideToolbar =
+    hidden || (keyboardAware && !isKeyboardUp && !editorState.isFocused);
 
   useEffect(() => {
     if (editorState.isFocused) {
@@ -85,7 +91,7 @@ export function Toolbar({
             data={items}
             style={[
               toolbarStyles.toolbar,
-              !visible ? toolbarStyles.hidden : undefined,
+              hideToolbar ? toolbarStyles.hidden : undefined,
             ]}
             renderItem={({ item: { onPress, disabled, active, image } }) => {
               return (
@@ -126,6 +132,7 @@ export function Toolbar({
       {renderToolbar()}
       <CustomKeyboard
         rootRef={rootRef}
+        setToolbarContext={setToolbarContext}
         color={toolbarContext === ToolbarContext.Color}
       />
     </>
@@ -134,7 +141,7 @@ export function Toolbar({
   if (keyboardAware) {
     return (
       <KeyboardAvoidingView
-        behavior="padding" // TODO android
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={toolbarStyles.keyboardAvoidingView}
       >
         {toolbar}
