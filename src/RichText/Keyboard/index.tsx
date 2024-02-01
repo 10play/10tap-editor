@@ -1,12 +1,39 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Platform } from 'react-native';
 import { CustomKeyboardAndroid } from './CustomKeyboard.android';
 import { CustomKeyboardIOS } from './CustomKeyboard.ios';
-import type { CustomKeyboardProps } from './types';
+import type { CustomKeyboardExtension } from './CustomKeyboardExtension';
 
-export const CustomKeyboard = (props: CustomKeyboardProps) => {
+interface CustomKeyboardProps {
+  rootRef: React.RefObject<any>;
+  keyboards: CustomKeyboardExtension[];
+  setActiveKeyboardID: (id: string | undefined) => void;
+  activeKeyboardID?: string;
+}
+export const CustomKeyboard = ({
+  keyboards,
+  activeKeyboardID,
+  setActiveKeyboardID,
+  rootRef,
+}: CustomKeyboardProps) => {
+  const customKeyboard =
+    (activeKeyboardID && keyboards.find((k) => k.id === activeKeyboardID)) ||
+    undefined;
+
+  const onKeyboardHideAndroid = useCallback(() => {
+    setActiveKeyboardID(undefined);
+  }, [setActiveKeyboardID]);
+
   if (Platform.OS === 'ios') {
-    return <CustomKeyboardIOS {...props} />;
+    return (
+      <CustomKeyboardIOS rootRef={rootRef} customKeyboard={customKeyboard} />
+    );
   }
-  return <CustomKeyboardAndroid {...props} />;
+  return (
+    <CustomKeyboardAndroid
+      rootRef={rootRef}
+      customKeyboard={customKeyboard}
+      onKeyboardHideAndroid={onKeyboardHideAndroid}
+    />
+  );
 };

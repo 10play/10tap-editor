@@ -52,23 +52,6 @@ export interface ToolbarItem {
 export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
   {
     onPress:
-      ({ editor, setToolbarContext }) =>
-      () => {
-        setToolbarContext((prev) => {
-          if (prev === ToolbarContext.Color) {
-            editor.webviewRef.current?.requestFocus();
-            return ToolbarContext.Main;
-          } else {
-            return ToolbarContext.Color;
-          }
-        });
-      },
-    active: ({ toolbarContext }) => toolbarContext === ToolbarContext.Color,
-    disabled: () => false,
-    image: () => Images.platte,
-  },
-  {
-    onPress:
       ({ setToolbarContext }) =>
       () => {
         setToolbarContext(ToolbarContext.Link);

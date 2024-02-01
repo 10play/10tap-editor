@@ -1,25 +1,29 @@
 import React, { useEffect } from 'react';
-import { TenTapView, ToolbarContext, useKeyboard } from 'tentap';
-import type { CustomKeyboardProps } from './types';
-import { ColorKeyboard } from './ColorKeyboard';
+import { TenTapView, useKeyboard } from 'tentap';
+import type { CustomKeyboardExtension } from './CustomKeyboardExtension';
+
+export interface CustomKeyboardAndroidProps {
+  rootRef: React.RefObject<any>;
+  onKeyboardHideAndroid?: () => void;
+  customKeyboard?: CustomKeyboardExtension;
+}
 
 export const CustomKeyboardAndroid = ({
-  color,
-  setToolbarContext,
-}: CustomKeyboardProps) => {
+  customKeyboard,
+  onKeyboardHideAndroid,
+}: CustomKeyboardAndroidProps) => {
   const { keyboardHeight, isKeyboardUp } = useKeyboard();
 
   useEffect(() => {
     if (isKeyboardUp) {
-      // If keyboard is up reset toolbar state
-      setToolbarContext(ToolbarContext.Main);
+      onKeyboardHideAndroid && onKeyboardHideAndroid();
     }
-  }, [isKeyboardUp, setToolbarContext]);
+  }, [isKeyboardUp, onKeyboardHideAndroid]);
 
   return (
     // Keyboard height is not used on native in android
     <TenTapView keyboardHeight={0} style={{ height: keyboardHeight }}>
-      {color && <ColorKeyboard />}
+      {customKeyboard && <customKeyboard.comp />}
     </TenTapView>
   );
 };
