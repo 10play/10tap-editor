@@ -36,6 +36,10 @@
     return self;
 }
 
+- (void)setKeyboardID:(NSString *)keyboardID {
+    _keyboardID = keyboardID;
+}
+
 - (void)setInputTag:(NSNumber *)inputTag {
     _inputTag = inputTag;
     if(self.bridge == nil)
@@ -55,7 +59,7 @@
         inputController.inputView = inputView;
         
         // Create Keyboard
-        RCTRootView *customKeyboard = [[RCTRootView alloc] initWithBridge:self.bridge moduleName:@"keyboard.color" initialProperties:nil];
+        RCTRootView *customKeyboard = [[RCTRootView alloc] initWithBridge:self.bridge moduleName:_keyboardID initialProperties:nil];
 
         customKeyboard.translatesAutoresizingMaskIntoConstraints = NO;
 
