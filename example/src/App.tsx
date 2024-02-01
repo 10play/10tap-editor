@@ -32,9 +32,9 @@ import { ColorKeyboard } from '../../src/RichText/Keyboard/ColorKeyboard';
 //   borderColor: 'black',
 // };
 
-// const exampleOfFullScreenEditorStyles = {
-//   flex: 1,
-// };
+const exampleOfFullScreenEditorStyles = {
+  flex: 1,
+};
 function App() {
   // Editor is basically a ref to the webview with extra functions (might be confusing?)
   const editor = useEditor({
@@ -53,7 +53,9 @@ function App() {
     <SafeAreaView style={{ flex: 1, justifyContent: 'center' }} ref={TapRef}>
       {/* <TextInput onFocus={() => setHideToolbar(true)} onBlur={() => setHideToolbar(false)} /> */}
       {/* <View style={{ ...exampleOfFullScreenEditorStyles }}> */}
-      <RichText editor={editor} DEV />
+      <View style={exampleOfFullScreenEditorStyles}>
+        <RichText avoidIosKeyboard editor={editor} DEV />
+      </View>
       <TB editor={editor} tapRef={TapRef} />
     </SafeAreaView>
   );
