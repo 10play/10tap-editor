@@ -37,10 +37,10 @@ export const UnderlineBridge = new TenTapBridge<
 
     return false;
   },
-  extendEditorInstance: (sendPluginMessage) => {
+  extendEditorInstance: (sendBridgeMessage) => {
     return {
       toggleUnderline: () =>
-        sendPluginMessage({ type: UnderlineEditorActionType.ToggleUnderline }),
+        sendBridgeMessage({ type: UnderlineEditorActionType.ToggleUnderline }),
     };
   },
   extendEditorState: (editor) => {

@@ -66,10 +66,10 @@ export const LinkBridge = new TenTapBridge<
 
     return false;
   },
-  extendEditorInstance: (sendPluginMessage) => {
+  extendEditorInstance: (sendBridgeMessage) => {
     return {
       setLink: (link) =>
-        sendPluginMessage({
+        sendBridgeMessage({
           type: LinkEditorActionType.SetLink,
           payload: link,
         }),

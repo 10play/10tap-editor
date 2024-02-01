@@ -41,10 +41,10 @@ export const HighlightBridge = new TenTapBridge<
 
     return false;
   },
-  extendEditorInstance: (sendPluginMessage) => {
+  extendEditorInstance: (sendBridgeMessage) => {
     return {
       setHighlight: (color) =>
-        sendPluginMessage({
+        sendBridgeMessage({
           type: HighlightEditorActionType.SetHighlight,
           payload: color,
         }),

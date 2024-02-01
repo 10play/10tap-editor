@@ -128,34 +128,34 @@ export const TenTapStartKit = new TenTapBridge<
 
     return false;
   },
-  extendEditorInstance: (sendPluginMessage) => {
+  extendEditorInstance: (sendBridgeMessage) => {
     const toggleBold = () => {
-      console.log('try to toggle bold', sendPluginMessage);
-      sendPluginMessage({ type: StarterKitEditorActionType.ToggleBold });
+      console.log('try to toggle bold', sendBridgeMessage);
+      sendBridgeMessage({ type: StarterKitEditorActionType.ToggleBold });
     };
     const toggleItalic = () =>
-      sendPluginMessage({ type: StarterKitEditorActionType.ToggleItalic });
+      sendBridgeMessage({ type: StarterKitEditorActionType.ToggleItalic });
     const toggleStrikethrough = () =>
-      sendPluginMessage({
+      sendBridgeMessage({
         type: StarterKitEditorActionType.ToggleStrikethrough,
       });
     const toggleBulletList = () =>
-      sendPluginMessage({ type: StarterKitEditorActionType.ToggleBulletList });
+      sendBridgeMessage({ type: StarterKitEditorActionType.ToggleBulletList });
     const toggleOrderedList = () =>
-      sendPluginMessage({ type: StarterKitEditorActionType.ToggleOrderedList });
+      sendBridgeMessage({ type: StarterKitEditorActionType.ToggleOrderedList });
     const toggleHeading = (level: Level) =>
-      sendPluginMessage({
+      sendBridgeMessage({
         type: StarterKitEditorActionType.ToggleHeading,
         payload: level,
       });
     const lift = () =>
-      sendPluginMessage({ type: StarterKitEditorActionType.Lift });
+      sendBridgeMessage({ type: StarterKitEditorActionType.Lift });
     const sink = () =>
-      sendPluginMessage({ type: StarterKitEditorActionType.Sink });
+      sendBridgeMessage({ type: StarterKitEditorActionType.Sink });
     const undo = () =>
-      sendPluginMessage({ type: StarterKitEditorActionType.Undo });
+      sendBridgeMessage({ type: StarterKitEditorActionType.Undo });
     const redo = () =>
-      sendPluginMessage({ type: StarterKitEditorActionType.Redo });
+      sendBridgeMessage({ type: StarterKitEditorActionType.Redo });
 
     return {
       toggleBold,

@@ -38,10 +38,10 @@ export const TaskListBridge = new TenTapBridge<
 
     return false;
   },
-  extendEditorInstance: (sendPluginMessage) => {
+  extendEditorInstance: (sendBridgeMessage) => {
     return {
       toggleTaskList: () =>
-        sendPluginMessage({ type: TaskListEditorActionType.ToggleTaskList }),
+        sendBridgeMessage({ type: TaskListEditorActionType.ToggleTaskList }),
     };
   },
   extendEditorState: (editor) => {

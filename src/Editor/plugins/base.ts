@@ -5,7 +5,7 @@ interface TenTapBridge<T, E, M> {
   tiptapExtension: AnyExtension | AnyExtension[];
   onBridgeMessage: (editor: Editor, message: M) => boolean;
   extendEditorState: (editor: Editor) => T;
-  extendEditorInstance: (sendPluginMessage: (message: M) => void) => E;
+  extendEditorInstance: (sendBridgeMessage: (message: M) => void) => E;
   extendCSS?: string | undefined;
 }
 
