@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { SafeAreaView } from 'react-native';
-import { RichText, Toolbar, useEditor, useKeyboard } from 'tentap';
+import { RichText, Toolbar, useEditor } from 'tentap';
 
 // const exampleOfSmallEditorStyles = {
 //   height: 100,
@@ -16,18 +16,15 @@ import { RichText, Toolbar, useEditor, useKeyboard } from 'tentap';
 function App() {
   // Editor is basically a ref to the webview with extra functions (might be confusing?)
   const editor = useEditor();
-  const { isKeyboardUp } = useKeyboard();
   const [hideToolbar, _setHideToolbar] = React.useState(false);
   const TapRef = useRef(null);
-
-  const toolbarVisible = isKeyboardUp && !hideToolbar;
 
   return (
     <SafeAreaView style={{ flex: 1, justifyContent: 'center' }} ref={TapRef}>
       {/* <TextInput onFocus={() => setHideToolbar(true)} onBlur={() => setHideToolbar(false)} /> */}
       {/* <View style={{ ...exampleOfFullScreenEditorStyles }}> */}
       <RichText editor={editor} DEV />
-      <Toolbar editor={editor} visible={toolbarVisible} rootRef={TapRef} />
+      <Toolbar editor={editor} hidden={hideToolbar} rootRef={TapRef} />
     </SafeAreaView>
   );
 }

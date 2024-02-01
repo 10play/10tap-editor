@@ -17,11 +17,12 @@ import {
 import { EditLinkBar } from './EditLinkBar';
 import { Platform } from 'react-native';
 import { CustomKeyboard } from '../Keyboard';
+import { useKeyboard } from '../../utils';
 
 interface ToolbarProps {
   editor: Editor;
   rootRef: RefObject<any>;
-  visible?: boolean;
+  hidden?: boolean;
   keyboardAware?: boolean;
   items?: ToolbarItemType[];
 }
@@ -64,14 +65,18 @@ export enum ToolbarContext {
 export function Toolbar({
   editor,
   rootRef,
-  visible,
+  hidden,
   keyboardAware = true,
   items = DEFAULT_TOOLBAR_ITEMS,
 }: ToolbarProps) {
   const editorState = useEditorState(editor);
+  const { isKeyboardUp } = useKeyboard();
   const [toolbarContext, setToolbarContext] = React.useState<ToolbarContext>(
     ToolbarContext.Main
   );
+
+  const hideToolbar =
+    hidden || (keyboardAware && !isKeyboardUp && !editorState.isFocused);
 
   const toolbarItems: ToolbarAction[] = useMemo(() => {
     const allActions = getToolbarActions(
@@ -99,9 +104,7 @@ export function Toolbar({
             data={toolbarItems}
             style={[
               toolbarStyles.toolbar,
-              !visible && !editorState.isFocused
-                ? toolbarStyles.hidden
-                : undefined,
+              hideToolbar ? toolbarStyles.hidden : undefined,
             ]}
             renderItem={({ item: { onPress, disabled, active, image } }) => {
               return (
