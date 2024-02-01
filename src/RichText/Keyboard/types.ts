@@ -1,7 +1,7 @@
-import type { ToolbarContext } from '../Toolbar';
+import type { CustomKeyboardExtension } from './CustomKeyboardExtension';
 
 export interface CustomKeyboardProps {
   rootRef: React.RefObject<any>;
-  color: boolean;
-  setToolbarContext: (context: ToolbarContext) => void;
+  onKeyboardHideAndroid?: () => void;
+  customKeyboard?: CustomKeyboardExtension;
 }
