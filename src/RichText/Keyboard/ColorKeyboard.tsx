@@ -7,6 +7,7 @@ import {
   View,
 } from 'react-native';
 import { EditorHelper } from '../EditorHelper';
+import { CustomKeyboardExtension } from './CustomKeyboardExtension';
 
 const colors = [
   'red',
@@ -36,7 +37,7 @@ const colors = [
   'plum',
 ];
 
-export const ColorKeyboard = () => {
+const ColorKeyboardComp = () => {
   const activeColor =
     EditorHelper.editorLastInstance?.getEditorState().activeColor;
   const activeHighlight =
@@ -133,3 +134,8 @@ const keyboardStyles = StyleSheet.create({
     height: '100%',
   },
 });
+
+export const ColorKeyboard = new CustomKeyboardExtension(
+  'keyboard.color',
+  ColorKeyboardComp
+);
