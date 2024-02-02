@@ -7,19 +7,34 @@ import {
 } from '@react-navigation/native-stack';
 import { Basic } from './Examples/Basic';
 import { CustomKeyboardExample } from './Examples/CustomKeyboardExample';
+import { EditorStickToKeyboardExample } from './Examples/EditorStickToKeyboardExample';
+
+const examples = [
+  {
+    name: 'Basic',
+    component: Basic,
+  },
+  {
+    name: 'CustomKeyboard',
+    component: CustomKeyboardExample,
+  },
+  {
+    name: 'EditorStickToKeyboardExample',
+    component: EditorStickToKeyboardExample,
+  },
+];
 
 const HomeScreen = ({ navigation }: NativeStackScreenProps<any, any, any>) => {
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <Text>10Tap Rich Text Editor!</Text>
-      <Button
-        title="Basic Usage"
-        onPress={() => navigation.navigate('Basic')}
-      />
-      <Button
-        title="Custom Keyboard"
-        onPress={() => navigation.navigate('CustomKeyboard')}
-      />
+      {examples.map((example) => (
+        <Button
+          key={example.name}
+          title={example.name}
+          onPress={() => navigation.navigate(example.name)}
+        />
+      ))}
     </View>
   );
 };
@@ -34,8 +49,13 @@ const App = () => {
         }}
       >
         <Stack.Screen name="Examples" component={HomeScreen} />
-        <Stack.Screen name="Basic" component={Basic} />
-        <Stack.Screen name="CustomKeyboard" component={CustomKeyboardExample} />
+        {examples.map((example) => (
+          <Stack.Screen
+            key={example.name}
+            name={example.name}
+            component={example.component}
+          />
+        ))}
       </Stack.Navigator>
     </NavigationContainer>
   );

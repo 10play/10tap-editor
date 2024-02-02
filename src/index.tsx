@@ -7,5 +7,6 @@ export * from './Editor/plugins/tasklist';
 export * from './Editor/plugins/link';
 export * from './Editor/plugins/color';
 export * from './Editor/plugins/highlight';
+export * from './Editor/plugins/core';
 export * from './types';
 export * from './utils';

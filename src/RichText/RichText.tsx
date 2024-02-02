@@ -49,6 +49,9 @@ export const RichText = ({
     const { data } = event.nativeEvent;
     // Parse the message sent from the editor
     const { type, payload } = JSON.parse(data) as EditorMessage;
+    editor.plugins?.forEach((e) => {
+      e.onEditorMessage && e.onEditorMessage({ type, payload });
+    });
     switch (type) {
       case EditorMessageType.EditorReady:
         if (autofocus) {

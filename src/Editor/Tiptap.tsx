@@ -15,6 +15,7 @@ import { TaskListBridge } from './plugins/tasklist';
 import { LinkBridge } from './plugins/link';
 import { ColorBridge } from './plugins/color';
 import { HighlightBridge } from './plugins/highlight';
+import { CoreBridge } from './plugins/core';
 // import { blueBackgroundPlugin } from './plugins/HighlightSelection';
 
 const tenTapExtensions = [
@@ -25,11 +26,19 @@ const tenTapExtensions = [
   LinkBridge,
   ColorBridge,
   HighlightBridge,
+  CoreBridge,
 ].filter(
   (e) => !window.whiteListPlugins || window.whiteListPlugins.includes(e.name)
 );
 
-const extensions = tenTapExtensions.map((e) => e.tiptapExtension).flat();
+function filterExists<T>(object: T): object is NonNullable<T> {
+  return object !== null && object !== undefined;
+}
+
+const extensions = tenTapExtensions
+  .map((e) => e.tiptapExtension)
+  .filter(filterExists)
+  .flat();
 
 const content = '<p>Hello <u>World!</u></p>';
 
@@ -71,7 +80,7 @@ export default function Tiptap() {
     // Subscribe to editor message
     const handleEditorAction = (action: any) => {
       tenTapExtensions.forEach((e) => {
-        e.onBridgeMessage(editor, action);
+        e.onBridgeMessage(editor, action, sendMessage);
       });
       if (action.type === EditorUpdateSettings.UpdateScrollThresholdAndMargin) {
         editor.setOptions({
