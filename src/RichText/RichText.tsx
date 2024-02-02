@@ -118,6 +118,19 @@ export const RichText = ({
               `
             : undefined
         }
+        injectedJavaScriptBeforeContentLoaded={`${
+          editor.plugins
+            ? `
+            window.whiteListPlugins = [${editor.plugins
+              .map((plugin) => `'${plugin.name}'`)
+              .join(',')}];
+                `
+            : ''
+        }${
+          editor.initialContent
+            ? `window.initialContent = '${editor.initialContent}';`
+            : ''
+        }`}
         hideKeyboardAccessoryView={true}
         onMessage={onWebviewMessage}
         ref={editor.webviewRef}

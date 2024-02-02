@@ -11,6 +11,7 @@ type Subscription<T> = (cb: (val: T) => void) => () => void;
 
 export interface EditorInstance {
   focus: (pos?: 'start' | 'end' | 'all' | number | boolean | null) => void;
+  initialContent?: string;
   webviewRef: RefObject<WebView>;
   updateScrollThresholdAndMargin: (offset: number) => void;
   getEditorState: () => EditorState;

@@ -31,7 +31,7 @@ const exampleStyles = StyleSheet.create({
     bottom: 0,
   },
   messageBox: {
-    minHeight: 50,
+    minHeight: 70,
     padding: 3,
     backgroundColor: '#828282',
     margin: 5,
@@ -59,6 +59,7 @@ export const EditorStickToKeyboardExample = ({}: NativeStackScreenProps<
 >) => {
   const editor = useEditor({
     plugins: [TenTapStartKit, CoreBridge],
+    initialContent: '<p>hehehe<u>ssss</u></p>',
   });
   const TapRef = useRef(null);
   const [messages, setMessages] =

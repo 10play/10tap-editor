@@ -14,6 +14,7 @@ type Subscription<T> = (cb: (val: T) => void) => () => void;
 
 export const useEditor = (options?: {
   plugins?: TenTapBridge<any, any, any>[];
+  initialContent?: string;
 }): EditorInstance => {
   const webviewRef = useRef<WebView>(null);
   // Till we will implement default per plugin
@@ -70,6 +71,7 @@ export const useEditor = (options?: {
     webviewRef,
     updateScrollThresholdAndMargin,
     getEditorState,
+    initialContent: options?.initialContent,
     focus,
     _updateEditorState,
     _subscribeToEditorStateUpdate,

@@ -40,7 +40,7 @@ const extensions = tenTapExtensions
   .filter(filterExists)
   .flat();
 
-const content = '<p>Hello <u>World!</u></p>';
+const content = window.initialContent || '';
 
 const sendMessage = (message: EditorMessage) => {
   // @ts-ignore TODO fix type
