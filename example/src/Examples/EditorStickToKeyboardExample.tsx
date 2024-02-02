@@ -61,8 +61,9 @@ export const EditorStickToKeyboardExample = ({}: NativeStackScreenProps<
 >) => {
   const editor = useEditor({
     plugins: [TenTapStartKit, CoreBridge],
-    initialContent: '<p>hehehe<u>ssss</u></p>',
+    initialContent: '<p>Initial lovely message...</p>',
   });
+  const MessagesScrollViewRef = useRef<ScrollView>(null);
   const TapRef = useRef(null);
   const [messages, setMessages] =
     React.useState<{ text: string; date: number }[]>(defaultMessages);
@@ -72,11 +73,20 @@ export const EditorStickToKeyboardExample = ({}: NativeStackScreenProps<
     const content = await editor.getContent();
     setMessages((prev) => [...prev, { text: content, date: Date.now() }]);
     editor.setContent('');
+    if (MessagesScrollViewRef.current) {
+      setTimeout(() => {
+        MessagesScrollViewRef.current!.scrollToEnd({ animated: true });
+      }, 100);
+    }
   };
 
   return (
     <SafeAreaView style={exampleStyles.fullScreen} ref={TapRef}>
-      <ScrollView>
+      <ScrollView
+        automaticallyAdjustKeyboardInsets={true}
+        ref={MessagesScrollViewRef}
+        contentContainerStyle={{ paddingBottom: 120 }}
+      >
         {messages.map((message) => (
           <View style={exampleStyles.messageBox}>
             <WebView
