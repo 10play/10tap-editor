@@ -87,7 +87,8 @@
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*"
+    "react-native": "*",
+    "react-native-webview": "*"
   },
   "workspaces": [
     "example"
@@ -187,6 +188,6 @@
     "@tiptap/starter-kit": "^2.1.16",
     "lodash": "^4.17.21",
     "react-dom": "^18.2.0",
-    "react-native-webview": "^13.6.4"
+    "react-native-webview": "13.6.4"
   }
 }

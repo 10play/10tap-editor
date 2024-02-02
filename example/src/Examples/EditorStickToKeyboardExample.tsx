@@ -19,6 +19,7 @@ import {
 } from 'tentap';
 import { CustomKeyboard } from '../../../src/RichText/Keyboard';
 import { ColorKeyboard } from '../../../src/RichText/Keyboard/ColorKeyboard';
+import WebView from 'react-native-webview';
 
 const exampleStyles = StyleSheet.create({
   fullScreen: {
@@ -31,6 +32,7 @@ const exampleStyles = StyleSheet.create({
   },
   messageBox: {
     minHeight: 50,
+    padding: 3,
     backgroundColor: '#828282',
     margin: 5,
     borderRadius: 3,
@@ -73,7 +75,11 @@ export const EditorStickToKeyboardExample = ({}: NativeStackScreenProps<
       <ScrollView>
         {messages.map((message) => (
           <View style={exampleStyles.messageBox}>
-            <Text>{message.text}</Text>
+            <WebView
+              source={{
+                html: `<html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>${message.text}</body></html>`,
+              }}
+            />
           </View>
         ))}
       </ScrollView>

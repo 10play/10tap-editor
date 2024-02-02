@@ -45,7 +45,7 @@ export const CoreBridge = new TenTapBridge<
       sendMessageBack({
         type: CoreEditorActionType.SendContentToNative,
         payload: {
-          content: editor.getText(),
+          content: editor.getHTML(),
           messageId: message.payload.messageId,
         },
       });
