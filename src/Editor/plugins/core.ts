@@ -5,6 +5,7 @@ type CoreEditorState = {};
 
 type CoreEditorInstance = {
   getContent: () => Promise<string>;
+  setContent: (content: string) => void;
 };
 
 declare module '../../types/EditorState' {
@@ -14,6 +15,7 @@ declare module '../../types/EditorState' {
 
 export enum CoreEditorActionType {
   GetContent = 'get-content',
+  SetContent = 'set-content',
   SendContentToNative = 'send-content-back',
 }
 
@@ -32,6 +34,12 @@ type CoreMessages =
       payload: {
         messageId: string;
       };
+    }
+  | {
+      type: CoreEditorActionType.SetContent;
+      payload: {
+        content: string;
+      };
     };
 
 export const CoreBridge = new TenTapBridge<
@@ -41,6 +49,10 @@ export const CoreBridge = new TenTapBridge<
 >({
   forceName: 'coreBridge',
   onBridgeMessage: (editor, message, sendMessageBack) => {
+    if (message.type === CoreEditorActionType.SetContent) {
+      editor.commands.setContent(message.payload.content);
+      return true;
+    }
     if (message.type === CoreEditorActionType.GetContent) {
       sendMessageBack({
         type: CoreEditorActionType.SendContentToNative,
@@ -62,6 +74,14 @@ export const CoreBridge = new TenTapBridge<
   },
   extendEditorInstance: (sendBridgeMessage) => {
     return {
+      setContent: (content: string) => {
+        sendBridgeMessage({
+          type: CoreEditorActionType.SetContent,
+          payload: {
+            content,
+          },
+        });
+      },
       getContent: async () => {
         const html = (await asyncMessages.sendAsyncMessage(
           {

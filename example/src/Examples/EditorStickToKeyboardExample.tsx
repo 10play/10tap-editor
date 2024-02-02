@@ -40,6 +40,8 @@ const exampleStyles = StyleSheet.create({
   },
   editorWrapper: {
     height: 70,
+    paddingLeft: 12,
+    backgroundColor: 'white',
     flexDirection: 'row',
   },
   sendButton: {
@@ -69,6 +71,7 @@ export const EditorStickToKeyboardExample = ({}: NativeStackScreenProps<
   const onSendMessage = async () => {
     const content = await editor.getContent();
     setMessages((prev) => [...prev, { text: content, date: Date.now() }]);
+    editor.setContent('');
   };
 
   return (
