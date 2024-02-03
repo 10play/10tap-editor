@@ -19,4 +19,5 @@ export const Images = {
   link: require('./link.png'),
   platte: require('./palette.png'),
   code: require('./code-slash.png'),
+  quote: require('./quote.png'),
 };

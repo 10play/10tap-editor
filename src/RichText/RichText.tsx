@@ -97,13 +97,11 @@ export const RichText = ({
         injectedJavaScript={
           editor.plugins
             ? `
-              setTimeout(() => {
-
-                    var css = \`${editor.plugins
-                      .map((e) => e.extendCSS)
-                      .join(' ')}\`,
-                    head = document.head || document.getElementsByTagName('head')[0],
-                    style = document.createElement('style');
+                var css = \`${editor.plugins
+                  .map((e) => e.extendCSS)
+                  .join(' ')}\`,
+                head = document.head || document.getElementsByTagName('head')[0],
+                style = document.createElement('style');
         
                 head.appendChild(style);
         
@@ -114,7 +112,6 @@ export const RichText = ({
                 } else {
                   style.appendChild(document.createTextNode(css));
                 }
-              }, 5000)
               `
             : undefined
         }

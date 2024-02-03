@@ -80,6 +80,15 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     onPress:
       ({ editor }) =>
       () =>
+        editor.toggleBlockquote(),
+    active: ({ editorState }) => editorState.isQuoteActive,
+    disabled: ({ editorState }) => !editorState.canToggleBlockquote,
+    image: () => Images.quote,
+  },
+  {
+    onPress:
+      ({ editor }) =>
+      () =>
         editor.toggleCodeBlock(),
     active: ({ editorState }) => editorState.isCodeActive,
     disabled: ({ editorState }) => !editorState.canToggleCode,

@@ -2,9 +2,11 @@ import StarterKit from '@tiptap/starter-kit';
 import TenTapBridge from './base';
 
 type TenTapStartKitEditorState = {
+  isQuoteActive: boolean;
   isCodeActive: boolean;
   isBoldActive: boolean;
   isItalicActive: boolean;
+  canToggleBlockquote: boolean;
   canToggleCode: boolean;
   canToggleBold: boolean;
   canToggleItalic: boolean;
@@ -23,6 +25,7 @@ type TenTapStartKitEditorState = {
 };
 
 type TenTapStartKitEditorInstance = {
+  toggleBlockquote: () => void;
   toggleCodeBlock: () => void;
   toggleBold: () => void;
   toggleItalic: () => void;
@@ -42,6 +45,7 @@ declare module '../../types/EditorState' {
 }
 
 export enum StarterKitEditorActionType {
+  ToggleBlockquote = 'toggle-quote',
   ToggleCodeBlock = 'toggle-code-block',
   ToggleBold = 'toggle-bold',
   ToggleItalic = 'toggle-italic',
@@ -57,6 +61,7 @@ export enum StarterKitEditorActionType {
 
 // Actions with no payload
 type ToggleActionTypes =
+  | StarterKitEditorActionType.ToggleBlockquote
   | StarterKitEditorActionType.ToggleCodeBlock
   | StarterKitEditorActionType.ToggleBold
   | StarterKitEditorActionType.ToggleItalic
@@ -89,6 +94,9 @@ export const TenTapStartKit = new TenTapBridge<
   tiptapExtension: StarterKit,
   onBridgeMessage: (editor, message) => {
     switch (message.type) {
+      case StarterKitEditorActionType.ToggleBlockquote:
+        editor.chain().focus().toggleBlockquote().run();
+        break;
       case StarterKitEditorActionType.ToggleCodeBlock:
         editor.chain().focus().toggleCodeBlock().run();
         break;
@@ -137,8 +145,10 @@ export const TenTapStartKit = new TenTapBridge<
     return false;
   },
   extendEditorInstance: (sendBridgeMessage) => {
+    const toggleBlockquote = () => {
+      sendBridgeMessage({ type: StarterKitEditorActionType.ToggleBlockquote });
+    };
     const toggleBold = () => {
-      console.log('try to toggle bold', sendBridgeMessage);
       sendBridgeMessage({ type: StarterKitEditorActionType.ToggleBold });
     };
     const toggleItalic = () =>
@@ -168,6 +178,7 @@ export const TenTapStartKit = new TenTapBridge<
       sendBridgeMessage({ type: StarterKitEditorActionType.ToggleCodeBlock });
 
     return {
+      toggleBlockquote,
       toggleCodeBlock,
       toggleBold,
       toggleItalic,
@@ -183,6 +194,8 @@ export const TenTapStartKit = new TenTapBridge<
   },
   extendEditorState: (editor) => {
     return {
+      isQuoteActive: editor.isActive('blockquote'),
+      canToggleBlockquote: editor.can().toggleBlockquote(),
       isCodeActive: editor.isActive('codeBlock'),
       canToggleCode: editor.can().toggleCodeBlock(),
       canToggleBold: editor.can().toggleBold(),
@@ -223,6 +236,11 @@ export const TenTapStartKit = new TenTapBridge<
     color: inherit;
     font-size: 0.8rem;
     padding: 0;
+  }
+
+  blockquote {
+    border-left: 3px solid #0d0d0d1a;
+    padding-left: 1rem;
   }
   `,
 });
