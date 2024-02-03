@@ -16,12 +16,14 @@ import { LinkBridge } from './plugins/link';
 import { ColorBridge } from './plugins/color';
 import { HighlightBridge } from './plugins/highlight';
 import { CoreBridge } from './plugins/core';
+import { ImageBridge } from './plugins/image';
 // import { blueBackgroundPlugin } from './plugins/HighlightSelection';
 
 const tenTapExtensions = [
   // blueBackgroundPlugin,
   TenTapStartKit,
   UnderlineBridge,
+  ImageBridge,
   TaskListBridge,
   LinkBridge,
   ColorBridge,

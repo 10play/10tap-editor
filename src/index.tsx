@@ -8,5 +8,6 @@ export * from './Editor/plugins/link';
 export * from './Editor/plugins/color';
 export * from './Editor/plugins/highlight';
 export * from './Editor/plugins/core';
+export * from './Editor/plugins/image';
 export * from './types';
 export * from './utils';
