@@ -35,7 +35,7 @@ const exampleStyles = StyleSheet.create({
 
 export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditor({
-    initialContent: `<p>This is a basic example of implementing images. Drag to re-order.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" />`,
+    initialContent: `<p>This is a basic example of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s</p>`,
     plugins: [
       TenTapStartKit,
       UnderlineBridge,

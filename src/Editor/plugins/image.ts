@@ -26,7 +26,9 @@ export const ImageBridge = new TenTapBridge<
   ImageEditorInstance,
   ImageMessage
 >({
-  tiptapExtension: Image,
+  tiptapExtension: Image.configure({
+    allowBase64: true,
+  }),
   onBridgeMessage: (editor, message) => {
     if (message.type === ImageEditorActionType.SetImage) {
       editor.chain().focus().setImage({ src: message.payload }).run();
