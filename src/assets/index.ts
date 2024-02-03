@@ -18,4 +18,5 @@ export const Images = {
   redo: require('./redo.png'),
   link: require('./link.png'),
   platte: require('./palette.png'),
+  code: require('./code-slash.png'),
 };

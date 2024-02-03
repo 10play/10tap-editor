@@ -2,8 +2,10 @@ import StarterKit from '@tiptap/starter-kit';
 import TenTapBridge from './base';
 
 type TenTapStartKitEditorState = {
+  isCodeActive: boolean;
   isBoldActive: boolean;
   isItalicActive: boolean;
+  canToggleCode: boolean;
   canToggleBold: boolean;
   canToggleItalic: boolean;
   canToggleStrikethrough: boolean;
@@ -21,6 +23,7 @@ type TenTapStartKitEditorState = {
 };
 
 type TenTapStartKitEditorInstance = {
+  toggleCodeBlock: () => void;
   toggleBold: () => void;
   toggleItalic: () => void;
   toggleStrikethrough: () => void;
@@ -39,6 +42,7 @@ declare module '../../types/EditorState' {
 }
 
 export enum StarterKitEditorActionType {
+  ToggleCodeBlock = 'toggle-code-block',
   ToggleBold = 'toggle-bold',
   ToggleItalic = 'toggle-italic',
   ToggleStrikethrough = 'toggle-strikethrough',
@@ -53,6 +57,7 @@ export enum StarterKitEditorActionType {
 
 // Actions with no payload
 type ToggleActionTypes =
+  | StarterKitEditorActionType.ToggleCodeBlock
   | StarterKitEditorActionType.ToggleBold
   | StarterKitEditorActionType.ToggleItalic
   | StarterKitEditorActionType.ToggleStrikethrough
@@ -84,6 +89,9 @@ export const TenTapStartKit = new TenTapBridge<
   tiptapExtension: StarterKit,
   onBridgeMessage: (editor, message) => {
     switch (message.type) {
+      case StarterKitEditorActionType.ToggleCodeBlock:
+        editor.chain().focus().toggleCodeBlock().run();
+        break;
       case StarterKitEditorActionType.ToggleBold:
         editor.chain().focus().toggleBold().run();
         break;
@@ -156,8 +164,11 @@ export const TenTapStartKit = new TenTapBridge<
       sendBridgeMessage({ type: StarterKitEditorActionType.Undo });
     const redo = () =>
       sendBridgeMessage({ type: StarterKitEditorActionType.Redo });
+    const toggleCodeBlock = () =>
+      sendBridgeMessage({ type: StarterKitEditorActionType.ToggleCodeBlock });
 
     return {
+      toggleCodeBlock,
       toggleBold,
       toggleItalic,
       toggleStrikethrough,
@@ -172,6 +183,8 @@ export const TenTapStartKit = new TenTapBridge<
   },
   extendEditorState: (editor) => {
     return {
+      isCodeActive: editor.isActive('codeBlock'),
+      canToggleCode: editor.can().toggleCodeBlock(),
       canToggleBold: editor.can().toggleBold(),
       canToggleBulletList: editor.can().toggleBulletList(),
       canToggleItalic: editor.can().toggleItalic(),
@@ -194,4 +207,22 @@ export const TenTapStartKit = new TenTapBridge<
       headingLevel: editor.getAttributes('heading')?.level,
     };
   },
+  extendCSS: `
+  pre {
+    background: #0d0d0d;
+    border-radius: 0.5rem;
+    color: #fff;
+    font-family: "JetBrainsMono", monospace;
+    padding: 0.75rem 1rem;
+  }
+  * + * {
+    margin-top: 0.75em;
+  }  
+  code {
+    background: none;
+    color: inherit;
+    font-size: 0.8rem;
+    padding: 0;
+  }
+  `,
 });

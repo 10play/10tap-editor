@@ -80,6 +80,15 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     onPress:
       ({ editor }) =>
       () =>
+        editor.toggleCodeBlock(),
+    active: ({ editorState }) => editorState.isCodeActive,
+    disabled: ({ editorState }) => !editorState.canToggleCode,
+    image: () => Images.code,
+  },
+  {
+    onPress:
+      ({ editor }) =>
+      () =>
         editor.toggleBold(),
     active: ({ editorState }) => editorState.isBoldActive,
     disabled: ({ editorState }) => !editorState.canToggleBold,
