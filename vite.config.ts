@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 
 export default defineConfig({
-  root: 'src/Editor',
+  root: 'src/simpleWebEditor',
   build: {
     outDir: 'build',
   },

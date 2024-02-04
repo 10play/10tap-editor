@@ -3,20 +3,20 @@ import { Editor, type AnyExtension } from '@tiptap/core';
 interface TenTapBridge<T, E, M> {
   name: string;
   tiptapExtension?: AnyExtension | AnyExtension[];
-  onBridgeMessage: (
+  onBridgeMessage?: (
     editor: Editor,
     message: M,
     sendMessageBack: (message: M) => void
   ) => boolean;
   onEditorMessage?: (message: M) => boolean;
-  extendEditorState: (editor: Editor) => T;
-  extendEditorInstance: (sendBridgeMessage: (message: M) => void) => E;
+  extendEditorState?: (editor: Editor) => T;
+  extendEditorInstance?: (sendBridgeMessage: (message: M) => void) => E;
   extendCSS?: string | undefined;
 }
 
 type CreateTenTapBridgeArgs<T, E, M> = Omit<
   TenTapBridge<T, E, M> & { forceName?: string },
-  'name'
+  'name' | 'sendMessage'
 >;
 
 class TenTapBridge<T, E, M> {

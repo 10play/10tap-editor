@@ -14,7 +14,7 @@ import {
   RichText,
   TenTapStartKit,
   Toolbar,
-  useEditor,
+  useNativeEditor,
   CoreBridge,
 } from 'tentap';
 import { CustomKeyboard } from '../../../src/RichText/Keyboard';
@@ -59,7 +59,7 @@ export const EditorStickToKeyboardExample = ({}: NativeStackScreenProps<
   any,
   any
 >) => {
-  const editor = useEditor({
+  const editor = useNativeEditor({
     plugins: [TenTapStartKit, CoreBridge],
     initialContent: '<p>Initial lovely message...</p>',
   });

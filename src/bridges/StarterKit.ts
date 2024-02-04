@@ -39,8 +39,8 @@ type TenTapStartKitEditorInstance = {
   redo: () => void;
 };
 
-declare module '../../types/EditorState' {
-  interface EditorState extends TenTapStartKitEditorState {}
+declare module '../types/EditorNativeState' {
+  interface EditorNativeState extends TenTapStartKitEditorState {}
   interface EditorInstance extends TenTapStartKitEditorInstance {}
 }
 

@@ -2,18 +2,18 @@ import debounce from 'lodash/debounce';
 import { useEffect } from 'react';
 import { useEditor } from '@tiptap/react';
 import { Editor } from '@tiptap/core';
-import { EditorMessage, EditorMessageType } from '../types/Messaging';
+import { type EditorMessage, EditorMessageType } from '../types/Messaging';
 import { EditorUpdateSettings } from '../types/Actions';
-import focusListener from './utils/focusListener';
-import { TenTapStartKit } from './plugins/StarterKit';
-import { UnderlineBridge } from './plugins/underline';
-import { EditorState } from '../types/EditorState';
-import { TaskListBridge } from './plugins/tasklist';
-import { LinkBridge } from './plugins/link';
-import { ColorBridge } from './plugins/color';
-import { HighlightBridge } from './plugins/highlight';
-import { CoreBridge } from './plugins/core';
-import { ImageBridge } from './plugins/image';
+import focusListener from '../simpleWebEditor/utils/focusListener';
+import { TenTapStartKit } from '../bridges/StarterKit';
+import { UnderlineBridge } from '../bridges/underline';
+import { type EditorNativeState } from '../types/EditorNativeState';
+import { TaskListBridge } from '../bridges/tasklist';
+import { LinkBridge } from '../bridges/link';
+import { ColorBridge } from '../bridges/color';
+import { HighlightBridge } from '../bridges/highlight';
+import { CoreBridge } from '../bridges/core';
+import { ImageBridge } from '../bridges/image';
 
 const tenTapExtensions = [
   TenTapStartKit,
@@ -39,7 +39,7 @@ const extensions = tenTapExtensions
 
 const content = window.initialContent || '';
 
-const sendMessage = (message: EditorMessage) => {
+export const sendMessage = (message: EditorMessage) => {
   // @ts-ignore TODO fix type
   window.ReactNativeWebView?.postMessage(JSON.stringify(message));
 };
@@ -53,7 +53,7 @@ const sendStateUpdate = debounce((editor: Editor) => {
 
   const state = tenTapExtensions.reduce((acc, e) => {
     return Object.assign(acc, e.extendEditorState(editor));
-  }, payload) as EditorState;
+  }, payload) as EditorNativeState;
 
   sendMessage({
     type: EditorMessageType.StateUpdate,
@@ -61,6 +61,10 @@ const sendStateUpdate = debounce((editor: Editor) => {
   });
 }, 10);
 
+// Wrapper for tiptap editor that will add specific mobile functionality and support tentap bridges
+// args:
+// tiptapOptions - all the options that tiptap editor accepts
+// bridges - array of bridges that will be used to extend the editor
 export const useTenTap = () => {
   const editor = useEditor({
     extensions,
@@ -77,7 +81,7 @@ export const useTenTap = () => {
     // Subscribe to editor message
     const handleEditorAction = (action: any) => {
       tenTapExtensions.forEach((e) => {
-        e.onBridgeMessage(editor, action, sendMessage);
+        e.onBridgeMessage && e.onBridgeMessage(editor, action, sendMessage);
       });
       if (action.type === EditorUpdateSettings.UpdateScrollThresholdAndMargin) {
         editor.setOptions({

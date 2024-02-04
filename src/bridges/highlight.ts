@@ -10,8 +10,8 @@ type HighlightEditorInstance = {
   setHighlight: (color: string) => void;
 };
 
-declare module '../../types/EditorState' {
-  interface EditorState extends HighlightEditorState {}
+declare module '../types/EditorNativeState' {
+  interface EditorNativeState extends HighlightEditorState {}
   interface EditorInstance extends HighlightEditorInstance {}
 }
 

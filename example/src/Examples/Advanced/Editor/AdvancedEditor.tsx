@@ -1,9 +1,28 @@
 import React from 'react';
-import { EditorContent } from '@tiptap/react';
-import { useTenTap } from 'tentap';
+import { BubbleMenu, EditorContent } from '@tiptap/react';
+import { sendMessage, useTenTap } from 'tentap';
 
 export const AdvancedEditor = () => {
   const editor = useTenTap();
-
-  return <EditorContent editor={editor} />;
+  // alert('ssss')
+  return (
+    <>
+      {editor && (
+        <BubbleMenu editor={editor || undefined}>
+          <button
+            onClick={() =>
+              window.ReactNativeWebView?.postMessage(
+                JSON.stringify({
+                  type: 'new-comment',
+                })
+              )
+            }
+          >
+            Add comment
+          </button>
+        </BubbleMenu>
+      )}
+      <EditorContent editor={editor} />
+    </>
+  );
 };

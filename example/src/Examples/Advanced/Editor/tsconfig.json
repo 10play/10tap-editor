@@ -19,7 +19,7 @@
       "skipLibCheck": true,
       "strict": true,
       "paths": {
-        "tentap": ["../../../../../src/Editor/useTenTap"]
+        "tentap": ["../../../../../src/webEditorUtils"]
       }
     },
   }

@@ -1,8 +1,8 @@
 import type { RefObject } from 'react';
 import type WebView from 'react-native-webview';
-import type TenTapBridge from '../Editor/plugins/base';
+import type TenTapBridge from '../bridges/base';
 
-export interface EditorState {
+export interface EditorNativeState {
   isFocused: boolean;
   isReady: boolean;
 }
@@ -14,8 +14,8 @@ export interface EditorInstance {
   initialContent?: string;
   webviewRef: RefObject<WebView>;
   updateScrollThresholdAndMargin: (offset: number) => void;
-  getEditorState: () => EditorState;
-  _updateEditorState: (state: EditorState) => void;
-  _subscribeToEditorStateUpdate: Subscription<EditorState>;
+  getEditorState: () => EditorNativeState;
+  _updateEditorState: (state: EditorNativeState) => void;
+  _subscribeToEditorStateUpdate: Subscription<EditorNativeState>;
   plugins?: TenTapBridge<unknown, unknown, unknown>[];
 }

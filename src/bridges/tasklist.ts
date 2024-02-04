@@ -11,8 +11,8 @@ type TaskListEditorInstance = {
   toggleTaskList: () => void;
 };
 
-declare module '../../types/EditorState' {
-  interface EditorState extends TaskListEditorState {}
+declare module '../types/EditorNativeState' {
+  interface EditorNativeState extends TaskListEditorState {}
   interface EditorInstance extends TaskListEditorInstance {}
 }
 

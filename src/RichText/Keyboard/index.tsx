@@ -4,7 +4,7 @@ import { CustomKeyboardAndroid } from './CustomKeyboard.android';
 import { CustomKeyboardIOS } from './CustomKeyboard.ios';
 import type { CustomKeyboardExtension } from './CustomKeyboardExtension';
 import type { EditorInstance } from '../../types';
-import { useEditorState } from '../useEditorState';
+import { useNativeEditorState } from '../useNativeEditorState';
 
 interface CustomKeyboardProps {
   rootRef: React.RefObject<any>;
@@ -20,7 +20,7 @@ export const CustomKeyboard = ({
   rootRef,
   editor,
 }: CustomKeyboardProps) => {
-  const editorState = useEditorState(editor);
+  const editorState = useNativeEditorState(editor);
 
   useEffect(() => {
     if (editorState.isFocused) {

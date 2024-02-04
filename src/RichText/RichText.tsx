@@ -7,7 +7,7 @@ import {
 } from 'react-native-webview';
 
 // @ts-ignore
-import editorHTML from '../Editor/build/index.html';
+import editorHTML from '../simpleWebEditor/build/index.html';
 
 import { type EditorMessage, EditorMessageType } from '../types/Messaging';
 import { useKeyboard } from '../utils';
