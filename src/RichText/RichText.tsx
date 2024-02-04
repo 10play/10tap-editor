@@ -134,6 +134,7 @@ export const RichText = ({
         onMessage={onWebviewMessage}
         ref={editor.webviewRef}
         webviewDebuggingEnabled={__DEV__}
+        keyboardDisplayRequiresUserAction={false}
       />
     </>
   );
