@@ -25,5 +25,5 @@
     "target": "esnext",
     "verbatimModuleSyntax": true,
   },
-  "exclude": ["./src/Editor"]
+  "exclude": ["./src/Editor","./website"]
 }
