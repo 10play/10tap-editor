@@ -13,6 +13,7 @@ jsconfig.json
 #
 build/
 !src/editor/build
+!example/src/Examples/Advanced/Editor/build
 *.pbxuser
 !default.pbxuser
 *.mode1v3
