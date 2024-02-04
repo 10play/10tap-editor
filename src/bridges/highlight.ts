@@ -29,7 +29,8 @@ export const HighlightBridge = new TenTapBridge<
   HighlightEditorInstance,
   HighlightMessage
 >({
-  tiptapExtension: [TextStyle, Highlight.configure({ multicolor: true })],
+  tiptapExtension: Highlight.configure({ multicolor: true }),
+  tiptapExtensionDeps: [TextStyle],
   onBridgeMessage: (editor, { type, payload }) => {
     if (type === HighlightEditorActionType.SetHighlight) {
       editor

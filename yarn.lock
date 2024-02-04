@@ -4599,6 +4599,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tiptap/extension-character-count@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "@tiptap/extension-character-count@npm:2.2.1"
+  peerDependencies:
+    "@tiptap/core": ^2.0.0
+    "@tiptap/pm": ^2.0.0
+  checksum: c68ea6cdc2b8bdbc363d2a5f10fe628e258adad8eb7a98c46474399d58fe32e925ca0e1ef99bc0933af7edf5e8b95beb395ae1466f6dd76d7252f7e53c6e7cd9
+  languageName: node
+  linkType: hard
+
 "@tiptap/extension-code-block@npm:^2.1.16":
   version: 2.1.16
   resolution: "@tiptap/extension-code-block@npm:2.1.16"
@@ -4634,6 +4644,15 @@ __metadata:
   peerDependencies:
     "@tiptap/core": ^2.0.0
   checksum: 49cf1e6b98067ac9dae458f997c3f5d9186d7bba5f9d6feb5335c2ed876cfd3ee85a44cba8ef6a462e5235b49dcddba5d1fab1225ccc4845343631b4efe87084
+  languageName: node
+  linkType: hard
+
+"@tiptap/extension-document@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "@tiptap/extension-document@npm:2.2.1"
+  peerDependencies:
+    "@tiptap/core": ^2.0.0
+  checksum: 9344f835a6b36e1302213e9091ae026034cae917b07f588f928cd269cd75df01f85601d95d9437a7c0dadf60db8dae59e6e1fd50789eade3c9ddc502f6193584
   languageName: node
   linkType: hard
 
@@ -4785,6 +4804,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tiptap/extension-paragraph@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "@tiptap/extension-paragraph@npm:2.2.1"
+  peerDependencies:
+    "@tiptap/core": ^2.0.0
+  checksum: 59597791f212c480fce1e280927caa54d00cf2d1d1cab1efa3eaf0cb71700beb9a4e260269b8a0d548c2f7806e71803c94569582b1e77ca5598b13437d47cbc4
+  languageName: node
+  linkType: hard
+
 "@tiptap/extension-strike@npm:^2.1.16":
   version: 2.1.16
   resolution: "@tiptap/extension-strike@npm:2.1.16"
@@ -4828,6 +4856,15 @@ __metadata:
   peerDependencies:
     "@tiptap/core": ^2.0.0
   checksum: b9cfc72789db8dcae1d93ef9212c48b1c939efc25279d9788c02a66a16dc420f5cb89f30da7c63f973c0c1b519ea3689c68eaaef4ce01298c354f92d5557478c
+  languageName: node
+  linkType: hard
+
+"@tiptap/extension-text@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "@tiptap/extension-text@npm:2.2.1"
+  peerDependencies:
+    "@tiptap/core": ^2.0.0
+  checksum: f002a142e83baf9e356a392a98481697d3dfe694194bce458b7ed126a1b1a0287b5cc66bafb44943564138a541696709ded98853fdeebe7a82d7e026f2ed835b
   languageName: node
   linkType: hard
 
@@ -19469,6 +19506,11 @@ __metadata:
     "@react-native/typescript-config": 0.73.1
     "@react-navigation/native": ^6.1.9
     "@react-navigation/native-stack": ^6.9.17
+    "@tiptap/extension-bubble-menu": ^2.2.1
+    "@tiptap/extension-character-count": ^2.2.1
+    "@tiptap/extension-document": ^2.2.1
+    "@tiptap/extension-paragraph": ^2.2.1
+    "@tiptap/extension-text": ^2.2.1
     "@tiptap/pm": ^2.2.1
     "@tiptap/react": ^2.2.1
     babel-plugin-inline-import: ^3.0.0

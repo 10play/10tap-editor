@@ -120,6 +120,16 @@ export const RichText = ({
         injectedJavaScriptBeforeContentLoaded={`${
           editor.plugins
             ? `
+
+            window.plugConfig = '${JSON.stringify(
+              editor.plugins.reduce((acc, bridge) => {
+                return {
+                  ...acc,
+                  [bridge.name]: bridge.config,
+                };
+              }, {})
+            )}';
+
             window.whiteListPlugins = [${editor.plugins
               .map((plugin) => `'${plugin.name}'`)
               .join(',')}];

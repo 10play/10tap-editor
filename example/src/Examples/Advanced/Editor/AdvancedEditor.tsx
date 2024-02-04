@@ -1,28 +1,17 @@
 import React from 'react';
-import { BubbleMenu, EditorContent } from '@tiptap/react';
-import { sendMessage, useTenTap } from 'tentap';
+import { EditorContent } from '@tiptap/react';
+import { useTenTap } from 'tentap';
+import Document from '@tiptap/extension-document';
+import Paragraph from '@tiptap/extension-paragraph';
+import Text from '@tiptap/extension-text';
+import { CounterBridge } from '../CounterBridge';
 
 export const AdvancedEditor = () => {
-  const editor = useTenTap();
-  // alert('ssss')
-  return (
-    <>
-      {editor && (
-        <BubbleMenu editor={editor || undefined}>
-          <button
-            onClick={() =>
-              window.ReactNativeWebView?.postMessage(
-                JSON.stringify({
-                  type: 'new-comment',
-                })
-              )
-            }
-          >
-            Add comment
-          </button>
-        </BubbleMenu>
-      )}
-      <EditorContent editor={editor} />
-    </>
-  );
+  const editor = useTenTap({
+    bridges: [CounterBridge],
+    tiptapOptions: {
+      extensions: [Document, Paragraph, Text],
+    },
+  });
+  return <EditorContent editor={editor} />;
 };

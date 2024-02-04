@@ -1,12 +1,6 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useRef } from 'react';
-import {
-  SafeAreaView,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-} from 'react-native';
+import { SafeAreaView, View, StyleSheet, Text } from 'react-native';
 import {
   ColorBridge,
   HighlightBridge,
@@ -15,16 +9,14 @@ import {
   RichText,
   TaskListBridge,
   TenTapStartKit,
-  Toolbar,
   UnderlineBridge,
   useNativeEditor,
+  useNativeEditorState,
 } from 'tentap';
 
 // @ts-ignore
 import AdvancedEditor from './Editor/build/index.html';
-import { CustomKeyboard } from '../../../../src/RichText/Keyboard';
-import { ColorKeyboard } from '../../../../src/RichText/Keyboard/ColorKeyboard';
-import { BubbleMenuBridge } from './BubbleMenuBridge';
+import { CounterBridge } from './CounterBridge';
 
 const exampleStyles = StyleSheet.create({
   fullScreen: {
@@ -37,6 +29,17 @@ const exampleStyles = StyleSheet.create({
   },
 });
 
+const Counter = ({ editor }) => {
+  const state = useNativeEditorState(editor);
+  return (
+    <View>
+      <Text>
+        {state.wordCount} || {state.characterCount}
+      </Text>
+    </View>
+  );
+};
+
 export const Advanced = ({}: NativeStackScreenProps<any, any, any>) => {
   const editor = useNativeEditor({
     initialContent: `<p>This is a basic example of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s sdfdsf fd dsfd ssdfd dsfdsfdsfdsfd</p>`,
@@ -48,15 +51,15 @@ export const Advanced = ({}: NativeStackScreenProps<any, any, any>) => {
       LinkBridge,
       ColorBridge,
       HighlightBridge,
-      BubbleMenuBridge,
+      CounterBridge,
     ],
   });
   const TapRef = useRef(null);
-  const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
 
   return (
     <SafeAreaView style={exampleStyles.fullScreen} ref={TapRef}>
       <View style={exampleStyles.fullScreen}>
+        <Counter editor={editor} />
         <RichText
           avoidIosKeyboard
           editor={editor}
@@ -65,24 +68,6 @@ export const Advanced = ({}: NativeStackScreenProps<any, any, any>) => {
           customSource={AdvancedEditor}
         />
       </View>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={exampleStyles.keyboardAvoidingView}
-      >
-        <Toolbar
-          activeKeyboard={activeKeyboard}
-          setActiveKeyboard={setActiveKeyboard}
-          editor={editor}
-          hidden={false}
-        />
-        <CustomKeyboard
-          rootRef={TapRef}
-          activeKeyboardID={activeKeyboard}
-          setActiveKeyboardID={setActiveKeyboard}
-          keyboards={[ColorKeyboard]}
-          editor={editor}
-        />
-      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

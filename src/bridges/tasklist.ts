@@ -30,7 +30,8 @@ export const TaskListBridge = new TenTapBridge<
   TaskListEditorInstance,
   TaskListMessage
 >({
-  tiptapExtension: [TaskList, TaskItem],
+  tiptapExtension: TaskList,
+  tiptapExtensionDeps: [TaskItem],
   onBridgeMessage: (editor, message) => {
     if (message.type === TaskListEditorActionType.ToggleTaskList) {
       editor.chain().focus().toggleTaskList().run();

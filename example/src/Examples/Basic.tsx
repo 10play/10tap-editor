@@ -35,13 +35,13 @@ const exampleStyles = StyleSheet.create({
 
 export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
   const editor = useNativeEditor({
-    initialContent: `<p>This is a basic example of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s</p>`,
+    initialContent: `<p>This is a basic <a href="https://google.com">example</a> of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s</p>`,
     plugins: [
       TenTapStartKit,
       UnderlineBridge,
       ImageBridge,
       TaskListBridge,
-      LinkBridge,
+      LinkBridge.configure({ openOnClick: false }),
       ColorBridge,
       HighlightBridge,
     ],

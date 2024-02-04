@@ -29,7 +29,8 @@ export const ColorBridge = new TenTapBridge<
   ColorEditorInstance,
   ColorMessage
 >({
-  tiptapExtension: [TextStyle, Color],
+  tiptapExtension: Color,
+  tiptapExtensionDeps: [TextStyle],
   onBridgeMessage: (editor, { type, payload }) => {
     if (type === ColorEditorActionType.SetColor) {
       editor
