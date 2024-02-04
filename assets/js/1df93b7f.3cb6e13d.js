@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkwebsite=self.webpackChunkwebsite||[]).push([[552],{9396:(e,t,s)=>{s.r(t),s.d(t,{default:()=>i});var r=s(5592),u=s(7624);function i(){return(0,u.jsx)(r.YJ,{to:"/10Tap-Editor/docs/intro"})}}}]);
