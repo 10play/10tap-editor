@@ -1,4 +1,4 @@
-import type { EditorState } from './EditorState';
+import type { EditorNativeState } from './EditorNativeState';
 
 export enum EditorMessageType {
   Action = 'action',
@@ -13,7 +13,7 @@ export interface EditorActionMessage {
 
 export interface EditorStateUpdateMessage {
   type: EditorMessageType.StateUpdate;
-  payload: EditorState;
+  payload: EditorNativeState;
 }
 
 export type EditorMessage = EditorActionMessage | EditorStateUpdateMessage;

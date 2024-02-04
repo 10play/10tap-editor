@@ -14,10 +14,7 @@ export default defineConfig({
     alias: [
       {
         find: 'tentap',
-        replacement: resolve(
-          __dirname,
-          '../../../../../src/Editor/useTenTap.tsx'
-        ),
+        replacement: resolve(__dirname, '../../../../../src/webEditorUtils'),
       },
     ],
   },

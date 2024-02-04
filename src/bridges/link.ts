@@ -11,8 +11,8 @@ type LinkEditorInstance = {
   setLink: (link: string | null) => void;
 };
 
-declare module '../../types/EditorState' {
-  interface EditorState extends LinkEditorState {}
+declare module '../types/EditorNativeState' {
+  interface EditorNativeState extends LinkEditorState {}
   interface EditorInstance extends LinkEditorInstance {}
 }
 

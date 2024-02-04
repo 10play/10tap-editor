@@ -4,6 +4,7 @@ const sidebars: SidebarsConfig = {
   tutorialSidebar: {
     Introduction: ['intro'],
     Setup: ['setup/installation'],
+    examples: ['examples/basic'],
   },
 };
 

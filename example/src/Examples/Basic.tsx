@@ -17,7 +17,7 @@ import {
   TenTapStartKit,
   Toolbar,
   UnderlineBridge,
-  useEditor,
+  useNativeEditor,
 } from 'tentap';
 import { ColorKeyboard } from '../../../src/RichText/Keyboard/ColorKeyboard';
 import { CustomKeyboard } from '../../../src/RichText/Keyboard';
@@ -34,7 +34,7 @@ const exampleStyles = StyleSheet.create({
 });
 
 export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
-  const editor = useEditor({
+  const editor = useNativeEditor({
     initialContent: `<p>This is a basic example of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s</p>`,
     plugins: [
       TenTapStartKit,

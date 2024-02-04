@@ -1,5 +1,5 @@
 export * from './RichText';
-export * from './useEditor';
-export * from './useEditorState';
+export * from './useNativeEditor';
+export * from './useNativeEditorState';
 export * from './Toolbar';
 export * from './Keyboard/CustomKeyboard.ios';

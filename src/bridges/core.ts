@@ -1,5 +1,5 @@
 import TenTapBridge from './base';
-import { asyncMessages } from '../../RichText/AsyncMessages';
+import { asyncMessages } from '../RichText/AsyncMessages';
 
 type CoreEditorState = {};
 
@@ -8,8 +8,8 @@ type CoreEditorInstance = {
   setContent: (content: string) => void;
 };
 
-declare module '../../types/EditorState' {
-  interface EditorState extends CoreEditorState {}
+declare module '../types/EditorNativeState' {
+  interface EditorNativeState extends CoreEditorState {}
   interface EditorInstance extends CoreEditorInstance {}
 }
 

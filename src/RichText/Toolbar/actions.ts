@@ -1,7 +1,7 @@
 import { Images } from '../../assets';
 import { EditorActionType } from '../../types/Actions';
 import type { EditorInstance } from '../../types';
-import { type EditorState } from '../../types/EditorState';
+import { type EditorNativeState } from '../../types/EditorNativeState';
 import { ToolbarContext } from './Toolbar';
 import { ColorKeyboard } from '../Keyboard/ColorKeyboard';
 
@@ -17,7 +17,7 @@ export const ToolbarItems = {
 
 type ArgsToolbarCB = {
   editor: EditorInstance;
-  editorState: EditorState;
+  editorState: EditorNativeState;
   setToolbarContext: (
     ToolbarContext: ToolbarContext | ((prev: ToolbarContext) => ToolbarContext)
   ) => void;

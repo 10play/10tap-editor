@@ -17,13 +17,14 @@ import {
   TenTapStartKit,
   Toolbar,
   UnderlineBridge,
-  useEditor,
+  useNativeEditor,
 } from 'tentap';
 
 // @ts-ignore
 import AdvancedEditor from './Editor/build/index.html';
 import { CustomKeyboard } from '../../../../src/RichText/Keyboard';
 import { ColorKeyboard } from '../../../../src/RichText/Keyboard/ColorKeyboard';
+import { BubbleMenuBridge } from './BubbleMenuBridge';
 
 const exampleStyles = StyleSheet.create({
   fullScreen: {
@@ -37,8 +38,8 @@ const exampleStyles = StyleSheet.create({
 });
 
 export const Advanced = ({}: NativeStackScreenProps<any, any, any>) => {
-  const editor = useEditor({
-    initialContent: `<p>This is a basic example of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s</p>`,
+  const editor = useNativeEditor({
+    initialContent: `<p>This is a basic example of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s sdfdsf fd dsfd ssdfd dsfdsfdsfdsfd</p>`,
     plugins: [
       TenTapStartKit,
       UnderlineBridge,
@@ -47,6 +48,7 @@ export const Advanced = ({}: NativeStackScreenProps<any, any, any>) => {
       LinkBridge,
       ColorBridge,
       HighlightBridge,
+      BubbleMenuBridge,
     ],
   });
   const TapRef = useRef(null);
@@ -58,6 +60,7 @@ export const Advanced = ({}: NativeStackScreenProps<any, any, any>) => {
         <RichText
           avoidIosKeyboard
           editor={editor}
+          DEV
           autofocus
           customSource={AdvancedEditor}
         />

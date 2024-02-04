@@ -1,5 +1,5 @@
 import { FlatList, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import { useEditorState } from '../useEditorState';
+import { useNativeEditorState } from '../useNativeEditorState';
 import React from 'react';
 import { DEFAULT_TOOLBAR_ITEMS, type ToolbarItem } from './actions';
 import { EditLinkBar } from './EditLinkBar';
@@ -57,7 +57,7 @@ export function Toolbar({
   setActiveKeyboard,
   activeKeyboard,
 }: ToolbarProps) {
-  const editorState = useEditorState(editor);
+  const editorState = useNativeEditorState(editor);
   const { isKeyboardUp } = useKeyboard();
   const [toolbarContext, setToolbarContext] = React.useState<ToolbarContext>(
     ToolbarContext.Main

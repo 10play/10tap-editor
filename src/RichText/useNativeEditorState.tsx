@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { EditorInstance } from '../types';
 
-export const useEditorState = (editor: EditorInstance) => {
+export const useNativeEditorState = (editor: EditorInstance) => {
   const [editorState, setEditorState] = useState(editor.getEditorState());
 
   useEffect(() => {
