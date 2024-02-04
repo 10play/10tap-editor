@@ -91,7 +91,8 @@
     "react-native-webview": "*"
   },
   "workspaces": [
-    "example"
+    "example",
+    "website"
   ],
   "packageManager": "yarn@3.6.1",
   "engines": {
