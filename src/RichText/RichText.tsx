@@ -15,9 +15,10 @@ import type { EditorInstance } from '../types';
 
 interface RichTextProps extends WebViewProps {
   editor: EditorInstance;
-  DEV?: boolean;
   avoidIosKeyboard?: boolean;
   autofocus?: boolean;
+  customSource?: string;
+  DEV?: boolean;
 }
 
 const styles = StyleSheet.create({
@@ -37,13 +38,14 @@ const DEV_SERVER_URL = 'http://localhost:3000';
 export const RichText = ({
   DEV,
   editor,
+  customSource,
   avoidIosKeyboard,
   autofocus,
 }: RichTextProps) => {
   const { keyboardHeight: iosKeyboardHeight } = useKeyboard();
   const source: WebViewProps['source'] = DEV
     ? { uri: DEV_SERVER_URL }
-    : { html: editorHTML };
+    : { html: customSource || editorHTML };
 
   const onWebviewMessage = (event: WebViewMessageEvent) => {
     const { data } = event.nativeEvent;
