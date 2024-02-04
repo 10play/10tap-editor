@@ -1,8 +1,9 @@
+import React from 'react';
 import { EditorContent } from '@tiptap/react';
-import { useTenTap } from './useTenTap';
+import { useTenTap } from 'tentap';
 
-export default function Tiptap() {
+export const AdvancedEditor = () => {
   const editor = useTenTap();
 
   return <EditorContent editor={editor} />;
-}
+};

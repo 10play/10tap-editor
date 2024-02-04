@@ -5,6 +5,8 @@
   "scripts": {
     "android": "react-native run-android && yarn reverse-android",
     "reverse-android": "adb reverse tcp:3000 tcp:3000",
+    "editor:dev": "vite --config ./src/Examples/Advanced/Editor/vite.config.ts",
+    "editor:build": "vite --config ./src/Examples/Advanced/Editor/vite.config.ts build",
     "ios": "react-native run-ios",
     "start": "react-native start",
     "build:android": "cd android && ./gradlew assembleDebug --no-daemon --console=plain -PreactNativeArchitectures=arm64-v8a",
@@ -26,9 +28,12 @@
     "@react-native/babel-preset": "0.73.19",
     "@react-native/metro-config": "0.73.3",
     "@react-native/typescript-config": "0.73.1",
+    "@tiptap/pm": "^2.2.1",
+    "@tiptap/react": "^2.2.1",
     "babel-plugin-inline-import": "^3.0.0",
     "babel-plugin-module-resolver": "^5.0.0",
-    "pod-install": "^0.1.0"
+    "pod-install": "^0.1.0",
+    "vite": "^5.0.12"
   },
   "engines": {
     "node": ">=18"
