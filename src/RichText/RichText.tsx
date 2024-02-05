@@ -45,7 +45,7 @@ export const RichText = ({
   avoidIosKeyboard,
   autofocus,
 }: RichTextProps) => {
-  const { keyboardHeight: iosKeyboardHeight } = useKeyboard();
+  const { keyboardHeight: iosKeyboardHeight, isKeyboardUp } = useKeyboard();
   const source: WebViewProps['source'] = DEV
     ? { uri: DEV_SERVER_URL }
     : { html: customSource || editorHTML };
@@ -72,16 +72,21 @@ export const RichText = ({
 
   useEffect(() => {
     if (editor.webviewRef.current && Platform.OS === 'android') {
-      if (iosKeyboardHeight) {
-        editor.webviewRef.current.injectJavaScript(`
-          document.querySelector('.ProseMirror').style.paddingBottom = '${TOOLBAR_HEIGHT}px';
-        `);
-        editor.updateScrollThresholdAndMargin(TOOLBAR_HEIGHT);
+      if (iosKeyboardHeight && isKeyboardUp) {
+        setTimeout(() => {
+          editor.webviewRef.current &&
+            editor.webviewRef.current.injectJavaScript(`
+            document.querySelector('.ProseMirror').style.paddingBottom = '${TOOLBAR_HEIGHT}px';
+          `);
+          editor.updateScrollThresholdAndMargin(TOOLBAR_HEIGHT);
+        }, 200);
       } else {
-        editor.webviewRef.current.injectJavaScript(`
+        setTimeout(() => {
+          editor.webviewRef.current.injectJavaScript(`
           document.querySelector('.ProseMirror').style.paddingBottom = '0px';
         `);
-        editor.updateScrollThresholdAndMargin(0);
+          editor.updateScrollThresholdAndMargin(0);
+        }, 200);
       }
     }
     // On iOS we want to control the scroll and not use the scrollview that comes with react-native-webview
@@ -105,7 +110,7 @@ export const RichText = ({
         editor.updateScrollThresholdAndMargin(0);
       }
     }
-  }, [avoidIosKeyboard, editor, iosKeyboardHeight]);
+  }, [avoidIosKeyboard, editor, iosKeyboardHeight, isKeyboardUp]);
 
   return (
     <>
