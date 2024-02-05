@@ -1345,7 +1345,7 @@ SPEC CHECKSUMS:
   Flipper-PeerTalk: 116d8f857dc6ef55c7a5a75ea3ceaafe878aadc9
   FlipperKit: 37525a5d056ef9b93d1578e04bc3ea1de940094f
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
-  glog: 035f1e36e53b355cf70f6434d161b36e7d21fecd
+  glog: c5d68082e772fa1c511173d6b30a9de2c05a69a2
   hermes-engine: b361c9ef5ef3cda53f66e195599b47e1f84ffa35
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
@@ -1399,4 +1399,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 59f02bbde682eb22b765a58d4a0ce59d95964282
 
-COCOAPODS: 1.12.0
+COCOAPODS: 1.11.3
