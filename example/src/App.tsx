@@ -9,6 +9,7 @@ import { Basic } from './Examples/Basic';
 import { CustomKeyboardExample } from './Examples/CustomKeyboardExample';
 import { EditorStickToKeyboardExample } from './Examples/EditorStickToKeyboardExample';
 import { Advanced } from './Examples/Advanced/AdvancedRichText';
+import { Compose } from './Examples/Compose';
 
 const examples = [
   {
@@ -22,6 +23,10 @@ const examples = [
   {
     name: 'EditorStickToKeyboardExample',
     component: EditorStickToKeyboardExample,
+  },
+  {
+    name: 'Compose',
+    component: Compose,
   },
   {
     name: 'Advanced',

@@ -13,6 +13,6 @@ module.exports = {
         },
       },
     ],
-    ['babel-plugin-inline-import', { extensions: ['.html'] }],
+    ['babel-plugin-inline-import', { extensions: ['.html', '.svg'] }],
   ],
 };
