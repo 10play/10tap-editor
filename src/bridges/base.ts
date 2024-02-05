@@ -1,6 +1,6 @@
 import { Editor, type AnyExtension } from '@tiptap/core';
 
-interface TenTapBridge<T, E, M> {
+interface TenTapBridge<T = any, E = any, M = any> {
   name: string;
   tiptapExtension?: AnyExtension;
   tiptapExtensionDeps?: AnyExtension[];
@@ -16,12 +16,12 @@ interface TenTapBridge<T, E, M> {
   config?: string;
 }
 
-type CreateTenTapBridgeArgs<T, E, M> = Omit<
+type CreateTenTapBridgeArgs<T = any, E = any, M = any> = Omit<
   TenTapBridge<T, E, M> & { forceName?: string },
   'name' | 'sendMessage' | 'configure' | 'configureTiptapExtensionsOnRunTime'
 >;
 
-class TenTapBridge<T, E, M> {
+class TenTapBridge<T = any, E = any, M = any> {
   constructor({
     forceName,
     tiptapExtension,

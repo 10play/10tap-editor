@@ -7,6 +7,14 @@ import { EditorUpdateSettings } from '../types/Actions';
 import focusListener from '../simpleWebEditor/utils/focusListener';
 import { type EditorNativeState } from '../types/EditorNativeState';
 import type TenTapBridge from '../bridges/base';
+declare global {
+  interface Window {
+    initialContent: string;
+    plugConfig: string;
+    whiteListPlugins: string[];
+    ReactNativeWebView: { postMessage: (message: string) => void };
+  }
+}
 
 const content = window.initialContent || '';
 
@@ -17,7 +25,7 @@ export const sendMessage = (message: EditorMessage) => {
 
 interface useTenTapArgs {
   tiptapOptions?: any;
-  bridges?: TenTapBridge<unknown, unknown, unknown>[];
+  bridges?: TenTapBridge[];
 }
 
 const configs = JSON.parse(window.plugConfig || '{}');
@@ -50,6 +58,7 @@ export const useTenTap = (options?: useTenTapArgs) => {
     };
 
     const state = bridges.reduce((acc, e) => {
+      if (!e.extendEditorState) return acc;
       return Object.assign(acc, e.extendEditorState(editor));
     }, payload) as EditorNativeState;
 

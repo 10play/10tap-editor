@@ -1,3 +1,4 @@
+import React from 'react';
 import { EditorContent } from '@tiptap/react';
 import { useTenTap } from '../webEditorUtils';
 import { TenTapStartKit } from '../bridges/StarterKit';

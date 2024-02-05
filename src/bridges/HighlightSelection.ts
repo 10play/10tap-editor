@@ -13,7 +13,7 @@ export const blueBackgroundPlugin = Extension.create({
           init() {
             return DecorationSet.empty;
           },
-          apply(tr, oldState, oldEditorState, newEditorState) {
+          apply(tr, _oldState, _oldEditorState, newEditorState) {
             if (tr.selection.empty) {
               // If there is no selection, return the old state
               return DecorationSet.empty;
