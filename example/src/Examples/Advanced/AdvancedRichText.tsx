@@ -12,6 +12,7 @@ import {
   UnderlineBridge,
   useNativeEditor,
   useNativeEditorState,
+  type EditorInstance,
 } from 'tentap';
 
 // @ts-ignore
@@ -29,7 +30,7 @@ const exampleStyles = StyleSheet.create({
   },
 });
 
-const Counter = ({ editor }) => {
+const Counter = ({ editor }: { editor: EditorInstance }) => {
   const state = useNativeEditorState(editor);
   return (
     <View>
