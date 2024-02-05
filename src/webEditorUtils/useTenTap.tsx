@@ -113,7 +113,7 @@ export const useTenTap = (options?: useTenTapArgs) => {
       window.removeEventListener('message', handleWebviewMessage);
       document.removeEventListener('message', handleWebviewMessage);
     };
-  }, [editor]);
+  }, [editor, bridges]);
 
   return editor;
 };

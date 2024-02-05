@@ -26,7 +26,9 @@ export const useNativeEditor = (options?: {
     editorStateSubsRef.current.forEach((sub) => sub(editorState));
   };
 
-  const _subscribeToEditorStateUpdate: Subscription<EditorNativeState> = (cb) => {
+  const _subscribeToEditorStateUpdate: Subscription<EditorNativeState> = (
+    cb
+  ) => {
     editorStateSubsRef.current.push(cb);
     return () => {
       editorStateSubsRef.current = editorStateSubsRef.current.filter(
