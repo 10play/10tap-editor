@@ -35,6 +35,9 @@ const styles = StyleSheet.create({
 
 const DEV_SERVER_URL = 'http://localhost:3000';
 
+// TODO: make it a prop
+const TOOLBAR_HEIGHT = 44;
+
 export const RichText = ({
   DEV,
   editor,
@@ -68,9 +71,26 @@ export const RichText = ({
   };
 
   useEffect(() => {
+    if (editor.webviewRef.current && Platform.OS === 'android') {
+      if (iosKeyboardHeight) {
+        editor.webviewRef.current.injectJavaScript(`
+          document.querySelector('.ProseMirror').style.paddingBottom = '${TOOLBAR_HEIGHT}px';
+        `);
+        editor.updateScrollThresholdAndMargin(TOOLBAR_HEIGHT);
+      } else {
+        editor.webviewRef.current.injectJavaScript(`
+          document.querySelector('.ProseMirror').style.paddingBottom = '0px';
+        `);
+        editor.updateScrollThresholdAndMargin(0);
+      }
+    }
     // On iOS we want to control the scroll and not use the scrollview that comes with react-native-webview
     // That's way we can get better exp on scroll and scroll to element when we need to
-    if (avoidIosKeyboard && editor.webviewRef.current) {
+    if (
+      avoidIosKeyboard &&
+      editor.webviewRef.current &&
+      Platform.OS === 'ios'
+    ) {
       if (iosKeyboardHeight) {
         editor.webviewRef.current.injectJavaScript(`
           document.querySelector('.ProseMirror').style.paddingBottom = '${
