@@ -1,11 +1,14 @@
 import TenTapBridge from './base';
 import { asyncMessages } from '../RichText/AsyncMessages';
 
-type CoreEditorState = {};
+type CoreEditorState = {
+  selection: { from: number; to: number };
+};
 
 type CoreEditorInstance = {
   getContent: () => Promise<string>;
   setContent: (content: string) => void;
+  setSelection: (from: number, to: number) => void;
 };
 
 declare module '../types/EditorNativeState' {
@@ -14,6 +17,7 @@ declare module '../types/EditorNativeState' {
 }
 
 export enum CoreEditorActionType {
+  SetSelection = 'set-selection',
   GetContent = 'get-content',
   SetContent = 'set-content',
   SendContentToNative = 'send-content-back',
@@ -40,6 +44,13 @@ type CoreMessages =
       payload: {
         content: string;
       };
+    }
+  | {
+      type: CoreEditorActionType.SetSelection;
+      payload: {
+        from: number;
+        to: number;
+      };
     };
 
 export const CoreBridge = new TenTapBridge<
@@ -62,6 +73,13 @@ export const CoreBridge = new TenTapBridge<
         },
       });
     }
+    if (message.type === CoreEditorActionType.SetSelection) {
+      editor.commands.setTextSelection({
+        from: message.payload.from,
+        to: message.payload.to,
+      });
+      return true;
+    }
 
     return false;
   },
@@ -74,6 +92,15 @@ export const CoreBridge = new TenTapBridge<
   },
   extendEditorInstance: (sendBridgeMessage) => {
     return {
+      setSelection: (from, to) => {
+        sendBridgeMessage({
+          type: CoreEditorActionType.SetSelection,
+          payload: {
+            from,
+            to,
+          },
+        });
+      },
       setContent: (content: string) => {
         sendBridgeMessage({
           type: CoreEditorActionType.SetContent,
@@ -93,7 +120,12 @@ export const CoreBridge = new TenTapBridge<
       },
     };
   },
-  extendEditorState: () => {
-    return {};
+  extendEditorState: (editor) => {
+    return {
+      selection: {
+        from: editor.state.selection.from,
+        to: editor.state.selection.to,
+      },
+    };
   },
 });

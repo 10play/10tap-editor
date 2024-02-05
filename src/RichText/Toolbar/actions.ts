@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import { Images } from '../../assets';
 import { EditorActionType } from '../../types/Actions';
 import type { EditorInstance } from '../../types';
@@ -67,8 +68,17 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
   },
   {
     onPress:
-      ({ setToolbarContext }) =>
+      ({ setToolbarContext, editorState, editor }) =>
       () => {
+        if (Platform.OS === 'android') {
+          // On android focus outside the editor will lose the tiptap selection so we wait for the next tick and set it with the last selection value we had
+          setTimeout(() => {
+            editor.setSelection(
+              editorState.selection.from,
+              editorState.selection.to
+            );
+          });
+        }
         setToolbarContext(ToolbarContext.Link);
       },
     active: ({ editorState }) => editorState.isLinkActive,
