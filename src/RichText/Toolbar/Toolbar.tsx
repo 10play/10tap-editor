@@ -56,12 +56,16 @@ export function Toolbar({
   activeKeyboard,
 }: ToolbarProps) {
   const editorState = useNativeEditorState(editor);
-  const { isKeyboardUp } = useKeyboard();
+  const { isKeyboardUp: isNativeKeyboardUp } = useKeyboard();
   const [toolbarContext, setToolbarContext] = React.useState<ToolbarContext>(
     ToolbarContext.Main
   );
 
-  const hideToolbar = hidden || !isKeyboardUp || !editorState.isFocused;
+  const customKeyboardOpen = activeKeyboard !== undefined;
+  const isKeyboardUp = isNativeKeyboardUp || customKeyboardOpen;
+
+  const hideToolbar =
+    hidden || !isKeyboardUp || (!editorState.isFocused && !customKeyboardOpen);
 
   const args = {
     editor,

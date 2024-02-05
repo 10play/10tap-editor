@@ -62,6 +62,12 @@ export const useNativeEditor = (options?: {
 
   const focus = (pos: 'start' | 'end' | 'all' | number | boolean | null) => {
     webviewRef.current?.requestFocus();
+    if (editorStateRef.current) {
+      _updateEditorState({
+        ...(editorStateRef.current as EditorNativeState),
+        isFocused: true,
+      });
+    }
     sendAction({
       type: EditorUpdateSettings.Focus,
       payload: pos,

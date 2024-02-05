@@ -74,13 +74,11 @@ export const Compose = ({
             <Text style={exampleStyles.textSecondary}>From</Text>
             <TextInput
               style={exampleStyles.textPrimary}
-              autoFocus
               placeholder="you@10play.dev"
             />
           </View>
           <TextInput
             style={[exampleStyles.textPrimary, exampleStyles.recipientField]}
-            autoFocus
             placeholder="Subject"
           />
         </View>
