@@ -9,6 +9,7 @@ import { ColorBridge } from '../bridges/color';
 import { HighlightBridge } from '../bridges/highlight';
 import { CoreBridge } from '../bridges/core';
 import { ImageBridge } from '../bridges/image';
+import { PlaceholderBridge } from '../bridges/placeholder';
 
 let tenTapExtensions = [
   TenTapStartKit,
@@ -19,6 +20,7 @@ let tenTapExtensions = [
   ColorBridge,
   HighlightBridge,
   CoreBridge,
+  PlaceholderBridge,
 ].filter(
   (e) => !window.whiteListPlugins || window.whiteListPlugins.includes(e.name)
 );
