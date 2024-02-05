@@ -12,5 +12,3 @@ export * from './bridges/core';
 export * from './bridges/image';
 export * from './types';
 export * from './utils';
-
-// CHECK
