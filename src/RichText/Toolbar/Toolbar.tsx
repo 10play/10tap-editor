@@ -9,7 +9,6 @@ import type { EditorInstance } from '../../types';
 interface ToolbarProps {
   editor: EditorInstance;
   hidden?: boolean;
-  keyboardAware?: boolean;
   items?: ToolbarItem[];
   setActiveKeyboard: (id: string | undefined) => void;
   activeKeyboard?: string;
@@ -52,7 +51,6 @@ export enum ToolbarContext {
 export function Toolbar({
   editor,
   hidden,
-  keyboardAware = true,
   items = DEFAULT_TOOLBAR_ITEMS,
   setActiveKeyboard,
   activeKeyboard,
@@ -63,8 +61,7 @@ export function Toolbar({
     ToolbarContext.Main
   );
 
-  const hideToolbar =
-    hidden || (keyboardAware && (!isKeyboardUp || !editorState.isFocused));
+  const hideToolbar = hidden || !isKeyboardUp || !editorState.isFocused;
 
   const args = {
     editor,
