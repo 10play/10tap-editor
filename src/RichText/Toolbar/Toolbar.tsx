@@ -1,4 +1,10 @@
-import { FlatList, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  FlatList,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+} from 'react-native';
 import { useNativeEditorState } from '../useNativeEditorState';
 import React from 'react';
 import { DEFAULT_TOOLBAR_ITEMS, type ToolbarItem } from './actions';
@@ -112,7 +118,16 @@ export function Toolbar({
             editor.setLink(link);
             editor.webviewRef.current &&
               editor.webviewRef.current.requestFocus();
-            setToolbarContext(ToolbarContext.Main);
+
+            if (Platform.OS === 'android') {
+              // On android we dont want to hide the link input before we finished focus on editor
+              // Add here 100ms and we can try to find better solution later
+              setTimeout(() => {
+                setToolbarContext(ToolbarContext.Main);
+              }, 100);
+            } else {
+              setToolbarContext(ToolbarContext.Main);
+            }
           }}
         />
       );

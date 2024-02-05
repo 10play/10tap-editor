@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import {
   ColorBridge,
+  CoreBridge,
   HighlightBridge,
   ImageBridge,
   LinkBridge,
@@ -38,6 +39,7 @@ export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
   const editor = useNativeEditor({
     initialContent: `<p>This is a basic <a href="https://google.com">example</a> of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s</p>`,
     plugins: [
+      CoreBridge,
       TenTapStartKit,
       UnderlineBridge,
       ImageBridge,

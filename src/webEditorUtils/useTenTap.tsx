@@ -7,6 +7,7 @@ import { EditorUpdateSettings } from '../types/Actions';
 import focusListener from '../simpleWebEditor/utils/focusListener';
 import { type EditorNativeState } from '../types/EditorNativeState';
 import type TenTapBridge from '../bridges/base';
+import { blueBackgroundPlugin } from '../bridges/HighlightSelection';
 declare global {
   interface Window {
     initialContent: string;
@@ -47,7 +48,11 @@ export const useTenTap = (options?: useTenTapArgs) => {
 
   const tiptapOptionsWithExtenstion = {
     ...tiptapOptions,
-    extensions: [...extensions, ...(tiptapOptions.extensions || [])],
+    extensions: [
+      blueBackgroundPlugin,
+      ...extensions,
+      ...(tiptapOptions.extensions || []),
+    ],
   };
 
   const sendStateUpdate = debounce((editor: Editor) => {
