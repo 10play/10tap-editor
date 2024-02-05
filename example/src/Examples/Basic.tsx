@@ -25,6 +25,7 @@ import { CustomKeyboard } from '../../../src/RichText/Keyboard';
 const exampleStyles = StyleSheet.create({
   fullScreen: {
     flex: 1,
+    borderWidth: 1,
   },
   keyboardAvoidingView: {
     position: 'absolute',
@@ -52,7 +53,7 @@ export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
   return (
     <SafeAreaView style={exampleStyles.fullScreen} ref={TapRef}>
       <View style={exampleStyles.fullScreen}>
-        <RichText avoidIosKeyboard editor={editor} autofocus DEV />
+        <RichText avoidIosKeyboard editor={editor} autofocus />
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

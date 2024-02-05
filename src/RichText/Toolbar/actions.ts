@@ -58,7 +58,7 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
       ({ editor, setActiveKeyboard, activeKeyboard }) =>
       () => {
         const isActive = activeKeyboard === ColorKeyboard.id;
-        if (isActive) editor.webviewRef.current?.requestFocus();
+        if (isActive) editor.focus();
         setActiveKeyboard(isActive ? undefined : ColorKeyboard.id);
       },
     active: ({ activeKeyboard }) => activeKeyboard === ColorKeyboard.id,

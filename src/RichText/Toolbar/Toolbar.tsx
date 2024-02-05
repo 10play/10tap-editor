@@ -9,7 +9,6 @@ import type { EditorInstance } from '../../types';
 interface ToolbarProps {
   editor: EditorInstance;
   hidden?: boolean;
-  keyboardAware?: boolean;
   items?: ToolbarItem[];
   setActiveKeyboard: (id: string | undefined) => void;
   activeKeyboard?: string;
@@ -52,19 +51,21 @@ export enum ToolbarContext {
 export function Toolbar({
   editor,
   hidden,
-  keyboardAware = true,
   items = DEFAULT_TOOLBAR_ITEMS,
   setActiveKeyboard,
   activeKeyboard,
 }: ToolbarProps) {
   const editorState = useNativeEditorState(editor);
-  const { isKeyboardUp } = useKeyboard();
+  const { isKeyboardUp: isNativeKeyboardUp } = useKeyboard();
   const [toolbarContext, setToolbarContext] = React.useState<ToolbarContext>(
     ToolbarContext.Main
   );
 
+  const customKeyboardOpen = activeKeyboard !== undefined;
+  const isKeyboardUp = isNativeKeyboardUp || customKeyboardOpen;
+
   const hideToolbar =
-    hidden || (keyboardAware && !isKeyboardUp && !editorState.isFocused);
+    hidden || !isKeyboardUp || (!editorState.isFocused && !customKeyboardOpen);
 
   const args = {
     editor,

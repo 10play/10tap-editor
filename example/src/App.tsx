@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Button } from 'react-native';
+import { View, Text, Button, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import {
   createNativeStackNavigator,
@@ -9,6 +9,7 @@ import { Basic } from './Examples/Basic';
 import { CustomKeyboardExample } from './Examples/CustomKeyboardExample';
 import { EditorStickToKeyboardExample } from './Examples/EditorStickToKeyboardExample';
 import { Advanced } from './Examples/Advanced/AdvancedRichText';
+import { Compose } from './Examples/Compose';
 
 const examples = [
   {
@@ -24,6 +25,10 @@ const examples = [
     component: EditorStickToKeyboardExample,
   },
   {
+    name: 'Compose',
+    component: Compose,
+  },
+  {
     name: 'Advanced',
     component: Advanced,
   },
@@ -31,7 +36,7 @@ const examples = [
 
 const HomeScreen = ({ navigation }: NativeStackScreenProps<any, any, any>) => {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+    <View style={homeStyles.container}>
       <Text>10Tap Rich Text Editor!</Text>
       {examples.map((example) => (
         <Button
@@ -65,5 +70,14 @@ const App = () => {
     </NavigationContainer>
   );
 };
+
+const homeStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+});
 
 export default App;
