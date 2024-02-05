@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   KeyboardAvoidingView,
@@ -16,8 +16,12 @@ import { useKeyboard } from '../../../../src/utils';
 
 interface ComposeRichTextProps {
   editor: EditorInstance;
+  onSendClick: () => void;
 }
-export const ComposeRichText = ({ editor }: ComposeRichTextProps) => {
+export const ComposeRichText = ({
+  editor,
+  onSendClick,
+}: ComposeRichTextProps) => {
   const rootRef = useRef(null);
   const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
 
@@ -34,7 +38,7 @@ export const ComposeRichText = ({ editor }: ComposeRichTextProps) => {
           editor={editor}
           activeKeyboard={activeKeyboard}
           setActiveKeyboard={setActiveKeyboard}
-          onSendClick={() => console.log('Send Clicked!')}
+          onSendClick={onSendClick}
         />
         <CustomKeyboard
           rootRef={rootRef}
@@ -65,23 +69,18 @@ enum ToolbarType {
   Link,
   Formatting,
 }
-const ComposeToolbar = ({
-  editor,
-  activeKeyboard,
-  onSendClick,
-}: //   setActiveKeyboard,
-ComposeToolbarProps) => {
+const ComposeToolbar = ({ editor, onSendClick }: ComposeToolbarProps) => {
   const editorState = useNativeEditorState(editor);
-  const { isKeyboardUp: isNativeKeyboardUp } = useKeyboard();
+  const { isKeyboardUp } = useKeyboard();
   const [toolbarType, setToolbar] = useState<ToolbarType>(ToolbarType.Main);
 
-  const customKeyboardOpen = activeKeyboard !== undefined;
-  const isKeyboardUp = isNativeKeyboardUp || customKeyboardOpen;
+  const hideToolbar = !isKeyboardUp || !editorState.isFocused;
 
-  const hideToolbar =
-    !isKeyboardUp || (!editorState.isFocused && !customKeyboardOpen);
-
-  console.log(editorState.canToggleBold);
+  useEffect(() => {
+    if (hideToolbar) {
+      setToolbar(ToolbarType.Main);
+    }
+  }, [hideToolbar]);
 
   const formattingOptions: CustomToolbarAction[] = useMemo(
     () => [
@@ -126,7 +125,10 @@ ComposeToolbarProps) => {
 
   return (
     <View
-      style={[hideToolbar && composeStyles.hidden, composeStyles.mainToolbar]}
+      style={[
+        hideToolbar && composeStyles.hidden,
+        composeStyles.formattingToolbar,
+      ]}
     >
       {formattingOptions.map(({ isDisabled, isActive, icon, onPress }) => (
         <TouchableOpacity
@@ -168,10 +170,12 @@ const composeStyles = StyleSheet.create({
   },
   formattingToolbar: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     backgroundColor: 'white',
     borderTopWidth: 1,
     paddingVertical: 4,
+    paddingHorizontal: 8,
+    gap: 4,
     borderTopColor: 'lightgray',
   },
   button: {

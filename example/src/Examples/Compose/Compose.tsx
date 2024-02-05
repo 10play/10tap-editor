@@ -77,7 +77,7 @@ export const Compose = ({
           />
         </View>
       </View>
-      <ComposeRichText editor={editor} />
+      <ComposeRichText editor={editor} onSendClick={onSendClick} />
     </SafeAreaView>
   );
 };
