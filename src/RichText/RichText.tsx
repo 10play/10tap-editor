@@ -82,7 +82,8 @@ export const RichText = ({
         }, 200);
       } else {
         setTimeout(() => {
-          editor.webviewRef.current.injectJavaScript(`
+          editor.webviewRef.current &&
+            editor.webviewRef.current.injectJavaScript(`
           document.querySelector('.ProseMirror').style.paddingBottom = '0px';
         `);
           editor.updateScrollThresholdAndMargin(0);
