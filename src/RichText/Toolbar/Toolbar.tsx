@@ -64,7 +64,7 @@ export function Toolbar({
   );
 
   const hideToolbar =
-    hidden || (keyboardAware && !isKeyboardUp && !editorState.isFocused);
+    hidden || (keyboardAware && (!isKeyboardUp || !editorState.isFocused));
 
   const args = {
     editor,
