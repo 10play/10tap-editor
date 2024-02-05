@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Text,
   TextInput,
+  Alert,
 } from 'react-native';
 import {
   ColorBridge,
@@ -41,6 +42,7 @@ export const Compose = ({
 
   const onSendClick = async () => {
     const mailContent = await editor.getContent();
+    Alert.alert('Mail Content', mailContent);
     console.log('Send Clicked! Mail content: ', mailContent);
   };
 
