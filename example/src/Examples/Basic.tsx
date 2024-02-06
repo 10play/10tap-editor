@@ -66,11 +66,11 @@ export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
     ],
   });
 
-  const TapRef = useRef(null);
+  const rootRef = useRef(null);
   const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
 
   return (
-    <SafeAreaView style={exampleStyles.fullScreen} ref={TapRef}>
+    <SafeAreaView style={exampleStyles.fullScreen} ref={rootRef}>
       <View style={exampleStyles.fullScreen}>
         <RichText editor={editor} />
       </View>
@@ -85,7 +85,7 @@ export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
           hidden={false}
         />
         <CustomKeyboard
-          rootRef={TapRef}
+          rootRef={rootRef}
           activeKeyboardID={activeKeyboard}
           setActiveKeyboardID={setActiveKeyboard}
           keyboards={[ColorKeyboard]}

@@ -60,11 +60,11 @@ In order to use the built-in toolbar and custom keyboard we need to create:
 We will also wrap the entire the toolbar and keyboard in a `KeyboardAvoidingView` to display the toolbar right above the keyboard
 
 ```tsx
-const TapRef = useRef(null);
+const rootRef = useRef(null);
 const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
 
 return (
-  <SafeAreaView style={exampleStyles.fullScreen} ref={TapRef}>
+  <SafeAreaView style={exampleStyles.fullScreen} ref={rootRef}>
     ...
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -77,7 +77,7 @@ return (
         hidden={false}
       />
       <CustomKeyboard
-        rootRef={TapRef}
+        rootRef={rootRef}
         activeKeyboardID={activeKeyboard}
         setActiveKeyboardID={setActiveKeyboard}
         keyboards={[ColorKeyboard]}
@@ -180,11 +180,11 @@ export const BasicExample = () => {
     ],
   });
 
-  const TapRef = useRef(null);
+  const rootRef = useRef(null);
   const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
 
   return (
-    <SafeAreaView style={exampleStyles.fullScreen} ref={TapRef}>
+    <SafeAreaView style={exampleStyles.fullScreen} ref={rootRef}>
       <View style={exampleStyles.fullScreen}>
         <RichText editor={editor} />
       </View>
@@ -198,7 +198,7 @@ export const BasicExample = () => {
           editor={editor}
         />
         <CustomKeyboard
-          rootRef={TapRef}
+          rootRef={rootRef}
           activeKeyboardID={activeKeyboard}
           setActiveKeyboardID={setActiveKeyboard}
           keyboards={[ColorKeyboard]}
