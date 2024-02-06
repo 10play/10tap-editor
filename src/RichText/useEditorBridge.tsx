@@ -21,7 +21,7 @@ export const useEditorBridge = (options?: {
   DEV_SERVER_URL?: string;
 }): EditorBridge => {
   const webviewRef = useRef<WebView>(null);
-  // Till we will implement default per plugin
+  // Till we will implement default per bridgeExtension
   const editorStateRef = useRef<EditorNativeState | {}>({});
   const editorStateSubsRef = useRef<((state: EditorNativeState) => void)[]>([]);
 
