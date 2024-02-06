@@ -1,6 +1,6 @@
 import TextStyle from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
-import TenTapBridge from './base';
+import BridgeExtension from './base';
 
 type ColorEditorState = {
   activeColor: string | undefined;
@@ -12,7 +12,7 @@ type ColorEditorInstance = {
 
 declare module '../types/EditorNativeState' {
   interface EditorNativeState extends ColorEditorState {}
-  interface EditorInstance extends ColorEditorInstance {}
+  interface EditorBridge extends ColorEditorInstance {}
 }
 
 export enum ColorEditorActionType {
@@ -24,7 +24,7 @@ type ColorMessage = {
   payload: string | undefined;
 };
 
-export const ColorBridge = new TenTapBridge<
+export const ColorBridge = new BridgeExtension<
   ColorEditorState,
   ColorEditorInstance,
   ColorMessage

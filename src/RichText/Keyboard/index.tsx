@@ -3,15 +3,15 @@ import { Platform } from 'react-native';
 import { CustomKeyboardAndroid } from './CustomKeyboard.android';
 import { CustomKeyboardIOS } from './CustomKeyboard.ios';
 import type { CustomKeyboardExtension } from './CustomKeyboardExtension';
-import type { EditorInstance } from '../../types';
-import { useNativeEditorState } from '../useNativeEditorState';
+import type { EditorBridge } from '../../types';
+import { useBridgeState } from '../useBridgeState';
 
 interface CustomKeyboardProps {
   rootRef: React.RefObject<any>;
   keyboards: CustomKeyboardExtension[];
   setActiveKeyboardID: (id: string | undefined) => void;
   activeKeyboardID?: string;
-  editor: EditorInstance;
+  editor: EditorBridge;
 }
 export const CustomKeyboard = ({
   keyboards,
@@ -20,7 +20,7 @@ export const CustomKeyboard = ({
   rootRef,
   editor,
 }: CustomKeyboardProps) => {
-  const editorState = useNativeEditorState(editor);
+  const editorState = useBridgeState(editor);
 
   useEffect(() => {
     if (editorState.isFocused) {

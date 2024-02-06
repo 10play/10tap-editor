@@ -1,5 +1,5 @@
 import Placeholder from '@tiptap/extension-placeholder';
-import TenTapBridge from './base';
+import BridgeExtension from './base';
 
 type PlaceholderEditorState = {};
 
@@ -7,10 +7,10 @@ type PlaceholderEditorInstance = {};
 
 declare module '../types/EditorNativeState' {
   interface EditorNativeState extends PlaceholderEditorState {}
-  interface EditorInstance extends PlaceholderEditorInstance {}
+  interface EditorBridge extends PlaceholderEditorInstance {}
 }
 
-export const PlaceholderBridge = new TenTapBridge<
+export const PlaceholderBridge = new BridgeExtension<
   PlaceholderEditorState,
   PlaceholderEditorInstance
 >({

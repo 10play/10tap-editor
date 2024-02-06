@@ -5,15 +5,15 @@ import {
   StyleSheet,
   Platform,
 } from 'react-native';
-import { useNativeEditorState } from '../useNativeEditorState';
+import { useBridgeState } from '../useBridgeState';
 import React from 'react';
 import { DEFAULT_TOOLBAR_ITEMS, type ToolbarItem } from './actions';
 import { EditLinkBar } from './EditLinkBar';
 import { useKeyboard } from '../../utils';
-import type { EditorInstance } from '../../types';
+import type { EditorBridge } from '../../types';
 
 interface ToolbarProps {
-  editor: EditorInstance;
+  editor: EditorBridge;
   hidden?: boolean;
   items?: ToolbarItem[];
   setActiveKeyboard: (id: string | undefined) => void;
@@ -61,7 +61,7 @@ export function Toolbar({
   setActiveKeyboard,
   activeKeyboard,
 }: ToolbarProps) {
-  const editorState = useNativeEditorState(editor);
+  const editorState = useBridgeState(editor);
   const { isKeyboardUp: isNativeKeyboardUp } = useKeyboard();
   const [toolbarContext, setToolbarContext] = React.useState<ToolbarContext>(
     ToolbarContext.Main

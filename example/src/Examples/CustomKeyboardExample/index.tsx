@@ -11,7 +11,7 @@ import {
   RichText,
   TenTapStartKit,
   Toolbar,
-  useNativeEditor,
+  useEditorBridge,
   type ToolbarItem,
 } from 'tentap';
 import { CustomKeyboard } from '../../../../src/RichText/Keyboard';
@@ -34,7 +34,9 @@ export const CustomKeyboardExample = ({}: NativeStackScreenProps<
   any,
   any
 >) => {
-  const editor = useNativeEditor({
+  const editor = useEditorBridge({
+    avoidIosKeyboard: true,
+    DEV: true,
     plugins: [TenTapStartKit],
   });
   const TapRef = useRef(null);
@@ -62,7 +64,7 @@ export const CustomKeyboardExample = ({}: NativeStackScreenProps<
   return (
     <SafeAreaView style={exampleStyles.fullScreen} ref={TapRef}>
       <View style={exampleStyles.fullScreen}>
-        <RichText avoidIosKeyboard editor={editor} DEV />
+        <RichText editor={editor} />
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

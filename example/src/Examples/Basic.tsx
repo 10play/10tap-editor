@@ -19,7 +19,7 @@ import {
   TenTapStartKit,
   Toolbar,
   UnderlineBridge,
-  useNativeEditor,
+  useEditorBridge,
 } from 'tentap';
 import { ColorKeyboard } from '../../../src/RichText/Keyboard/ColorKeyboard';
 import { CustomKeyboard } from '../../../src/RichText/Keyboard';
@@ -36,7 +36,7 @@ const exampleStyles = StyleSheet.create({
 });
 
 const customFont = `
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
 * {
   font-family: 'Roboto', sans-serif;
 }
@@ -45,8 +45,10 @@ const customFont = `
 const initialContent = `<p>This is a basic <a href="https://google.com">example</a> of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s</p>`;
 
 export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
-  const editor = useNativeEditor({
+  const editor = useEditorBridge({
     autofocus: true,
+    DEV: true,
+    avoidIosKeyboard: true,
     initialContent,
     plugins: [
       // Here we define all the plugins that we want to use
@@ -63,13 +65,14 @@ export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
       HighlightBridge,
     ],
   });
+
   const TapRef = useRef(null);
   const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
 
   return (
     <SafeAreaView style={exampleStyles.fullScreen} ref={TapRef}>
       <View style={exampleStyles.fullScreen}>
-        <RichText avoidIosKeyboard editor={editor} DEV />
+        <RichText editor={editor} />
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

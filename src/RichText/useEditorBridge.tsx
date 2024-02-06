@@ -6,16 +6,20 @@ import {
 } from '../types/Messaging';
 import { type EditorNativeState } from '../types/EditorNativeState';
 import { EditorHelper } from './EditorHelper';
-import type { EditorInstance } from '../types';
-import type TenTapBridge from '../bridges/base';
+import type { EditorBridge } from '../types';
+import type BridgeExtension from '../bridges/base';
 
 type Subscription<T> = (cb: (val: T) => void) => () => void;
 
-export const useNativeEditor = (options?: {
-  plugins?: TenTapBridge<any, any, any>[];
+export const useEditorBridge = (options?: {
+  plugins?: BridgeExtension<any, any, any>[];
   initialContent?: string;
   autofocus?: boolean;
-}): EditorInstance => {
+  avoidIosKeyboard?: boolean;
+  customSource?: string;
+  DEV?: boolean;
+  DEV_SERVER_URL?: string;
+}): EditorBridge => {
   const webviewRef = useRef<WebView>(null);
   // Till we will implement default per plugin
   const editorStateRef = useRef<EditorNativeState | {}>({});
@@ -54,10 +58,14 @@ export const useNativeEditor = (options?: {
     });
   };
 
-  const editorInstance = {
+  const editorBridge = {
     plugins: options?.plugins,
     initialContent: options?.initialContent,
     autofocus: options?.autofocus,
+    avoidIosKeyboard: options?.avoidIosKeyboard,
+    customSource: options?.customSource,
+    DEV_SERVER_URL: options?.DEV_SERVER_URL,
+    DEV: options?.DEV,
     webviewRef,
     getEditorState,
     _updateEditorState,
@@ -80,8 +88,8 @@ export const useNativeEditor = (options?: {
         _updateEditorState
       );
     },
-    editorInstance
-  ) as EditorInstance;
+    editorBridge
+  ) as EditorBridge;
 
   EditorHelper.setEditorLastInstance(editorInstanceExtendByPlugins);
 

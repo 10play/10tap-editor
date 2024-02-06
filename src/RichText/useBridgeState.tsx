@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import type { EditorInstance } from '../types';
+import type { EditorBridge } from '../types';
 
-export const useNativeEditorState = (editor: EditorInstance) => {
+export const useBridgeState = (editor: EditorBridge) => {
   const [editorState, setEditorState] = useState(editor.getEditorState());
 
   useEffect(() => {

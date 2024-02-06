@@ -11,13 +11,10 @@ import editorHTML from '../simpleWebEditor/build/index.html';
 
 import { type EditorMessage } from '../types/Messaging';
 import { useKeyboard } from '../utils';
-import type { EditorInstance } from '../types';
+import type { EditorBridge } from '../types';
 
 interface RichTextProps extends WebViewProps {
-  editor: EditorInstance;
-  avoidIosKeyboard?: boolean;
-  customSource?: string;
-  DEV?: boolean;
+  editor: EditorBridge;
 }
 
 const styles = StyleSheet.create({
@@ -53,16 +50,11 @@ const getStyleSheetCSS = (css: string[]) => {
   `;
 };
 
-export const RichText = ({
-  DEV,
-  editor,
-  customSource,
-  avoidIosKeyboard,
-}: RichTextProps) => {
+export const RichText = ({ editor }: RichTextProps) => {
   const { keyboardHeight: iosKeyboardHeight, isKeyboardUp } = useKeyboard();
-  const source: WebViewProps['source'] = DEV
-    ? { uri: DEV_SERVER_URL }
-    : { html: customSource || editorHTML };
+  const source: WebViewProps['source'] = editor.DEV
+    ? { uri: editor.DEV_SERVER_URL || DEV_SERVER_URL }
+    : { html: editor.customSource || editorHTML };
 
   const onWebviewMessage = (event: WebViewMessageEvent) => {
     const { data } = event.nativeEvent;
@@ -74,21 +66,23 @@ export const RichText = ({
   };
 
   useEffect(() => {
+    const setDocBottomPadding = (height: number) => {
+      if (editor.webviewRef.current) {
+        editor.webviewRef.current.injectJavaScript(`
+          doc = document.querySelector('.ProseMirror');
+          if(doc) doc.style.paddingBottom = '${height}px';
+        `);
+      }
+    };
     if (editor.webviewRef.current && Platform.OS === 'android') {
       if (iosKeyboardHeight && isKeyboardUp) {
         setTimeout(() => {
-          editor.webviewRef.current &&
-            editor.webviewRef.current.injectJavaScript(`
-            document.querySelector('.ProseMirror').style.paddingBottom = '${TOOLBAR_HEIGHT}px';
-          `);
+          setDocBottomPadding(TOOLBAR_HEIGHT);
           editor.updateScrollThresholdAndMargin(TOOLBAR_HEIGHT);
         }, 200);
       } else {
         setTimeout(() => {
-          editor.webviewRef.current &&
-            editor.webviewRef.current.injectJavaScript(`
-          document.querySelector('.ProseMirror').style.paddingBottom = '0px';
-        `);
+          setDocBottomPadding(0);
           editor.updateScrollThresholdAndMargin(0);
         }, 200);
       }
@@ -96,25 +90,19 @@ export const RichText = ({
     // On iOS we want to control the scroll and not use the scrollview that comes with react-native-webview
     // That's way we can get better exp on scroll and scroll to element when we need to
     if (
-      avoidIosKeyboard &&
+      editor.avoidIosKeyboard &&
       editor.webviewRef.current &&
       Platform.OS === 'ios'
     ) {
       if (iosKeyboardHeight) {
-        editor.webviewRef.current.injectJavaScript(`
-          document.querySelector('.ProseMirror').style.paddingBottom = '${
-            iosKeyboardHeight + 10
-          }px';
-        `);
+        setDocBottomPadding(iosKeyboardHeight + 10);
         editor.updateScrollThresholdAndMargin(iosKeyboardHeight + 10);
       } else {
-        editor.webviewRef.current.injectJavaScript(`
-          document.querySelector('.ProseMirror').style.paddingBottom = '0px';
-        `);
+        setDocBottomPadding(0);
         editor.updateScrollThresholdAndMargin(0);
       }
     }
-  }, [avoidIosKeyboard, editor, iosKeyboardHeight, isKeyboardUp]);
+  }, [editor.avoidIosKeyboard, editor, iosKeyboardHeight, isKeyboardUp]);
 
   const getInjectedJS = () => {
     let injectJS = '';

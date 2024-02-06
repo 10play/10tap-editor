@@ -6,16 +6,16 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { RichText, useNativeEditorState } from '../../../../src/RichText';
+import { RichText, useBridgeState } from '../../../../src/RichText';
 import { CustomKeyboard } from '../../../../src/RichText/Keyboard';
 import { ColorKeyboard } from '../../../../src/RichText/Keyboard/ColorKeyboard';
-import type { EditorInstance } from '../../../../src/types';
+import type { EditorBridge } from '../../../../src/types';
 import { icons } from '../../assets';
 import { Icon } from '../Icon';
 import { useKeyboard } from '../../../../src/utils';
 
 interface ComposeRichTextProps {
-  editor: EditorInstance;
+  editor: EditorBridge;
   onSendClick: () => void;
 }
 export const ComposeRichText = ({
@@ -28,7 +28,7 @@ export const ComposeRichText = ({
   return (
     <>
       <View style={composeStyles.compose}>
-        <RichText editor={editor} avoidIosKeyboard />
+        <RichText editor={editor} />
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -53,7 +53,7 @@ export const ComposeRichText = ({
 };
 
 interface ComposeToolbarProps {
-  editor: EditorInstance;
+  editor: EditorBridge;
   activeKeyboard: string | undefined;
   setActiveKeyboard: (keyboard: string) => void;
   onSendClick: () => void;
@@ -70,7 +70,7 @@ enum ToolbarType {
   Formatting,
 }
 const ComposeToolbar = ({ editor, onSendClick }: ComposeToolbarProps) => {
-  const editorState = useNativeEditorState(editor);
+  const editorState = useBridgeState(editor);
   const { isKeyboardUp } = useKeyboard();
   const [toolbarType, setToolbar] = useState<ToolbarType>(ToolbarType.Main);
 
