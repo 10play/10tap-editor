@@ -19,7 +19,7 @@ import {
   TenTapStartKit,
   UnderlineBridge,
   useEditorBridge,
-} from 'tentap';
+} from '@10play/tentap-editor';
 import { Icon } from '../Icon';
 import { ComposeRichText } from './ComposeRichText';
 

@@ -13,11 +13,11 @@ export default defineConfig({
   resolve: {
     alias: [
       {
-        find: 'tentap',
+        find: '@10play/tentap-editor',
         replacement: resolve(__dirname, '../../../../../src/webEditorUtils'),
       },
       {
-        find: 'tentap/web',
+        find: '@10play/tentap-editor/web',
         replacement: resolve(__dirname, '../../../../../src/webEditorUtils'),
       },
     ],

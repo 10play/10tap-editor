@@ -13,7 +13,7 @@ import {
   useEditorBridge,
   useBridgeState,
   type EditorBridge,
-} from 'tentap';
+} from '@10play/tentap-editor';
 
 // @ts-ignore
 import AdvancedEditor from './Editor/build/index.html';

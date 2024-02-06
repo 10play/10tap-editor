@@ -20,7 +20,7 @@ import {
   Toolbar,
   UnderlineBridge,
   useEditorBridge,
-} from 'tentap';
+} from '@10play/tentap-editor';
 import { ColorKeyboard } from '../../../src/RichText/Keyboard/ColorKeyboard';
 import { CustomKeyboard } from '../../../src/RichText/Keyboard';
 

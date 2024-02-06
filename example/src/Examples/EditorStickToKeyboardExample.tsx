@@ -16,7 +16,7 @@ import {
   Toolbar,
   useEditorBridge,
   CoreBridge,
-} from 'tentap';
+} from '@10play/tentap-editor';
 import { CustomKeyboard } from '../../../src/RichText/Keyboard';
 import { ColorKeyboard } from '../../../src/RichText/Keyboard/ColorKeyboard';
 import WebView from 'react-native-webview';

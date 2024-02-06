@@ -1,5 +1,5 @@
 import React from 'react';
-import { TenTapView, useKeyboard } from 'tentap';
+import { TenTapView, useKeyboard } from '@10play/tentap-editor';
 import { useRefHandle } from '../../utils/useRefHandle';
 import type { CustomKeyboardExtension } from './CustomKeyboardExtension';
 

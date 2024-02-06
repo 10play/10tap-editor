@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { TenTapView, useKeyboard } from 'tentap';
+import { TenTapView, useKeyboard } from '@10play/tentap-editor';
 import type { CustomKeyboardExtension } from './CustomKeyboardExtension';
 
 export interface CustomKeyboardAndroidProps {
