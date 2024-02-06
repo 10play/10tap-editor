@@ -18,7 +18,11 @@ jobs:
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
       - name: Setup
         uses: ./.github/actions/setup
-
+      - name: Build simple editor bundle
+        run: yarn editor:build
+      - name: Build web utils
+        run: yarn vite build
+        working-directory: src/webEditorUtils
       - name: Build package
         run: yarn prepare
       - run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
