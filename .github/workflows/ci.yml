@@ -135,9 +135,9 @@ jobs:
         with:
           path: |
             **/ios/Pods
-          key: ${{ runner.os }}-cocoapods-v2-${{ hashFiles('example/ios/Podfile.lock') }}
+          key: ${{ runner.os }}-cocoapods-v3-${{ hashFiles('example/ios/Podfile.lock') }}
           restore-keys: |
-            ${{ runner.os }}-cocoapods-v2-
+            ${{ runner.os }}-cocoapods-v3-
 
       - name: Install cocoapods
         if: env.turbo_cache_hit != 1 && steps.cocoapods-cache.outputs.cache-hit != 'true'
