@@ -27,7 +27,6 @@ import { CustomKeyboard } from '../../../src/RichText/Keyboard';
 const exampleStyles = StyleSheet.create({
   fullScreen: {
     flex: 1,
-    borderWidth: 1,
   },
   keyboardAvoidingView: {
     position: 'absolute',
@@ -38,6 +37,7 @@ const exampleStyles = StyleSheet.create({
 
 export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
   const editor = useNativeEditor({
+    autofocus: true,
     initialContent: `<p>This is a basic <a href="https://google.com">example</a> of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s</p>`,
     plugins: [
       CoreBridge,
@@ -57,7 +57,7 @@ export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
   return (
     <SafeAreaView style={exampleStyles.fullScreen} ref={TapRef}>
       <View style={exampleStyles.fullScreen}>
-        <RichText avoidIosKeyboard editor={editor} DEV autofocus />
+        <RichText avoidIosKeyboard editor={editor} DEV />
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

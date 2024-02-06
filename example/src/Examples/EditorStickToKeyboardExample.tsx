@@ -60,6 +60,7 @@ export const EditorStickToKeyboardExample = ({}: NativeStackScreenProps<
   any
 >) => {
   const editor = useNativeEditor({
+    autofocus: true,
     plugins: [TenTapStartKit, CoreBridge],
     initialContent: '<p>Initial lovely message...</p>',
   });
@@ -102,7 +103,7 @@ export const EditorStickToKeyboardExample = ({}: NativeStackScreenProps<
         style={exampleStyles.keyboardAvoidingView}
       >
         <View style={exampleStyles.editorWrapper}>
-          <RichText autofocus editor={editor} DEV />
+          <RichText editor={editor} DEV />
           <TouchableOpacity
             style={exampleStyles.sendButton}
             onPress={onSendMessage}

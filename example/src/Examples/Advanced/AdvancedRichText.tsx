@@ -43,6 +43,7 @@ const Counter = ({ editor }: { editor: EditorInstance }) => {
 
 export const Advanced = ({}: NativeStackScreenProps<any, any, any>) => {
   const editor = useNativeEditor({
+    autofocus: true,
     initialContent: `<p>This is a basic example of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s sdfdsf fd dsfd ssdfd dsfdsfdsfdsfd</p>`,
     plugins: [
       TenTapStartKit,
@@ -65,7 +66,6 @@ export const Advanced = ({}: NativeStackScreenProps<any, any, any>) => {
           avoidIosKeyboard
           editor={editor}
           DEV
-          autofocus
           customSource={AdvancedEditor}
         />
       </View>

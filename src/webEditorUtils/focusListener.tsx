@@ -2,14 +2,16 @@ class FocusListener {
   private focus: boolean;
   constructor() {
     this.focus = false;
-    document.addEventListener(
+    // @ts-ignore
+    window.document.addEventListener(
       'focus',
       () => {
         this.focus = true;
       },
       true
     );
-    document.addEventListener(
+    // @ts-ignore
+    window.document.addEventListener(
       'blur',
       () => {
         this.focus = false;
@@ -22,4 +24,4 @@ class FocusListener {
   }
 }
 
-export default new FocusListener();
+export const focusListener = new FocusListener();

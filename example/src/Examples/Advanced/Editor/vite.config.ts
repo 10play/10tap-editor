@@ -16,6 +16,10 @@ export default defineConfig({
         find: 'tentap',
         replacement: resolve(__dirname, '../../../../../src/webEditorUtils'),
       },
+      {
+        find: 'tentap/web',
+        replacement: resolve(__dirname, '../../../../../src/webEditorUtils'),
+      },
     ],
   },
   plugins: [react(), viteSingleFile()],

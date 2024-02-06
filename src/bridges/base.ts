@@ -1,4 +1,7 @@
 import { Editor, type AnyExtension } from '@tiptap/core';
+import type { EditorInstance, EditorNativeState } from '../types';
+import type WebView from 'react-native-webview';
+import type { RefObject } from 'react';
 
 interface TenTapBridge<T = any, E = any, M = any> {
   name: string;
@@ -9,9 +12,14 @@ interface TenTapBridge<T = any, E = any, M = any> {
     message: M,
     sendMessageBack: (message: M) => void
   ) => boolean;
-  onEditorMessage?: (message: M) => boolean;
+  onEditorMessage?: (message: M, editorInstance: EditorInstance) => boolean;
   extendEditorState?: (editor: Editor) => T;
-  extendEditorInstance?: (sendBridgeMessage: (message: M) => void) => E;
+  extendEditorInstance?: (
+    sendBridgeMessage: (message: M) => void,
+    webviewRef?: RefObject<WebView>,
+    editorState?: RefObject<EditorNativeState | {}>,
+    _setEditorState?: (editorState: EditorNativeState) => void
+  ) => E;
   extendCSS?: string | undefined;
   config?: string;
 }

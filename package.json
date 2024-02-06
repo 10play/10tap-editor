@@ -6,6 +6,16 @@
   "module": "lib/module/index",
   "types": "lib/typescript/src/index.d.ts",
   "react-native": "src/index",
+  "exports": {
+    ".": {
+      "import": "./lib/module/index",
+      "require": "./lib/commonjs/index"
+    },
+    "./web": {
+      "import": "./lib-web/index.mjs",
+      "require": "./lib-web/index.umd.cjs"
+    }
+  },
   "source": "src/index",
   "files": [
     "src",
