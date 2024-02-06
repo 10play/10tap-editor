@@ -3,3 +3,118 @@ sidebar_position: 1
 ---
 
 # Basic example
+
+In this example we will be creating a basic editor that contains all of the pre-built plugins, custom styling, custom keyboard and a keyboard aware toolbar
+
+## Creating The Editor Bridge
+
+The first thing we want to do is create our EditorBridge #todo add link to editor bridge.
+To do this we will use the `useNativeEditor` hook in our component
+
+```ts
+const editor = useEditorBridge();
+```
+
+This is not enough however as it is just an empty editor with no plugins so let's add some
+
+```ts
+  const editor = useEditorBridge({
+    plugins: [
+      // Here we define all the plugins that we want to use
+      CoreBridge
+      TenTapStartKit,
+      UnderlineBridge,
+      ImageBridge,
+      TaskListBridge,
+      PlaceholderBridge,
+      LinkBridge
+      ColorBridge,
+      HighlightBridge,
+    ],
+  });
+```
+
+Now we have added all of the pre-built plugins provided by tentap, and our editor will support all of these plugins features
+
+## Adding the RichText component
+
+Now we will add our RichText component, this is simply a WebView that runs a pre-built tiptap bundle with some extensions, that is then communicated with via our plugins (or bridges)
+
+The RichText component receives the EditorBridge we created before
+
+```tsx
+<SafeAreaView style={exampleStyles.fullScreen}>
+  <RichText editor={editor} />
+</SafeAreaView>
+```
+
+## Adding a KeyboardAware Toolbar and ColorKeyboard
+
+Our RichText is pretty empty without a toolbar, so let's add it
+
+In order to use the built-in toolbar and custom keyboard we need to create:
+
+1. A ref on the components container (used on ios for opening the custom keyboard)
+2. A current keyboard state (used inside the toolbar to show and hide the color keyboard)
+
+We will also wrap the entire the toolbar and keyboard in a `KeyboardAvoidingView` to display the toolbar right above the keyboard
+
+```tsx
+const TapRef = useRef(null);
+const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
+
+return (
+  <SafeAreaView style={exampleStyles.fullScreen} ref={TapRef}>
+    ...
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={exampleStyles.keyboardAvoidingView}
+    >
+      <Toolbar
+        activeKeyboard={activeKeyboard}
+        setActiveKeyboard={setActiveKeyboard}
+        editor={editor}
+        hidden={false}
+      />
+      <CustomKeyboard
+        rootRef={TapRef}
+        activeKeyboardID={activeKeyboard}
+        setActiveKeyboardID={setActiveKeyboard}
+        keyboards={[ColorKeyboard]}
+        editor={editor}
+      />
+    </KeyboardAvoidingView>
+  </SafeAreaView>
+);
+```
+
+## Adding Custom CSS and Fonts
+
+Let's add a custom font to our Editor (we can also add custom css)
+
+So first we will define our custom css:
+
+```ts
+const customFont = `
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+  * {
+      font-family: 'Roboto', sans-serif;
+  }
+`;
+```
+
+Now we can override a plugins css with the `configureCSS` function. The `core` plugins css is reserved for custom extensions
+so we will configure it.
+
+```ts
+const editor = useEditorBridge({
+    plugins: [
+        // If we want to add custom css - we can configure it here on the core bridge
+        CoreBridge.configureCSS(customFont),
+        TenTapStartKit,
+    ],
+  });
+...
+```
+
+And that is it!
