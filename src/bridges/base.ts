@@ -26,7 +26,11 @@ interface BridgeExtension<T = any, E = any, M = any> {
 
 type CreateTenTapBridgeArgs<T = any, E = any, M = any> = Omit<
   BridgeExtension<T, E, M> & { forceName?: string },
-  'name' | 'sendMessage' | 'configure' | 'configureTiptapExtensionsOnRunTime'
+  | 'name'
+  | 'sendMessage'
+  | 'configureExtension'
+  | 'configureTiptapExtensionsOnRunTime'
+  | 'configureCSS'
 >;
 
 class BridgeExtension<T = any, E = any, M = any> {
@@ -57,8 +61,12 @@ class BridgeExtension<T = any, E = any, M = any> {
     this.extendCSS = extendCSS;
   }
 
-  configure(config: any) {
+  configureExtension(config: any) {
     this.config = config;
+    return this;
+  }
+  configureCSS(css: string) {
+    this.extendCSS = css;
     return this;
   }
   configureTiptapExtensionsOnRunTime(config: any) {

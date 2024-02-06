@@ -34,6 +34,22 @@ const DEV_SERVER_URL = 'http://localhost:3000';
 // TODO: make it a prop
 const TOOLBAR_HEIGHT = 44;
 
+const getStyleSheetCSS = (css: string[]) => {
+  return `
+    let css = \`${css.join(' ')}\`,
+    head = document.head || document.getElementsByTagName('head')[0],
+    style = document.createElement('style');
+        head.appendChild(style);
+        style.type = 'text/css';
+    if (style.styleSheet){
+      // This is required for IE8 and below.
+      style.styleSheet.cssText = css;
+    } else {
+      style.appendChild(document.createTextNode(css));
+    }
+  `;
+};
+
 export const RichText = ({ editor }: RichTextProps) => {
   const { keyboardHeight: iosKeyboardHeight, isKeyboardUp } = useKeyboard();
   const source: WebViewProps['source'] = editor.DEV
@@ -50,21 +66,23 @@ export const RichText = ({ editor }: RichTextProps) => {
   };
 
   useEffect(() => {
+    const setDocBottomPadding = (height: number) => {
+      if (editor.webviewRef.current) {
+        editor.webviewRef.current.injectJavaScript(`
+          doc = document.querySelector('.ProseMirror');
+          if(doc) doc.style.paddingBottom = '${height}px';
+        `);
+      }
+    };
     if (editor.webviewRef.current && Platform.OS === 'android') {
       if (iosKeyboardHeight && isKeyboardUp) {
         setTimeout(() => {
-          editor.webviewRef.current &&
-            editor.webviewRef.current.injectJavaScript(`
-            document.querySelector('.ProseMirror').style.paddingBottom = '${TOOLBAR_HEIGHT}px';
-          `);
+          setDocBottomPadding(TOOLBAR_HEIGHT);
           editor.updateScrollThresholdAndMargin(TOOLBAR_HEIGHT);
         }, 200);
       } else {
         setTimeout(() => {
-          editor.webviewRef.current &&
-            editor.webviewRef.current.injectJavaScript(`
-          document.querySelector('.ProseMirror').style.paddingBottom = '0px';
-        `);
+          setDocBottomPadding(0);
           editor.updateScrollThresholdAndMargin(0);
         }, 200);
       }
@@ -77,20 +95,21 @@ export const RichText = ({ editor }: RichTextProps) => {
       Platform.OS === 'ios'
     ) {
       if (iosKeyboardHeight) {
-        editor.webviewRef.current.injectJavaScript(`
-          document.querySelector('.ProseMirror').style.paddingBottom = '${
-            iosKeyboardHeight + 10
-          }px';
-        `);
+        setDocBottomPadding(iosKeyboardHeight + 10);
         editor.updateScrollThresholdAndMargin(iosKeyboardHeight + 10);
       } else {
-        editor.webviewRef.current.injectJavaScript(`
-          document.querySelector('.ProseMirror').style.paddingBottom = '0px';
-        `);
+        setDocBottomPadding(0);
         editor.updateScrollThresholdAndMargin(0);
       }
     }
   }, [editor.avoidIosKeyboard, editor, iosKeyboardHeight, isKeyboardUp]);
+
+  const getInjectedJS = () => {
+    let injectJS = '';
+    const css = editor.plugins?.map(({ extendCSS }) => extendCSS || '') || [];
+    injectJS += getStyleSheetCSS(css);
+    return injectJS;
+  };
 
   return (
     <>
@@ -101,27 +120,7 @@ export const RichText = ({ editor }: RichTextProps) => {
         scrollEnabled={false}
         style={RichTextStyles.fullScreen}
         source={source}
-        injectedJavaScript={
-          editor.plugins
-            ? `
-                var css = \`${editor.plugins
-                  .map((e) => e.extendCSS)
-                  .join(' ')}\`,
-                head = document.head || document.getElementsByTagName('head')[0],
-                style = document.createElement('style');
-        
-                head.appendChild(style);
-        
-                style.type = 'text/css';
-                if (style.styleSheet){
-                  // This is required for IE8 and below.
-                  style.styleSheet.cssText = css;
-                } else {
-                  style.appendChild(document.createTextNode(css));
-                }
-              `
-            : undefined
-        }
+        injectedJavaScript={getInjectedJS()}
         injectedJavaScriptBeforeContentLoaded={`${
           editor.plugins
             ? `
