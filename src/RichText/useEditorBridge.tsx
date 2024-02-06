@@ -59,7 +59,7 @@ export const useEditorBridge = (options?: {
   };
 
   const editorBridge = {
-    plugins: options?.bridgeExtensions,
+    bridgeExtensions: options?.bridgeExtensions,
     initialContent: options?.initialContent,
     autofocus: options?.autofocus,
     avoidIosKeyboard: options?.avoidIosKeyboard,

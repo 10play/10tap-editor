@@ -22,7 +22,9 @@ let tenTapExtensions = [
   CoreBridge,
   PlaceholderBridge,
 ].filter(
-  (e) => !window.whiteListPlugins || window.whiteListPlugins.includes(e.name)
+  (e) =>
+    !window.whiteListBridgeExtensions ||
+    window.whiteListBridgeExtensions.includes(e.name)
 );
 
 export default function Tiptap() {
