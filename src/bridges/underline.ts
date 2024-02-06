@@ -12,7 +12,7 @@ type UnderlineEditorInstance = {
 
 declare module '../types/EditorNativeState' {
   interface EditorNativeState extends UnderlineEditorState {}
-  interface EditorInstance extends UnderlineEditorInstance {}
+  interface EditorBridge extends UnderlineEditorInstance {}
 }
 
 export enum UnderlineEditorActionType {

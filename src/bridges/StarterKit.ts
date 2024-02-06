@@ -41,7 +41,7 @@ type TenTapStartKitEditorInstance = {
 
 declare module '../types/EditorNativeState' {
   interface EditorNativeState extends TenTapStartKitEditorState {}
-  interface EditorInstance extends TenTapStartKitEditorInstance {}
+  interface EditorBridge extends TenTapStartKitEditorInstance {}
 }
 
 export enum StarterKitEditorActionType {

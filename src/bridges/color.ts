@@ -12,7 +12,7 @@ type ColorEditorInstance = {
 
 declare module '../types/EditorNativeState' {
   interface EditorNativeState extends ColorEditorState {}
-  interface EditorInstance extends ColorEditorInstance {}
+  interface EditorBridge extends ColorEditorInstance {}
 }
 
 export enum ColorEditorActionType {

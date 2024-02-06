@@ -7,7 +7,7 @@ type PlaceholderEditorInstance = {};
 
 declare module '../types/EditorNativeState' {
   interface EditorNativeState extends PlaceholderEditorState {}
-  interface EditorInstance extends PlaceholderEditorInstance {}
+  interface EditorBridge extends PlaceholderEditorInstance {}
 }
 
 export const PlaceholderBridge = new TenTapBridge<

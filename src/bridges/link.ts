@@ -13,7 +13,7 @@ type LinkEditorInstance = {
 
 declare module '../types/EditorNativeState' {
   interface EditorNativeState extends LinkEditorState {}
-  interface EditorInstance extends LinkEditorInstance {}
+  interface EditorBridge extends LinkEditorInstance {}
 }
 
 export enum LinkEditorActionType {

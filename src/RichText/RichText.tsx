@@ -11,10 +11,10 @@ import editorHTML from '../simpleWebEditor/build/index.html';
 
 import { type EditorMessage } from '../types/Messaging';
 import { useKeyboard } from '../utils';
-import type { EditorInstance } from '../types';
+import type { EditorBridge } from '../types';
 
 interface RichTextProps extends WebViewProps {
-  editor: EditorInstance;
+  editor: EditorBridge;
 }
 
 const styles = StyleSheet.create({

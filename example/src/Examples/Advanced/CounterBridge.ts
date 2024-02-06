@@ -10,7 +10,7 @@ type CounterEditorInstance = {};
 
 declare module 'tentap' {
   interface EditorNativeState extends CounterEditorState {}
-  interface EditorInstance extends CounterEditorInstance {}
+  interface EditorBridge extends CounterEditorInstance {}
 }
 
 export const CounterBridge = new TenTapBridge<

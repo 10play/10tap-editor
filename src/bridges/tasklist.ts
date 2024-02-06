@@ -13,7 +13,7 @@ type TaskListEditorInstance = {
 
 declare module '../types/EditorNativeState' {
   interface EditorNativeState extends TaskListEditorState {}
-  interface EditorInstance extends TaskListEditorInstance {}
+  interface EditorBridge extends TaskListEditorInstance {}
 }
 
 export enum TaskListEditorActionType {

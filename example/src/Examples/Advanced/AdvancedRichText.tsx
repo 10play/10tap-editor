@@ -10,9 +10,9 @@ import {
   TaskListBridge,
   TenTapStartKit,
   UnderlineBridge,
-  useNativeEditor,
-  useNativeEditorState,
-  type EditorInstance,
+  useEditorBridge,
+  useBridgeState,
+  type EditorBridge,
 } from 'tentap';
 
 // @ts-ignore
@@ -30,8 +30,8 @@ const exampleStyles = StyleSheet.create({
   },
 });
 
-const Counter = ({ editor }: { editor: EditorInstance }) => {
-  const state = useNativeEditorState(editor);
+const Counter = ({ editor }: { editor: EditorBridge }) => {
+  const state = useBridgeState(editor);
   return (
     <View>
       <Text>
@@ -42,7 +42,7 @@ const Counter = ({ editor }: { editor: EditorInstance }) => {
 };
 
 export const Advanced = ({}: NativeStackScreenProps<any, any, any>) => {
-  const editor = useNativeEditor({
+  const editor = useEditorBridge({
     autofocus: true,
     DEV: true,
     avoidIosKeyboard: true,

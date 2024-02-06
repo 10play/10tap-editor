@@ -6,7 +6,7 @@ export interface EditorNativeState {}
 
 type Subscription<T> = (cb: (val: T) => void) => () => void;
 
-export interface EditorInstance {
+export interface EditorBridge {
   avoidIosKeyboard?: boolean;
   customSource?: string;
   DEV?: boolean;

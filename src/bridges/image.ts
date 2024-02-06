@@ -9,7 +9,7 @@ type ImageEditorInstance = {
 
 declare module '../types/EditorNativeState' {
   interface EditorNativeState extends ImageEditorState {}
-  interface EditorInstance extends ImageEditorInstance {}
+  interface EditorBridge extends ImageEditorInstance {}
 }
 
 export enum ImageEditorActionType {

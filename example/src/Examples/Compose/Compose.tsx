@@ -18,7 +18,7 @@ import {
   TaskListBridge,
   TenTapStartKit,
   UnderlineBridge,
-  useNativeEditor,
+  useEditorBridge,
 } from 'tentap';
 import { Icon } from '../Icon';
 import { ComposeRichText } from './ComposeRichText';
@@ -26,7 +26,7 @@ import { ComposeRichText } from './ComposeRichText';
 export const Compose = ({
   navigation,
 }: NativeStackScreenProps<any, any, any>) => {
-  const editor = useNativeEditor({
+  const editor = useEditorBridge({
     avoidIosKeyboard: true,
     initialContent: MAIL_INITIAL_CONTENT,
     plugins: [
