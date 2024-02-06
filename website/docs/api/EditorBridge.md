@@ -6,6 +6,18 @@ sidebar_position: 2
 
 interface of all the interactions you can do with the editor on the react native side, can be extendable with BrideExtension, with tentapStarterkit enable (also when simple usage) the EditorBridge will have:
 
+#### focus - `(pos?: 'start' \| 'end' \| 'all' \| number \| boolean \| null) => void`
+
+a function that will focus the editor and make sure to open keyboard <br /> extend by [coreBridge](google.com)
+
+#### webviewRef - `RefObject\<WebView\>`
+
+a ref for the webview that show the editor <br /> extend by [coreBridge](google.com)
+
+#### getEditorState - `() => BridgeState`
+
+a function that will return the most up to date BridgeState <br /> extend by [coreBridge](google.com)
+
 | name                           | type                                                                     | description                                                                                                                                                                                                       | BrideExtension |
 | ------------------------------ | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
 | focus                          | `(pos?: 'start' \| 'end' \| 'all' \| number \| boolean \| null) => void` | a function that will focus the editor and make sure to open keyboard                                                                                                                                              | core           |
