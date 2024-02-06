@@ -15,6 +15,10 @@ export const useNativeEditor = (options?: {
   plugins?: TenTapBridge<any, any, any>[];
   initialContent?: string;
   autofocus?: boolean;
+  avoidIosKeyboard?: boolean;
+  customSource?: string;
+  DEV?: boolean;
+  DEV_SERVER_URL?: string;
 }): EditorInstance => {
   const webviewRef = useRef<WebView>(null);
   // Till we will implement default per plugin
@@ -58,6 +62,10 @@ export const useNativeEditor = (options?: {
     plugins: options?.plugins,
     initialContent: options?.initialContent,
     autofocus: options?.autofocus,
+    avoidIosKeyboard: options?.avoidIosKeyboard,
+    customSource: options?.customSource,
+    DEV_SERVER_URL: options?.DEV_SERVER_URL,
+    DEV: options?.DEV,
     webviewRef,
     getEditorState,
     _updateEditorState,

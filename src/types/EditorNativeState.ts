@@ -7,6 +7,10 @@ export interface EditorNativeState {}
 type Subscription<T> = (cb: (val: T) => void) => () => void;
 
 export interface EditorInstance {
+  avoidIosKeyboard?: boolean;
+  customSource?: string;
+  DEV?: boolean;
+  DEV_SERVER_URL?: string;
   autofocus: boolean;
   focus: (pos?: 'start' | 'end' | 'all' | number | boolean | null) => void;
   initialContent?: string;

@@ -27,6 +27,7 @@ export const Compose = ({
   navigation,
 }: NativeStackScreenProps<any, any, any>) => {
   const editor = useNativeEditor({
+    avoidIosKeyboard: true,
     initialContent: MAIL_INITIAL_CONTENT,
     plugins: [
       CoreBridge,

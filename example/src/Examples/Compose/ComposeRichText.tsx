@@ -28,7 +28,7 @@ export const ComposeRichText = ({
   return (
     <>
       <View style={composeStyles.compose}>
-        <RichText editor={editor} avoidIosKeyboard />
+        <RichText editor={editor} />
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

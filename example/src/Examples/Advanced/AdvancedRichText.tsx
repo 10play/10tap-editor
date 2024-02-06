@@ -44,6 +44,9 @@ const Counter = ({ editor }: { editor: EditorInstance }) => {
 export const Advanced = ({}: NativeStackScreenProps<any, any, any>) => {
   const editor = useNativeEditor({
     autofocus: true,
+    DEV: true,
+    avoidIosKeyboard: true,
+    customSource: AdvancedEditor,
     initialContent: `<p>This is a basic example of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s sdfdsf fd dsfd ssdfd dsfdsfdsfdsfd</p>`,
     plugins: [
       TenTapStartKit,
@@ -62,12 +65,7 @@ export const Advanced = ({}: NativeStackScreenProps<any, any, any>) => {
     <SafeAreaView style={exampleStyles.fullScreen} ref={TapRef}>
       <View style={exampleStyles.fullScreen}>
         <Counter editor={editor} />
-        <RichText
-          avoidIosKeyboard
-          editor={editor}
-          DEV
-          customSource={AdvancedEditor}
-        />
+        <RichText editor={editor} />
       </View>
     </SafeAreaView>
   );
