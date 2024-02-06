@@ -35,18 +35,30 @@ const exampleStyles = StyleSheet.create({
   },
 });
 
+const customFont = `
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap');
+* {
+  font-family: 'Roboto', sans-serif;
+}
+`;
+
+const initialContent = `<p>This is a basic <a href="https://google.com">example</a> of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s</p>`;
+
 export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
   const editor = useNativeEditor({
     autofocus: true,
-    initialContent: `<p>This is a basic <a href="https://google.com">example</a> of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s</p>`,
+    initialContent,
     plugins: [
-      CoreBridge,
+      // Here we define all the plugins that we want to use
+      CoreBridge.configureCSS(customFont), // If we want to add custom css - we can configure it here on the core bridge
       TenTapStartKit,
       UnderlineBridge,
       ImageBridge,
       TaskListBridge,
-      PlaceholderBridge.configure({ placeholder: 'Type something...' }),
-      LinkBridge.configure({ openOnClick: false }),
+      PlaceholderBridge.configureExtension({
+        placeholder: 'Type something...',
+      }),
+      LinkBridge.configureExtension({ openOnClick: false }),
       ColorBridge,
       HighlightBridge,
     ],

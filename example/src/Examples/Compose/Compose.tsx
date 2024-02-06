@@ -34,7 +34,7 @@ export const Compose = ({
       UnderlineBridge,
       ImageBridge,
       TaskListBridge,
-      LinkBridge.configure({ openOnClick: false }),
+      LinkBridge.configureExtension({ openOnClick: false }),
       ColorBridge,
       HighlightBridge,
     ],

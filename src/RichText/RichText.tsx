@@ -37,6 +37,22 @@ const DEV_SERVER_URL = 'http://localhost:3000';
 // TODO: make it a prop
 const TOOLBAR_HEIGHT = 44;
 
+const getStyleSheetCSS = (css: string[]) => {
+  return `
+    let css = \`${css.join(' ')}\`,
+    head = document.head || document.getElementsByTagName('head')[0],
+    style = document.createElement('style');
+        head.appendChild(style);
+        style.type = 'text/css';
+    if (style.styleSheet){
+      // This is required for IE8 and below.
+      style.styleSheet.cssText = css;
+    } else {
+      style.appendChild(document.createTextNode(css));
+    }
+  `;
+};
+
 export const RichText = ({
   DEV,
   editor,
@@ -100,6 +116,13 @@ export const RichText = ({
     }
   }, [avoidIosKeyboard, editor, iosKeyboardHeight, isKeyboardUp]);
 
+  const getInjectedJS = () => {
+    let injectJS = '';
+    const css = editor.plugins?.map(({ extendCSS }) => extendCSS || '') || [];
+    injectJS += getStyleSheetCSS(css);
+    return injectJS;
+  };
+
   return (
     <>
       {editor.autofocus && Platform.OS === 'android' && (
@@ -109,27 +132,7 @@ export const RichText = ({
         scrollEnabled={false}
         style={RichTextStyles.fullScreen}
         source={source}
-        injectedJavaScript={
-          editor.plugins
-            ? `
-                var css = \`${editor.plugins
-                  .map((e) => e.extendCSS)
-                  .join(' ')}\`,
-                head = document.head || document.getElementsByTagName('head')[0],
-                style = document.createElement('style');
-        
-                head.appendChild(style);
-        
-                style.type = 'text/css';
-                if (style.styleSheet){
-                  // This is required for IE8 and below.
-                  style.styleSheet.cssText = css;
-                } else {
-                  style.appendChild(document.createTextNode(css));
-                }
-              `
-            : undefined
-        }
+        injectedJavaScript={getInjectedJS()}
         injectedJavaScriptBeforeContentLoaded={`${
           editor.plugins
             ? `
