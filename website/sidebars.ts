@@ -4,7 +4,7 @@ const sidebars: SidebarsConfig = {
   tutorialSidebar: {
     Introduction: ['intro'],
     Setup: ['setup/installation'],
-    API: ['api/useEditorBridge', 'api/EditorBridge'],
+    API: ['api/useEditorBridge', 'api/EditorBridge', 'api/RichText'],
     examples: ['examples/basic'],
   },
 };

@@ -19,7 +19,7 @@ This is not enough however as it is just an empty editor with no plugins so let'
 
 ```tsx
   const editor = useEditorBridge({
-    plugins: [
+    bridgeExtensions: [
       // Here we define all the plugins that we want to use
       CoreBridge
       TenTapStartKit,
@@ -108,7 +108,7 @@ so we will configure it.
 
 ```tsx
 const editor = useEditorBridge({
-    plugins: [
+    bridgeExtensions: [
         // If we want to add custom css - we can configure it here on the core bridge
         CoreBridge.configureCSS(customFont),
         TenTapStartKit,
@@ -126,7 +126,7 @@ We can do this with the `configureExtension` function on each Bridge. This can b
 
 ```tsx
 const editor = useEditorBridge({
-    plugins: [
+    bridgeExtensions: [
         ...,
         PlaceholderBridge.configureExtension({
           placeholder: 'Type something...',
@@ -164,7 +164,7 @@ export const BasicExample = () => {
     autofocus: true,
     avoidIosKeyboard: true,
     initialContent,
-    plugins: [
+    bridgeExtensions: [
       // Here we define all the plugins that we want to use
       CoreBridge.configureCSS(customFont), // If we want to add custom css - we can configure it here on the core bridge
       TenTapStartKit,

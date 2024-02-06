@@ -50,7 +50,7 @@ export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
     DEV: true,
     avoidIosKeyboard: true,
     initialContent,
-    plugins: [
+    bridgeExtensions: [
       // Here we define all the plugins that we want to use
       CoreBridge.configureCSS(customFont), // If we want to add custom css - we can configure it here on the core bridge
       TenTapStartKit,

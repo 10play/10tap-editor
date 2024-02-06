@@ -48,7 +48,7 @@ export const Advanced = ({}: NativeStackScreenProps<any, any, any>) => {
     avoidIosKeyboard: true,
     customSource: AdvancedEditor,
     initialContent: `<p>This is a basic example of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s sdfdsf fd dsfd ssdfd dsfdsfdsfdsfd</p>`,
-    plugins: [
+    bridgeExtensions: [
       TenTapStartKit,
       UnderlineBridge,
       ImageBridge,

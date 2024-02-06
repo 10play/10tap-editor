@@ -12,7 +12,7 @@ import type BridgeExtension from '../bridges/base';
 type Subscription<T> = (cb: (val: T) => void) => () => void;
 
 export const useEditorBridge = (options?: {
-  plugins?: BridgeExtension<any, any, any>[];
+  bridgeExtensions?: BridgeExtension<any, any, any>[];
   initialContent?: string;
   autofocus?: boolean;
   avoidIosKeyboard?: boolean;
@@ -59,7 +59,7 @@ export const useEditorBridge = (options?: {
   };
 
   const editorBridge = {
-    plugins: options?.plugins,
+    plugins: options?.bridgeExtensions,
     initialContent: options?.initialContent,
     autofocus: options?.autofocus,
     avoidIosKeyboard: options?.avoidIosKeyboard,
@@ -72,24 +72,23 @@ export const useEditorBridge = (options?: {
     _subscribeToEditorStateUpdate,
   };
 
-  const editorInstanceExtendByPlugins = (options?.plugins || []).reduce(
-    (acc, cur) => {
-      if (!cur.extendEditorInstance) return acc;
-      return Object.assign(
-        acc,
-        cur.extendEditorInstance(
-          sendAction,
-          webviewRef,
-          editorStateRef,
-          _updateEditorState
-        ),
+  const editorInstanceExtendByPlugins = (
+    options?.bridgeExtensions || []
+  ).reduce((acc, cur) => {
+    if (!cur.extendEditorInstance) return acc;
+    return Object.assign(
+      acc,
+      cur.extendEditorInstance(
+        sendAction,
         webviewRef,
-        editorStateRef.current,
+        editorStateRef,
         _updateEditorState
-      );
-    },
-    editorBridge
-  ) as EditorBridge;
+      ),
+      webviewRef,
+      editorStateRef.current,
+      _updateEditorState
+    );
+  }, editorBridge) as EditorBridge;
 
   EditorHelper.setEditorLastInstance(editorInstanceExtendByPlugins);
 

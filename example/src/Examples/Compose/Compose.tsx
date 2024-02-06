@@ -29,7 +29,7 @@ export const Compose = ({
   const editor = useEditorBridge({
     avoidIosKeyboard: true,
     initialContent: MAIL_INITIAL_CONTENT,
-    plugins: [
+    bridgeExtensions: [
       CoreBridge,
       TenTapStartKit,
       UnderlineBridge,

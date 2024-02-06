@@ -62,7 +62,7 @@ export const EditorStickToKeyboardExample = ({}: NativeStackScreenProps<
   const editor = useEditorBridge({
     autofocus: true,
     DEV: true,
-    plugins: [TenTapStartKit, CoreBridge],
+    bridgeExtensions: [TenTapStartKit, CoreBridge],
     initialContent: '<p>Initial lovely message...</p>',
   });
   const MessagesScrollViewRef = useRef<ScrollView>(null);
