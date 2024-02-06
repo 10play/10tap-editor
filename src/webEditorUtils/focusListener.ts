@@ -22,4 +22,4 @@ class FocusListener {
   }
 }
 
-export default new FocusListener();
+export const focusListener = new FocusListener();

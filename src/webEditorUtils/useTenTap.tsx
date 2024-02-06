@@ -3,10 +3,9 @@ import { useEffect } from 'react';
 import { useEditor } from '@tiptap/react';
 import { Editor } from '@tiptap/core';
 import { type EditorMessage, EditorMessageType } from '../types/Messaging';
-import { EditorUpdateSettings } from '../types/Actions';
-import focusListener from '../simpleWebEditor/utils/focusListener';
 import { type EditorNativeState } from '../types/EditorNativeState';
 import type TenTapBridge from '../bridges/base';
+import { CoreEditorActionType } from '../bridges/core';
 import { blueBackgroundPlugin } from '../bridges/HighlightSelection';
 declare global {
   interface Window {
@@ -56,11 +55,7 @@ export const useTenTap = (options?: useTenTapArgs) => {
   };
 
   const sendStateUpdate = debounce((editor: Editor) => {
-    let payload = {
-      // core
-      isReady: true,
-      isFocused: focusListener.isFocused,
-    };
+    let payload = {};
 
     const state = bridges.reduce((acc, e) => {
       if (!e.extendEditorState) return acc;
@@ -68,7 +63,7 @@ export const useTenTap = (options?: useTenTapArgs) => {
     }, payload) as EditorNativeState;
 
     sendMessage({
-      type: EditorMessageType.StateUpdate,
+      type: CoreEditorActionType.StateUpdate,
       payload: state,
     });
   }, 10);
@@ -76,7 +71,10 @@ export const useTenTap = (options?: useTenTapArgs) => {
   const editor = useEditor({
     content,
     onCreate: () =>
-      sendMessage({ type: EditorMessageType.EditorReady, payload: null }),
+      sendMessage({
+        type: CoreEditorActionType.EditorReady,
+        payload: undefined,
+      }),
     onUpdate: (onUpdate) => sendStateUpdate(onUpdate.editor),
     onSelectionUpdate: (onUpdate) => sendStateUpdate(onUpdate.editor),
     onTransaction: (onUpdate) => sendStateUpdate(onUpdate.editor),
@@ -90,29 +88,14 @@ export const useTenTap = (options?: useTenTapArgs) => {
       bridges.forEach((e) => {
         e.onBridgeMessage && e.onBridgeMessage(editor, action, sendMessage);
       });
-      if (action.type === EditorUpdateSettings.UpdateScrollThresholdAndMargin) {
-        editor.setOptions({
-          editorProps: {
-            scrollThreshold: {
-              top: 0,
-              bottom: action.payload,
-              right: 0,
-              left: 0,
-            },
-            scrollMargin: { top: 0, bottom: action.payload, right: 0, left: 0 },
-          },
-        });
-      }
     };
     const handleWebviewMessage = (event: MessageEvent | Event) => {
       if (!(event instanceof MessageEvent)) return; // TODO check android
       const { type, payload } = JSON.parse(event.data) as EditorMessage;
       console.log('Received message from webview', { type, payload });
+      // todo: fix this - switch not needed
       switch (type) {
         case EditorMessageType.Action:
-          if (payload.type === EditorUpdateSettings.Focus) {
-            editor.commands.focus(payload.payload);
-          }
           // Handle actions
           handleEditorAction(payload);
           break;

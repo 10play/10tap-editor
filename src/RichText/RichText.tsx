@@ -9,14 +9,13 @@ import {
 // @ts-ignore
 import editorHTML from '../simpleWebEditor/build/index.html';
 
-import { type EditorMessage, EditorMessageType } from '../types/Messaging';
+import { type EditorMessage } from '../types/Messaging';
 import { useKeyboard } from '../utils';
 import type { EditorInstance } from '../types';
 
 interface RichTextProps extends WebViewProps {
   editor: EditorInstance;
   avoidIosKeyboard?: boolean;
-  autofocus?: boolean;
   customSource?: string;
   DEV?: boolean;
 }
@@ -43,7 +42,6 @@ export const RichText = ({
   editor,
   customSource,
   avoidIosKeyboard,
-  autofocus,
 }: RichTextProps) => {
   const { keyboardHeight: iosKeyboardHeight, isKeyboardUp } = useKeyboard();
   const source: WebViewProps['source'] = DEV
@@ -55,19 +53,8 @@ export const RichText = ({
     // Parse the message sent from the editor
     const { type, payload } = JSON.parse(data) as EditorMessage;
     editor.plugins?.forEach((e) => {
-      e.onEditorMessage && e.onEditorMessage({ type, payload });
+      e.onEditorMessage && e.onEditorMessage({ type, payload }, editor);
     });
-    switch (type) {
-      case EditorMessageType.EditorReady:
-        if (autofocus) {
-          console.log('focus');
-          editor.focus('end');
-        }
-        break;
-      case EditorMessageType.StateUpdate:
-        editor._updateEditorState(payload);
-        break;
-    }
   };
 
   useEffect(() => {
@@ -115,7 +102,7 @@ export const RichText = ({
 
   return (
     <>
-      {autofocus && Platform.OS === 'android' && (
+      {editor.autofocus && Platform.OS === 'android' && (
         <TextInput autoFocus style={styles.hiddenInput} />
       )}
       <WebView

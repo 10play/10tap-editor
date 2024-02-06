@@ -12,8 +12,8 @@
       "require": "./lib/commonjs/index"
     },
     "./web": {
-      "import": "./lib-web/my-lib.mjs",
-      "require": "./lib-web/my-lib.umd.cjs"
+      "import": "./lib-web/index.mjs",
+      "require": "./lib-web/index.umd.cjs"
     }
   },
   "source": "src/index",

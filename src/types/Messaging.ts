@@ -1,19 +1,11 @@
-import type { EditorNativeState } from './EditorNativeState';
-
+import type { CoreMessages } from '../bridges/core';
 export enum EditorMessageType {
   Action = 'action',
-  StateUpdate = 'stateUpdate',
-  EditorReady = 'editor-ready',
 }
 
 export interface EditorActionMessage {
-  type: EditorMessageType.Action | EditorMessageType.EditorReady;
+  type: EditorMessageType.Action;
   payload: any;
 }
 
-export interface EditorStateUpdateMessage {
-  type: EditorMessageType.StateUpdate;
-  payload: EditorNativeState;
-}
-
-export type EditorMessage = EditorActionMessage | EditorStateUpdateMessage;
+export type EditorMessage = EditorActionMessage | CoreMessages;

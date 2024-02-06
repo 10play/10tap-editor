@@ -4,7 +4,6 @@ import {
   type EditorActionMessage,
   EditorMessageType,
 } from '../types/Messaging';
-import { EditorUpdateSettings } from '../types/Actions';
 import { type EditorNativeState } from '../types/EditorNativeState';
 import { EditorHelper } from './EditorHelper';
 import type { EditorInstance } from '../types';
@@ -15,6 +14,7 @@ type Subscription<T> = (cb: (val: T) => void) => () => void;
 export const useNativeEditor = (options?: {
   plugins?: TenTapBridge<any, any, any>[];
   initialContent?: string;
+  autofocus?: boolean;
 }): EditorInstance => {
   const webviewRef = useRef<WebView>(null);
   // Till we will implement default per plugin
@@ -54,33 +54,12 @@ export const useNativeEditor = (options?: {
     });
   };
 
-  const updateScrollThresholdAndMargin = (bottom: number) =>
-    sendAction({
-      type: EditorUpdateSettings.UpdateScrollThresholdAndMargin,
-      payload: bottom,
-    });
-
-  const focus = (pos: 'start' | 'end' | 'all' | number | boolean | null) => {
-    webviewRef.current?.requestFocus();
-    if (editorStateRef.current) {
-      _updateEditorState({
-        ...(editorStateRef.current as EditorNativeState),
-        isFocused: true,
-      });
-    }
-    sendAction({
-      type: EditorUpdateSettings.Focus,
-      payload: pos,
-    });
-  };
-
   const editorInstance = {
     plugins: options?.plugins,
-    webviewRef,
-    updateScrollThresholdAndMargin,
-    getEditorState,
     initialContent: options?.initialContent,
-    focus,
+    autofocus: options?.autofocus,
+    webviewRef,
+    getEditorState,
     _updateEditorState,
     _subscribeToEditorStateUpdate,
   };
@@ -88,7 +67,18 @@ export const useNativeEditor = (options?: {
   const editorInstanceExtendByPlugins = (options?.plugins || []).reduce(
     (acc, cur) => {
       if (!cur.extendEditorInstance) return acc;
-      return Object.assign(acc, cur.extendEditorInstance(sendAction));
+      return Object.assign(
+        acc,
+        cur.extendEditorInstance(
+          sendAction,
+          webviewRef,
+          editorStateRef,
+          _updateEditorState
+        ),
+        webviewRef,
+        editorStateRef.current,
+        _updateEditorState
+      );
     },
     editorInstance
   ) as EditorInstance;
