@@ -52,7 +52,7 @@ const exampleStyles = StyleSheet.create({
   },
 });
 
-const defaultMessages = [{ text: 'Hello World!', date: Date.now() }]; //fff
+const defaultMessages = [{ text: 'Hello World!', date: Date.now() }]; //fff2
 
 export const EditorStickToKeyboardExample = ({}: NativeStackScreenProps<
   any,
