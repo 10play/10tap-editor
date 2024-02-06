@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Basic example
 
-In this example we will be creating a basic editor that contains all of the pre-built plugins, custom styling, custom keyboard and a keyboard aware toolbar
+In this example we will be creating a basic editor that contains all of the pre-built plugins, custom styling, custom keyboard and a keyboard aware toolbar. [Jump To Full Example](#full-example)
 
 ## Creating The Editor Bridge
 
