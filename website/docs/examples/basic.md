@@ -11,13 +11,13 @@ In this example we will be creating a basic editor that contains all of the pre-
 The first thing we want to do is create our EditorBridge #todo add link to editor bridge.
 To do this we will use the `useNativeEditor` hook in our component
 
-```ts
+```tsx
 const editor = useEditorBridge();
 ```
 
 This is not enough however as it is just an empty editor with no plugins so let's add some
 
-```ts
+```tsx
   const editor = useEditorBridge({
     plugins: [
       // Here we define all the plugins that we want to use
@@ -106,15 +106,32 @@ const customFont = `
 Now we can override a plugins css with the `configureCSS` function. The `core` plugins css is reserved for custom extensions
 so we will configure it.
 
-```ts
+```tsx
 const editor = useEditorBridge({
     plugins: [
         // If we want to add custom css - we can configure it here on the core bridge
         CoreBridge.configureCSS(customFont),
         TenTapStartKit,
+        ...
     ],
   });
-...
 ```
 
 And that is it!
+
+## Configuring Placeholder and Link
+
+Let's also configure the PlaceholderBridge and LinkBridge
+We can do this with the `configureExtension` function on each Bridge. This can be used to configure any of the TipTaps Extension options
+
+```tsx
+const editor = useEditorBridge({
+    plugins: [
+        ...,
+        PlaceholderBridge.configureExtension({
+          placeholder: 'Type something...',
+        }),
+        LinkBridge.configureExtension({ openOnClick: false }),
+    ],
+  });
+```
