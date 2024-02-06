@@ -10,8 +10,8 @@ import { blueBackgroundPlugin } from '../bridges/HighlightSelection';
 declare global {
   interface Window {
     initialContent: string;
-    plugConfig: string;
-    whiteListPlugins: string[];
+    bridgeExtensionConfigMap: string;
+    whiteListBridgeExtensions: string[];
     ReactNativeWebView: { postMessage: (message: string) => void };
   }
 }
@@ -28,7 +28,7 @@ interface useTenTapArgs {
   bridges?: BridgeExtension[];
 }
 
-const configs = JSON.parse(window.plugConfig || '{}');
+const configs = JSON.parse(window.bridgeExtensionConfigMap || '{}');
 
 // Wrapper for tiptap editor that will add specific mobile functionality and support tentap bridges
 // args:

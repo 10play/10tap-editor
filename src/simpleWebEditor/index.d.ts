@@ -2,8 +2,8 @@ export {};
 declare global {
   interface Window {
     initialContent: string;
-    plugConfig: string;
-    whiteListPlugins: string[];
+    bridgeExtensionConfigMap: string;
+    whiteListBridgeExtensions: string[];
     ReactNativeWebView: { postMessage: (message: string) => void };
   }
 }

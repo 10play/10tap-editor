@@ -60,7 +60,7 @@ export const RichText = ({ editor }: RichTextProps) => {
     const { data } = event.nativeEvent;
     // Parse the message sent from the editor
     const { type, payload } = JSON.parse(data) as EditorMessage;
-    editor.plugins?.forEach((e) => {
+    editor.bridgeExtensions?.forEach((e) => {
       e.onEditorMessage && e.onEditorMessage({ type, payload }, editor);
     });
   };
@@ -106,7 +106,8 @@ export const RichText = ({ editor }: RichTextProps) => {
 
   const getInjectedJS = () => {
     let injectJS = '';
-    const css = editor.plugins?.map(({ extendCSS }) => extendCSS || '') || [];
+    const css =
+      editor.bridgeExtensions?.map(({ extendCSS }) => extendCSS || '') || [];
     injectJS += getStyleSheetCSS(css);
     return injectJS;
   };
@@ -122,11 +123,11 @@ export const RichText = ({ editor }: RichTextProps) => {
         source={source}
         injectedJavaScript={getInjectedJS()}
         injectedJavaScriptBeforeContentLoaded={`${
-          editor.plugins
+          editor.bridgeExtensions
             ? `
 
-            window.plugConfig = '${JSON.stringify(
-              editor.plugins.reduce((acc, bridge) => {
+            window.bridgeExtensionConfigMap = '${JSON.stringify(
+              editor.bridgeExtensions.reduce((acc, bridge) => {
                 return {
                   ...acc,
                   [bridge.name]: bridge.config,
@@ -134,8 +135,8 @@ export const RichText = ({ editor }: RichTextProps) => {
               }, {})
             )}';
 
-            window.whiteListPlugins = [${editor.plugins
-              .map((plugin) => `'${plugin.name}'`)
+            window.whiteListBridgeExtensions = [${editor.bridgeExtensions
+              .map((bridgeExtension) => `'${bridgeExtension.name}'`)
               .join(',')}];
                 `
             : ''

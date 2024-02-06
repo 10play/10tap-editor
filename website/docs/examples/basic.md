@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Basic example
 
-In this example we will be creating a basic editor that contains all of the pre-built plugins, custom styling, custom keyboard and a keyboard aware toolbar. [Jump To Full Example](#full-example)
+In this example we will be creating a basic editor that contains all of the pre-built bridgeExtensions, custom styling, custom keyboard and a keyboard aware toolbar. [Jump To Full Example](#full-example)
 
 ## Creating The Editor Bridge
 
@@ -15,12 +15,12 @@ To do this we will use the `useNativeEditor` hook in our component
 const editor = useEditorBridge();
 ```
 
-This is not enough however as it is just an empty editor with no plugins so let's add some
+This is not enough however as it is just an empty editor with no bridgeExtensions so let's add some
 
 ```tsx
   const editor = useEditorBridge({
-    plugins: [
-      // Here we define all the plugins that we want to use
+    bridgeExtensions: [
+      // Here we define all the bridgeExtensions that we want to use
       CoreBridge
       TenTapStartKit,
       UnderlineBridge,
@@ -34,11 +34,11 @@ This is not enough however as it is just an empty editor with no plugins so let'
   });
 ```
 
-Now we have added all of the pre-built plugins provided by tentap, and our editor will support all of these plugins features
+Now we have added all of the pre-built bridgeExtensions provided by tentap, and our editor will support all of these bridgeExtensions features
 
 ## Adding the RichText component
 
-Now we will add our RichText component, this is simply a WebView that runs a pre-built tiptap bundle with some extensions, that is then communicated with via our plugins (or bridges)
+Now we will add our RichText component, this is simply a WebView that runs a pre-built tiptap bundle with some extensions, that is then communicated with via our bridgeExtensions
 
 The RichText component receives the EditorBridge we created before
 
@@ -103,12 +103,12 @@ const customFont = `
 `;
 ```
 
-Now we can override a plugins css with the `configureCSS` function. The `core` plugins css is reserved for custom extensions
+Now we can override a bridgeExtensions css with the `configureCSS` function. The `core` bridgeExtensions css is reserved for custom extensions
 so we will configure it.
 
 ```tsx
 const editor = useEditorBridge({
-    plugins: [
+    bridgeExtensions: [
         // If we want to add custom css - we can configure it here on the core bridge
         CoreBridge.configureCSS(customFont),
         TenTapStartKit,
@@ -126,7 +126,7 @@ We can do this with the `configureExtension` function on each Bridge. This can b
 
 ```tsx
 const editor = useEditorBridge({
-    plugins: [
+    bridgeExtensions: [
         ...,
         PlaceholderBridge.configureExtension({
           placeholder: 'Type something...',
@@ -164,8 +164,8 @@ export const BasicExample = () => {
     autofocus: true,
     avoidIosKeyboard: true,
     initialContent,
-    plugins: [
-      // Here we define all the plugins that we want to use
+    bridgeExtensions: [
+      // Here we define all the bridgeExtensions that we want to use
       CoreBridge.configureCSS(customFont), // If we want to add custom css - we can configure it here on the core bridge
       TenTapStartKit,
       UnderlineBridge,

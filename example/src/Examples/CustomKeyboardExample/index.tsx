@@ -37,7 +37,7 @@ export const CustomKeyboardExample = ({}: NativeStackScreenProps<
   const editor = useEditorBridge({
     avoidIosKeyboard: true,
     DEV: true,
-    plugins: [TenTapStartKit],
+    bridgeExtensions: [TenTapStartKit],
   });
   const TapRef = useRef(null);
   const [activeKeyboard, setActiveKeyboard] = React.useState<string>();

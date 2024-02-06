@@ -18,5 +18,5 @@ export interface EditorBridge {
   getEditorState: () => EditorNativeState;
   _updateEditorState: (state: EditorNativeState) => void;
   _subscribeToEditorStateUpdate: Subscription<EditorNativeState>;
-  plugins?: BridgeExtension<unknown, unknown, unknown>[];
+  bridgeExtensions?: BridgeExtension<unknown, unknown, unknown>[];
 }
