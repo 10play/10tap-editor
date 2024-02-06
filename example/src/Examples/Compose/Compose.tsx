@@ -1,14 +1,13 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useRef } from 'react';
+import React from 'react';
 import {
   SafeAreaView,
   View,
-  KeyboardAvoidingView,
-  Platform,
   StyleSheet,
   TouchableOpacity,
   Text,
   TextInput,
+  Alert,
 } from 'react-native';
 import {
   ColorBridge,
@@ -16,17 +15,13 @@ import {
   HighlightBridge,
   ImageBridge,
   LinkBridge,
-  RichText,
   TaskListBridge,
   TenTapStartKit,
-  Toolbar,
   UnderlineBridge,
   useNativeEditor,
-  type EditorInstance,
 } from 'tentap';
-import { ColorKeyboard } from '../../../src/RichText/Keyboard/ColorKeyboard';
-import { CustomKeyboard } from '../../../src/RichText/Keyboard';
-import { Icon } from './Icon';
+import { Icon } from '../Icon';
+import { ComposeRichText } from './ComposeRichText';
 
 export const Compose = ({
   navigation,
@@ -47,6 +42,7 @@ export const Compose = ({
 
   const onSendClick = async () => {
     const mailContent = await editor.getContent();
+    Alert.alert('Mail Content', mailContent);
     console.log('Send Clicked! Mail content: ', mailContent);
   };
 
@@ -83,64 +79,19 @@ export const Compose = ({
           />
         </View>
       </View>
-      <ComposeEditor editor={editor} />
+      <ComposeRichText editor={editor} onSendClick={onSendClick} />
     </SafeAreaView>
   );
 };
 
-interface ComposeEditorProps {
-  editor: EditorInstance;
-}
-const ComposeEditor = ({ editor }: ComposeEditorProps) => {
-  const TapRef = useRef(null);
-  const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
-
-  return (
-    <>
-      <View style={[exampleStyles.compose]} ref={TapRef}>
-        <View style={exampleStyles.fullScreen}>
-          <RichText editor={editor} avoidIosKeyboard />
-        </View>
-      </View>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={exampleStyles.keyboardAvoidingView}
-      >
-        <Toolbar
-          activeKeyboard={activeKeyboard}
-          setActiveKeyboard={setActiveKeyboard}
-          editor={editor}
-          hidden={false}
-        />
-        <CustomKeyboard
-          rootRef={TapRef}
-          activeKeyboardID={activeKeyboard}
-          setActiveKeyboardID={setActiveKeyboard}
-          keyboards={[ColorKeyboard]}
-          editor={editor}
-        />
-      </KeyboardAvoidingView>
-    </>
-  );
-};
-
 const exampleStyles = StyleSheet.create({
-  header: {
-    paddingHorizontal: 14,
-    backgroundColor: 'white',
-  },
-  compose: {
-    flex: 1,
-    paddingHorizontal: 14,
-  },
   fullScreen: {
     flex: 1,
     backgroundColor: 'white',
   },
-  keyboardAvoidingView: {
-    position: 'absolute',
-    width: '100%',
-    bottom: 0,
+  header: {
+    paddingHorizontal: 14,
+    backgroundColor: 'white',
   },
   topBar: {
     flexDirection: 'row',

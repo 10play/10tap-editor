@@ -9,7 +9,7 @@ import { Basic } from './Examples/Basic';
 import { CustomKeyboardExample } from './Examples/CustomKeyboardExample';
 import { EditorStickToKeyboardExample } from './Examples/EditorStickToKeyboardExample';
 import { Advanced } from './Examples/Advanced/AdvancedRichText';
-import { Compose } from './Examples/Compose';
+import { Compose } from './Examples/Compose/Compose';
 
 const examples = [
   {
