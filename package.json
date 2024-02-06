@@ -123,7 +123,7 @@
   },
   "release-it": {
     "git": {
-      "commitMessage": "chore: release ${version}",
+      "commitMessage": "chore: release ${version} [skip ci]",
       "tagName": "v${version}"
     },
     "npm": {
