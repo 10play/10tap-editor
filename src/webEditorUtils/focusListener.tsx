@@ -2,14 +2,14 @@ class FocusListener {
   private focus: boolean;
   constructor() {
     this.focus = false;
-    document.addEventListener(
+    window.document.addEventListener(
       'focus',
       () => {
         this.focus = true;
       },
       true
     );
-    document.addEventListener(
+    window.document.addEventListener(
       'blur',
       () => {
         this.focus = false;

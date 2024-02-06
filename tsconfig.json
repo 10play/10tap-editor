@@ -25,5 +25,5 @@
     "target": "esnext",
     "verbatimModuleSyntax": true,
   },
-  "exclude": ["./src/simpleWebEditor","./website", "./example/src/Examples/Advanced/Editor", "./src/webEditorUtils/*", "./src/webEditorUtils/vite.config.ts"]
+  "exclude": ["./src/simpleWebEditor","./website", "./example/src/Examples/Advanced/Editor", "./src/webEditorUtils", "./src/webEditorUtils/vite.config.ts"]
 }
