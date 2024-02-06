@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 import { Images } from '../../assets';
 import { EditorActionType } from '../../types/Actions';
-import type { EditorInstance } from '../../types';
+import type { EditorBridge } from '../../types';
 import { type EditorNativeState } from '../../types/EditorNativeState';
 import { ToolbarContext } from './Toolbar';
 import { ColorKeyboard } from '../Keyboard/ColorKeyboard';
@@ -17,7 +17,7 @@ export const ToolbarItems = {
 } as const;
 
 type ArgsToolbarCB = {
-  editor: EditorInstance;
+  editor: EditorBridge;
   editorState: EditorNativeState;
   setToolbarContext: (
     ToolbarContext: ToolbarContext | ((prev: ToolbarContext) => ToolbarContext)

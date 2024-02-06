@@ -1,5 +1,5 @@
 import StarterKit from '@tiptap/starter-kit';
-import TenTapBridge from './base';
+import BridgeExtension from './base';
 
 type TenTapStartKitEditorState = {
   isQuoteActive: boolean;
@@ -41,7 +41,7 @@ type TenTapStartKitEditorInstance = {
 
 declare module '../types/EditorNativeState' {
   interface EditorNativeState extends TenTapStartKitEditorState {}
-  interface EditorInstance extends TenTapStartKitEditorInstance {}
+  interface EditorBridge extends TenTapStartKitEditorInstance {}
 }
 
 export enum StarterKitEditorActionType {
@@ -86,7 +86,7 @@ interface HeadingAction {
 
 type StarterKitMessage = ToggleAction | HeadingAction;
 
-export const TenTapStartKit = new TenTapBridge<
+export const TenTapStartKit = new BridgeExtension<
   TenTapStartKitEditorState,
   TenTapStartKitEditorInstance,
   StarterKitMessage

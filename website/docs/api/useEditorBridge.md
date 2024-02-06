@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# useNativeEditor
+# useEditorBridge
 
 a react hook that will return [EditorBridge](./EditorBridge)
 

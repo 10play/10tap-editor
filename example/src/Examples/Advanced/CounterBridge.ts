@@ -1,4 +1,4 @@
-import { TenTapBridge } from 'tentap';
+import { BridgeExtension } from 'tentap';
 import CharacterCount from '@tiptap/extension-character-count';
 
 type CounterEditorState = {
@@ -10,10 +10,10 @@ type CounterEditorInstance = {};
 
 declare module 'tentap' {
   interface EditorNativeState extends CounterEditorState {}
-  interface EditorInstance extends CounterEditorInstance {}
+  interface EditorBridge extends CounterEditorInstance {}
 }
 
-export const CounterBridge = new TenTapBridge<
+export const CounterBridge = new BridgeExtension<
   CounterEditorState,
   CounterEditorInstance,
   unknown

@@ -1,5 +1,5 @@
 import Link from '@tiptap/extension-link';
-import TenTapBridge from './base';
+import BridgeExtension from './base';
 
 type LinkEditorState = {
   isLinkActive: boolean;
@@ -13,7 +13,7 @@ type LinkEditorInstance = {
 
 declare module '../types/EditorNativeState' {
   interface EditorNativeState extends LinkEditorState {}
-  interface EditorInstance extends LinkEditorInstance {}
+  interface EditorBridge extends LinkEditorInstance {}
 }
 
 export enum LinkEditorActionType {
@@ -25,7 +25,7 @@ type LinkMessage = {
   payload: null | string;
 };
 
-export const LinkBridge = new TenTapBridge<
+export const LinkBridge = new BridgeExtension<
   LinkEditorState,
   LinkEditorInstance,
   LinkMessage

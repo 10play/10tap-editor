@@ -1,7 +1,7 @@
 export { default as TenTapView } from './TenTapViewNativeComponent';
 export * from './TenTapViewNativeComponent';
 export * from './RichText';
-export { default as TenTapBridge } from './bridges/base';
+export { default as BridgeExtension } from './bridges/base';
 export * from './bridges/StarterKit';
 export * from './bridges/underline';
 export * from './bridges/tasklist';

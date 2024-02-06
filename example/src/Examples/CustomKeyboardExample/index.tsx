@@ -11,7 +11,7 @@ import {
   RichText,
   TenTapStartKit,
   Toolbar,
-  useNativeEditor,
+  useEditorBridge,
   type ToolbarItem,
 } from 'tentap';
 import { CustomKeyboard } from '../../../../src/RichText/Keyboard';
@@ -34,7 +34,7 @@ export const CustomKeyboardExample = ({}: NativeStackScreenProps<
   any,
   any
 >) => {
-  const editor = useNativeEditor({
+  const editor = useEditorBridge({
     avoidIosKeyboard: true,
     DEV: true,
     plugins: [TenTapStartKit],

@@ -19,7 +19,7 @@ import {
   TenTapStartKit,
   Toolbar,
   UnderlineBridge,
-  useNativeEditor,
+  useEditorBridge,
 } from 'tentap';
 import { ColorKeyboard } from '../../../src/RichText/Keyboard/ColorKeyboard';
 import { CustomKeyboard } from '../../../src/RichText/Keyboard';
@@ -36,7 +36,7 @@ const exampleStyles = StyleSheet.create({
 });
 
 export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
-  const editor = useNativeEditor({
+  const editor = useEditorBridge({
     autofocus: true,
     DEV: true,
     avoidIosKeyboard: true,

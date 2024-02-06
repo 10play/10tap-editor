@@ -1,9 +1,9 @@
 import { Editor, type AnyExtension } from '@tiptap/core';
-import type { EditorInstance, EditorNativeState } from '../types';
+import type { EditorBridge, EditorNativeState } from '../types';
 import type WebView from 'react-native-webview';
 import type { RefObject } from 'react';
 
-interface TenTapBridge<T = any, E = any, M = any> {
+interface BridgeExtension<T = any, E = any, M = any> {
   name: string;
   tiptapExtension?: AnyExtension;
   tiptapExtensionDeps?: AnyExtension[];
@@ -12,7 +12,7 @@ interface TenTapBridge<T = any, E = any, M = any> {
     message: M,
     sendMessageBack: (message: M) => void
   ) => boolean;
-  onEditorMessage?: (message: M, editorInstance: EditorInstance) => boolean;
+  onEditorMessage?: (message: M, editorBridge: EditorBridge) => boolean;
   extendEditorState?: (editor: Editor) => T;
   extendEditorInstance?: (
     sendBridgeMessage: (message: M) => void,
@@ -25,11 +25,11 @@ interface TenTapBridge<T = any, E = any, M = any> {
 }
 
 type CreateTenTapBridgeArgs<T = any, E = any, M = any> = Omit<
-  TenTapBridge<T, E, M> & { forceName?: string },
+  BridgeExtension<T, E, M> & { forceName?: string },
   'name' | 'sendMessage' | 'configure' | 'configureTiptapExtensionsOnRunTime'
 >;
 
-class TenTapBridge<T = any, E = any, M = any> {
+class BridgeExtension<T = any, E = any, M = any> {
   constructor({
     forceName,
     tiptapExtension,
@@ -41,7 +41,7 @@ class TenTapBridge<T = any, E = any, M = any> {
     extendCSS,
   }: CreateTenTapBridgeArgs<T, E, M>) {
     if (!tiptapExtension) {
-      this.name = forceName || 'TenTapBridge';
+      this.name = forceName || 'BridgeExtension';
     } else {
       this.name = Array.isArray(tiptapExtension)
         ? tiptapExtension.map((e) => e.name).join('+')
@@ -66,4 +66,4 @@ class TenTapBridge<T = any, E = any, M = any> {
     return [this.tiptapExtension, ...(this.tiptapExtensionDeps || [])];
   }
 }
-export default TenTapBridge;
+export default BridgeExtension;

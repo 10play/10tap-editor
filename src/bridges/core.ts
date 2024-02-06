@@ -1,4 +1,4 @@
-import TenTapBridge from './base';
+import BridgeExtension from './base';
 import { asyncMessages } from '../RichText/AsyncMessages';
 import type { EditorNativeState } from '../types';
 import { focusListener } from '../webEditorUtils/focusListener';
@@ -21,7 +21,7 @@ type CoreEditorInstance = {
 
 declare module '../types/EditorNativeState' {
   interface EditorNativeState extends CoreEditorState {}
-  interface EditorInstance extends CoreEditorInstance {}
+  interface EditorBridge extends CoreEditorInstance {}
 }
 
 export enum CoreEditorActionType {
@@ -81,7 +81,7 @@ export type CoreMessages =
       };
     };
 
-export const CoreBridge = new TenTapBridge<
+export const CoreBridge = new BridgeExtension<
   CoreEditorState,
   CoreEditorInstance,
   CoreMessages
@@ -129,19 +129,19 @@ export const CoreBridge = new TenTapBridge<
 
     return false;
   },
-  onEditorMessage: ({ type, payload }, editorInstance) => {
+  onEditorMessage: ({ type, payload }, editorBridge) => {
     if (type === CoreEditorActionType.SendContentToNative) {
       asyncMessages.onMessage(payload.messageId, payload.content);
       return true;
     }
 
     if (type === CoreEditorActionType.EditorReady) {
-      if (editorInstance.autofocus) {
-        editorInstance.focus('end');
+      if (editorBridge.autofocus) {
+        editorBridge.focus('end');
       }
     }
     if (type === CoreEditorActionType.StateUpdate) {
-      editorInstance._updateEditorState(payload);
+      editorBridge._updateEditorState(payload);
     }
     return false;
   },
