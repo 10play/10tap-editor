@@ -1,4 +1,4 @@
-import TenTapBridge from './base';
+import BridgeExtension from './base';
 import { asyncMessages } from '../RichText/AsyncMessages';
 import type { EditorNativeState } from '../types';
 import { focusListener } from '../webEditorUtils/focusListener';
@@ -81,7 +81,7 @@ export type CoreMessages =
       };
     };
 
-export const CoreBridge = new TenTapBridge<
+export const CoreBridge = new BridgeExtension<
   CoreEditorState,
   CoreEditorInstance,
   CoreMessages

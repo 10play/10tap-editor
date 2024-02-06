@@ -7,12 +7,12 @@ import {
 import { type EditorNativeState } from '../types/EditorNativeState';
 import { EditorHelper } from './EditorHelper';
 import type { EditorBridge } from '../types';
-import type TenTapBridge from '../bridges/base';
+import type BridgeExtension from '../bridges/base';
 
 type Subscription<T> = (cb: (val: T) => void) => () => void;
 
 export const useEditorBridge = (options?: {
-  plugins?: TenTapBridge<any, any, any>[];
+  plugins?: BridgeExtension<any, any, any>[];
   initialContent?: string;
   autofocus?: boolean;
   avoidIosKeyboard?: boolean;

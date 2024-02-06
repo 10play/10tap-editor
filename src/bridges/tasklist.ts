@@ -1,6 +1,6 @@
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
-import TenTapBridge from './base';
+import BridgeExtension from './base';
 
 type TaskListEditorState = {
   isTaskListActive: boolean;
@@ -25,7 +25,7 @@ type TaskListMessage = {
   payload?: undefined;
 };
 
-export const TaskListBridge = new TenTapBridge<
+export const TaskListBridge = new BridgeExtension<
   TaskListEditorState,
   TaskListEditorInstance,
   TaskListMessage

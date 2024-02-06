@@ -1,2 +1,2 @@
 export * from './useTenTap';
-export { default as TenTapBridge } from '../bridges/base';
+export { default as BridgeExtension } from '../bridges/base';

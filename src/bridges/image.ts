@@ -1,5 +1,5 @@
 import Image from '@tiptap/extension-image';
-import TenTapBridge from './base';
+import BridgeExtension from './base';
 
 type ImageEditorState = {};
 
@@ -21,7 +21,7 @@ type ImageMessage = {
   payload: string;
 };
 
-export const ImageBridge = new TenTapBridge<
+export const ImageBridge = new BridgeExtension<
   ImageEditorState,
   ImageEditorInstance,
   ImageMessage

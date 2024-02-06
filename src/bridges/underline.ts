@@ -1,5 +1,5 @@
 import Underline from '@tiptap/extension-underline';
-import TenTapBridge from './base';
+import BridgeExtension from './base';
 
 type UnderlineEditorState = {
   isUnderlineActive: boolean;
@@ -24,7 +24,7 @@ type UnderlineMessage = {
   payload?: undefined;
 };
 
-export const UnderlineBridge = new TenTapBridge<
+export const UnderlineBridge = new BridgeExtension<
   UnderlineEditorState,
   UnderlineEditorInstance,
   UnderlineMessage

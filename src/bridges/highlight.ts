@@ -1,6 +1,6 @@
 import TextStyle from '@tiptap/extension-text-style';
 import Highlight from '@tiptap/extension-highlight';
-import TenTapBridge from './base';
+import BridgeExtension from './base';
 
 type HighlightEditorState = {
   activeHighlight: string | undefined;
@@ -24,7 +24,7 @@ type HighlightMessage = {
   payload: string | undefined;
 };
 
-export const HighlightBridge = new TenTapBridge<
+export const HighlightBridge = new BridgeExtension<
   HighlightEditorState,
   HighlightEditorInstance,
   HighlightMessage

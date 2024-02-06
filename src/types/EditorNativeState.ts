@@ -1,6 +1,6 @@
 import type { RefObject } from 'react';
 import type WebView from 'react-native-webview';
-import type TenTapBridge from '../bridges/base';
+import type BridgeExtension from '../bridges/base';
 
 export interface EditorNativeState {}
 
@@ -18,5 +18,5 @@ export interface EditorBridge {
   getEditorState: () => EditorNativeState;
   _updateEditorState: (state: EditorNativeState) => void;
   _subscribeToEditorStateUpdate: Subscription<EditorNativeState>;
-  plugins?: TenTapBridge<unknown, unknown, unknown>[];
+  plugins?: BridgeExtension<unknown, unknown, unknown>[];
 }

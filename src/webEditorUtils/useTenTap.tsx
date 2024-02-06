@@ -4,7 +4,7 @@ import { useEditor } from '@tiptap/react';
 import { Editor } from '@tiptap/core';
 import { type EditorMessage, EditorMessageType } from '../types/Messaging';
 import { type EditorNativeState } from '../types/EditorNativeState';
-import type TenTapBridge from '../bridges/base';
+import type BridgeExtension from '../bridges/base';
 import { CoreEditorActionType } from '../bridges/core';
 import { blueBackgroundPlugin } from '../bridges/HighlightSelection';
 declare global {
@@ -25,7 +25,7 @@ export const sendMessage = (message: EditorMessage) => {
 
 interface useTenTapArgs {
   tiptapOptions?: any;
-  bridges?: TenTapBridge[];
+  bridges?: BridgeExtension[];
 }
 
 const configs = JSON.parse(window.plugConfig || '{}');
