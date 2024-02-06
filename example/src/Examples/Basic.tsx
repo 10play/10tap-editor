@@ -13,6 +13,7 @@ import {
   HighlightBridge,
   ImageBridge,
   LinkBridge,
+  PlaceholderBridge,
   RichText,
   TaskListBridge,
   TenTapStartKit,
@@ -44,6 +45,7 @@ export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
       UnderlineBridge,
       ImageBridge,
       TaskListBridge,
+      PlaceholderBridge.configure({ placeholder: 'Type something...' }),
       LinkBridge.configure({ openOnClick: false }),
       ColorBridge,
       HighlightBridge,
@@ -55,7 +57,7 @@ export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
   return (
     <SafeAreaView style={exampleStyles.fullScreen} ref={TapRef}>
       <View style={exampleStyles.fullScreen}>
-        <RichText avoidIosKeyboard editor={editor} autofocus />
+        <RichText avoidIosKeyboard editor={editor} DEV autofocus />
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

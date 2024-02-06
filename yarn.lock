@@ -4813,6 +4813,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tiptap/extension-placeholder@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "@tiptap/extension-placeholder@npm:2.2.1"
+  peerDependencies:
+    "@tiptap/core": ^2.0.0
+    "@tiptap/pm": ^2.0.0
+  checksum: cec29ec2a6d94800ec00e42e89cae8d18facc6fb4a2029c95f3c5bf78cccfca65c6eac7f366bc13c8e52a5192fd8afa412a6db73ca35adf136260870e8d73046
+  languageName: node
+  linkType: hard
+
 "@tiptap/extension-strike@npm:^2.1.16":
   version: 2.1.16
   resolution: "@tiptap/extension-strike@npm:2.1.16"
@@ -19551,6 +19561,7 @@ __metadata:
     "@tiptap/extension-highlight": ^2.1.16
     "@tiptap/extension-image": ^2.2.1
     "@tiptap/extension-link": ^2.1.16
+    "@tiptap/extension-placeholder": ^2.2.1
     "@tiptap/extension-task-item": ^2.1.16
     "@tiptap/extension-task-list": ^2.1.16
     "@tiptap/extension-text-style": ^2.1.16
