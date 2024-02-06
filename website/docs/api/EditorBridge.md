@@ -8,15 +8,15 @@ interface of all the interactions you can do with the editor on the react native
 
 #### focus - `(pos?: 'start' \| 'end' \| 'all' \| number \| boolean \| null) => void`
 
-a function that will focus the editor and make sure to open keyboard <br /> extend by [coreBridge](google.com)
+a function that will focus the editor and make sure to open keyboard <br /> extend by [coreBridge](https://10play.dev)
 
 #### webviewRef - `RefObject\<WebView\>`
 
-a ref for the webview that show the editor <br /> extend by [coreBridge](google.com)
+a ref for the webview that show the editor <br /> extend by [coreBridge](https://10play.dev)
 
 #### getEditorState - `() => BridgeState`
 
-a function that will return the most up to date BridgeState <br /> extend by [coreBridge](google.com)
+a function that will return the most up to date BridgeState <br /> extend by [coreBridge](https://10play.dev)
 
 | name                           | type                                                                     | description                                                                                                                                                                                                       | BrideExtension |
 | ------------------------------ | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
