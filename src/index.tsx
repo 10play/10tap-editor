@@ -8,6 +8,7 @@ export * from './bridges/tasklist';
 export * from './bridges/link';
 export * from './bridges/color';
 export * from './bridges/highlight';
+export * from './bridges/placeholder';
 export * from './bridges/core';
 export * from './bridges/image';
 export * from './types';
