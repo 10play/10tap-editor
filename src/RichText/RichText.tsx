@@ -15,9 +15,6 @@ import type { EditorInstance } from '../types';
 
 interface RichTextProps extends WebViewProps {
   editor: EditorInstance;
-  avoidIosKeyboard?: boolean;
-  customSource?: string;
-  DEV?: boolean;
 }
 
 const styles = StyleSheet.create({
@@ -37,16 +34,11 @@ const DEV_SERVER_URL = 'http://localhost:3000';
 // TODO: make it a prop
 const TOOLBAR_HEIGHT = 44;
 
-export const RichText = ({
-  DEV,
-  editor,
-  customSource,
-  avoidIosKeyboard,
-}: RichTextProps) => {
+export const RichText = ({ editor }: RichTextProps) => {
   const { keyboardHeight: iosKeyboardHeight, isKeyboardUp } = useKeyboard();
-  const source: WebViewProps['source'] = DEV
-    ? { uri: DEV_SERVER_URL }
-    : { html: customSource || editorHTML };
+  const source: WebViewProps['source'] = editor.DEV
+    ? { uri: editor.DEV_SERVER_URL || DEV_SERVER_URL }
+    : { html: editor.customSource || editorHTML };
 
   const onWebviewMessage = (event: WebViewMessageEvent) => {
     const { data } = event.nativeEvent;
@@ -80,7 +72,7 @@ export const RichText = ({
     // On iOS we want to control the scroll and not use the scrollview that comes with react-native-webview
     // That's way we can get better exp on scroll and scroll to element when we need to
     if (
-      avoidIosKeyboard &&
+      editor.avoidIosKeyboard &&
       editor.webviewRef.current &&
       Platform.OS === 'ios'
     ) {
@@ -98,7 +90,7 @@ export const RichText = ({
         editor.updateScrollThresholdAndMargin(0);
       }
     }
-  }, [avoidIosKeyboard, editor, iosKeyboardHeight, isKeyboardUp]);
+  }, [editor.avoidIosKeyboard, editor, iosKeyboardHeight, isKeyboardUp]);
 
   return (
     <>

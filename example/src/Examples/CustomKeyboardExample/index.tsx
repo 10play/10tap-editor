@@ -35,6 +35,8 @@ export const CustomKeyboardExample = ({}: NativeStackScreenProps<
   any
 >) => {
   const editor = useNativeEditor({
+    avoidIosKeyboard: true,
+    DEV: true,
     plugins: [TenTapStartKit],
   });
   const TapRef = useRef(null);
@@ -62,7 +64,7 @@ export const CustomKeyboardExample = ({}: NativeStackScreenProps<
   return (
     <SafeAreaView style={exampleStyles.fullScreen} ref={TapRef}>
       <View style={exampleStyles.fullScreen}>
-        <RichText avoidIosKeyboard editor={editor} DEV />
+        <RichText editor={editor} />
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

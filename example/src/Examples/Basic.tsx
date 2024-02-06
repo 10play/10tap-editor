@@ -38,6 +38,8 @@ const exampleStyles = StyleSheet.create({
 export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
   const editor = useNativeEditor({
     autofocus: true,
+    DEV: true,
+    avoidIosKeyboard: true,
     initialContent: `<p>This is a basic <a href="https://google.com">example</a> of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s</p>`,
     plugins: [
       CoreBridge,
@@ -51,13 +53,14 @@ export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
       HighlightBridge,
     ],
   });
+
   const TapRef = useRef(null);
   const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
 
   return (
     <SafeAreaView style={exampleStyles.fullScreen} ref={TapRef}>
       <View style={exampleStyles.fullScreen}>
-        <RichText avoidIosKeyboard editor={editor} DEV />
+        <RichText editor={editor} />
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
