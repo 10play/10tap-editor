@@ -10,6 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
+          token: ${{ secrets.GH_PAT }}
           fetch-depth: 0
       - name: git config
         run: |
@@ -24,4 +25,4 @@ jobs:
       - run: yarn release
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
