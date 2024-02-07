@@ -13,7 +13,7 @@ import {
   useEditorBridge,
   type ToolbarItem,
 } from '@10play/tentap-editor';
-import { CustomKeyboard } from '../../../../src/RichText/Keyboard';
+import { CustomKeyboard } from '../../../../src/RichText/Keyboard/CustomKeyboard';
 import { StickerKeyboard } from './StickerKeyboard';
 import { Images } from '../../../../src/assets';
 

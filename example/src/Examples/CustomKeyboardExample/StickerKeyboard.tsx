@@ -1,6 +1,6 @@
 import React from 'react';
+import { CustomKeyboardExtension } from '@10play/tentap-editor';
 import { Image, StyleSheet, View } from 'react-native';
-import { CustomKeyboardExtension } from '../../../../src/RichText/Keyboard/CustomKeyboardExtension';
 import { Images } from '../../../../src/assets';
 
 const keyboardStyles = StyleSheet.create({
