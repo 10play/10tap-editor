@@ -22,6 +22,7 @@
   "files": [
     "src",
     "lib",
+    "lib-web",
     "android",
     "ios",
     "cpp",
