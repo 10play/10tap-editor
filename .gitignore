@@ -12,7 +12,6 @@ jsconfig.json
 # Xcode
 #
 build/
-!src/editor/build
 !example/src/Examples/Advanced/Editor/build
 *.pbxuser
 !default.pbxuser
