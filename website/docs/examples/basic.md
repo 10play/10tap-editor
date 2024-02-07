@@ -9,29 +9,18 @@ In this example we will be creating a basic editor that contains all of the pre-
 ## Creating The Editor Bridge
 
 The first thing we want to do is create our EditorBridge #todo add link to editor bridge.
-To do this we will use the `useNativeEditor` hook in our component
+To do this we will use the `useEditorBridge` hook in our component
 
 ```tsx
 const editor = useEditorBridge();
 ```
 
+<!-- TODO: not need to pass bridgeExtensions anymore -->
+
 This is not enough however as it is just an empty editor with no bridgeExtensions so let's add some
 
 ```tsx
-  const editor = useEditorBridge({
-    bridgeExtensions: [
-      // Here we define all the bridgeExtensions that we want to use
-      CoreBridge
-      TenTapStartKit,
-      UnderlineBridge,
-      ImageBridge,
-      TaskListBridge,
-      PlaceholderBridge,
-      LinkBridge
-      ColorBridge,
-      HighlightBridge,
-    ],
-  });
+const editor = useEditorBridge({});
 ```
 
 Now we have added all of the pre-built bridgeExtensions provided by tentap, and our editor will support all of these bridgeExtensions features

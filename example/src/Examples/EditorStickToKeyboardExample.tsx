@@ -10,13 +10,7 @@ import {
   Text,
   ScrollView,
 } from 'react-native';
-import {
-  RichText,
-  TenTapStartKit,
-  Toolbar,
-  useEditorBridge,
-  CoreBridge,
-} from '@10play/tentap-editor';
+import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
 import { CustomKeyboard } from '../../../src/RichText/Keyboard';
 import { ColorKeyboard } from '../../../src/RichText/Keyboard/ColorKeyboard';
 import WebView from 'react-native-webview';
@@ -62,7 +56,6 @@ export const EditorStickToKeyboardExample = ({}: NativeStackScreenProps<
   const editor = useEditorBridge({
     autofocus: true,
     DEV: true,
-    bridgeExtensions: [TenTapStartKit, CoreBridge],
     initialContent: '<p>Initial lovely message...</p>',
   });
   const MessagesScrollViewRef = useRef<ScrollView>(null);

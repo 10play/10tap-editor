@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import {
   ColorBridge,
-  CoreBridge,
   HighlightBridge,
   ImageBridge,
   LinkBridge,
@@ -30,8 +29,7 @@ export const Compose = ({
     avoidIosKeyboard: true,
     initialContent: MAIL_INITIAL_CONTENT,
     bridgeExtensions: [
-      CoreBridge,
-      TenTapStartKit,
+      ...TenTapStartKit,
       UnderlineBridge,
       ImageBridge,
       TaskListBridge,

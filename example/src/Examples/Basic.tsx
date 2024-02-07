@@ -7,20 +7,7 @@ import {
   Platform,
   StyleSheet,
 } from 'react-native';
-import {
-  ColorBridge,
-  CoreBridge,
-  HighlightBridge,
-  ImageBridge,
-  LinkBridge,
-  PlaceholderBridge,
-  RichText,
-  TaskListBridge,
-  TenTapStartKit,
-  Toolbar,
-  UnderlineBridge,
-  useEditorBridge,
-} from '@10play/tentap-editor';
+import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
 import { ColorKeyboard } from '../../../src/RichText/Keyboard/ColorKeyboard';
 import { CustomKeyboard } from '../../../src/RichText/Keyboard';
 
@@ -35,12 +22,13 @@ const exampleStyles = StyleSheet.create({
   },
 });
 
-const customFont = `
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
-* {
-  font-family: 'Roboto', sans-serif;
-}
-`;
+// todo: add example with custom font
+// const customFont = `
+// @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+// * {
+//   font-family: 'Roboto', sans-serif;
+// }
+// `;
 
 const initialContent = `<p>This is a basic <a href="https://google.com">example</a> of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s</p>`;
 
@@ -50,20 +38,6 @@ export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
     DEV: true,
     avoidIosKeyboard: true,
     initialContent,
-    bridgeExtensions: [
-      // Here we define all the plugins that we want to use
-      CoreBridge.configureCSS(customFont), // If we want to add custom css - we can configure it here on the core bridge
-      TenTapStartKit,
-      UnderlineBridge,
-      ImageBridge,
-      TaskListBridge,
-      PlaceholderBridge.configureExtension({
-        placeholder: 'Type something...',
-      }),
-      LinkBridge.configureExtension({ openOnClick: false }),
-      ColorBridge,
-      HighlightBridge,
-    ],
   });
 
   const rootRef = useRef(null);

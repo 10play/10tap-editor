@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import {
   RichText,
-  TenTapStartKit,
   Toolbar,
   useEditorBridge,
   type ToolbarItem,
@@ -37,7 +36,6 @@ export const CustomKeyboardExample = ({}: NativeStackScreenProps<
   const editor = useEditorBridge({
     avoidIosKeyboard: true,
     DEV: true,
-    bridgeExtensions: [TenTapStartKit],
   });
   const TapRef = useRef(null);
   const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
