@@ -6,9 +6,8 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
+import { CustomKeyboard, ColorKeyboard } from '@10play/tentap-editor';
 import { RichText, useBridgeState } from '../../../../src/RichText';
-import { CustomKeyboard } from '../../../../src/RichText/Keyboard';
-import { ColorKeyboard } from '../../../../src/RichText/Keyboard/ColorKeyboard';
 import type { EditorBridge } from '../../../../src/types';
 import { icons } from '../../assets';
 import { Icon } from '../Icon';

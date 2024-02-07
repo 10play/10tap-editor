@@ -10,9 +10,13 @@ import {
   Text,
   ScrollView,
 } from 'react-native';
-import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
-import { CustomKeyboard } from '../../../src/RichText/Keyboard';
-import { ColorKeyboard } from '../../../src/RichText/Keyboard/ColorKeyboard';
+import {
+  RichText,
+  Toolbar,
+  useEditorBridge,
+  CustomKeyboard,
+  ColorKeyboard,
+} from '@10play/tentap-editor';
 import WebView from 'react-native-webview';
 
 const exampleStyles = StyleSheet.create({
