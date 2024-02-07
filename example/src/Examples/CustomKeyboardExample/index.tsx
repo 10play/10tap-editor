@@ -35,6 +35,7 @@ export const CustomKeyboardExample = ({}: NativeStackScreenProps<
 >) => {
   const editor = useEditorBridge({
     avoidIosKeyboard: true,
+    autofocus: true,
     DEV: true,
   });
   const TapRef = useRef(null);
