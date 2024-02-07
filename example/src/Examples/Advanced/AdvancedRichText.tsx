@@ -2,17 +2,11 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useRef } from 'react';
 import { SafeAreaView, View, StyleSheet, Text } from 'react-native';
 import {
-  ColorBridge,
-  HighlightBridge,
-  ImageBridge,
-  LinkBridge,
   RichText,
-  TaskListBridge,
-  TenTapStartKit,
-  UnderlineBridge,
   useEditorBridge,
   useBridgeState,
   type EditorBridge,
+  TenTapStartKit,
 } from '@10play/tentap-editor';
 
 // @ts-ignore
@@ -48,16 +42,7 @@ export const Advanced = ({}: NativeStackScreenProps<any, any, any>) => {
     avoidIosKeyboard: true,
     customSource: AdvancedEditor,
     initialContent: `<p>This is a basic example of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s sdfdsf fd dsfd ssdfd dsfdsfdsfdsfd</p>`,
-    bridgeExtensions: [
-      TenTapStartKit,
-      UnderlineBridge,
-      ImageBridge,
-      TaskListBridge,
-      LinkBridge,
-      ColorBridge,
-      HighlightBridge,
-      CounterBridge,
-    ],
+    bridgeExtensions: [...TenTapStartKit, CounterBridge],
   });
   const TapRef = useRef(null);
 

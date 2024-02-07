@@ -91,7 +91,7 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
       ({ editor }) =>
       () =>
         editor.toggleBlockquote(),
-    active: ({ editorState }) => editorState.isQuoteActive,
+    active: ({ editorState }) => editorState.isBlockquoteActive,
     disabled: ({ editorState }) => !editorState.canToggleBlockquote,
     image: () => Images.quote,
   },
@@ -99,7 +99,7 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     onPress:
       ({ editor }) =>
       () =>
-        editor.toggleCodeBlock(),
+        editor.toggleCode(),
     active: ({ editorState }) => editorState.isCodeActive,
     disabled: ({ editorState }) => !editorState.canToggleCode,
     image: () => Images.code,
@@ -144,9 +144,9 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     onPress:
       ({ editor }) =>
       () =>
-        editor.toggleStrikethrough(),
-    active: ({ editorState }) => editorState.isStrikethroughActive,
-    disabled: ({ editorState }) => !editorState.canToggleStrikethrough,
+        editor.toggleStrike(),
+    active: ({ editorState }) => editorState.isStrikeActive,
+    disabled: ({ editorState }) => !editorState.canToggleStrike,
     image: () => Images.strikethrough,
   },
   {

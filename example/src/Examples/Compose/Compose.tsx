@@ -9,17 +9,7 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import {
-  ColorBridge,
-  CoreBridge,
-  HighlightBridge,
-  ImageBridge,
-  LinkBridge,
-  TaskListBridge,
-  TenTapStartKit,
-  UnderlineBridge,
-  useEditorBridge,
-} from '@10play/tentap-editor';
+import { useEditorBridge } from '@10play/tentap-editor';
 import { Icon } from '../Icon';
 import { ComposeRichText } from './ComposeRichText';
 
@@ -28,17 +18,8 @@ export const Compose = ({
 }: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditorBridge({
     avoidIosKeyboard: true,
+    DEV: true,
     initialContent: MAIL_INITIAL_CONTENT,
-    bridgeExtensions: [
-      CoreBridge,
-      TenTapStartKit,
-      UnderlineBridge,
-      ImageBridge,
-      TaskListBridge,
-      LinkBridge.configureExtension({ openOnClick: false }),
-      ColorBridge,
-      HighlightBridge,
-    ],
   });
 
   const onSendClick = async () => {

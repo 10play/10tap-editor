@@ -2,6 +2,9 @@ import BridgeExtension from './base';
 import { asyncMessages } from '../RichText/AsyncMessages';
 import type { EditorNativeState } from '../types';
 import { focusListener } from '../webEditorUtils/focusListener';
+import Document from '@tiptap/extension-document';
+import Paragraph from '@tiptap/extension-paragraph';
+import Text from '@tiptap/extension-text';
 
 type CoreEditorState = {
   selection: { from: number; to: number };
@@ -87,6 +90,7 @@ export const CoreBridge = new BridgeExtension<
   CoreMessages
 >({
   forceName: 'coreBridge',
+  tiptapExtensionDeps: [Document, Paragraph, Text],
   onBridgeMessage: (editor, message, sendMessageBack) => {
     if (message.type === CoreEditorActionType.SetContent) {
       editor.commands.setContent(message.payload.content);
