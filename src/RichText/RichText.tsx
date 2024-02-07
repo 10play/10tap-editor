@@ -6,7 +6,7 @@ import {
   type WebViewMessageEvent,
 } from 'react-native-webview';
 
-import { editorHtml } from '../simpleWebEditor/editorHtml';
+import { editorHtml } from '../simpleWebEditor/build/editorHtml';
 
 import { type EditorMessage } from '../types/Messaging';
 import { useKeyboard } from '../utils';

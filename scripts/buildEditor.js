@@ -20,7 +20,7 @@ const build = async () => {
     const editorPath = path.join(webDIR, 'build/index.html');
     const editorHtml = fs.readFileSync(editorPath, 'utf8');
     const editorTs = createContent(editorHtml);
-    const editorTsPath = path.join(webDIR, 'editorHtml.ts');
+    const editorTsPath = path.join(webDIR, 'build/editorHtml.ts');
     fs.writeFileSync(editorTsPath, editorTs);
     console.log('Built Editor!');
   } catch (error) {
