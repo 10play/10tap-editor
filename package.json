@@ -4,16 +4,18 @@
   "description": "React Native Rich Text Editor",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
-  "types": "lib/typescript/index.d.ts",
+  "types": "lib/typescript/src/index.d.ts",
   "react-native": "src/index",
   "exports": {
     ".": {
       "import": "./lib/module/index",
-      "require": "./lib/commonjs/index"
+      "require": "./lib/commonjs/index",
+      "types": "./lib/typescript/src/index.d.ts"
     },
     "./web": {
       "import": "./lib-web/index.mjs",
-      "require": "./lib-web/index.umd.cjs"
+      "require": "./lib-web/index.umd.cjs",
+      "types": "./lib/typescript/src/index.d.ts"
     }
   },
   "source": "src/index",
