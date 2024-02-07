@@ -15,7 +15,7 @@
     "./web": {
       "import": "./lib-web/index.mjs",
       "require": "./lib-web/index.umd.cjs",
-      "types": "./lib/typescript/src/index.d.ts"
+      "types": "./lib-web/typescript/webEditorUtils/index.d.ts"
     }
   },
   "source": "src/index",
@@ -39,7 +39,8 @@
   ],
   "scripts": {
     "editor:dev": "vite",
-    "editor:build": "vite build && node ./scripts/buildEditor.js",
+    "editor:build": "vite build && node ./scripts/buildEditor.js && editor:build-web-utils",
+    "editor:build-web-utils": "rimraf lib-web && vite build --config ./src/webEditorUtils/vite.config.ts && tsc --project ./src/webEditorUtils",
     "example": "yarn workspace tentap-example",
     "test": "jest",
     "typecheck": "tsc --noEmit",
@@ -90,6 +91,7 @@
     "react-native": "0.73.2",
     "react-native-builder-bob": "^0.20.0",
     "release-it": "^15.0.0",
+    "rimraf": "^5.0.5",
     "turbo": "^1.12.2",
     "typescript": "^5.0.2",
     "vite": "^5.0.12",
