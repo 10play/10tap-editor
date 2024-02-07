@@ -37,7 +37,7 @@
   ],
   "scripts": {
     "editor:dev": "vite",
-    "editor:build": "vite build",
+    "editor:build": "vite build && node ./scripts/buildEditor.js",
     "example": "yarn workspace tentap-example",
     "test": "jest",
     "typecheck": "tsc --noEmit",

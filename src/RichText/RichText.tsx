@@ -6,8 +6,7 @@ import {
   type WebViewMessageEvent,
 } from 'react-native-webview';
 
-// @ts-ignore
-import editorHTML from '../simpleWebEditor/build/index.html';
+import { editorHtml } from '../simpleWebEditor/editorHtml';
 
 import { type EditorMessage } from '../types/Messaging';
 import { useKeyboard } from '../utils';
@@ -54,7 +53,7 @@ export const RichText = ({ editor }: RichTextProps) => {
   const { keyboardHeight: iosKeyboardHeight, isKeyboardUp } = useKeyboard();
   const source: WebViewProps['source'] = editor.DEV
     ? { uri: editor.DEV_SERVER_URL || DEV_SERVER_URL }
-    : { html: editor.customSource || editorHTML };
+    : { html: editor.customSource || editorHtml };
 
   const onWebviewMessage = (event: WebViewMessageEvent) => {
     const { data } = event.nativeEvent;
