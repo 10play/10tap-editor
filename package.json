@@ -1,6 +1,6 @@
 {
   "name": "@10play/tentap-editor",
-  "version": "0.4.8",
+  "version": "0.4.9",
   "description": "React Native Rich Text Editor",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
