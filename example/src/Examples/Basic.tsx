@@ -7,7 +7,13 @@ import {
   Platform,
   StyleSheet,
 } from 'react-native';
-import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
+import {
+  CoreBridge,
+  RichText,
+  Toolbar,
+  useEditorBridge,
+  TenTapStartKit,
+} from '@10play/tentap-editor';
 import { ColorKeyboard } from '../../../src/RichText/Keyboard/ColorKeyboard';
 import { CustomKeyboard } from '../../../src/RichText/Keyboard';
 
@@ -23,12 +29,12 @@ const exampleStyles = StyleSheet.create({
 });
 
 // Todo: add example with custom font
-// const customFont = `
-// @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
-// * {
-//   font-family: 'Roboto', sans-serif;
-// }
-// `;
+const customFont = `
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+* {
+  font-family: 'Roboto', sans-serif;
+}
+`;
 
 const initialContent = `<p>This is a basic <a href="https://google.com">example</a> of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s</p>`;
 
@@ -38,6 +44,7 @@ export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
     DEV: true,
     avoidIosKeyboard: true,
     initialContent,
+    bridgeExtensions: [...TenTapStartKit, CoreBridge.configureCSS(customFont)],
   });
 
   const rootRef = useRef(null);

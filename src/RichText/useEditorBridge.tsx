@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import WebView from 'react-native-webview';
 import {
   type EditorActionMessage,
@@ -9,6 +9,7 @@ import { EditorHelper } from './EditorHelper';
 import type { EditorBridge } from '../types';
 import type BridgeExtension from '../bridges/base';
 import { TenTapStartKit } from '../bridges/StarterKit';
+import { uniqueBy } from '../utils';
 
 type Subscription<T> = (cb: (val: T) => void) => () => void;
 
@@ -21,11 +22,16 @@ export const useEditorBridge = (options?: {
   DEV?: boolean;
   DEV_SERVER_URL?: string;
 }): EditorBridge => {
-  const bridgeExtensions = options?.bridgeExtensions || TenTapStartKit;
   const webviewRef = useRef<WebView>(null);
   // Till we will implement default per bridgeExtension
   const editorStateRef = useRef<EditorNativeState | {}>({});
   const editorStateSubsRef = useRef<((state: EditorNativeState) => void)[]>([]);
+
+  const bridgeExtensions = useMemo(() => {
+    const extensions = options?.bridgeExtensions || TenTapStartKit;
+    // Filter out duplicates
+    return uniqueBy(extensions, 'name');
+  }, [options?.bridgeExtensions]);
 
   const _updateEditorState = (editorState: EditorNativeState) => {
     editorStateRef.current = editorState;
