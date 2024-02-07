@@ -22,7 +22,7 @@ const exampleStyles = StyleSheet.create({
   },
 });
 
-// todo: add example with custom font
+// Todo: add example with custom font
 // const customFont = `
 // @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
 // * {
