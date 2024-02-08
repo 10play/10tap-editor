@@ -3,7 +3,9 @@ const path = require('path');
 
 // This script takes the editor html file and places it into a ts variable
 // so that it can be imported without the babel-plugin-inline-import plugin
-const webDIR = path.resolve(__dirname, '../src/simpleWebEditor');
+const htmlPath = process.argv[2];
+const htmlDir = path.join(htmlPath, '../');
+const editorTsPath = process.argv[3] || path.join(htmlDir, 'editorHtml.ts');
 
 const createContent = (html) => {
   html = html.replace(/([`$])/g, '\\$1');
@@ -17,10 +19,8 @@ const createContent = (html) => {
 
 const build = async () => {
   try {
-    const editorPath = path.join(webDIR, 'build/index.html');
-    const editorHtml = fs.readFileSync(editorPath, 'utf8');
+    const editorHtml = fs.readFileSync(htmlPath, 'utf8');
     const editorTs = createContent(editorHtml);
-    const editorTsPath = path.join(webDIR, 'build/editorHtml.ts');
     fs.writeFileSync(editorTsPath, editorTs);
     console.log('Built Editor!');
   } catch (error) {
