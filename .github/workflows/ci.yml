@@ -17,6 +17,9 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
+      - name: Build editor
+        run: yarn build:editor
+
       - name: Lint files
         run: yarn lint
 
