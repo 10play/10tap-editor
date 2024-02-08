@@ -12,6 +12,7 @@ import { Advanced } from './Examples/Advanced/AdvancedRichText';
 import { Compose } from './Examples/Compose/Compose';
 import { WithKeyboard } from './Examples/WithKeyboard';
 import { CustomCss } from './Examples/CustomCss';
+import { ConfigureExtensions } from './Examples/ConfigureExtentions';
 
 const examples = [
   {
@@ -25,6 +26,10 @@ const examples = [
   {
     name: 'Custom CSS',
     component: CustomCss,
+  },
+  {
+    name: 'Configure Extensions',
+    component: ConfigureExtensions,
   },
   {
     name: 'CustomKeyboard',

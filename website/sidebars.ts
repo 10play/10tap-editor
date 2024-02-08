@@ -8,6 +8,7 @@ const sidebars: SidebarsConfig = {
     examples: [
       'examples/basic',
       'examples/customCss',
+      'examples/configureExtensions',
       'examples/colorKeyboard',
     ],
   },

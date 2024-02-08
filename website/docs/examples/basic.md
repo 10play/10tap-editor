@@ -50,23 +50,6 @@ We need wrap the entire the toolbar and keyboard in a `KeyboardAvoidingView` to 
 </KeyboardAvoidingView>
 ```
 
-## Configuring Placeholder and Link
-
-Let's also configure the PlaceholderBridge and LinkBridge
-We can do this with the `configureExtension` function on each Bridge. This can be used to configure any of the TipTaps Extension options
-
-```tsx
-const editor = useEditorBridge({
-    bridgeExtensions: [
-        ...,
-        PlaceholderBridge.configureExtension({
-          placeholder: 'Type something...',
-        }),
-        LinkBridge.configureExtension({ openOnClick: false }),
-    ],
-  });
-```
-
 ## Full Example
 
 ```tsx
