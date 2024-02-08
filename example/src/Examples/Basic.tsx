@@ -41,7 +41,6 @@ const initialContent = `<p>This is a basic <a href="https://google.com">example<
 export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditorBridge({
     autofocus: true,
-    DEV: true,
     avoidIosKeyboard: true,
     initialContent,
     bridgeExtensions: [...TenTapStartKit, CoreBridge.configureCSS(customFont)],

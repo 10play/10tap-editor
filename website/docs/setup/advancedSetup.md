@@ -2,15 +2,21 @@
 sidebar_position: 2
 ---
 
-# Advance Setup
+# Advanced Setup
 
 Make sure you read the core concepts page before setup advance and check if the simple usage is good enough for you.
 
-1.  Create a new folder in your project called `editor-web` - advance setup will let you full control on what running inside the editor webview, so we need to create a spereate folder that will include code that will run inside the webview and will have different build process and tsconfig
+## Setting Up Our Custom Editor Directory
 
-2.  Create `editor-web/tsconfig.json`:
+### Step 1 - creating the directory
 
-```json title="vite.config.ts"
+Create a new folder in your project called `editor-web` (or any other name) - advance setup will let you full control on what running inside the editor webview, so we need to create a separate folder that will include code that will run inside the webview and will have different build process and tsconfig
+
+### Step 2 - adding tsconfig
+
+Create `editor-web/tsconfig.json`:
+
+```ts title="editor-web/tsconfig.json"
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "_version": "2.0.0",
@@ -39,10 +45,15 @@ Make sure you read the core concepts page before setup advance and check if the 
 }
 ```
 
-It's important to configure `paths` so on web types will load from web subfolder and not react-native part types
+It's important to configure `paths` so on web the web types will be used instead of native types.
 
-3. Add exclude on the root tsconfig.json: `"exclude": ["./editor-web"]`
-4. Add index.html AdvancedEditor.tsx and index.tsx:
+### Step 3 - updating root tsconfig
+
+Add exclude on the root tsconfig.json: `"exclude": ["./editor-web"]`
+
+### Step 4 - Add index.html AdvancedEditor.tsx and index.tsx
+
+Add the following files
 
 ```html title="index.html"
 <!DOCTYPE html>
@@ -80,14 +91,17 @@ It's important to configure `paths` so on web types will load from web subfolder
 </html>
 ```
 
-```jsx title="AdvancedEditor.tsx"
+```tsx title="AdvancedEditor.tsx"
 import React from 'react';
 import { EditorContent } from '@tiptap/react';
-import { useTenTap, CoreBridge } from '@10play/tentap-editor/web';
+import { useTenTap, CoreBridge } from '@10play/tentap-editor';
 import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
 
+/**
+ * Here we control the web side of our custom editor
+ */
 export const AdvancedEditor = () => {
   const editor = useTenTap({
     bridges: [CoreBridge],
@@ -99,7 +113,7 @@ export const AdvancedEditor = () => {
 };
 ```
 
-```jsx title="index.tsx"
+```tsx title="index.tsx"
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { AdvancedEditor } from './AdvancedEditor';
@@ -110,13 +124,19 @@ import { AdvancedEditor } from './AdvancedEditor';
 const container = document.getElementById('root');
 const root = createRoot(container!);
 root.render(<AdvancedEditor />);
-
 ```
 
-5. Create bundle config, we use vite, `yarn add -D vite @vitejs/plugin-react vite-plugin-singlefile` here `vite.config.ts` :
+### Step 5 - adding a bundler
+
+We chose to use vite as our bundler so first run
+
+```bash
+yarn add -D vite @vitejs/plugin-react vite-plugin-singlefile
+```
+
+And now let's create `vite.config.ts` and configure it
 
 ```ts title="vite.config.ts"
-import { resolve } from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { viteSingleFile } from 'vite-plugin-singlefile';
@@ -124,14 +144,14 @@ import { viteSingleFile } from 'vite-plugin-singlefile';
 // This config is used to build the web editor into a single file
 
 export default defineConfig({
-  root: 'src/Examples/Advanced/Editor/',
+  root: 'src/editor-web', // This should be the directory of your index.html
   build: {
     outDir: 'build',
   },
   resolve: {
     alias: [
       {
-        find: '@10play/tentap-editor',
+        find: '@10play/tentap-editor', // On our web bundle we only want to include web related code
         replacement: '@10play/tentap-editor/web',
       },
     ],
@@ -143,18 +163,20 @@ export default defineConfig({
 });
 ```
 
-It's important to have the `alias` configuration so vite will not load react-native code
+> <strong>It's important to have the `alias` configuration so vite will not load react-native code</strong>
 
-6. Add scripts on package.json so it will be easy to run/build editor-web:
+### Step 6 - adding build scripts
 
-```json title="package.json"
-    "scripts": {
-        ...
-        "editor:dev": "vite --config ./editor-web/vite.config.ts",
-        "editor:build": "vite --config ./editor-web/vite.config.ts build && yarn editor:post-build",
-        "editor:post-build":"node ./node_modules/@10play/tentap-editor/scripts/buildEditor.js ./editor-web/build/index.html",
-        "reverse-android": "adb reverse tcp:3000 tcp:3000",
-    }
+Add scripts on package.json so it will be easy to run/build editor-web:
+
+```ts title="package.json"
+"scripts": {
+    ...
+    "editor:dev": "vite --config ./editor-web/vite.config.ts",
+    "editor:build": "vite --config ./editor-web/vite.config.ts build && yarn editor:post-build",
+    "editor:post-build":"node ./node_modules/@10play/tentap-editor/scripts/buildEditor.js ./editor-web/build/index.html",
+    "reverse-android": "adb reverse tcp:3000 tcp:3000",
+}
 ```
 
 `editor:dev` - Run the editor web in dev mode  
@@ -163,7 +185,9 @@ It's important to have the `alias` configuration so vite will not load react-nat
  which we can then later use as the source of our RichText.  
 `reverse-android` - On android need to reverse ports so it will be able to work with DEV / DEV_SERVER_URL props
 
-7. `Outside` of editor-web update your `EditorBridge` to used the html we just built.
+### Step 7 - using our custom editor
+
+`Outside` of editor-web update your `EditorBridge` to used the html we just built.
 
 ```tsx
 import { editorHtml } from './editor-web/build/editorHtml';
