@@ -23,6 +23,7 @@
     "src",
     "lib",
     "lib-web",
+    "scripts",
     "android",
     "ios",
     "cpp",
@@ -40,7 +41,7 @@
   ],
   "scripts": {
     "editor:dev": "vite",
-    "editor:build": "vite build && node ./scripts/buildEditor.js",
+    "editor:build": "vite build && node ./scripts/buildEditor.js ./src/simpleWebEditor/build/index.html",
     "editor:build-web-utils": "rimraf lib-web && vite build --config ./src/webEditorUtils/vite.config.ts && tsc --project ./src/webEditorUtils",
     "example": "yarn workspace tentap-example",
     "test": "jest",
