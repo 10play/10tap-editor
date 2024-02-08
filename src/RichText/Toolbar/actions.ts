@@ -4,7 +4,6 @@ import { EditorActionType } from '../../types/Actions';
 import type { EditorBridge } from '../../types';
 import { type EditorNativeState } from '../../types/EditorNativeState';
 import { ToolbarContext } from './Toolbar';
-import { ColorKeyboard } from '../Keyboard/ColorKeyboard';
 
 export const ToolbarItems = {
   ...EditorActionType,
@@ -23,49 +22,15 @@ type ArgsToolbarCB = {
     ToolbarContext: ToolbarContext | ((prev: ToolbarContext) => ToolbarContext)
   ) => void;
   toolbarContext: ToolbarContext;
-  activeKeyboard: string | undefined;
-  setActiveKeyboard: (id: string | undefined) => void;
 };
 export interface ToolbarItem {
-  onPress: ({
-    editor,
-    editorState,
-    setToolbarContext,
-    toolbarContext,
-  }: ArgsToolbarCB) => () => void;
-  active: ({
-    editor,
-    editorState,
-    setToolbarContext,
-    toolbarContext,
-  }: ArgsToolbarCB) => boolean;
-  disabled: ({
-    editor,
-    editorState,
-    setToolbarContext,
-    toolbarContext,
-  }: ArgsToolbarCB) => boolean;
-  image: ({
-    editor,
-    editorState,
-    setToolbarContext,
-    toolbarContext,
-  }: ArgsToolbarCB) => any;
+  onPress: ({ editor, editorState }: ArgsToolbarCB) => () => void;
+  active: ({ editor, editorState }: ArgsToolbarCB) => boolean;
+  disabled: ({ editor, editorState }: ArgsToolbarCB) => boolean;
+  image: ({ editor, editorState }: ArgsToolbarCB) => any;
 }
 
 export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
-  {
-    onPress:
-      ({ editor, setActiveKeyboard, activeKeyboard }) =>
-      () => {
-        const isActive = activeKeyboard === ColorKeyboard.id;
-        if (isActive) editor.focus();
-        setActiveKeyboard(isActive ? undefined : ColorKeyboard.id);
-      },
-    active: ({ activeKeyboard }) => activeKeyboard === ColorKeyboard.id,
-    disabled: () => false,
-    image: () => Images.platte,
-  },
   {
     onPress:
       ({ setToolbarContext, editorState, editor }) =>

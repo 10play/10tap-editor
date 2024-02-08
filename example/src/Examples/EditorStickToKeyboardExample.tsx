@@ -10,13 +10,7 @@ import {
   Text,
   ScrollView,
 } from 'react-native';
-import {
-  RichText,
-  Toolbar,
-  useEditorBridge,
-  CustomKeyboard,
-  ColorKeyboard,
-} from '@10play/tentap-editor';
+import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
 import WebView from 'react-native-webview';
 
 const exampleStyles = StyleSheet.create({
@@ -59,14 +53,12 @@ export const EditorStickToKeyboardExample = ({}: NativeStackScreenProps<
 >) => {
   const editor = useEditorBridge({
     autofocus: true,
-    DEV: true,
     initialContent: '<p>Initial lovely message...</p>',
   });
   const MessagesScrollViewRef = useRef<ScrollView>(null);
   const TapRef = useRef(null);
   const [messages, setMessages] =
     React.useState<{ text: string; date: number }[]>(defaultMessages);
-  const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
 
   const onSendMessage = async () => {
     const content = await editor.getContent();
@@ -109,19 +101,7 @@ export const EditorStickToKeyboardExample = ({}: NativeStackScreenProps<
             <Text>{'>'}</Text>
           </TouchableOpacity>
         </View>
-        <Toolbar
-          activeKeyboard={activeKeyboard}
-          setActiveKeyboard={setActiveKeyboard}
-          editor={editor}
-          hidden={false}
-        />
-        <CustomKeyboard
-          rootRef={TapRef}
-          keyboards={[ColorKeyboard]}
-          activeKeyboardID={activeKeyboard}
-          setActiveKeyboardID={setActiveKeyboard}
-          editor={editor}
-        />
+        <Toolbar editor={editor} />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
