@@ -36,75 +36,19 @@ The RichText component receives the EditorBridge we created before
 </SafeAreaView>
 ```
 
-## Adding a KeyboardAware Toolbar and ColorKeyboard
+## Adding a Keyboard Aware Toolbar
 
 Our RichText is pretty empty without a toolbar, so let's add it
-
-In order to use the built-in toolbar and custom keyboard we need to create:
-
-1. A ref on the components container (used on ios for opening the custom keyboard)
-2. A current keyboard state (used inside the toolbar to show and hide the color keyboard)
-
-We will also wrap the entire the toolbar and keyboard in a `KeyboardAvoidingView` to display the toolbar right above the keyboard
+We need wrap the entire the toolbar and keyboard in a `KeyboardAvoidingView` to display the toolbar right above the keyboard
 
 ```tsx
-const rootRef = useRef(null);
-const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
-
-return (
-  <SafeAreaView style={exampleStyles.fullScreen} ref={rootRef}>
-    ...
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={exampleStyles.keyboardAvoidingView}
-    >
-      <Toolbar
-        activeKeyboard={activeKeyboard}
-        setActiveKeyboard={setActiveKeyboard}
-        editor={editor}
-        hidden={false}
-      />
-      <CustomKeyboard
-        rootRef={rootRef}
-        activeKeyboardID={activeKeyboard}
-        setActiveKeyboardID={setActiveKeyboard}
-        keyboards={[ColorKeyboard]}
-        editor={editor}
-      />
-    </KeyboardAvoidingView>
-  </SafeAreaView>
-);
+<KeyboardAvoidingView
+  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  style={exampleStyles.keyboardAvoidingView}
+>
+  <Toolbar editor={editor} />
+</KeyboardAvoidingView>
 ```
-
-## Adding Custom CSS and Fonts
-
-Let's add a custom font to our Editor (we can also add custom css)
-
-So first we will define our custom css:
-
-```ts
-const customFont = `
-  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
-  * {
-      font-family: 'Roboto', sans-serif;
-  }
-`;
-```
-
-Now we can override a bridgeExtensions css with the `configureCSS` function. First we need to add the `CoreBridge`, this bridge's css is reserved for custom extensions.
-And then all we have to do is configure it.
-
-```tsx
-const editor = useEditorBridge({
-  bridgeExtensions: [
-    // If we want to add custom css - we can configure it here on the core bridge
-    CoreBridge.configureCSS(customFont),
-    ...TenTapStartKit,
-  ],
-});
-```
-
-And that is it!
 
 ## Configuring Placeholder and Link
 
@@ -126,6 +70,39 @@ const editor = useEditorBridge({
 ## Full Example
 
 ```tsx
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import React from 'react';
+import {
+  SafeAreaView,
+  View,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+} from 'react-native';
+import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
+
+export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
+  const editor = useEditorBridge({
+    autofocus: true,
+    avoidIosKeyboard: true,
+    initialContent,
+  });
+
+  return (
+    <SafeAreaView style={exampleStyles.fullScreen}>
+      <View style={exampleStyles.fullScreen}>
+        <RichText editor={editor} />
+      </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={exampleStyles.keyboardAvoidingView}
+      >
+        <Toolbar editor={editor} />
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+};
+
 const exampleStyles = StyleSheet.create({
   fullScreen: {
     flex: 1,
@@ -137,62 +114,5 @@ const exampleStyles = StyleSheet.create({
   },
 });
 
-const customFont = `
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
-* {
-  font-family: 'Roboto', sans-serif;
-}
-`;
-
-const initialContent = `<p>This is a basic <a href="https://google.com">example</a> of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s</p>`;
-
-export const BasicExample = () => {
-  const editor = useEditorBridge({
-    autofocus: true,
-    avoidIosKeyboard: true,
-    initialContent,
-    bridgeExtensions: [
-      // Here we define all the bridgeExtensions that we want to use
-      CoreBridge.configureCSS(customFont), // If we want to add custom css - we can configure it here on the core bridge
-      TenTapStartKit,
-      UnderlineBridge,
-      ImageBridge,
-      TaskListBridge,
-      PlaceholderBridge.configureExtension({
-        placeholder: 'Type something...',
-      }),
-      LinkBridge.configureExtension({ openOnClick: false }),
-      ColorBridge,
-      HighlightBridge,
-    ],
-  });
-
-  const rootRef = useRef(null);
-  const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
-
-  return (
-    <SafeAreaView style={exampleStyles.fullScreen} ref={rootRef}>
-      <View style={exampleStyles.fullScreen}>
-        <RichText editor={editor} />
-      </View>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={exampleStyles.keyboardAvoidingView}
-      >
-        <Toolbar
-          activeKeyboard={activeKeyboard}
-          setActiveKeyboard={setActiveKeyboard}
-          editor={editor}
-        />
-        <CustomKeyboard
-          rootRef={rootRef}
-          activeKeyboardID={activeKeyboard}
-          setActiveKeyboardID={setActiveKeyboard}
-          keyboards={[ColorKeyboard]}
-          editor={editor}
-        />
-      </KeyboardAvoidingView>
-    </SafeAreaView>
-  );
-};
+const initialContent = `<p>This is a basic example!</p>`;
 ```
