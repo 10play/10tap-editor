@@ -11,6 +11,7 @@ import { EditorStickToKeyboardExample } from './Examples/EditorStickToKeyboardEx
 import { Advanced } from './Examples/Advanced/AdvancedRichText';
 import { Compose } from './Examples/Compose/Compose';
 import { WithKeyboard } from './Examples/WithKeyboard';
+import { CustomCss } from './Examples/CustomCss';
 
 const examples = [
   {
@@ -20,6 +21,10 @@ const examples = [
   {
     name: 'With Color Keyboard',
     component: WithKeyboard,
+  },
+  {
+    name: 'Custom CSS',
+    component: CustomCss,
   },
   {
     name: 'CustomKeyboard',

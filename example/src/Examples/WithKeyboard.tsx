@@ -13,8 +13,6 @@ import {
   useEditorBridge,
   ColorKeyboard,
   CustomKeyboard,
-  CoreBridge,
-  TenTapStartKit,
   DEFAULT_TOOLBAR_ITEMS,
   useKeyboard,
   type EditorBridge,
@@ -27,7 +25,6 @@ export const WithKeyboard = ({}: NativeStackScreenProps<any, any, any>) => {
     autofocus: true,
     avoidIosKeyboard: true,
     initialContent,
-    bridgeExtensions: [...TenTapStartKit, CoreBridge.configureCSS(customFont)],
   });
 
   const rootRef = useRef(null);
@@ -111,13 +108,5 @@ const exampleStyles = StyleSheet.create({
     bottom: 0,
   },
 });
-
-// Todo: add example with custom font
-const customFont = `
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
-* {
-  font-family: 'Roboto', sans-serif;
-}
-`;
 
 const initialContent = `<p>This is a basic <a href="https://google.com">example</a> of using ColorKeyboard </p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p></p>`;
