@@ -17,7 +17,7 @@ export default defineConfig({
       // into your library
       external: ['react'],
       output: {
-        dir: '../../lib-web',
+        dir: 'lib-web',
         // Provide global variables to use in the UMD build
         // for externalized deps
         globals: {

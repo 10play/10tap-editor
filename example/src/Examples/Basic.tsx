@@ -8,14 +8,14 @@ import {
   StyleSheet,
 } from 'react-native';
 import {
-  CoreBridge,
   RichText,
   Toolbar,
   useEditorBridge,
+  ColorKeyboard,
+  CustomKeyboard,
+  CoreBridge,
   TenTapStartKit,
 } from '@10play/tentap-editor';
-import { ColorKeyboard } from '../../../src/RichText/Keyboard/ColorKeyboard';
-import { CustomKeyboard } from '../../../src/RichText/Keyboard';
 
 const exampleStyles = StyleSheet.create({
   fullScreen: {

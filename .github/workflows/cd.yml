@@ -21,8 +21,7 @@ jobs:
       - name: Build simple editor bundle
         run: yarn editor:build
       - name: Build web utils
-        run: yarn vite build
-        working-directory: src/webEditorUtils
+        run: yarn editor:build-web-utils
       - name: Build package
         run: yarn prepare
       - run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
