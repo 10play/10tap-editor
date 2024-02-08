@@ -7,8 +7,6 @@ const htmlPath = process.argv[2];
 const htmlDir = path.join(htmlPath, '../');
 const editorTsPath = process.argv[3] || path.join(htmlDir, 'editorHtml.ts');
 
-console.log(htmlPath, htmlDir, editorTsPath);
-
 const createContent = (html) => {
   html = html.replace(/([`$])/g, '\\$1');
   return (
