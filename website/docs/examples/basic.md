@@ -8,22 +8,21 @@ In this example we will be creating a basic editor that contains all of the pre-
 
 ## Creating The Editor Bridge
 
-The first thing we want to do is create our EditorBridge #todo add link to editor bridge.
-To do this we will use the `useEditorBridge` hook in our component
+The first thing we want to do is create our [EditorBridge](../api/EditorBridge.md) add link to editor bridge.
+To do this we will use the `useEditorBridge` hook in our component. This by default will contain the `TenTapStartKit` (#TODO show link)
+Now we have added all of the pre-built bridgeExtensions provided by tentap, and our editor will support all of these bridgeExtensions features
 
 ```tsx
 const editor = useEditorBridge();
 ```
 
-<!-- TODO: not need to pass bridgeExtensions anymore -->
-
-This is not enough however as it is just an empty editor with no bridgeExtensions so let's add some
+This is the same ass passing
 
 ```tsx
-const editor = useEditorBridge({});
+const editor = useEditorBridge({
+  bridgeExtensions: TenTapStarterKit,
+});
 ```
-
-Now we have added all of the pre-built bridgeExtensions provided by tentap, and our editor will support all of these bridgeExtensions features
 
 ## Adding the RichText component
 
@@ -92,18 +91,17 @@ const customFont = `
 `;
 ```
 
-Now we can override a bridgeExtensions css with the `configureCSS` function. The `core` bridgeExtensions css is reserved for custom extensions
-so we will configure it.
+Now we can override a bridgeExtensions css with the `configureCSS` function. First we need to add the `CoreBridge`, this bridge's css is reserved for custom extensions.
+And then all we have to do is configure it.
 
 ```tsx
 const editor = useEditorBridge({
-    bridgeExtensions: [
-        // If we want to add custom css - we can configure it here on the core bridge
-        CoreBridge.configureCSS(customFont),
-        TenTapStartKit,
-        ...
-    ],
-  });
+  bridgeExtensions: [
+    // If we want to add custom css - we can configure it here on the core bridge
+    CoreBridge.configureCSS(customFont),
+    ...TenTapStartKit,
+  ],
+});
 ```
 
 And that is it!
