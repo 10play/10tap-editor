@@ -10,40 +10,28 @@ import {
 import {
   RichText,
   Toolbar,
-  useBridgeState,
   useEditorBridge,
+  ColorKeyboard,
+  CustomKeyboard,
+  DEFAULT_TOOLBAR_ITEMS,
   useKeyboard,
   type EditorBridge,
+  useBridgeState,
 } from '@10play/tentap-editor';
-import { CustomKeyboard } from '../../../../src/RichText/Keyboard/CustomKeyboardBase';
-import { StickerKeyboard } from './StickerKeyboard';
-import { Images } from '../../../../src/assets';
+import { Images } from '../../../src/assets';
 
-const exampleStyles = StyleSheet.create({
-  fullScreen: {
-    flex: 1,
-  },
-  keyboardAvoidingView: {
-    position: 'absolute',
-    width: '100%',
-    bottom: 0,
-  },
-});
-
-export const CustomKeyboardExample = ({}: NativeStackScreenProps<
-  any,
-  any,
-  any
->) => {
+export const WithKeyboard = ({}: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditorBridge({
-    avoidIosKeyboard: true,
     autofocus: true,
+    avoidIosKeyboard: true,
+    initialContent,
   });
-  const TapRef = useRef(null);
+
+  const rootRef = useRef(null);
   const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
 
   return (
-    <SafeAreaView style={exampleStyles.fullScreen} ref={TapRef}>
+    <SafeAreaView style={exampleStyles.fullScreen} ref={rootRef}>
       <View style={exampleStyles.fullScreen}>
         <RichText editor={editor} />
       </View>
@@ -51,16 +39,16 @@ export const CustomKeyboardExample = ({}: NativeStackScreenProps<
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={exampleStyles.keyboardAvoidingView}
       >
-        <StickerToolbar
+        <ToolbarWithColor
+          editor={editor}
           activeKeyboard={activeKeyboard}
           setActiveKeyboard={setActiveKeyboard}
-          editor={editor}
         />
         <CustomKeyboard
-          rootRef={TapRef}
+          rootRef={rootRef}
           activeKeyboardID={activeKeyboard}
           setActiveKeyboardID={setActiveKeyboard}
-          keyboards={[StickerKeyboard]} // Add our custom keyboard to keyboards prop
+          keyboards={[ColorKeyboard]}
           editor={editor}
         />
       </KeyboardAvoidingView>
@@ -73,7 +61,7 @@ interface ToolbarWithColorProps {
   activeKeyboard: string | undefined;
   setActiveKeyboard: (id: string | undefined) => void;
 }
-const StickerToolbar = ({
+const ToolbarWithColor = ({
   editor,
   activeKeyboard,
   setActiveKeyboard,
@@ -96,15 +84,29 @@ const StickerToolbar = ({
       items={[
         {
           onPress: () => () => {
-            const isActive = activeKeyboard === StickerKeyboard.id;
-            if (isActive) editor.webviewRef.current?.requestFocus();
-            setActiveKeyboard(isActive ? undefined : StickerKeyboard.id);
+            const isActive = activeKeyboard === ColorKeyboard.id;
+            if (isActive) editor.focus();
+            setActiveKeyboard(isActive ? undefined : ColorKeyboard.id);
           },
-          active: () => activeKeyboard === StickerKeyboard.id,
+          active: () => activeKeyboard === ColorKeyboard.id,
           disabled: () => false,
           image: () => Images.platte,
         },
+        ...DEFAULT_TOOLBAR_ITEMS,
       ]}
     />
   );
 };
+
+const exampleStyles = StyleSheet.create({
+  fullScreen: {
+    flex: 1,
+  },
+  keyboardAvoidingView: {
+    position: 'absolute',
+    width: '100%',
+    bottom: 0,
+  },
+});
+
+const initialContent = `<p>This is a basic <a href="https://google.com">example</a> of using ColorKeyboard </p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p></p>`;

@@ -10,11 +10,26 @@ import { CustomKeyboardExample } from './Examples/CustomKeyboardExample';
 import { EditorStickToKeyboardExample } from './Examples/EditorStickToKeyboardExample';
 import { Advanced } from './Examples/Advanced/AdvancedRichText';
 import { Compose } from './Examples/Compose/Compose';
+import { WithKeyboard } from './Examples/WithKeyboard';
+import { CustomCss } from './Examples/CustomCss';
+import { ConfigureExtensions } from './Examples/ConfigureExtentions';
 
 const examples = [
   {
     name: 'Basic',
     component: Basic,
+  },
+  {
+    name: 'With Color Keyboard',
+    component: WithKeyboard,
+  },
+  {
+    name: 'Custom CSS',
+    component: CustomCss,
+  },
+  {
+    name: 'Configure Extensions',
+    component: ConfigureExtensions,
   },
   {
     name: 'CustomKeyboard',

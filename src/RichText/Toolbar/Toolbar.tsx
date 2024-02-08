@@ -16,8 +16,6 @@ interface ToolbarProps {
   editor: EditorBridge;
   hidden?: boolean;
   items?: ToolbarItem[];
-  setActiveKeyboard: (id: string | undefined) => void;
-  activeKeyboard?: string;
 }
 
 const toolbarStyles = StyleSheet.create({
@@ -56,30 +54,23 @@ export enum ToolbarContext {
 
 export function Toolbar({
   editor,
-  hidden,
+  hidden = undefined,
   items = DEFAULT_TOOLBAR_ITEMS,
-  setActiveKeyboard,
-  activeKeyboard,
 }: ToolbarProps) {
   const editorState = useBridgeState(editor);
-  const { isKeyboardUp: isNativeKeyboardUp } = useKeyboard();
+  const { isKeyboardUp } = useKeyboard();
   const [toolbarContext, setToolbarContext] = React.useState<ToolbarContext>(
     ToolbarContext.Main
   );
 
-  const customKeyboardOpen = activeKeyboard !== undefined;
-  const isKeyboardUp = isNativeKeyboardUp || customKeyboardOpen;
-
   const hideToolbar =
-    hidden || !isKeyboardUp || (!editorState.isFocused && !customKeyboardOpen);
+    hidden || !isKeyboardUp || (!editorState.isFocused && hidden !== false);
 
   const args = {
     editor,
     editorState,
     setToolbarContext,
     toolbarContext,
-    setActiveKeyboard,
-    activeKeyboard,
   };
 
   switch (toolbarContext) {
