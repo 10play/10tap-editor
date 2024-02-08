@@ -6,7 +6,6 @@ import {
   type WebViewMessageEvent,
 } from 'react-native-webview';
 
-// @ts-ignore
 import { editorHtml } from '../simpleWebEditor/build/editorHtml';
 
 import { type EditorMessage } from '../types/Messaging';
