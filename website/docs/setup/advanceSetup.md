@@ -150,14 +150,27 @@ It's important to have the `alias` configuration so vite will not load react-nat
 ```json title="package.json"
     "scripts": {
         ...
-        "reverse-android": "adb reverse tcp:3000 tcp:3000",
         "editor:dev": "vite --config ./editor-web/vite.config.ts",
-        "editor:build": "vite --config ./editor-web/vite.config.ts build"
+        "editor:build": "vite --config ./editor-web/vite.config.ts build && yarn editor:post-build",
+        "editor:post-build":"node ./node_modules/@10play/tentap-editor/scripts/buildEditor.js ./editor-web/build/index.html",
+        "reverse-android": "adb reverse tcp:3000 tcp:3000",
     }
 ```
 
-`editor:dev` - Run the editor web in dev mode
-`editor:build` - Build the editor web, probably need to add to your deploy/build process
+`editor:dev` - Run the editor web in dev mode  
+`editor:build` - Build the editor web, probably need to add to your deploy/build process  
+`editor:post-build` - This will take your built html file, and paste into a a ts and exports a string `editorHtml`  
+ which we can then later use as the source of our RichText.  
 `reverse-android` - On android need to reverse ports so it will be able to work with DEV / DEV_SERVER_URL props
+
+7. `Outside` of editor-web update your `EditorBridge` to used the html we just built.
+
+```tsx
+import { editorHtml } from './editor-web/build/editorHtml';
+const editor = useEditorBridge({
+  customSource: editorHtml,
+  ...
+});
+```
 
 You basically done with the advance setup now you have full control of the editor-web you can write your own bridgeExtensions add additional tiptapExtensions
