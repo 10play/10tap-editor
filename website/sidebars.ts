@@ -5,7 +5,7 @@ const sidebars: SidebarsConfig = {
     Introduction: ['intro', 'mainConcepts'],
     Setup: ['setup/installation', 'setup/advancedSetup'],
     API: ['api/useEditorBridge', 'api/EditorBridge', 'api/RichText'],
-    examples: ['examples/basic'],
+    examples: ['examples/basic', 'examples/colorKeyboard'],
   },
 };
 
