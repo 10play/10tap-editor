@@ -6,16 +6,12 @@ import { viteSingleFile } from 'vite-plugin-singlefile';
 // This config is used to build the web editor into a single file
 
 export default defineConfig({
-  root: 'src/Examples/Advanced/Editor/',
+  root: 'src/Examples/Advanced/editor-web/',
   build: {
     outDir: 'build',
   },
   resolve: {
     alias: [
-      {
-        find: '@10play/tentap-editor/web',
-        replacement: resolve(__dirname, '../../../../../src/webEditorUtils'),
-      },
       {
         find: '@10play/tentap-editor',
         replacement: resolve(__dirname, '../../../../../src/webEditorUtils'),

@@ -9,8 +9,7 @@ import {
   TenTapStartKit,
 } from '@10play/tentap-editor';
 
-// @ts-ignore
-import AdvancedEditor from './Editor/build/index.html';
+import { editorHtml } from './editor-web/build/editorHtml';
 import { CounterBridge } from './CounterBridge';
 
 const exampleStyles = StyleSheet.create({
@@ -37,12 +36,11 @@ const Counter = ({ editor }: { editor: EditorBridge }) => {
 
 export const Advanced = ({}: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditorBridge({
-    autofocus: true,
-    DEV: true,
-    avoidIosKeyboard: true,
-    customSource: AdvancedEditor,
-    initialContent: `<p>This is a basic example of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s sdfdsf fd dsfd ssdfd dsfdsfdsfdsfd</p>`,
+    customSource: editorHtml,
     bridgeExtensions: [...TenTapStartKit, CounterBridge],
+    autofocus: true,
+    avoidIosKeyboard: true,
+    initialContent: `<p>This is a basic example of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s sdfdsf fd dsfd ssdfd dsfdsfdsfdsfd</p>`,
   });
   const TapRef = useRef(null);
 
