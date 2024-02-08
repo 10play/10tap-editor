@@ -47,6 +47,9 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
+      - name: Build editor
+        run: yarn editor:build
+
       - name: Build package
         run: yarn prepare
 
