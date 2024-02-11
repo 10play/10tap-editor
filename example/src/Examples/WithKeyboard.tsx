@@ -90,7 +90,7 @@ const ToolbarWithColor = ({
           },
           active: () => activeKeyboard === ColorKeyboard.id,
           disabled: () => false,
-          image: () => Images.platte,
+          image: () => Images.palette,
         },
         ...DEFAULT_TOOLBAR_ITEMS,
       ]}

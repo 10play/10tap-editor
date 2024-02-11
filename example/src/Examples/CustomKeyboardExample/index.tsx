@@ -111,7 +111,7 @@ const StickerToolbar = ({
           },
           active: () => activeKeyboard === StickerKeyboard.id,
           disabled: () => false,
-          image: () => Images.platte,
+          image: () => Images.palette,
         },
       ]}
     />

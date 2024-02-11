@@ -52,6 +52,8 @@ export enum ToolbarContext {
   Link,
 }
 
+const IMAGE_DIM = { height: 16, width: 16 };
+
 export function Toolbar({
   editor,
   hidden = undefined,
@@ -93,7 +95,11 @@ export function Toolbar({
                   disabled(args) ? toolbarStyles.disabled : undefined,
                 ]}
               >
-                <Image source={image(args)} width={40} />
+                <Image
+                  source={image(args)}
+                  style={IMAGE_DIM}
+                  resizeMode="contain"
+                />
               </TouchableOpacity>
             );
           }}
