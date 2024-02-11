@@ -4,10 +4,15 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
+  View,
 } from 'react-native';
 import { useBridgeState } from '../useBridgeState';
 import React from 'react';
-import { DEFAULT_TOOLBAR_ITEMS, type ToolbarItem } from './actions';
+import {
+  DEFAULT_TOOLBAR_ITEMS,
+  HEADING_ITEMS,
+  type ToolbarItem,
+} from './actions';
 import { EditLinkBar } from './EditLinkBar';
 import { useKeyboard } from '../../utils';
 import type { EditorBridge } from '../../types';
@@ -18,24 +23,24 @@ interface ToolbarProps {
   items?: ToolbarItem[];
 }
 
-const toolbarStyles = StyleSheet.create({
+export const toolbarStyles = StyleSheet.create({
   toolbar: {
-    display: 'flex',
     flex: 1,
-    borderTopWidth: 1,
-    borderTopColor: 'lightgray',
+    borderTopWidth: 0.5,
+    borderTopColor: '#DEE0E3',
     minWidth: '100%',
   },
   toolbarButton: {
-    padding: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
     alignContent: 'center',
     backgroundColor: 'white',
   },
   disabled: {
-    backgroundColor: 'lightgray',
+    opacity: 0.3,
   },
   active: {
-    backgroundColor: 'lightblue',
+    backgroundColor: '#d9d9d9',
   },
   hidden: {
     display: 'none',
@@ -45,12 +50,19 @@ const toolbarStyles = StyleSheet.create({
     width: '100%',
     bottom: 0,
   },
+  iconWrapper: {
+    padding: 4,
+    borderRadius: 4,
+  },
 });
 
 export enum ToolbarContext {
   Main,
   Link,
+  Heading,
 }
+
+export const IMAGE_DIM = { height: 16, width: 16 };
 
 export function Toolbar({
   editor,
@@ -75,9 +87,10 @@ export function Toolbar({
 
   switch (toolbarContext) {
     case ToolbarContext.Main:
+    case ToolbarContext.Heading:
       return (
         <FlatList
-          data={items}
+          data={toolbarContext === ToolbarContext.Main ? items : HEADING_ITEMS}
           style={[
             toolbarStyles.toolbar,
             hideToolbar ? toolbarStyles.hidden : undefined,
@@ -87,13 +100,21 @@ export function Toolbar({
               <TouchableOpacity
                 onPress={onPress(args)}
                 disabled={disabled(args)}
-                style={[
-                  toolbarStyles.toolbarButton,
-                  active(args) ? toolbarStyles.active : undefined,
-                  disabled(args) ? toolbarStyles.disabled : undefined,
-                ]}
+                style={[toolbarStyles.toolbarButton]}
               >
-                <Image source={image(args)} width={40} />
+                <View
+                  style={[
+                    toolbarStyles.iconWrapper,
+                    active(args) ? toolbarStyles.active : undefined,
+                    disabled(args) ? toolbarStyles.disabled : undefined,
+                  ]}
+                >
+                  <Image
+                    source={image(args)}
+                    style={[IMAGE_DIM]}
+                    resizeMode="contain"
+                  />
+                </View>
               </TouchableOpacity>
             );
           }}
@@ -105,10 +126,13 @@ export function Toolbar({
         <EditLinkBar
           initialLink={editorState.activeLink}
           onBlur={() => setToolbarContext(ToolbarContext.Main)}
+          onLinkIconClick={() => {
+            setToolbarContext(ToolbarContext.Main);
+            editor.focus();
+          }}
           onEditLink={(link) => {
             editor.setLink(link);
-            editor.webviewRef.current &&
-              editor.webviewRef.current.requestFocus();
+            editor.focus();
 
             if (Platform.OS === 'android') {
               // On android we dont want to hide the link input before we finished focus on editor

@@ -40,7 +40,6 @@ export const CustomKeyboardExample = ({}: NativeStackScreenProps<
   const editor = useEditorBridge({
     avoidIosKeyboard: true,
     autofocus: true,
-    DEV: true,
     bridgeExtensions: [
       ...TenTapStartKit,
       ImageBridge.configureExtension({
@@ -111,7 +110,7 @@ const StickerToolbar = ({
           },
           active: () => activeKeyboard === StickerKeyboard.id,
           disabled: () => false,
-          image: () => Images.platte,
+          image: () => Images.palette,
         },
       ]}
     />
