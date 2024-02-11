@@ -31,7 +31,12 @@ export const ImageBridge = new BridgeExtension<
   }),
   onBridgeMessage: (editor, message) => {
     if (message.type === ImageEditorActionType.SetImage) {
-      editor.chain().focus().setImage({ src: message.payload }).run();
+      editor
+        .chain()
+        .focus()
+        .setImage({ src: message.payload })
+        .setTextSelection(editor.state.selection.to + 1)
+        .run();
     }
 
     return false;

@@ -14,6 +14,8 @@ import {
   useEditorBridge,
   useKeyboard,
   type EditorBridge,
+  TenTapStartKit,
+  ImageBridge,
 } from '@10play/tentap-editor';
 import { CustomKeyboard } from '../../../../src/RichText/Keyboard/CustomKeyboardBase';
 import { StickerKeyboard } from './StickerKeyboard';
@@ -38,6 +40,13 @@ export const CustomKeyboardExample = ({}: NativeStackScreenProps<
   const editor = useEditorBridge({
     avoidIosKeyboard: true,
     autofocus: true,
+    DEV: true,
+    bridgeExtensions: [
+      ...TenTapStartKit,
+      ImageBridge.configureExtension({
+        inline: true,
+      }),
+    ],
   });
   const TapRef = useRef(null);
   const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
