@@ -20,4 +20,6 @@ export const Images = {
   palette: require('./palette.png'),
   code: require('./code.png'),
   quote: require('./quote.png'),
+  Aa: require('./Aa.png'),
+  close: require('./close.png'),
 };

@@ -8,7 +8,11 @@ import {
 } from 'react-native';
 import { useBridgeState } from '../useBridgeState';
 import React from 'react';
-import { DEFAULT_TOOLBAR_ITEMS, type ToolbarItem } from './actions';
+import {
+  DEFAULT_TOOLBAR_ITEMS,
+  HEADING_ITEMS,
+  type ToolbarItem,
+} from './actions';
 import { EditLinkBar } from './EditLinkBar';
 import { useKeyboard } from '../../utils';
 import type { EditorBridge } from '../../types';
@@ -22,13 +26,13 @@ interface ToolbarProps {
 const toolbarStyles = StyleSheet.create({
   toolbar: {
     flex: 1,
-    borderTopWidth: 1,
-    borderTopColor: 'lightgray',
+    borderTopWidth: 0.5,
+    borderTopColor: '#DEE0E3',
     minWidth: '100%',
   },
   toolbarButton: {
     paddingHorizontal: 8,
-    paddingVertical: 6,
+    paddingVertical: 8,
     alignContent: 'center',
     backgroundColor: 'white',
   },
@@ -55,6 +59,7 @@ const toolbarStyles = StyleSheet.create({
 export enum ToolbarContext {
   Main,
   Link,
+  Heading,
 }
 
 const IMAGE_DIM = { height: 16, width: 16 };
@@ -82,9 +87,10 @@ export function Toolbar({
 
   switch (toolbarContext) {
     case ToolbarContext.Main:
+    case ToolbarContext.Heading:
       return (
         <FlatList
-          data={items}
+          data={toolbarContext === ToolbarContext.Main ? items : HEADING_ITEMS}
           style={[
             toolbarStyles.toolbar,
             hideToolbar ? toolbarStyles.hidden : undefined,
