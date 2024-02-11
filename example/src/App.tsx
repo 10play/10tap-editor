@@ -13,6 +13,7 @@ import { Compose } from './Examples/Compose/Compose';
 import { WithKeyboard } from './Examples/WithKeyboard';
 import { CustomCss } from './Examples/CustomCss';
 import { ConfigureExtensions } from './Examples/ConfigureExtentions';
+import { NavigationHeader } from './Examples/NavigationHeader';
 
 const examples = [
   {
@@ -38,6 +39,10 @@ const examples = [
   {
     name: 'EditorStickToKeyboardExample',
     component: EditorStickToKeyboardExample,
+  },
+  {
+    name: 'NavigationHeader',
+    component: NavigationHeader,
   },
   {
     name: 'Compose',
@@ -69,8 +74,10 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
+        screenOptions={({ route }) => {
+          return {
+            headerShown: route.name === 'NavigationHeader',
+          };
         }}
       >
         <Stack.Screen name="Examples" component={HomeScreen} />
