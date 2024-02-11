@@ -36,6 +36,9 @@ const linkBarStyles = StyleSheet.create({
   doneButtonText: {
     color: '#376eab',
   },
+  linkToolbarButton: {
+    paddingHorizontal: 4,
+  },
 });
 
 interface EditLinkBarProps {
@@ -56,7 +59,7 @@ export const EditLinkBar = ({
     <View style={linkBarStyles.addLinkContainer}>
       <TouchableOpacity
         onPress={onLinkIconClick}
-        style={[toolbarStyles.toolbarButton]}
+        style={[toolbarStyles.toolbarButton, linkBarStyles.linkToolbarButton]}
       >
         <View style={[toolbarStyles.iconWrapper, toolbarStyles.active]}>
           <Image

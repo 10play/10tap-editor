@@ -40,7 +40,6 @@ export const CustomKeyboardExample = ({}: NativeStackScreenProps<
   const editor = useEditorBridge({
     avoidIosKeyboard: true,
     autofocus: true,
-    DEV: true,
     bridgeExtensions: [
       ...TenTapStartKit,
       ImageBridge.configureExtension({
