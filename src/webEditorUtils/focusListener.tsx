@@ -1,3 +1,4 @@
+import { isExpo } from '../utils/expoUtils';
 class FocusListener {
   private focus: boolean;
   constructor() {
@@ -24,4 +25,9 @@ class FocusListener {
   }
 }
 
-export const focusListener = new FocusListener();
+// For some reason on expo, this file is parsed on native, and then we get an error
+// when bundling because "document" does not exist. This is a hack to "shim" focusListener on expo
+const shimmedFocusListener = { isFocused: false };
+export const focusListener = isExpo()
+  ? shimmedFocusListener
+  : new FocusListener();

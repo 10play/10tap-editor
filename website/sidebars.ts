@@ -12,11 +12,12 @@ const sidebars: SidebarsConfig = {
       'api/CustomKeyboardUtils',
       'api/BridgeExtensions',
     ],
-    examples: [
+    Examples: [
       'examples/basic',
       'examples/customCss',
       'examples/configureExtensions',
       'examples/colorKeyboard',
+      'examples/navHeader',
     ],
   },
 };
