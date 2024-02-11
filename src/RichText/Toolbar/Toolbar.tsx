@@ -23,7 +23,7 @@ interface ToolbarProps {
   items?: ToolbarItem[];
 }
 
-const toolbarStyles = StyleSheet.create({
+export const toolbarStyles = StyleSheet.create({
   toolbar: {
     flex: 1,
     borderTopWidth: 0.5,
@@ -40,7 +40,7 @@ const toolbarStyles = StyleSheet.create({
     opacity: 0.3,
   },
   active: {
-    backgroundColor: 'lightgray',
+    backgroundColor: '#d9d9d9',
   },
   hidden: {
     display: 'none',
@@ -62,7 +62,7 @@ export enum ToolbarContext {
   Heading,
 }
 
-const IMAGE_DIM = { height: 16, width: 16 };
+export const IMAGE_DIM = { height: 16, width: 16 };
 
 export function Toolbar({
   editor,
@@ -126,10 +126,13 @@ export function Toolbar({
         <EditLinkBar
           initialLink={editorState.activeLink}
           onBlur={() => setToolbarContext(ToolbarContext.Main)}
+          onLinkIconClick={() => {
+            setToolbarContext(ToolbarContext.Main);
+            editor.focus();
+          }}
           onEditLink={(link) => {
             editor.setLink(link);
-            editor.webviewRef.current &&
-              editor.webviewRef.current.requestFocus();
+            editor.focus();
 
             if (Platform.OS === 'android') {
               // On android we dont want to hide the link input before we finished focus on editor
