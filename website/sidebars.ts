@@ -8,7 +8,7 @@ const sidebars: SidebarsConfig = {
       'api/useEditorBridge',
       'api/EditorBridge',
       'api/RichText',
-      // 'api/BridgeExtensions',
+      'api/BridgeExtensions',
     ],
     examples: [
       'examples/basic',
