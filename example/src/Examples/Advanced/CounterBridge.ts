@@ -9,7 +9,7 @@ type CounterEditorState = {
 type CounterEditorInstance = {};
 
 declare module '@10play/tentap-editor' {
-  interface EditorNativeState extends CounterEditorState {}
+  interface BridgeState extends CounterEditorState {}
   interface EditorBridge extends CounterEditorInstance {}
 }
 

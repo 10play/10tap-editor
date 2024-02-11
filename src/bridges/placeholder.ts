@@ -5,8 +5,8 @@ type PlaceholderEditorState = {};
 
 type PlaceholderEditorInstance = {};
 
-declare module '../types/EditorNativeState' {
-  interface EditorNativeState extends PlaceholderEditorState {}
+declare module '../types/EditorBridge' {
+  interface BridgeState extends PlaceholderEditorState {}
   interface EditorBridge extends PlaceholderEditorInstance {}
 }
 

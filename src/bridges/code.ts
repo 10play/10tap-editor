@@ -10,8 +10,8 @@ type CodeEditorInstance = {
   toggleCode: () => void;
 };
 
-declare module '../types/EditorNativeState' {
-  interface EditorNativeState extends CodeEditorState {}
+declare module '../types/EditorBridge' {
+  interface BridgeState extends CodeEditorState {}
   interface EditorBridge extends CodeEditorInstance {}
 }
 

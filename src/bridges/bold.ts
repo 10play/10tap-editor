@@ -10,8 +10,8 @@ type BoldEditorInstance = {
   toggleBold: () => void;
 };
 
-declare module '../types/EditorNativeState' {
-  interface EditorNativeState extends BoldEditorState {}
+declare module '../types/EditorBridge' {
+  interface BridgeState extends BoldEditorState {}
   interface EditorBridge extends BoldEditorInstance {}
 }
 

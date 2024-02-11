@@ -1,5 +1,5 @@
 import { Editor, type AnyExtension } from '@tiptap/core';
-import type { EditorBridge, EditorNativeState } from '../types';
+import type { EditorBridge, BridgeState } from '../types';
 import type WebView from 'react-native-webview';
 import type { RefObject } from 'react';
 
@@ -17,8 +17,8 @@ interface BridgeExtension<T = any, E = any, M = any> {
   extendEditorInstance?: (
     sendBridgeMessage: (message: M) => void,
     webviewRef?: RefObject<WebView>,
-    editorState?: RefObject<EditorNativeState | {}>,
-    _setEditorState?: (editorState: EditorNativeState) => void
+    editorState?: RefObject<BridgeState | {}>,
+    _setEditorState?: (editorState: BridgeState) => void
   ) => E;
   extendCSS?: string | undefined;
   config?: string;

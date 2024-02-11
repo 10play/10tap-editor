@@ -24,11 +24,11 @@ With the simple usage you get all the standard rich text abilities as you can ge
 - color/highlight
 - and more...
 
-For that usage you will be use the pre-built editor bundle we build that include all of [these](https://10play.dev) bridgeExtensions
+For that usage you will be use the pre-built editor bundle we build that include all of [these](./api/BridgeExtensions) bridgeExtensions
 
 With tentap you can also control the scheme of your editor by passing the useBridgeEditor list of bridgeExtensions you want, so in case you build a chat app and you dont want to let users underline you should not pass the Underline bridgeExtension, that will make sure that even if the user will copy paste some text with underline it will paste it without
 
-Custom keyboards - we believe that custom keyboard can be huge improvements for your editing exp, custom keyboard let you switch the keyboard with your react native view, that can be helpfull in case you want to take advange of the room the keyboard takes, see [color keyboard example](https://10play.dev) and [clean tool bar example](https://10play.dev)
+Custom keyboards - we believe that custom keyboard can be huge improvements for your editing exp, custom keyboard let you switch the keyboard with your react native view, that can be helpfull in case you want to take advange of the room the keyboard takes, see [color keyboard example](./examples/colorKeyboard) and [clean tool bar example](https://10play.dev)
 
 ## Advance usage
 
@@ -36,6 +36,6 @@ In case you want to add your own tiptap extension / build your own bridgeExtensi
 
 In this case we provide utils/components/hooks that can help you customize the editor but still get all the features and exp fixes tentap can offer.
 
-See the [advance setup](https://10play.dev)
+See the [advance setup](./setup/advancedSetup)
 
 See the advance section on examples for more details

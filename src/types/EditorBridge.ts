@@ -2,7 +2,7 @@ import type { RefObject } from 'react';
 import type WebView from 'react-native-webview';
 import type BridgeExtension from '../bridges/base';
 
-export interface EditorNativeState {}
+export interface BridgeState {}
 
 type Subscription<T> = (cb: (val: T) => void) => () => void;
 
@@ -15,8 +15,8 @@ export interface EditorBridge {
   focus: (pos?: 'start' | 'end' | 'all' | number | boolean | null) => void;
   initialContent?: string;
   webviewRef: RefObject<WebView>;
-  getEditorState: () => EditorNativeState;
-  _updateEditorState: (state: EditorNativeState) => void;
-  _subscribeToEditorStateUpdate: Subscription<EditorNativeState>;
+  getEditorState: () => BridgeState;
+  _updateEditorState: (state: BridgeState) => void;
+  _subscribeToEditorStateUpdate: Subscription<BridgeState>;
   bridgeExtensions?: BridgeExtension<unknown, unknown, unknown>[];
 }
