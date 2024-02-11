@@ -27,6 +27,11 @@ relevant configuration: https://tiptap.dev/docs/editor/api/marks/code#settings
 use `@tiptap/extension-italic`
 relevant configuration: https://tiptap.dev/docs/editor/api/marks/italic#settings
 
+### BoldBridge
+
+use `@tiptap/extension-bold`
+relevant configuration: https://tiptap.dev/docs/editor/api/marks/bold#settings
+
 ### StrikeBridge
 
 use `@tiptap/extension-strike`
@@ -62,6 +67,10 @@ relevant configuration: https://tiptap.dev/docs/editor/api/extensions/history#se
 
 use `@tiptap/extension-color` `@tiptap/extension-text-style`
 
+### HighlightBridge
+
+use `@tiptap/extension-highlight` `@tiptap/extension-text-style`
+
 ### ImageBridge
 
 use `@tiptap/extension-image`
@@ -81,3 +90,8 @@ relevant configuration: https://tiptap.dev/docs/editor/api/nodes/task-list#setti
 
 use `@tiptap/extension-underline`
 relevant configuration: https://tiptap.dev/docs/editor/api/marks/underline#settings
+
+### PlaceholderBridge
+
+use `@tiptap/extension-placeholder`
+relevant configuration: https://tiptap.dev/docs/editor/api/extensions/placeholder#settings
