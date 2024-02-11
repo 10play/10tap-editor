@@ -5,11 +5,12 @@ const sidebars: SidebarsConfig = {
     Introduction: ['intro', 'mainConcepts'],
     Setup: ['setup/installation', 'setup/advancedSetup'],
     API: ['api/useEditorBridge', 'api/EditorBridge', 'api/RichText'],
-    examples: [
+    Examples: [
       'examples/basic',
       'examples/customCss',
       'examples/configureExtensions',
       'examples/colorKeyboard',
+      'examples/navHeader',
     ],
   },
 };

@@ -15,6 +15,8 @@ export const NavigationHeader = ({}: NativeStackScreenProps<any, any, any>) => {
     avoidIosKeyboard: true,
   });
 
+  // when we are using react-navigation header, we need to add keyboardVerticalOffset to KeyboardAvoidingView
+  // the value of this should be the height of the header + the top inset
   const { top } = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
