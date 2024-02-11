@@ -18,6 +18,7 @@ const sidebars: SidebarsConfig = {
       'examples/configureExtensions',
       'examples/colorKeyboard',
       'examples/navHeader',
+      'examples/customKeyboard',
     ],
   },
 };

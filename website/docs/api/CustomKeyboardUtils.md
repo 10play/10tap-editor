@@ -5,7 +5,7 @@ sidebar_position: 5
 # Custom Keyboard Utils
 
 We believe that custom keyboard can be a game changer when it comes to editing experience, that's why we decided that this ability should be part of this lib, in this page we will show the APIs of the custom keyboard utils.
-For examples and better guide please see: [Create custom keyboard](https://10play.dev) or [Using the ColorKeyboard](../examples/colorKeyboard)
+For examples and better guide please see: [Create custom keyboard](../examples/customKeyboard) or [Using the ColorKeyboard](../examples/colorKeyboard)
 
 ### CustomKeyboard
 
