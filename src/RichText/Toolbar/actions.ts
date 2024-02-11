@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 import { Images } from '../../assets';
 import { EditorActionType } from '../../types/Actions';
 import type { EditorBridge } from '../../types';
-import { type EditorNativeState } from '../../types/EditorNativeState';
+import { type BridgeState } from '../../types/EditorBridge';
 import { ToolbarContext } from './Toolbar';
 
 export const ToolbarItems = {
@@ -17,7 +17,7 @@ export const ToolbarItems = {
 
 type ArgsToolbarCB = {
   editor: EditorBridge;
-  editorState: EditorNativeState;
+  editorState: BridgeState;
   setToolbarContext: (
     ToolbarContext: ToolbarContext | ((prev: ToolbarContext) => ToolbarContext)
   ) => void;

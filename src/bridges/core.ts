@@ -1,6 +1,6 @@
 import BridgeExtension from './base';
 import { asyncMessages } from '../RichText/AsyncMessages';
-import type { EditorNativeState } from '../types';
+import type { BridgeState } from '../types';
 import { focusListener } from '../webEditorUtils/focusListener';
 import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
@@ -22,8 +22,8 @@ type CoreEditorInstance = {
   focus: (pos: focusArgs) => void;
 };
 
-declare module '../types/EditorNativeState' {
-  interface EditorNativeState extends CoreEditorState {}
+declare module '../types/EditorBridge' {
+  interface BridgeState extends CoreEditorState {}
   interface EditorBridge extends CoreEditorInstance {}
 }
 
@@ -62,7 +62,7 @@ export type CoreMessages =
     }
   | {
       type: CoreEditorActionType.StateUpdate;
-      payload: EditorNativeState;
+      payload: BridgeState;
     }
   | {
       type: CoreEditorActionType.EditorReady;
@@ -192,7 +192,7 @@ export const CoreBridge = new BridgeExtension<
         if (editorStateRef && editorStateRef.current) {
           _updateEditorState &&
             _updateEditorState({
-              ...(editorStateRef.current as EditorNativeState),
+              ...(editorStateRef.current as BridgeState),
               isFocused: true,
             });
         }

@@ -10,8 +10,8 @@ type ItalicEditorInstance = {
   toggleItalic: () => void;
 };
 
-declare module '../types/EditorNativeState' {
-  interface EditorNativeState extends ItalicEditorState {}
+declare module '../types/EditorBridge' {
+  interface BridgeState extends ItalicEditorState {}
   interface EditorBridge extends ItalicEditorInstance {}
 }
 

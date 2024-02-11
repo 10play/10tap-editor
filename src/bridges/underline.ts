@@ -10,8 +10,8 @@ type UnderlineEditorInstance = {
   toggleUnderline: () => void;
 };
 
-declare module '../types/EditorNativeState' {
-  interface EditorNativeState extends UnderlineEditorState {}
+declare module '../types/EditorBridge' {
+  interface BridgeState extends UnderlineEditorState {}
   interface EditorBridge extends UnderlineEditorInstance {}
 }
 

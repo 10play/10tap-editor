@@ -10,8 +10,8 @@ type ColorEditorInstance = {
   setColor: (color: string) => void;
 };
 
-declare module '../types/EditorNativeState' {
-  interface EditorNativeState extends ColorEditorState {}
+declare module '../types/EditorBridge' {
+  interface BridgeState extends ColorEditorState {}
   interface EditorBridge extends ColorEditorInstance {}
 }
 

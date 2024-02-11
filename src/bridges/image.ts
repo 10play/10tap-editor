@@ -7,8 +7,8 @@ type ImageEditorInstance = {
   setImage: (src: string) => void;
 };
 
-declare module '../types/EditorNativeState' {
-  interface EditorNativeState extends ImageEditorState {}
+declare module '../types/EditorBridge' {
+  interface BridgeState extends ImageEditorState {}
   interface EditorBridge extends ImageEditorInstance {}
 }
 

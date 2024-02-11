@@ -11,8 +11,8 @@ type HistoryEditorInstance = {
   redo: () => void;
 };
 
-declare module '../types/EditorNativeState' {
-  interface EditorNativeState extends HistoryEditorState {}
+declare module '../types/EditorBridge' {
+  interface BridgeState extends HistoryEditorState {}
   interface EditorBridge extends HistoryEditorInstance {}
 }
 

@@ -4,7 +4,7 @@ import {
   type EditorActionMessage,
   EditorMessageType,
 } from '../types/Messaging';
-import { type EditorNativeState } from '../types/EditorNativeState';
+import { type BridgeState } from '../types/EditorBridge';
 import { EditorHelper } from './EditorHelper';
 import type { EditorBridge } from '../types';
 import type BridgeExtension from '../bridges/base';
@@ -24,8 +24,8 @@ export const useEditorBridge = (options?: {
 }): EditorBridge => {
   const webviewRef = useRef<WebView>(null);
   // Till we will implement default per bridgeExtension
-  const editorStateRef = useRef<EditorNativeState | {}>({});
-  const editorStateSubsRef = useRef<((state: EditorNativeState) => void)[]>([]);
+  const editorStateRef = useRef<BridgeState | {}>({});
+  const editorStateSubsRef = useRef<((state: BridgeState) => void)[]>([]);
 
   const bridgeExtensions = useMemo(() => {
     const extensions = options?.bridgeExtensions || TenTapStartKit;
@@ -33,14 +33,12 @@ export const useEditorBridge = (options?: {
     return uniqueBy(extensions, 'name');
   }, [options?.bridgeExtensions]);
 
-  const _updateEditorState = (editorState: EditorNativeState) => {
+  const _updateEditorState = (editorState: BridgeState) => {
     editorStateRef.current = editorState;
     editorStateSubsRef.current.forEach((sub) => sub(editorState));
   };
 
-  const _subscribeToEditorStateUpdate: Subscription<EditorNativeState> = (
-    cb
-  ) => {
+  const _subscribeToEditorStateUpdate: Subscription<BridgeState> = (cb) => {
     editorStateSubsRef.current.push(cb);
     return () => {
       editorStateSubsRef.current = editorStateSubsRef.current.filter(

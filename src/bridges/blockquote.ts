@@ -10,8 +10,8 @@ type BlockquoteEditorInstance = {
   toggleBlockquote: () => void;
 };
 
-declare module '../types/EditorNativeState' {
-  interface EditorNativeState extends BlockquoteEditorState {}
+declare module '../types/EditorBridge' {
+  interface BridgeState extends BlockquoteEditorState {}
   interface EditorBridge extends BlockquoteEditorInstance {}
 }
 

@@ -11,8 +11,8 @@ type ListItemEditorInstance = {
   sink: () => void;
 };
 
-declare module '../types/EditorNativeState' {
-  interface EditorNativeState extends ListItemEditorState {}
+declare module '../types/EditorBridge' {
+  interface BridgeState extends ListItemEditorState {}
   interface EditorBridge extends ListItemEditorInstance {}
 }
 

@@ -63,6 +63,6 @@ export interface ToolbarItem {
 
 type ArgsToolbarCB = {
   editor: EditorBridge;
-  editorState: EditorNativeState;
+  editorState: BridgeState;
 };
 ```

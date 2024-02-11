@@ -11,8 +11,8 @@ type BulletListEditorInstance = {
   toggleBulletList: () => void;
 };
 
-declare module '../types/EditorNativeState' {
-  interface EditorNativeState extends BulletListEditorState {}
+declare module '../types/EditorBridge' {
+  interface BridgeState extends BulletListEditorState {}
   interface EditorBridge extends BulletListEditorInstance {}
 }
 

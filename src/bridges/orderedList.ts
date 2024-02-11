@@ -11,8 +11,8 @@ type OrderedListEditorInstance = {
   toggleOrderedList: () => void;
 };
 
-declare module '../types/EditorNativeState' {
-  interface EditorNativeState extends OrderedListEditorState {}
+declare module '../types/EditorBridge' {
+  interface BridgeState extends OrderedListEditorState {}
   interface EditorBridge extends OrderedListEditorInstance {}
 }
 

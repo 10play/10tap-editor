@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useEditor } from '@tiptap/react';
 import { Editor } from '@tiptap/core';
 import { type EditorMessage, EditorMessageType } from '../types/Messaging';
-import { type EditorNativeState } from '../types/EditorNativeState';
+import { type BridgeState } from '../types/EditorBridge';
 import type BridgeExtension from '../bridges/base';
 import { CoreEditorActionType } from '../bridges/core';
 import { blueBackgroundPlugin } from '../bridges/HighlightSelection';
@@ -60,7 +60,7 @@ export const useTenTap = (options?: useTenTapArgs) => {
     const state = bridges.reduce((acc, e) => {
       if (!e.extendEditorState) return acc;
       return Object.assign(acc, e.extendEditorState(editor));
-    }, payload) as EditorNativeState;
+    }, payload) as BridgeState;
 
     sendMessage({
       type: CoreEditorActionType.StateUpdate,

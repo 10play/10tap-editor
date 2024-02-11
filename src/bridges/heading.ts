@@ -10,8 +10,8 @@ type HeadingEditorInstance = {
   toggleHeading: (level: Level) => void;
 };
 
-declare module '../types/EditorNativeState' {
-  interface EditorNativeState extends HeadingEditorState {}
+declare module '../types/EditorBridge' {
+  interface BridgeState extends HeadingEditorState {}
   interface EditorBridge extends HeadingEditorInstance {}
 }
 
