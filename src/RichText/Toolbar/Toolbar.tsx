@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
+  View,
 } from 'react-native';
 import { useBridgeState } from '../useBridgeState';
 import React from 'react';
@@ -20,22 +21,22 @@ interface ToolbarProps {
 
 const toolbarStyles = StyleSheet.create({
   toolbar: {
-    display: 'flex',
     flex: 1,
     borderTopWidth: 1,
     borderTopColor: 'lightgray',
     minWidth: '100%',
   },
   toolbarButton: {
-    padding: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
     alignContent: 'center',
     backgroundColor: 'white',
   },
   disabled: {
-    backgroundColor: 'lightgray',
+    opacity: 0.3,
   },
   active: {
-    backgroundColor: 'lightblue',
+    backgroundColor: 'lightgray',
   },
   hidden: {
     display: 'none',
@@ -44,6 +45,10 @@ const toolbarStyles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     bottom: 0,
+  },
+  iconWrapper: {
+    padding: 4,
+    borderRadius: 4,
   },
 });
 
@@ -89,17 +94,21 @@ export function Toolbar({
               <TouchableOpacity
                 onPress={onPress(args)}
                 disabled={disabled(args)}
-                style={[
-                  toolbarStyles.toolbarButton,
-                  active(args) ? toolbarStyles.active : undefined,
-                  disabled(args) ? toolbarStyles.disabled : undefined,
-                ]}
+                style={[toolbarStyles.toolbarButton]}
               >
-                <Image
-                  source={image(args)}
-                  style={IMAGE_DIM}
-                  resizeMode="contain"
-                />
+                <View
+                  style={[
+                    toolbarStyles.iconWrapper,
+                    active(args) ? toolbarStyles.active : undefined,
+                    disabled(args) ? toolbarStyles.disabled : undefined,
+                  ]}
+                >
+                  <Image
+                    source={image(args)}
+                    style={[IMAGE_DIM]}
+                    resizeMode="contain"
+                  />
+                </View>
               </TouchableOpacity>
             );
           }}
