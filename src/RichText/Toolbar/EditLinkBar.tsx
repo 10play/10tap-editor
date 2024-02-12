@@ -14,11 +14,13 @@ const linkBarStyles = StyleSheet.create({
   addLinkContainer: {
     flex: 1,
     flexDirection: 'row',
-    height: 40,
+    height: 44,
     borderTopWidth: 1,
     borderTopColor: '#e0e0e0',
     padding: 4,
+    paddingHorizontal: 8,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   linkInput: {
     paddingLeft: 12,
@@ -28,16 +30,17 @@ const linkBarStyles = StyleSheet.create({
     flex: 1,
   },
   doneButton: {
-    backgroundColor: '#99999910',
-    paddingHorizontal: 10,
+    backgroundColor: '#F5F5F5',
     justifyContent: 'center',
     height: 32,
+    padding: 8,
+    borderRadius: 4,
   },
   doneButtonText: {
-    color: '#376eab',
+    color: '#0085FF',
   },
   linkToolbarButton: {
-    paddingHorizontal: 4,
+    paddingHorizontal: 0,
   },
 });
 
@@ -73,7 +76,7 @@ export const EditLinkBar = ({
         value={link}
         onBlur={onBlur}
         onChangeText={setLink}
-        placeholder="Insert a link..."
+        placeholder="Type your URL here..."
         autoFocus
         style={linkBarStyles.linkInput}
       />
