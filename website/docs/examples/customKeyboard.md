@@ -77,10 +77,12 @@ export const CustomKeyboardExample = ({}: NativeStackScreenProps<
     autofocus: true,
     DEV: true,
     bridgeExtensions: [
-      ...TenTapStartKit,
+      // It is important to spread StarterKit AFTER our extended plugin,
+      // as plugin duplicated will be ignored
       ImageBridge.configureExtension({
         inline: true,
       }),
+        ...TenTapStartKit,
     ],
   });
   const TapRef = useRef(null);
@@ -280,10 +282,12 @@ export const CustomKeyboardExample = ({}: NativeStackScreenProps<
     autofocus: true,
     DEV: true,
     bridgeExtensions: [
-      ...TenTapStartKit,
+      // It is important to spread StarterKit AFTER our extended plugin,
+      // as plugin duplicated will be ignored
       ImageBridge.configureExtension({
         inline: true,
       }),
+      ...TenTapStartKit,
     ],
   });
   const TapRef = useRef(null);

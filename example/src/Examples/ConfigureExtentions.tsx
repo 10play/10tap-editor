@@ -18,11 +18,11 @@ export const ConfigureExtensions = ({}: NativeStackScreenProps<
     autofocus: true,
     avoidIosKeyboard: true,
     bridgeExtensions: [
-      ...TenTapStartKit,
       PlaceholderBridge.configureExtension({
         placeholder: 'Hey there! Start typing...',
       }),
       LinkBridge.configureExtension({ openOnClick: false }),
+      ...TenTapStartKit,
     ],
   });
 

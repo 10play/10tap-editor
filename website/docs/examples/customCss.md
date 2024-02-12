@@ -35,8 +35,10 @@ Now let's configure the CodeBridge to use this css
 const editor = useEditorBridge({
   ...,
   bridgeExtensions: [
-    ...TenTapStartKit,
     CodeBridge.configureCSS(customCodeBlockCSS), // Custom codeblock css
+    // It is important to spread StarterKit AFTER our extended plugin,
+    // as plugin duplicated will be ignored
+    ...TenTapStartKit,
   ],
 });
 ```
@@ -74,8 +76,10 @@ And inside our `EditorBridge`
 ```tsx
 const editor = useEditorBridge({
   bridgeExtensions: [
-    ...TenTapStartKit,
+    // It is important to spread StarterKit AFTER our extended plugin,
+    // as plugin duplicated will be ignored
     CoreBridge.configureCSS(customFont), // Custom font
+    ...TenTapStartKit,
   ],
 });
 ```

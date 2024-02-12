@@ -31,6 +31,7 @@ type CreateTenTapBridgeArgs<T = any, E = any, M = any> = Omit<
   | 'configureExtension'
   | 'configureTiptapExtensionsOnRunTime'
   | 'configureCSS'
+  | 'extend'
 >;
 
 class BridgeExtension<T = any, E = any, M = any> {
@@ -43,6 +44,7 @@ class BridgeExtension<T = any, E = any, M = any> {
     extendEditorState,
     extendEditorInstance,
     extendCSS,
+    config,
   }: CreateTenTapBridgeArgs<T, E, M>) {
     if (!tiptapExtension) {
       this.name = forceName || 'BridgeExtension';
@@ -59,16 +61,33 @@ class BridgeExtension<T = any, E = any, M = any> {
     this.extendEditorState = extendEditorState;
     this.extendEditorInstance = extendEditorInstance;
     this.extendCSS = extendCSS;
+    this.config = config;
   }
 
+  // we can use extend, so that extension's can be configures without modifying
+  // the values for each extension
+  extend(
+    args?: Partial<CreateTenTapBridgeArgs<T, E, M>>
+  ): BridgeExtension<T, E, M> {
+    return new BridgeExtension<T, E, M>({
+      ...this,
+      ...args,
+    });
+  }
+
+  // runs on native
   configureExtension(config: any) {
-    this.config = config;
-    return this;
+    const extended = this.extend();
+    extended.config = config;
+    return extended;
   }
   configureCSS(css: string) {
-    this.extendCSS = css;
-    return this;
+    const extended = this.extend();
+    extended.extendCSS = css;
+    return extended;
   }
+
+  // runs on web
   configureTiptapExtensionsOnRunTime(config: any) {
     this.tiptapExtension = this.tiptapExtension?.configure(config);
     return [this.tiptapExtension, ...(this.tiptapExtensionDeps || [])];
