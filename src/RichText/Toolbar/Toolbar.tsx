@@ -29,18 +29,19 @@ export const toolbarStyles = StyleSheet.create({
     borderTopWidth: 0.5,
     borderTopColor: '#DEE0E3',
     minWidth: '100%',
+    height: 44,
   },
   toolbarButton: {
     paddingHorizontal: 8,
-    paddingVertical: 8,
-    alignContent: 'center',
     backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   disabled: {
     opacity: 0.3,
   },
   active: {
-    backgroundColor: '#d9d9d9',
+    backgroundColor: '#E5E5E5',
   },
   hidden: {
     display: 'none',
@@ -51,7 +52,6 @@ export const toolbarStyles = StyleSheet.create({
     bottom: 0,
   },
   iconWrapper: {
-    padding: 4,
     borderRadius: 4,
   },
 });
@@ -62,7 +62,7 @@ export enum ToolbarContext {
   Heading,
 }
 
-export const IMAGE_DIM = { height: 16, width: 16 };
+export const IMAGE_DIM = { height: 28, width: 28 };
 
 export function Toolbar({
   editor,

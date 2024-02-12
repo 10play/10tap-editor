@@ -10,7 +10,7 @@ export const Images = {
   h3: require('./h3.png'),
   h4: require('./h4.png'),
   h5: require('./h5.png'),
-  h6: require('./type-h6.png'),
+  h6: require('./h6.png'),
   orderedList: require('./ol.png'),
   bulletList: require('./ul.png'),
   checkList: require('./checklist.png'),
