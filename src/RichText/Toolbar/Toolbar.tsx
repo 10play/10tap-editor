@@ -39,6 +39,7 @@ export const toolbarStyles = StyleSheet.create({
   },
   disabled: {
     opacity: 0.3,
+    tintColor: '#CACACA',
   },
   active: {
     backgroundColor: '#E5E5E5',
@@ -54,6 +55,11 @@ export const toolbarStyles = StyleSheet.create({
   iconWrapper: {
     borderRadius: 4,
   },
+  icon: {
+    height: 28,
+    width: 28,
+    tintColor: '#898989',
+  },
 });
 
 export enum ToolbarContext {
@@ -61,8 +67,6 @@ export enum ToolbarContext {
   Link,
   Heading,
 }
-
-export const IMAGE_DIM = { height: 28, width: 28 };
 
 export function Toolbar({
   editor,
@@ -111,7 +115,7 @@ export function Toolbar({
                 >
                   <Image
                     source={image(args)}
-                    style={[IMAGE_DIM]}
+                    style={[toolbarStyles.icon]}
                     resizeMode="contain"
                   />
                 </View>
