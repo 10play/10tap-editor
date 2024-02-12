@@ -41,7 +41,7 @@ export const toolbarStyles = StyleSheet.create({
     opacity: 0.3,
   },
   active: {
-    backgroundColor: '#d9d9d9',
+    backgroundColor: '#E5E5E5',
   },
   hidden: {
     display: 'none',
