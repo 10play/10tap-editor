@@ -23,18 +23,18 @@ export enum HighlightEditorActionType {
   UnsetHighlight = 'unset-highlight',
 }
 
-interface SetHighlightMessage {
+type SetHighlightMessage = {
   type: HighlightEditorActionType.SetHighlight;
   payload: string;
-}
-interface ToggleHighlightMessage {
+};
+type ToggleHighlightMessage = {
   type: HighlightEditorActionType.ToggleHighlight;
   payload: string;
-}
-interface UnsetHighlightMessage {
+};
+type UnsetHighlightMessage = {
   type: HighlightEditorActionType.UnsetHighlight;
   payload: undefined;
-}
+};
 
 type HighlightMessage =
   | SetHighlightMessage

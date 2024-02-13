@@ -20,14 +20,14 @@ export enum ColorEditorActionType {
   SetColor = 'set-color',
   UnsetColor = 'unset-color',
 }
-interface SetColorMessage {
+type SetColorMessage = {
   type: ColorEditorActionType.SetColor;
   payload: string;
-}
-interface UnsetColorMessage {
+};
+type UnsetColorMessage = {
   type: ColorEditorActionType.UnsetColor;
   payload: undefined;
-}
+};
 
 type ColorMessage = SetColorMessage | UnsetColorMessage;
 
