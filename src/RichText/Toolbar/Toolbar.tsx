@@ -80,7 +80,7 @@ export function Toolbar({
   );
 
   const hideToolbar =
-    hidden || !isKeyboardUp || (!editorState.isFocused && hidden !== false);
+    hidden === undefined ? !isKeyboardUp || !editorState.isFocused : hidden;
 
   const args = {
     editor,
