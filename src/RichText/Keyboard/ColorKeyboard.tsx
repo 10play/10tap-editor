@@ -105,17 +105,15 @@ const ColorKeyboardComp = () => {
 
   const setColor = (color?: ColorValue) => {
     if (!EditorHelper.editorLastInstance) return;
-    // If we are un-setting the color we need to toggle with current color
-    const newColor = color ? color.toString() : activeColor;
-    EditorHelper.editorLastInstance.setColor(newColor);
+    if (color) EditorHelper.editorLastInstance.setColor(color.toString());
+    else EditorHelper.editorLastInstance.unsetColor();
     EditorHelper.editorLastInstance.focus();
   };
 
   const setHighlight = (color?: ColorValue) => {
     if (!EditorHelper.editorLastInstance) return;
-    // If we are un-setting the color we need to toggle with current color
-    const newColor = color ? color.toString() : activeHighlight;
-    EditorHelper.editorLastInstance.setHighlight(newColor);
+    if (color) EditorHelper.editorLastInstance.setHighlight(color.toString());
+    else EditorHelper.editorLastInstance.unsetHighlight();
     EditorHelper.editorLastInstance.focus();
   };
 

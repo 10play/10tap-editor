@@ -7,7 +7,9 @@ type HighlightEditorState = {
 };
 
 type HighlightEditorInstance = {
-  setHighlight: (color?: string) => void;
+  setHighlight: (color: string) => void;
+  toggleHighlight: (color: string) => void;
+  unsetHighlight: () => void;
 };
 
 declare module '../types/EditorBridge' {
@@ -17,12 +19,27 @@ declare module '../types/EditorBridge' {
 
 export enum HighlightEditorActionType {
   SetHighlight = 'set-highlight',
+  ToggleHighlight = 'toggle-highlight',
+  UnsetHighlight = 'unset-highlight',
 }
 
-type HighlightMessage = {
+interface SetHighlightMessage {
   type: HighlightEditorActionType.SetHighlight;
-  payload: string | undefined;
-};
+  payload: string;
+}
+interface ToggleHighlightMessage {
+  type: HighlightEditorActionType.ToggleHighlight;
+  payload: string;
+}
+interface UnsetHighlightMessage {
+  type: HighlightEditorActionType.UnsetHighlight;
+  payload: undefined;
+}
+
+type HighlightMessage =
+  | SetHighlightMessage
+  | ToggleHighlightMessage
+  | UnsetHighlightMessage;
 
 export const HighlightBridge = new BridgeExtension<
   HighlightEditorState,
@@ -32,14 +49,17 @@ export const HighlightBridge = new BridgeExtension<
   tiptapExtension: Highlight.configure({ multicolor: true }),
   tiptapExtensionDeps: [TextStyle],
   onBridgeMessage: (editor, { type, payload }) => {
-    if (type === HighlightEditorActionType.SetHighlight) {
-      editor
-        .chain()
-        .focus()
-        .toggleHighlight({ color: payload || '' })
-        .run();
+    switch (type) {
+      case HighlightEditorActionType.SetHighlight:
+        editor.chain().focus().setHighlight({ color: payload }).run();
+        break;
+      case HighlightEditorActionType.ToggleHighlight:
+        editor.chain().focus().toggleHighlight({ color: payload }).run();
+        break;
+      case HighlightEditorActionType.UnsetHighlight:
+        editor.chain().focus().unsetHighlight().run();
+        break;
     }
-
     return false;
   },
   extendEditorInstance: (sendBridgeMessage) => {
@@ -48,6 +68,16 @@ export const HighlightBridge = new BridgeExtension<
         sendBridgeMessage({
           type: HighlightEditorActionType.SetHighlight,
           payload: color,
+        }),
+      toggleHighlight: (color) =>
+        sendBridgeMessage({
+          type: HighlightEditorActionType.ToggleHighlight,
+          payload: color,
+        }),
+      unsetHighlight: () =>
+        sendBridgeMessage({
+          type: HighlightEditorActionType.UnsetHighlight,
+          payload: undefined,
         }),
     };
   },
