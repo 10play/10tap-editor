@@ -9,7 +9,7 @@ import { Basic } from './Examples/Basic';
 import { CustomKeyboardExample } from './Examples/CustomKeyboardExample';
 import { EditorStickToKeyboardExample } from './Examples/EditorStickToKeyboardExample';
 import { Advanced } from './Examples/Advanced/AdvancedRichText';
-import { Compose } from './Examples/Compose/Compose';
+import { CustomAndStaticToolbar } from './Examples/CustomAndStaticToolbar/CustomAndStaticToolbar';
 import { WithKeyboard } from './Examples/WithKeyboard';
 import { CustomCss } from './Examples/CustomCss';
 import { ConfigureExtensions } from './Examples/ConfigureExtentions';
@@ -45,8 +45,8 @@ const examples = [
     component: NavigationHeader,
   },
   {
-    name: 'Compose',
-    component: Compose,
+    name: 'CustomAndStaticToolbar',
+    component: CustomAndStaticToolbar,
   },
   {
     name: 'Advanced',
