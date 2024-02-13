@@ -4,6 +4,8 @@ Contributions are always welcome, no matter how large or small!
 
 We want this community to be friendly and respectful to each other. Please follow it in all your interactions with the project. Before contributing, please read the [code of conduct](./CODE_OF_CONDUCT.md).
 
+Open issues for things to work on!
+
 ## Development workflow
 
 This project is a monorepo managed using [Yarn workspaces](https://yarnpkg.com/features/workspaces). It contains the following packages:
@@ -28,6 +30,25 @@ If you want to use Android Studio or XCode to edit the native code, you can open
 To edit the Java or Kotlin files, open `example/android` in Android studio and find the source files at `tentap` under `Android`.
 
 You can use various commands from the root directory to work with the project.
+
+Before running the examples you must build the editor
+To build the editor:
+
+```sh
+yarn editor:build
+```
+
+If you are working on the web side of the editor and you want to have hot reload enabled you need to do the following
+
+1. run `yarn editor:dev`
+2. inside `useEditorBridge` set `DEV: true`
+
+```tsx
+const editor = useEditorBridge({
+  DEV: true,
+  DEV_SERVER_URL: 'http://locahost:1234', // (OPTIONAL) - if the dev server is running on a different port
+});
+```
 
 To start the packager:
 
@@ -131,6 +152,8 @@ yarn release
 The `package.json` file contains various scripts for common tasks:
 
 - `yarn`: setup project by installing dependencies.
+- `yarn editor:build`: build the editor
+- `yarn editor:dev`: run the editor dev server
 - `yarn typecheck`: type-check files with TypeScript.
 - `yarn lint`: lint files with ESLint.
 - `yarn test`: run unit tests with Jest.
