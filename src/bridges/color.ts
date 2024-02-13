@@ -7,7 +7,7 @@ type ColorEditorState = {
 };
 
 type ColorEditorInstance = {
-  setColor: (color: string) => void;
+  setColor: (color?: string) => void;
 };
 
 declare module '../types/EditorBridge' {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Image,
   ScrollView,
@@ -12,30 +12,17 @@ import { EditorHelper } from '../EditorHelper';
 import { CustomKeyboardExtension } from './CustomKeyboardExtension';
 import { Images } from '../../assets';
 
-const groupInThrees = (array: any[]): any[][] => {
-  const result: any[][] = [];
-  let tempArray: any[] = [];
-
-  array.forEach((item, index) => {
-    tempArray.push(item);
-
-    if (tempArray.length === 3 || index === array.length - 1) {
-      result.push(tempArray);
-      tempArray = [];
-    }
-  });
-
-  return result;
-};
+const DEFAULT_COLOR = '#898989';
+const DEFAULT_HIGHLIGHT = '#89898926';
 
 interface Color {
-  value: ColorValue;
+  value?: ColorValue;
   name: string;
 }
 const textColors: Color[] = [
   {
     name: 'Default',
-    value: '#000000',
+    value: undefined,
   },
   {
     name: 'Red',
@@ -74,7 +61,7 @@ const textColors: Color[] = [
 const highlightColors: Color[] = [
   {
     name: 'Default',
-    value: '#00000026',
+    value: undefined,
   },
   {
     name: 'Red',
@@ -116,40 +103,51 @@ const ColorKeyboardComp = () => {
   const activeHighlight =
     EditorHelper.editorLastInstance?.getEditorState().activeHighlight;
 
-  const setColor = (color: ColorValue) => {
+  const setColor = (color?: ColorValue) => {
     if (!EditorHelper.editorLastInstance) return;
-    EditorHelper.editorLastInstance.setColor(color.toString());
+    // If we are un-setting the color we need to toggle with current color
+    const newColor = color ? color.toString() : activeColor;
+    EditorHelper.editorLastInstance.setColor(newColor);
     EditorHelper.editorLastInstance.focus();
   };
 
-  const setHighlight = (color: ColorValue) => {
+  const setHighlight = (color?: ColorValue) => {
     if (!EditorHelper.editorLastInstance) return;
-    EditorHelper.editorLastInstance.setHighlight(color.toString());
+    // If we are un-setting the color we need to toggle with current color
+    const newColor = color ? color.toString() : activeHighlight;
+    EditorHelper.editorLastInstance.setHighlight(newColor);
     EditorHelper.editorLastInstance.focus();
   };
 
-  console.log({ activeColor });
+  const groupedTextColors = useMemo(() => groupInChunks(textColors, 3), []);
+  const groupedHighlightColors = useMemo(
+    () => groupInChunks(highlightColors, 3),
+    []
+  );
+
   return (
     <ScrollView style={keyboardStyles.keyboardScrollView}>
       <View style={keyboardStyles.container}>
         <Text style={keyboardStyles.sectionTitle}>Color</Text>
-        {groupInThrees(textColors).map((colorRow) => {
+        {groupedTextColors.map((colorRow) => {
           return (
             <ColorRow
               colors={colorRow}
               onPress={setColor}
               activeColor={activeColor}
               icon
+              key={colorRow[0]?.name}
             />
           );
         })}
         <Text style={keyboardStyles.sectionTitle}>Highlight</Text>
-        {groupInThrees(highlightColors).map((colorRow) => {
+        {groupedHighlightColors.map((colorRow) => {
           return (
             <ColorRow
               colors={colorRow}
               onPress={setHighlight}
               activeColor={activeHighlight}
+              key={colorRow[1]?.name}
             />
           );
         })}
@@ -161,7 +159,7 @@ const ColorKeyboardComp = () => {
 
 interface ColorRowProps {
   colors: Color[];
-  onPress: (color: ColorValue) => void;
+  onPress: (color?: ColorValue) => void;
   activeColor?: string;
   icon?: boolean;
 }
@@ -173,7 +171,9 @@ const ColorRow = ({ colors, onPress, activeColor, icon }: ColorRowProps) => {
           key={color.name}
           onPress={() => onPress(color.value)}
           color={color}
-          isActive={color.value === activeColor}
+          isActive={
+            color.value === activeColor || (!color.value && !activeColor)
+          }
           icon={icon}
         />
       ))}
@@ -199,13 +199,23 @@ const ColorButton = ({ onPress, color, isActive, icon }: ColorButtonProps) => (
       <View style={keyboardStyles.icon}>
         <Image
           source={Images.a}
-          style={[keyboardStyles.image, { tintColor: color.value }]}
+          style={[
+            keyboardStyles.image,
+            { tintColor: color.value || DEFAULT_COLOR },
+          ]}
           resizeMode="contain"
         />
       </View>
     )}
     {!icon && (
-      <View style={[keyboardStyles.icon, { backgroundColor: color.value }]} />
+      <View style={[keyboardStyles.icon]}>
+        <View
+          style={[
+            keyboardStyles.highlight,
+            { backgroundColor: color.value || DEFAULT_HIGHLIGHT },
+          ]}
+        />
+      </View>
     )}
     <Text style={keyboardStyles.colorText}>{color.name}</Text>
   </TouchableOpacity>
@@ -261,6 +271,11 @@ const keyboardStyles = StyleSheet.create({
   image: {
     height: 14,
   },
+  highlight: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+  },
   colorText: {
     color: '#898989',
   },
@@ -274,6 +289,14 @@ const keyboardStyles = StyleSheet.create({
     height: 30,
   },
 });
+
+function groupInChunks<T>(array: T[], chunkSize: number): T[][] {
+  let result = [];
+  for (let i = 0; i < array.length; i += chunkSize) {
+    result.push(array.slice(i, i + chunkSize));
+  }
+  return result;
+}
 
 export const ColorKeyboard = new CustomKeyboardExtension(
   'keyboard.color',

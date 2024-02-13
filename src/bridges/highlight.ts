@@ -7,7 +7,7 @@ type HighlightEditorState = {
 };
 
 type HighlightEditorInstance = {
-  setHighlight: (color: string) => void;
+  setHighlight: (color?: string) => void;
 };
 
 declare module '../types/EditorBridge' {
