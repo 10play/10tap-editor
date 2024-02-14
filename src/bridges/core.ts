@@ -1,6 +1,6 @@
 import BridgeExtension from './base';
 import { asyncMessages } from '../RichText/AsyncMessages';
-import type { BridgeState } from '../types';
+import type { BridgeState, EditorTheme } from '../types';
 import { focusListener } from '../webEditorUtils/focusListener';
 import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
@@ -20,6 +20,7 @@ type CoreEditorInstance = {
   setSelection: (from: number, to: number) => void;
   updateScrollThresholdAndMargin: (offset: number) => void;
   focus: (pos: focusArgs) => void;
+  theme: EditorTheme;
 };
 
 declare module '../types/EditorBridge' {
@@ -86,7 +87,7 @@ export type CoreMessages =
 
 export const CoreBridge = new BridgeExtension<
   CoreEditorState,
-  CoreEditorInstance,
+  Omit<CoreEditorInstance, 'theme'>,
   CoreMessages
 >({
   forceName: 'coreBridge',

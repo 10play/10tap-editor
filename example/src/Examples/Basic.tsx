@@ -8,12 +8,16 @@ import {
   StyleSheet,
 } from 'react-native';
 import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
+import { darkToolbarTheme } from '../../../src/RichText/Toolbar/toolbarTheme';
 
 export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditorBridge({
     autofocus: true,
     avoidIosKeyboard: true,
     initialContent,
+    theme: {
+      toolbar: darkToolbarTheme,
+    },
   });
 
   return (

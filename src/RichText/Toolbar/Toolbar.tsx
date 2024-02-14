@@ -23,44 +23,7 @@ interface ToolbarProps {
   items?: ToolbarItem[];
 }
 
-export const toolbarStyles = StyleSheet.create({
-  toolbar: {
-    flex: 1,
-    borderTopWidth: 0.5,
-    borderTopColor: '#DEE0E3',
-    minWidth: '100%',
-    height: 44,
-  },
-  toolbarButton: {
-    paddingHorizontal: 8,
-    backgroundColor: 'white',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  disabled: {
-    opacity: 0.3,
-    tintColor: '#CACACA',
-  },
-  active: {
-    backgroundColor: '#E5E5E5',
-  },
-  hidden: {
-    display: 'none',
-  },
-  keyboardAvoidingView: {
-    position: 'absolute',
-    width: '100%',
-    bottom: 0,
-  },
-  iconWrapper: {
-    borderRadius: 4,
-  },
-  icon: {
-    height: 28,
-    width: 28,
-    tintColor: '#898989',
-  },
-});
+export const toolbarStyles = StyleSheet.create({});
 
 export enum ToolbarContext {
   Main,
@@ -96,26 +59,30 @@ export function Toolbar({
         <FlatList
           data={toolbarContext === ToolbarContext.Main ? items : HEADING_ITEMS}
           style={[
-            toolbarStyles.toolbar,
-            hideToolbar ? toolbarStyles.hidden : undefined,
+            editor.theme.toolbar.toolbarBody,
+            hideToolbar ? editor.theme.toolbar.hidden : undefined,
           ]}
           renderItem={({ item: { onPress, disabled, active, image } }) => {
             return (
               <TouchableOpacity
                 onPress={onPress(args)}
                 disabled={disabled(args)}
-                style={[toolbarStyles.toolbarButton]}
+                style={[editor.theme.toolbar.toolbarButton]}
               >
                 <View
                   style={[
-                    toolbarStyles.iconWrapper,
-                    active(args) ? toolbarStyles.active : undefined,
-                    disabled(args) ? toolbarStyles.disabled : undefined,
+                    editor.theme.toolbar.iconWrapper,
+                    active(args)
+                      ? editor.theme.toolbar.iconWrapperActive
+                      : undefined,
+                    disabled(args)
+                      ? editor.theme.toolbar.iconWrapperDisabled
+                      : undefined,
                   ]}
                 >
                   <Image
                     source={image(args)}
-                    style={[toolbarStyles.icon]}
+                    style={[editor.theme.toolbar.icon]}
                     resizeMode="contain"
                   />
                 </View>
@@ -128,6 +95,7 @@ export function Toolbar({
     case ToolbarContext.Link:
       return (
         <EditLinkBar
+          theme={editor.theme}
           initialLink={editorState.activeLink}
           onBlur={() => setToolbarContext(ToolbarContext.Main)}
           onLinkIconClick={() => {
