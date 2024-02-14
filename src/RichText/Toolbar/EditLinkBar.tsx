@@ -79,6 +79,7 @@ export const EditLinkBar = ({
         placeholder="Type your URL here..."
         autoFocus
         style={linkBarStyles.linkInput}
+        autoCapitalize="none"
       />
       <TouchableOpacity
         style={linkBarStyles.doneButton}

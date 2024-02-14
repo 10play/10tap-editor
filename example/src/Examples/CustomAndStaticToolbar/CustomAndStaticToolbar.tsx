@@ -9,11 +9,15 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
-import { useEditorBridge } from '@10play/tentap-editor';
+import {
+  useEditorBridge,
+  useBridgeState,
+  type EditorBridge,
+} from '@10play/tentap-editor';
 import { Icon } from '../Icon';
-import { ComposeRichText } from './ComposeRichText';
+import { ComposeRichText } from './CustomRichText';
 
-export const Compose = ({
+export const CustomAndStaticToolbar = ({
   navigation,
 }: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditorBridge({
@@ -58,10 +62,34 @@ export const Compose = ({
             style={[exampleStyles.textPrimary, exampleStyles.recipientField]}
             placeholder="Subject"
           />
+          <StaticToolbar editor={editor} />
         </View>
       </View>
       <ComposeRichText editor={editor} onSendClick={onSendClick} />
     </SafeAreaView>
+  );
+};
+
+interface StaticToolbarProps {
+  editor: EditorBridge;
+}
+const StaticToolbar = ({ editor }: StaticToolbarProps) => {
+  const editorState = useBridgeState(editor);
+  return (
+    <View style={[exampleStyles.recipientField, exampleStyles.staticToolbar]}>
+      <TouchableOpacity onPress={editor.undo} disabled={!editorState.canUndo}>
+        <Icon
+          name={'undo'}
+          fill={editorState.canUndo ? 'black' : 'lightgray'}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={editor.redo} disabled={!editorState.canRedo}>
+        <Icon
+          name={'redo'}
+          fill={editorState.canRedo ? 'black' : 'lightgray'}
+        />
+      </TouchableOpacity>
+    </View>
   );
 };
 
@@ -98,6 +126,9 @@ const exampleStyles = StyleSheet.create({
   textSecondary: {
     fontSize: 14,
     color: 'grey',
+  },
+  staticToolbar: {
+    justifyContent: 'flex-end',
   },
 });
 
