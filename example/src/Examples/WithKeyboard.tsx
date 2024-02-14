@@ -28,7 +28,6 @@ export const WithKeyboard = ({}: NativeStackScreenProps<any, any, any>) => {
     autofocus: true,
     avoidIosKeyboard: true,
     initialContent,
-    DEV: true,
     bridgeExtensions: [
       ...TenTapStartKit,
       CoreBridge.configureCSS(`
