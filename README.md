@@ -2,7 +2,7 @@
 
 React Native Rich Text Editor based on Tiptap
 
-![demo](./website/static/img/tmpRM.png)
+<img src="./website/static/img/tmpRM.png" alt="cover" style="height: 450px">
 
 # Docs and Examples
 
