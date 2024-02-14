@@ -69,6 +69,17 @@ export const TaskListBridge = new BridgeExtension<
     display: flex;
   }
   
+  ul[data-type="taskList"] li > label > input {
+    font-size: inherit;
+    font-family: inherit;
+    color: #000;
+    margin: 0.1rem;
+    border: 1px solid black;
+    border-radius: 0.3rem;
+    padding: 0.1rem 0.4rem;
+    background: white;
+    accent-color: black;
+  }
   ul[data-type="taskList"] li > label {
     flex: 0 0 auto;
     margin-right: 0.5rem;

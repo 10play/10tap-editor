@@ -228,13 +228,12 @@ const keyboardStyles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     gap: 8,
   },
   colorRow: {
     flexDirection: 'row',
     flex: 1,
+    justifyContent: 'space-between',
     gap: 10,
   },
   colorButton: {
@@ -280,7 +279,8 @@ const keyboardStyles = StyleSheet.create({
   sectionTitle: {
     color: '#CACACA',
     alignSelf: 'flex-start',
-    marginLeft: 30,
+    marginLeft: 20,
+    marginTop: 15,
     fontSize: 14,
   },
   bottomSpacer: {
