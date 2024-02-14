@@ -43,9 +43,7 @@ export const EditLinkBar = ({
         onBlur={onBlur}
         onChangeText={setLink}
         placeholder="Type your URL here..."
-        placeholderTextColor={
-          theme.toolbar.linkBarTheme.linkInput.placeholderTextColor
-        }
+        placeholderTextColor={theme.toolbar.linkBarTheme.placeholderTextColor}
         autoFocus
         style={theme.toolbar.linkBarTheme.linkInput}
         autoCapitalize="none"

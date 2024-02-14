@@ -4,7 +4,9 @@ export const defaultToolbarTheme: ToolbarTheme = {
   toolbarBody: {
     flex: 1,
     borderTopWidth: 0.5,
+    borderBottomWidth: 0.5,
     borderTopColor: '#DEE0E3',
+    borderBottomColor: '#DEE0E3',
     backgroundColor: 'white',
     minWidth: '100%',
     height: 44,
@@ -46,8 +48,10 @@ export const defaultToolbarTheme: ToolbarTheme = {
       flex: 1,
       flexDirection: 'row',
       height: 44,
-      borderTopWidth: 1,
+      borderTopWidth: 0.5,
+      borderBottomWidth: 0.5,
       borderTopColor: '#e0e0e0',
+      borderBottomColor: '#e0e0e0',
       backgroundColor: 'white',
       padding: 4,
       paddingHorizontal: 8,
@@ -80,6 +84,7 @@ export const defaultToolbarTheme: ToolbarTheme = {
 export const darkToolbarTheme: Partial<ToolbarTheme> = {
   toolbarBody: {
     borderTopColor: '#C6C6C6',
+    borderBottomColor: '#C6C6C6',
     backgroundColor: '#474747',
   },
   toolbarButton: {
@@ -101,12 +106,13 @@ export const darkToolbarTheme: Partial<ToolbarTheme> = {
     addLinkContainer: {
       backgroundColor: '#474747',
       borderTopColor: '#939394',
+      borderBottomColor: '#939394',
     },
     linkInput: {
       backgroundColor: '#474747',
       color: 'white',
-      placeholderTextColor: '#B2B2B8',
     },
+    placeholderTextColor: '#B2B2B8',
     doneButton: {
       backgroundColor: '#0085FF',
     },

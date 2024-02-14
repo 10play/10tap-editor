@@ -26,9 +26,8 @@ export type ToolbarTheme = {
 
 export type LinkBarTheme = {
   addLinkContainer: StyleProp<ViewStyle>;
-  linkInput: StyleProp<TextStyle> & {
-    placeholderTextColor?: ColorValue;
-  };
+  linkInput: StyleProp<TextStyle>;
+  placeholderTextColor?: ColorValue;
   doneButton: StyleProp<ViewStyle>;
   doneButtonText: StyleProp<TextStyle>;
   linkToolbarButton: StyleProp<ViewStyle>;
