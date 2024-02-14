@@ -33,6 +33,24 @@ export interface ToolbarItem {
 export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
   {
     onPress:
+      ({ editor }) =>
+      () =>
+        editor.toggleBold(),
+    active: ({ editorState }) => editorState.isBoldActive,
+    disabled: ({ editorState }) => !editorState.canToggleBold,
+    image: () => Images.bold,
+  },
+  {
+    onPress:
+      ({ editor }) =>
+      () =>
+        editor.toggleItalic(),
+    active: ({ editorState }) => editorState.isItalicActive,
+    disabled: ({ editorState }) => !editorState.canToggleItalic,
+    image: () => Images.italic,
+  },
+  {
+    onPress:
       ({ setToolbarContext, editorState, editor }) =>
       () => {
         if (Platform.OS === 'android') {
@@ -55,10 +73,19 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     onPress:
       ({ editor }) =>
       () =>
-        editor.toggleBlockquote(),
-    active: ({ editorState }) => editorState.isBlockquoteActive,
-    disabled: ({ editorState }) => !editorState.canToggleBlockquote,
-    image: () => Images.quote,
+        editor.toggleTaskList(),
+    active: ({ editorState }) => editorState.isTaskListActive,
+    disabled: ({ editorState }) => !editorState.canToggleTaskList,
+    image: () => Images.checkList,
+  },
+  {
+    onPress:
+      ({ setToolbarContext }) =>
+      () =>
+        setToolbarContext(ToolbarContext.Heading),
+    active: () => false,
+    disabled: ({ editorState }) => !editorState.canToggleHeading,
+    image: () => Images.Aa,
   },
   {
     onPress:
@@ -68,33 +95,6 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     active: ({ editorState }) => editorState.isCodeActive,
     disabled: ({ editorState }) => !editorState.canToggleCode,
     image: () => Images.code,
-  },
-  {
-    onPress:
-      ({ editor }) =>
-      () =>
-        editor.toggleBold(),
-    active: ({ editorState }) => editorState.isBoldActive,
-    disabled: ({ editorState }) => !editorState.canToggleBold,
-    image: () => Images.bold,
-  },
-  {
-    onPress:
-      ({ editor }) =>
-      () =>
-        editor.toggleItalic(),
-    active: ({ editorState }) => editorState.isItalicActive,
-    disabled: ({ editorState }) => !editorState.canToggleItalic,
-    image: () => Images.italic,
-  },
-  {
-    onPress:
-      ({ editor }) =>
-      () =>
-        editor.toggleTaskList(),
-    active: ({ editorState }) => editorState.isTaskListActive,
-    disabled: ({ editorState }) => !editorState.canToggleTaskList,
-    image: () => Images.checkList,
   },
   {
     onPress:
@@ -116,12 +116,12 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
   },
   {
     onPress:
-      ({ setToolbarContext }) =>
+      ({ editor }) =>
       () =>
-        setToolbarContext(ToolbarContext.Heading),
-    active: () => false,
-    disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.Aa,
+        editor.toggleBlockquote(),
+    active: ({ editorState }) => editorState.isBlockquoteActive,
+    disabled: ({ editorState }) => !editorState.canToggleBlockquote,
+    image: () => Images.quote,
   },
   {
     onPress:

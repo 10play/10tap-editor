@@ -7,7 +7,7 @@ import {
   Text,
   Image,
 } from 'react-native';
-import { IMAGE_DIM, toolbarStyles } from './Toolbar';
+import { toolbarStyles } from './Toolbar';
 import { Images } from '../../assets';
 
 const linkBarStyles = StyleSheet.create({
@@ -67,7 +67,7 @@ export const EditLinkBar = ({
         <View style={[toolbarStyles.iconWrapper, toolbarStyles.active]}>
           <Image
             source={Images.link}
-            style={[IMAGE_DIM]}
+            style={[toolbarStyles.icon]}
             resizeMode="contain"
           />
         </View>
@@ -79,6 +79,7 @@ export const EditLinkBar = ({
         placeholder="Type your URL here..."
         autoFocus
         style={linkBarStyles.linkInput}
+        autoCapitalize="none"
       />
       <TouchableOpacity
         style={linkBarStyles.doneButton}

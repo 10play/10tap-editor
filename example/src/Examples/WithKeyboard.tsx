@@ -17,22 +17,38 @@ import {
   useKeyboard,
   type EditorBridge,
   useBridgeState,
+  TenTapStartKit,
+  CoreBridge,
 } from '@10play/tentap-editor';
 import { Images } from '../../../src/assets';
+import { customFont } from './font';
 
 export const WithKeyboard = ({}: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditorBridge({
     autofocus: true,
     avoidIosKeyboard: true,
     initialContent,
+    DEV: true,
+    bridgeExtensions: [
+      CoreBridge.configureCSS(`
+      ${customFont}
+      * {
+          font-family: 'Protest Riot', sans-serif;
+      }
+    `),
+      ...TenTapStartKit,
+    ],
   });
 
   const rootRef = useRef(null);
   const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
 
   return (
-    <SafeAreaView style={exampleStyles.fullScreen} ref={rootRef}>
-      <View style={exampleStyles.fullScreen}>
+    <SafeAreaView
+      style={{ ...exampleStyles.fullScreen, backgroundColor: 'white' }}
+      ref={rootRef}
+    >
+      <View style={{ ...exampleStyles.fullScreen, paddingHorizontal: 12 }}>
         <RichText editor={editor} />
       </View>
       <KeyboardAvoidingView

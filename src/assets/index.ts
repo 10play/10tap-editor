@@ -21,5 +21,6 @@ export const Images = {
   code: require('./code.png'),
   quote: require('./quote.png'),
   Aa: require('./Aa.png'),
+  a: require('./a.png'),
   close: require('./close.png'),
 };
