@@ -31,6 +31,7 @@ type CreateTenTapBridgeArgs<T = any, E = any, M = any> = Omit<
   | 'configureExtension'
   | 'configureTiptapExtensionsOnRunTime'
   | 'configureCSS'
+  | 'clone'
 >;
 
 class BridgeExtension<T = any, E = any, M = any> {
@@ -43,6 +44,7 @@ class BridgeExtension<T = any, E = any, M = any> {
     extendEditorState,
     extendEditorInstance,
     extendCSS,
+    config,
   }: CreateTenTapBridgeArgs<T, E, M>) {
     if (!tiptapExtension) {
       this.name = forceName || 'BridgeExtension';
@@ -59,16 +61,30 @@ class BridgeExtension<T = any, E = any, M = any> {
     this.extendEditorState = extendEditorState;
     this.extendEditorInstance = extendEditorInstance;
     this.extendCSS = extendCSS;
+    this.config = config;
   }
 
+  // we can use clone, so that extension's can be configures without modifying
+  // the values for each extension
+  clone(): BridgeExtension<T, E, M> {
+    return new BridgeExtension<T, E, M>({
+      ...this,
+    });
+  }
+
+  // runs on native
   configureExtension(config: any) {
-    this.config = config;
-    return this;
+    const cloned = this.clone();
+    cloned.config = config;
+    return cloned;
   }
   configureCSS(css: string) {
-    this.extendCSS = css;
-    return this;
+    const cloned = this.clone();
+    cloned.extendCSS = css;
+    return cloned;
   }
+
+  // runs on web
   configureTiptapExtensionsOnRunTime(config: any) {
     this.tiptapExtension = this.tiptapExtension?.configure(config);
     return [this.tiptapExtension, ...(this.tiptapExtensionDeps || [])];

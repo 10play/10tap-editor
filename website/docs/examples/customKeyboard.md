@@ -77,6 +77,8 @@ export const CustomKeyboardExample = ({}: NativeStackScreenProps<
     autofocus: true,
     DEV: true,
     bridgeExtensions: [
+      // It is important to spread StarterKit BEFORE our extended plugin,
+      // as plugin duplicated will be ignored
       ...TenTapStartKit,
       ImageBridge.configureExtension({
         inline: true,
@@ -280,6 +282,8 @@ export const CustomKeyboardExample = ({}: NativeStackScreenProps<
     autofocus: true,
     DEV: true,
     bridgeExtensions: [
+      // It is important to spread StarterKit BEFORE our extended plugin,
+      // as plugin duplicated will be ignored
       ...TenTapStartKit,
       ImageBridge.configureExtension({
         inline: true,

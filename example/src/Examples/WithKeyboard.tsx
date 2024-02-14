@@ -30,13 +30,13 @@ export const WithKeyboard = ({}: NativeStackScreenProps<any, any, any>) => {
     initialContent,
     DEV: true,
     bridgeExtensions: [
+      ...TenTapStartKit,
       CoreBridge.configureCSS(`
       ${customFont}
       * {
           font-family: 'Protest Riot', sans-serif;
       }
     `),
-      ...TenTapStartKit,
     ],
   });
 
