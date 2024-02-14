@@ -1,3 +1,4 @@
+// Unique by, last wins
 export function uniqueBy<T, K extends keyof T>(
   items: T[],
   keyOrFn: K | ((item: T) => any)
@@ -7,9 +8,7 @@ export function uniqueBy<T, K extends keyof T>(
   const seen = new Map<any, T>();
   items.forEach((item) => {
     const key = keyFn(item);
-    if (!seen.has(key)) {
-      seen.set(key, item);
-    }
+    seen.set(key, item);
   });
   return Array.from(seen.values());
 }

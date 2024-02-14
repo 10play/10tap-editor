@@ -37,7 +37,7 @@ const Counter = ({ editor }: { editor: EditorBridge }) => {
 export const Advanced = ({}: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditorBridge({
     customSource: editorHtml,
-    bridgeExtensions: [CounterBridge, ...TenTapStartKit],
+    bridgeExtensions: [...TenTapStartKit, CounterBridge],
     autofocus: true,
     avoidIosKeyboard: true,
     initialContent: `<p>This is a basic example of implementing images.</p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p>s sdfdsf fd dsfd ssdfd dsfdsfdsfdsfd</p>`,

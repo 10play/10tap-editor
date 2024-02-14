@@ -29,7 +29,7 @@ export const useEditorBridge = (options?: {
 
   const bridgeExtensions = useMemo(() => {
     const extensions = options?.bridgeExtensions || TenTapStartKit;
-    // Filter out duplicates
+    // Filter out duplicates - the last one wins
     return uniqueBy(extensions, 'name');
   }, [options?.bridgeExtensions]);
 

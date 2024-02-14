@@ -44,9 +44,9 @@ export const CustomCss = ({}: NativeStackScreenProps<any, any, any>) => {
     avoidIosKeyboard: true,
     initialContent,
     bridgeExtensions: [
+      ...TenTapStartKit,
       CoreBridge.configureCSS(customFont), // Custom font
       CodeBridge.configureCSS(customCodeBlockCSS), // Custom codeblock css
-      ...TenTapStartKit,
     ],
   });
 
