@@ -19,6 +19,7 @@ import {
   useBridgeState,
   TenTapStartKit,
   CoreBridge,
+  darkEditorTheme,
 } from '@10play/tentap-editor';
 import { Images } from '../../../src/assets';
 import { customFont } from './font';
@@ -28,7 +29,6 @@ export const WithKeyboard = ({}: NativeStackScreenProps<any, any, any>) => {
     autofocus: true,
     avoidIosKeyboard: true,
     initialContent,
-    DEV: true,
     bridgeExtensions: [
       ...TenTapStartKit,
       CoreBridge.configureCSS(`
@@ -38,6 +38,7 @@ export const WithKeyboard = ({}: NativeStackScreenProps<any, any, any>) => {
       }
     `),
     ],
+    theme: darkEditorTheme,
   });
 
   const rootRef = useRef(null);

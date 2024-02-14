@@ -8,6 +8,7 @@ import type {
 
 export interface EditorTheme {
   toolbar: ToolbarTheme;
+  colorKeyboard: ColorKeyboardTheme;
 }
 
 export type ToolbarTheme = {
@@ -31,4 +32,24 @@ export type LinkBarTheme = {
   doneButton: StyleProp<ViewStyle>;
   doneButtonText: StyleProp<TextStyle>;
   linkToolbarButton: StyleProp<ViewStyle>;
+};
+
+export interface Color {
+  value?: ColorValue;
+  name: string;
+}
+export type ColorKeyboardTheme = {
+  scrollViewContainer: StyleProp<ViewStyle>;
+  keyboardContainer: StyleProp<ViewStyle>;
+  colorRow: StyleProp<ViewStyle>;
+  colorButton: StyleProp<ViewStyle>;
+  activeButton: StyleProp<ViewStyle>;
+  iconContainer: StyleProp<ViewStyle>;
+  textIcon: StyleProp<ImageStyle>;
+  highlight: StyleProp<ViewStyle>;
+  colorText: StyleProp<TextStyle>;
+  sectionTitle: StyleProp<TextStyle>;
+  bottomSpacer: StyleProp<ViewStyle>;
+  colorSelection: Color[];
+  highlightSelection: Color[];
 };

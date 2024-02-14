@@ -1,10 +1,9 @@
 import type { RefObject } from 'react';
 import type WebView from 'react-native-webview';
 import type BridgeExtension from '../bridges/base';
+import type { Subscription } from './Subscription';
 
 export interface BridgeState {}
-
-type Subscription<T> = (cb: (val: T) => void) => () => void;
 
 export interface EditorBridge {
   avoidIosKeyboard?: boolean;

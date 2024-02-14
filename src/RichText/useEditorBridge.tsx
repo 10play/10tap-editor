@@ -11,9 +11,9 @@ import type { EditorBridge, EditorTheme } from '../types';
 import type BridgeExtension from '../bridges/base';
 import { TenTapStartKit } from '../bridges/StarterKit';
 import { uniqueBy } from '../utils';
-import { defaultTheme } from './theme';
+import { defaultEditorTheme } from './theme';
+import type { Subscription } from '../types/Subscription';
 
-type Subscription<T> = (cb: (val: T) => void) => () => void;
 type RecursivePartial<T> = {
   [P in keyof T]?: RecursivePartial<T[P]>;
 };
@@ -40,10 +40,9 @@ export const useEditorBridge = (options?: {
   }, [options?.bridgeExtensions]);
 
   const mergedTheme = useMemo(
-    () => merge(defaultTheme, options?.theme),
+    () => merge(defaultEditorTheme, options?.theme),
     [options?.theme]
   );
-
   const _updateEditorState = (editorState: BridgeState) => {
     editorStateRef.current = editorState;
     editorStateSubsRef.current.forEach((sub) => sub(editorState));
