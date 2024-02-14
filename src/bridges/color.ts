@@ -8,6 +8,7 @@ type ColorEditorState = {
 
 type ColorEditorInstance = {
   setColor: (color: string) => void;
+  unsetColor: () => void;
 };
 
 declare module '../types/EditorBridge' {
@@ -17,12 +18,18 @@ declare module '../types/EditorBridge' {
 
 export enum ColorEditorActionType {
   SetColor = 'set-color',
+  UnsetColor = 'unset-color',
 }
-
-type ColorMessage = {
+type SetColorMessage = {
   type: ColorEditorActionType.SetColor;
-  payload: string | undefined;
+  payload: string;
 };
+type UnsetColorMessage = {
+  type: ColorEditorActionType.UnsetColor;
+  payload: undefined;
+};
+
+type ColorMessage = SetColorMessage | UnsetColorMessage;
 
 export const ColorBridge = new BridgeExtension<
   ColorEditorState,
@@ -32,14 +39,14 @@ export const ColorBridge = new BridgeExtension<
   tiptapExtension: Color,
   tiptapExtensionDeps: [TextStyle],
   onBridgeMessage: (editor, { type, payload }) => {
-    if (type === ColorEditorActionType.SetColor) {
-      editor
-        .chain()
-        .focus()
-        .setColor(payload || '')
-        .run();
+    switch (type) {
+      case ColorEditorActionType.SetColor:
+        editor.chain().focus().setColor(payload).run();
+        break;
+      case ColorEditorActionType.UnsetColor:
+        editor.chain().focus().unsetColor().run();
+        break;
     }
-
     return false;
   },
   extendEditorInstance: (sendBridgeMessage) => {
@@ -48,6 +55,11 @@ export const ColorBridge = new BridgeExtension<
         sendBridgeMessage({
           type: ColorEditorActionType.SetColor,
           payload: color,
+        }),
+      unsetColor: () =>
+        sendBridgeMessage({
+          type: ColorEditorActionType.UnsetColor,
+          payload: undefined,
         }),
     };
   },
