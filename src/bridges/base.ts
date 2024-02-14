@@ -66,12 +66,9 @@ class BridgeExtension<T = any, E = any, M = any> {
 
   // we can use clone, so that extension's can be configures without modifying
   // the values for each extension
-  clone(
-    args?: Partial<CreateTenTapBridgeArgs<T, E, M>>
-  ): BridgeExtension<T, E, M> {
+  clone(): BridgeExtension<T, E, M> {
     return new BridgeExtension<T, E, M>({
       ...this,
-      ...args,
     });
   }
 
