@@ -23,11 +23,12 @@ import {
 } from '@10play/tentap-editor';
 import { Images } from '../../../src/assets';
 
-const BACKGROUND_COLOR = '#1C1C1E';
+const EDITOR_BACKGROUND_COLOR = '#1C1C1E';
 const DEFAULT_TEXT_COLOR = 'white';
+const KEYBOARD_BACKGROUND_COLOR = '#313132';
 const darkEditorCss = `
   * {
-    background-color: ${BACKGROUND_COLOR};
+    background-color: ${EDITOR_BACKGROUND_COLOR};
     color: ${DEFAULT_TEXT_COLOR};
   }
 `;
@@ -49,19 +50,22 @@ export const DarkEditor = ({}: NativeStackScreenProps<any, any, any>) => {
 
   return (
     <SafeAreaView
-      style={{ ...exampleStyles.fullScreen, backgroundColor: BACKGROUND_COLOR }}
+      style={{
+        ...exampleStyles.fullScreen,
+        backgroundColor: EDITOR_BACKGROUND_COLOR,
+      }}
       ref={rootRef}
     >
       <View
         style={{
           ...exampleStyles.fullScreen,
           paddingHorizontal: 12,
-          backgroundColor: BACKGROUND_COLOR,
+          backgroundColor: EDITOR_BACKGROUND_COLOR,
         }}
       >
         <RichText
           editor={editor}
-          style={{ backgroundColor: BACKGROUND_COLOR }}
+          style={{ backgroundColor: EDITOR_BACKGROUND_COLOR }}
         />
       </View>
       <KeyboardAvoidingView
@@ -74,11 +78,12 @@ export const DarkEditor = ({}: NativeStackScreenProps<any, any, any>) => {
           setActiveKeyboard={setActiveKeyboard}
         />
         <CustomKeyboard
+          editor={editor}
           rootRef={rootRef}
+          keyboards={[ColorKeyboard]}
           activeKeyboardID={activeKeyboard}
           setActiveKeyboardID={setActiveKeyboard}
-          keyboards={[ColorKeyboard]}
-          editor={editor}
+          rootBackground={KEYBOARD_BACKGROUND_COLOR} // <--- Give the keyboard root view a color
         />
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -138,4 +143,4 @@ const exampleStyles = StyleSheet.create({
   },
 });
 
-const initialContent = `<p>DARK EDITOR</p>`;
+const initialContent = `<p>darl</p>`;
