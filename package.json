@@ -52,6 +52,11 @@
     "release": "release-it"
   },
   "keywords": [
+    "rich text",
+    "rich text editor",
+    "editor",
+    "tiptap react-native",
+    "prosemirror react-native",
     "react-native",
     "ios",
     "android"
