@@ -25,7 +25,6 @@ import { Images } from '../../../src/assets';
 
 const EDITOR_BACKGROUND_COLOR = '#1C1C1E';
 const DEFAULT_TEXT_COLOR = 'white';
-const KEYBOARD_BACKGROUND_COLOR = '#313132';
 const darkEditorCss = `
   * {
     background-color: ${EDITOR_BACKGROUND_COLOR};
@@ -63,10 +62,7 @@ export const DarkEditor = ({}: NativeStackScreenProps<any, any, any>) => {
           backgroundColor: EDITOR_BACKGROUND_COLOR,
         }}
       >
-        <RichText
-          editor={editor}
-          style={{ backgroundColor: EDITOR_BACKGROUND_COLOR }}
-        />
+        <RichText editor={editor} />
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -83,7 +79,6 @@ export const DarkEditor = ({}: NativeStackScreenProps<any, any, any>) => {
           keyboards={[ColorKeyboard]}
           activeKeyboardID={activeKeyboard}
           setActiveKeyboardID={setActiveKeyboard}
-          rootBackground={KEYBOARD_BACKGROUND_COLOR} // <--- Give the keyboard root view a color
         />
       </KeyboardAvoidingView>
     </SafeAreaView>

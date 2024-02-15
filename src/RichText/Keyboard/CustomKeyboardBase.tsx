@@ -42,7 +42,9 @@ export const CustomKeyboard = ({
       <CustomKeyboardIOS
         rootRef={rootRef}
         customKeyboard={customKeyboard}
-        rootBackground={rootBackground}
+        rootBackground={
+          rootBackground || editor.theme.colorKeyboard.keyboardRootColor
+        }
       />
     );
   }

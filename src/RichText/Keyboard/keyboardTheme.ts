@@ -1,6 +1,7 @@
 import type { ColorKeyboardTheme } from '../../types';
 
 export const defaultColorKeyboardTheme: ColorKeyboardTheme = {
+  keyboardRootColor: '#F5F5F5',
   scrollViewContainer: {
     flex: 1,
     width: '100%',
@@ -150,6 +151,7 @@ export const defaultColorKeyboardTheme: ColorKeyboardTheme = {
 };
 
 export const darkColorKeyboardTheme: Partial<ColorKeyboardTheme> = {
+  keyboardRootColor: '#313132',
   scrollViewContainer: {
     backgroundColor: '#313132',
   },

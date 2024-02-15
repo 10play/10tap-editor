@@ -122,7 +122,9 @@ export const RichText = ({ editor, ...props }: RichTextProps) => {
         style={[
           RichTextStyles.fullScreen,
           { display: loaded ? 'flex' : 'none' },
+          editor.theme.richText.style,
         ]}
+        containerStyle={editor.theme.richText.containerStyle}
         source={source}
         injectedJavaScript={getInjectedJS()}
         injectedJavaScriptBeforeContentLoaded={`${

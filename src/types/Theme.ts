@@ -9,6 +9,7 @@ import type {
 export interface EditorTheme {
   toolbar: ToolbarTheme;
   colorKeyboard: ColorKeyboardTheme;
+  richText: RichTextTheme;
 }
 
 export type ToolbarTheme = {
@@ -54,4 +55,10 @@ export type ColorKeyboardTheme = {
   highlightSelection: Color[];
   defaultTextColor: ColorValue;
   defaultHighlightColor: ColorValue;
+  keyboardRootColor: ColorValue;
+};
+
+export type RichTextTheme = {
+  style: StyleProp<ViewStyle>;
+  containerStyle: StyleProp<ViewStyle>;
 };

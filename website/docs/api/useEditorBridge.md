@@ -30,6 +30,12 @@ when true the editor will auto focus
 <u>default</u>: `false`<br />
 On iOS help to handle follow cursor when the editor is fullpage and the iOS keyboard hide the bottom part
 
+#### theme
+
+`EditorTheme`
+<u>default</u>: `defaultEditorTheme` (light theme)<br />
+this prop can be used to customize the libs components see the [theme example](../examples/customTheme.md)
+
 #### customSource
 
 `string`  
