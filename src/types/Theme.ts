@@ -52,4 +52,6 @@ export type ColorKeyboardTheme = {
   bottomSpacer: StyleProp<ViewStyle>;
   colorSelection: Color[];
   highlightSelection: Color[];
+  defaultTextColor: ColorValue;
+  defaultHighlightColor: ColorValue;
 };

@@ -19,25 +19,29 @@ import {
   useBridgeState,
   TenTapStartKit,
   CoreBridge,
+  darkEditorTheme,
 } from '@10play/tentap-editor';
 import { Images } from '../../../src/assets';
-import { customFont } from './font';
 
-export const WithKeyboard = ({}: NativeStackScreenProps<any, any, any>) => {
+const BACKGROUND_COLOR = '#1C1C1E';
+const DEFAULT_TEXT_COLOR = 'white';
+const darkEditorCss = `
+  * {
+    background-color: ${BACKGROUND_COLOR};
+    color: ${DEFAULT_TEXT_COLOR};
+  }
+`;
+
+export const DarkEditor = ({}: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditorBridge({
     autofocus: true,
     avoidIosKeyboard: true,
     initialContent,
     bridgeExtensions: [
       ...TenTapStartKit,
-      CoreBridge.configureCSS(`
-      ${customFont}
-      * {
-          font-family: 'Protest Riot', sans-serif;
-      }
-
-    `),
+      CoreBridge.configureCSS(darkEditorCss),
     ],
+    theme: darkEditorTheme,
   });
 
   const rootRef = useRef(null);
@@ -45,11 +49,20 @@ export const WithKeyboard = ({}: NativeStackScreenProps<any, any, any>) => {
 
   return (
     <SafeAreaView
-      style={{ ...exampleStyles.fullScreen, backgroundColor: 'white' }}
+      style={{ ...exampleStyles.fullScreen, backgroundColor: BACKGROUND_COLOR }}
       ref={rootRef}
     >
-      <View style={{ ...exampleStyles.fullScreen, paddingHorizontal: 12 }}>
-        <RichText editor={editor} />
+      <View
+        style={{
+          ...exampleStyles.fullScreen,
+          paddingHorizontal: 12,
+          backgroundColor: BACKGROUND_COLOR,
+        }}
+      >
+        <RichText
+          editor={editor}
+          style={{ backgroundColor: BACKGROUND_COLOR }}
+        />
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -125,4 +138,4 @@ const exampleStyles = StyleSheet.create({
   },
 });
 
-const initialContent = `<p>This is a basic <a href="https://google.com">example</a> of using ColorKeyboard </p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p></p>`;
+const initialContent = `<p>DARK EDITOR</p>`;

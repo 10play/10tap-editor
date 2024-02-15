@@ -69,6 +69,7 @@ export const defaultColorKeyboardTheme: ColorKeyboardTheme = {
   bottomSpacer: {
     height: 30,
   },
+  defaultTextColor: '#898989',
   colorSelection: [
     {
       name: 'Default',
@@ -107,6 +108,7 @@ export const defaultColorKeyboardTheme: ColorKeyboardTheme = {
       value: '#000000',
     },
   ],
+  defaultHighlightColor: '#8989894D',
   highlightSelection: [
     {
       name: 'Default',
@@ -168,6 +170,7 @@ export const darkColorKeyboardTheme: Partial<ColorKeyboardTheme> = {
   sectionTitle: {
     color: '#CACACA',
   },
+  defaultTextColor: 'white',
   colorSelection: [
     {
       name: 'Default',
@@ -206,6 +209,7 @@ export const darkColorKeyboardTheme: Partial<ColorKeyboardTheme> = {
       value: '#000000',
     },
   ],
+  defaultHighlightColor: '#E5E5E580',
   highlightSelection: [
     {
       name: 'Default',

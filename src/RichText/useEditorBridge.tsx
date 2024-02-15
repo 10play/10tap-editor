@@ -1,5 +1,6 @@
 import { useMemo, useRef } from 'react';
 import WebView from 'react-native-webview';
+import cloneDeep from 'lodash/cloneDeep';
 import merge from 'lodash/merge';
 import {
   type EditorActionMessage,
@@ -40,7 +41,8 @@ export const useEditorBridge = (options?: {
   }, [options?.bridgeExtensions]);
 
   const mergedTheme = useMemo(
-    () => merge(defaultEditorTheme, options?.theme),
+    // We must deep clone defaultEditorTheme, because it is read only
+    () => merge(cloneDeep(defaultEditorTheme), options?.theme),
     [options?.theme]
   );
   const _updateEditorState = (editorState: BridgeState) => {

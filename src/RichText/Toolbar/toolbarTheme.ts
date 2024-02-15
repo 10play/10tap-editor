@@ -83,8 +83,8 @@ export const defaultToolbarTheme: ToolbarTheme = {
 
 export const darkToolbarTheme: Partial<ToolbarTheme> = {
   toolbarBody: {
-    borderTopColor: '#C6C6C6',
-    borderBottomColor: '#C6C6C6',
+    borderTopColor: '#C6C6C6B3',
+    borderBottomColor: '#C6C6C6B3',
     backgroundColor: '#474747',
   },
   toolbarButton: {

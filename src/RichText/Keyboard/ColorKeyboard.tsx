@@ -12,9 +12,6 @@ import { CustomKeyboardExtension } from './CustomKeyboardExtension';
 import { Images } from '../../assets';
 import type { Color, EditorTheme } from '../../types';
 
-const DEFAULT_COLOR = '#898989';
-const DEFAULT_HIGHLIGHT = '#8989894D';
-
 const ColorKeyboardComp = () => {
   const editor = useRemoteEditorBridge();
   const activeColor = editor?.getEditorState().activeColor;
@@ -136,7 +133,7 @@ const ColorButton = ({
           source={Images.a}
           style={[
             theme?.colorKeyboard.textIcon,
-            { tintColor: color.value || DEFAULT_COLOR },
+            { tintColor: color.value || theme?.colorKeyboard.defaultTextColor },
           ]}
           resizeMode="contain"
         />
@@ -147,7 +144,10 @@ const ColorButton = ({
         <View
           style={[
             theme?.colorKeyboard.highlight,
-            { backgroundColor: color.value || DEFAULT_HIGHLIGHT },
+            {
+              backgroundColor:
+                color.value || theme?.colorKeyboard.defaultHighlightColor,
+            },
           ]}
         />
       </View>

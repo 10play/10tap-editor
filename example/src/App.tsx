@@ -14,6 +14,7 @@ import { WithKeyboard } from './Examples/WithKeyboard';
 import { CustomCss } from './Examples/CustomCss';
 import { ConfigureExtensions } from './Examples/ConfigureExtentions';
 import { NavigationHeader } from './Examples/NavigationHeader';
+import { DarkEditor } from './Examples/DarkEditor';
 
 const examples = [
   {
@@ -35,6 +36,10 @@ const examples = [
   {
     name: 'CustomKeyboard',
     component: CustomKeyboardExample,
+  },
+  {
+    name: 'Dark Editor',
+    component: DarkEditor,
   },
   {
     name: 'EditorStickToKeyboardExample',
