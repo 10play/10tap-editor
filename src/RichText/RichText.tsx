@@ -54,7 +54,10 @@ export const RichText = ({ editor, ...props }: RichTextProps) => {
   const { keyboardHeight: iosKeyboardHeight, isKeyboardUp } = useKeyboard();
   const source: WebViewProps['source'] = editor.DEV
     ? { uri: editor.DEV_SERVER_URL || DEV_SERVER_URL }
-    : { html: editor.customSource || editorHtml, uri: editor.webviewBaseURL };
+    : {
+        html: editor.customSource || editorHtml,
+        baseUrl: editor.webviewBaseURL,
+      };
 
   const onWebviewMessage = (event: WebViewMessageEvent) => {
     const { data } = event.nativeEvent;
