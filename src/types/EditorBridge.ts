@@ -17,5 +17,7 @@ export interface EditorBridge {
   getEditorState: () => BridgeState;
   _updateEditorState: (state: BridgeState) => void;
   _subscribeToEditorStateUpdate: Subscription<BridgeState>;
+  _onContentUpdate: () => void;
+  _subscribeToContentUpdate: Subscription<void>;
   bridgeExtensions?: BridgeExtension<unknown, unknown, unknown>[];
 }
