@@ -11,6 +11,7 @@ const sidebars: SidebarsConfig = {
       'api/RichText',
       'api/CustomKeyboardUtils',
       'api/BridgeExtensions',
+      'api/useEditorContent',
     ],
     Examples: [
       'examples/basic',
@@ -20,6 +21,7 @@ const sidebars: SidebarsConfig = {
       'examples/navHeader',
       'examples/customKeyboard',
       'examples/customTheme',
+      'examples/autoSave',
     ],
   },
 };
