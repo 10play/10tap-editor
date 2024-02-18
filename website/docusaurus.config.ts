@@ -52,10 +52,10 @@ const config: Config = {
     // Replace with your project's social card
     image: 'img/docusaurus-social-card.jpg',
     navbar: {
-      title: 'tentap',
+      title: '10tap',
       logo: {
         alt: 'tentap Logo',
-        src: 'img/logo.svg',
+        src: 'img/10tap.png',
       },
       items: [
         {
