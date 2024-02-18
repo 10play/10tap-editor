@@ -9,12 +9,12 @@ TenTap is a typed, easy to use, customizable, and extendable Rich Text editor fo
 # Features
 
 - 💁 Based on tiptap
-- ➕ Exstanabily
+- ➕ Extendable
 - 🎹 Custom keyboards
 - ⚙️ Support dynamic scheme
 - 🛠️ Native toolbar
 - 💅 Customizable styles
-- 🌒 Pre-made darkmode theme
+- 🌒 Darkmode and custom theme support
 
 ## Why?
 
