@@ -36,6 +36,11 @@ The active custom keyboard id
 `EditorBridge`
 Needed so when you close custom keyboard we can focus the editor again
 
+#### rootBackground - `IOS ONLY`
+
+The background of the RCTRootView used to render the custom keyboard
+This is helpful when you are using a custom theme
+
 ### CustomKeyboardExtension
 
 A js class that will register new app with the customkeyboard id - it's important to understand that it will be a septate app so state management and other will not work on the custom component as you expected,
