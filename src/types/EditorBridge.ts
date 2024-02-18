@@ -8,6 +8,7 @@ export interface BridgeState {}
 export interface EditorBridge {
   avoidIosKeyboard?: boolean;
   customSource?: string;
+  webviewBaseURL?: string;
   DEV?: boolean;
   DEV_SERVER_URL?: string;
   autofocus: boolean;

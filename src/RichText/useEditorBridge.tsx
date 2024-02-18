@@ -25,6 +25,7 @@ export const useEditorBridge = (options?: {
   autofocus?: boolean;
   avoidIosKeyboard?: boolean;
   customSource?: string;
+  webviewBaseURL?: string;
   DEV?: boolean;
   DEV_SERVER_URL?: string;
   theme?: RecursivePartial<EditorTheme>;
@@ -82,6 +83,7 @@ export const useEditorBridge = (options?: {
     autofocus: options?.autofocus,
     avoidIosKeyboard: options?.avoidIosKeyboard,
     customSource: options?.customSource,
+    webviewBaseURL: options?.webviewBaseURL,
     DEV_SERVER_URL: options?.DEV_SERVER_URL,
     DEV: options?.DEV,
     webviewRef,
