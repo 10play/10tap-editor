@@ -6,6 +6,7 @@ interface NativeProps extends ViewProps {
   keyboardHeight: Int32;
   keyboardID?: string;
   inputTag?: Int32;
+  rootBackground?: string;
 }
 
 export default codegenNativeComponent<NativeProps>('TenTapView');

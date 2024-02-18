@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { Platform } from 'react-native';
+import { Platform, type ColorValue } from 'react-native';
 import { CustomKeyboardAndroid } from './CustomKeyboard.android';
 import { CustomKeyboardIOS } from './CustomKeyboard.ios';
 import type { CustomKeyboardExtension } from './CustomKeyboardExtension';
@@ -11,6 +11,7 @@ interface CustomKeyboardProps {
   keyboards: CustomKeyboardExtension[];
   setActiveKeyboardID: (id: string | undefined) => void;
   activeKeyboardID?: string;
+  rootBackground?: ColorValue;
   editor: EditorBridge;
 }
 export const CustomKeyboard = ({
@@ -19,6 +20,7 @@ export const CustomKeyboard = ({
   setActiveKeyboardID,
   rootRef,
   editor,
+  rootBackground,
 }: CustomKeyboardProps) => {
   const editorState = useBridgeState(editor);
 
@@ -37,7 +39,13 @@ export const CustomKeyboard = ({
 
   if (Platform.OS === 'ios') {
     return (
-      <CustomKeyboardIOS rootRef={rootRef} customKeyboard={customKeyboard} />
+      <CustomKeyboardIOS
+        rootRef={rootRef}
+        customKeyboard={customKeyboard}
+        rootBackground={
+          rootBackground || editor.theme.colorKeyboard.keyboardRootColor
+        }
+      />
     );
   }
   return (

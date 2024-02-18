@@ -1,50 +1,10 @@
 import React from 'react';
-import {
-  View,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Text,
-  Image,
-} from 'react-native';
-import { toolbarStyles } from './Toolbar';
+import { View, TextInput, TouchableOpacity, Text, Image } from 'react-native';
 import { Images } from '../../assets';
-
-const linkBarStyles = StyleSheet.create({
-  addLinkContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    height: 44,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-    padding: 4,
-    paddingHorizontal: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  linkInput: {
-    paddingLeft: 12,
-    paddingTop: 1,
-    paddingBottom: 1,
-    paddingRight: 12,
-    flex: 1,
-  },
-  doneButton: {
-    backgroundColor: '#F5F5F5',
-    justifyContent: 'center',
-    height: 32,
-    padding: 8,
-    borderRadius: 4,
-  },
-  doneButtonText: {
-    color: '#0085FF',
-  },
-  linkToolbarButton: {
-    paddingHorizontal: 0,
-  },
-});
+import type { EditorTheme } from '../../types';
 
 interface EditLinkBarProps {
+  theme: EditorTheme;
   onBlur: () => void;
   onEditLink: (newLink: string) => void;
   onLinkIconClick: () => void;
@@ -52,6 +12,7 @@ interface EditLinkBarProps {
 }
 
 export const EditLinkBar = ({
+  theme,
   initialLink,
   onEditLink,
   onLinkIconClick,
@@ -59,15 +20,20 @@ export const EditLinkBar = ({
 }: EditLinkBarProps) => {
   const [link, setLink] = React.useState(initialLink || '');
   return (
-    <View style={linkBarStyles.addLinkContainer}>
+    <View style={theme.toolbar.linkBarTheme.addLinkContainer}>
       <TouchableOpacity
         onPress={onLinkIconClick}
-        style={[toolbarStyles.toolbarButton, linkBarStyles.linkToolbarButton]}
+        style={[
+          theme.toolbar.toolbarButton,
+          theme.toolbar.linkBarTheme.linkToolbarButton,
+        ]}
       >
-        <View style={[toolbarStyles.iconWrapper, toolbarStyles.active]}>
+        <View
+          style={[theme.toolbar.iconWrapper, theme.toolbar.iconWrapperActive]}
+        >
           <Image
             source={Images.link}
-            style={[toolbarStyles.icon]}
+            style={[theme.toolbar.icon]}
             resizeMode="contain"
           />
         </View>
@@ -77,17 +43,18 @@ export const EditLinkBar = ({
         onBlur={onBlur}
         onChangeText={setLink}
         placeholder="Type your URL here..."
+        placeholderTextColor={theme.toolbar.linkBarTheme.placeholderTextColor}
         autoFocus
-        style={linkBarStyles.linkInput}
+        style={theme.toolbar.linkBarTheme.linkInput}
         autoCapitalize="none"
       />
       <TouchableOpacity
-        style={linkBarStyles.doneButton}
+        style={theme.toolbar.linkBarTheme.doneButton}
         onPress={() => {
           onEditLink(link);
         }}
       >
-        <Text style={linkBarStyles.doneButtonText}>Insert</Text>
+        <Text style={theme.toolbar.linkBarTheme.doneButtonText}>Insert</Text>
       </TouchableOpacity>
     </View>
   );

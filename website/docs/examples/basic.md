@@ -64,7 +64,7 @@ import {
 } from 'react-native';
 import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
 
-export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
+export const Basic = () => {
   const editor = useEditorBridge({
     autofocus: true,
     avoidIosKeyboard: true,

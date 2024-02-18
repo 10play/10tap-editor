@@ -2,107 +2,21 @@ import React, { useMemo } from 'react';
 import {
   Image,
   ScrollView,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
   type ColorValue,
 } from 'react-native';
-import { EditorHelper } from '../EditorHelper';
+import { EditorHelper, useRemoteEditorBridge } from '../EditorHelper';
 import { CustomKeyboardExtension } from './CustomKeyboardExtension';
 import { Images } from '../../assets';
-
-const DEFAULT_COLOR = '#898989';
-const DEFAULT_HIGHLIGHT = '#89898926';
-
-interface Color {
-  value?: ColorValue;
-  name: string;
-}
-const textColors: Color[] = [
-  {
-    name: 'Default',
-    value: undefined,
-  },
-  {
-    name: 'Red',
-    value: '#EF233C',
-  },
-  {
-    name: 'Yellow',
-    value: '#FFEE32',
-  },
-  {
-    name: 'Orange',
-    value: '#FB8500',
-  },
-  {
-    name: 'Blue',
-    value: '#0085FF',
-  },
-  {
-    name: 'Green',
-    value: '#00A896',
-  },
-  {
-    name: 'Purple',
-    value: '#A463F2',
-  },
-  {
-    name: 'Pink',
-    value: '#FF5D8F',
-  },
-  {
-    name: 'Black',
-    value: '#000000',
-  },
-];
-
-const highlightColors: Color[] = [
-  {
-    name: 'Default',
-    value: undefined,
-  },
-  {
-    name: 'Red',
-    value: '#EF233C26',
-  },
-  {
-    name: 'Yellow',
-    value: '#FFEE3226',
-  },
-  {
-    name: 'Orange',
-    value: '#FB850026',
-  },
-  {
-    name: 'Blue',
-    value: '#0085FF26',
-  },
-  {
-    name: 'Green',
-    value: '#00A89626',
-  },
-  {
-    name: 'Purple',
-    value: '#A463F226',
-  },
-  {
-    name: 'Pink',
-    value: '#FF5D8F26',
-  },
-  {
-    name: 'Black',
-    value: '#00000026',
-  },
-];
+import type { Color, EditorTheme } from '../../types';
 
 const ColorKeyboardComp = () => {
-  const activeColor =
-    EditorHelper.editorLastInstance?.getEditorState().activeColor;
-  const activeHighlight =
-    EditorHelper.editorLastInstance?.getEditorState().activeHighlight;
-
+  const editor = useRemoteEditorBridge();
+  const activeColor = editor?.getEditorState().activeColor;
+  const activeHighlight = editor?.getEditorState().activeHighlight;
+  const theme = editor?.theme;
   const setColor = (color?: ColorValue) => {
     if (!EditorHelper.editorLastInstance) return;
     if (color) EditorHelper.editorLastInstance.setColor(color.toString());
@@ -117,31 +31,36 @@ const ColorKeyboardComp = () => {
     EditorHelper.editorLastInstance.focus();
   };
 
-  const groupedTextColors = useMemo(() => groupInChunks(textColors, 3), []);
+  const groupedTextColors = useMemo(
+    () => groupInChunks(theme?.colorKeyboard.colorSelection || [], 3),
+    [theme?.colorKeyboard.colorSelection]
+  );
   const groupedHighlightColors = useMemo(
-    () => groupInChunks(highlightColors, 3),
-    []
+    () => groupInChunks(theme?.colorKeyboard.highlightSelection || [], 3),
+    [theme?.colorKeyboard.highlightSelection]
   );
 
   return (
-    <ScrollView style={keyboardStyles.keyboardScrollView}>
-      <View style={keyboardStyles.container}>
-        <Text style={keyboardStyles.sectionTitle}>Color</Text>
+    <ScrollView style={theme?.colorKeyboard.scrollViewContainer}>
+      <View style={theme?.colorKeyboard.keyboardContainer}>
+        <Text style={theme?.colorKeyboard.sectionTitle}>Color</Text>
         {groupedTextColors.map((colorRow) => {
           return (
             <ColorRow
+              theme={theme}
               colors={colorRow}
               onPress={setColor}
               activeColor={activeColor}
-              icon
               key={colorRow[0]?.name}
+              icon
             />
           );
         })}
-        <Text style={keyboardStyles.sectionTitle}>Highlight</Text>
+        <Text style={theme?.colorKeyboard.sectionTitle}>Highlight</Text>
         {groupedHighlightColors.map((colorRow) => {
           return (
             <ColorRow
+              theme={theme}
               colors={colorRow}
               onPress={setHighlight}
               activeColor={activeHighlight}
@@ -150,20 +69,27 @@ const ColorKeyboardComp = () => {
           );
         })}
       </View>
-      <View style={keyboardStyles.bottomSpacer} />
+      <View style={theme?.colorKeyboard.bottomSpacer} />
     </ScrollView>
   );
 };
 
 interface ColorRowProps {
   colors: Color[];
+  theme?: EditorTheme;
   onPress: (color?: ColorValue) => void;
   activeColor?: string;
   icon?: boolean;
 }
-const ColorRow = ({ colors, onPress, activeColor, icon }: ColorRowProps) => {
+const ColorRow = ({
+  theme,
+  colors,
+  onPress,
+  activeColor,
+  icon,
+}: ColorRowProps) => {
   return (
-    <View style={keyboardStyles.colorRow}>
+    <View style={theme?.colorKeyboard.colorRow}>
       {colors.map((color) => (
         <ColorButton
           key={color.name}
@@ -172,6 +98,7 @@ const ColorRow = ({ colors, onPress, activeColor, icon }: ColorRowProps) => {
           isActive={
             color.value === activeColor || (!color.value && !activeColor)
           }
+          theme={theme}
           icon={icon}
         />
       ))}
@@ -183,110 +110,51 @@ interface ColorButtonProps {
   onPress: () => void;
   color: Color;
   isActive: boolean;
+  theme?: EditorTheme;
   icon?: boolean;
 }
-const ColorButton = ({ onPress, color, isActive, icon }: ColorButtonProps) => (
+const ColorButton = ({
+  theme,
+  onPress,
+  color,
+  isActive,
+  icon,
+}: ColorButtonProps) => (
   <TouchableOpacity
     onPress={onPress}
     style={[
-      keyboardStyles.colorButton,
-      isActive && keyboardStyles.activeButton,
+      theme?.colorKeyboard.colorButton,
+      isActive && theme?.colorKeyboard.activeButton,
     ]}
   >
     {icon && (
-      <View style={keyboardStyles.icon}>
+      <View style={theme?.colorKeyboard.iconContainer}>
         <Image
           source={Images.a}
           style={[
-            keyboardStyles.image,
-            { tintColor: color.value || DEFAULT_COLOR },
+            theme?.colorKeyboard.textIcon,
+            { tintColor: color.value || theme?.colorKeyboard.defaultTextColor },
           ]}
           resizeMode="contain"
         />
       </View>
     )}
     {!icon && (
-      <View style={[keyboardStyles.icon]}>
+      <View style={[theme?.colorKeyboard.iconContainer]}>
         <View
           style={[
-            keyboardStyles.highlight,
-            { backgroundColor: color.value || DEFAULT_HIGHLIGHT },
+            theme?.colorKeyboard.highlight,
+            {
+              backgroundColor:
+                color.value || theme?.colorKeyboard.defaultHighlightColor,
+            },
           ]}
         />
       </View>
     )}
-    <Text style={keyboardStyles.colorText}>{color.name}</Text>
+    <Text style={theme?.colorKeyboard.colorText}>{color.name}</Text>
   </TouchableOpacity>
 );
-
-const keyboardStyles = StyleSheet.create({
-  keyboardScrollView: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-    padding: 8,
-  },
-  container: {
-    flex: 1,
-    gap: 8,
-  },
-  colorRow: {
-    flexDirection: 'row',
-    flex: 1,
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  colorButton: {
-    width: 114,
-    height: 46,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 10,
-    borderStyle: 'solid',
-    borderWidth: 0.5,
-    borderColor: '#DEE0E3',
-    gap: 16,
-    padding: 12,
-  },
-  activeButton: {
-    borderWidth: 1,
-    borderColor: '#C8C8C9',
-  },
-  icon: {
-    height: 20,
-    width: 20,
-    borderRadius: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderStyle: 'solid',
-    backgroundColor: 'white',
-    shadowColor: '#898989',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-  },
-  image: {
-    height: 14,
-  },
-  highlight: {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
-  },
-  colorText: {
-    color: '#898989',
-  },
-  sectionTitle: {
-    color: '#CACACA',
-    alignSelf: 'flex-start',
-    marginLeft: 20,
-    marginTop: 15,
-    fontSize: 14,
-  },
-  bottomSpacer: {
-    height: 30,
-  },
-});
 
 function groupInChunks<T>(array: T[], chunkSize: number): T[][] {
   let result = [];

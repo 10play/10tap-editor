@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Platform, StyleSheet, TextInput } from 'react-native';
 import {
   WebView,
@@ -49,7 +49,8 @@ const getStyleSheetCSS = (css: string[]) => {
   `;
 };
 
-export const RichText = ({ editor }: RichTextProps) => {
+export const RichText = ({ editor, ...props }: RichTextProps) => {
+  const [loaded, setLoaded] = useState(false);
   const { keyboardHeight: iosKeyboardHeight, isKeyboardUp } = useKeyboard();
   const source: WebViewProps['source'] = editor.DEV
     ? { uri: editor.DEV_SERVER_URL || DEV_SERVER_URL }
@@ -118,13 +119,17 @@ export const RichText = ({ editor }: RichTextProps) => {
       )}
       <WebView
         scrollEnabled={false}
-        style={RichTextStyles.fullScreen}
+        style={[
+          RichTextStyles.fullScreen,
+          { display: loaded ? 'flex' : 'none' },
+          editor.theme.richText.style,
+        ]}
+        containerStyle={editor.theme.richText.containerStyle}
         source={source}
         injectedJavaScript={getInjectedJS()}
         injectedJavaScriptBeforeContentLoaded={`${
           editor.bridgeExtensions
             ? `
-
             window.bridgeExtensionConfigMap = '${JSON.stringify(
               editor.bridgeExtensions.reduce((acc, bridge) => {
                 return {
@@ -149,6 +154,8 @@ export const RichText = ({ editor }: RichTextProps) => {
         ref={editor.webviewRef}
         webviewDebuggingEnabled={__DEV__}
         keyboardDisplayRequiresUserAction={false}
+        onLoad={() => setLoaded(true)}
+        {...props}
       />
     </>
   );

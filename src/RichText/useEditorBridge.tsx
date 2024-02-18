@@ -1,17 +1,23 @@
 import { useMemo, useRef } from 'react';
 import WebView from 'react-native-webview';
+import cloneDeep from 'lodash/cloneDeep';
+import merge from 'lodash/merge';
 import {
   type EditorActionMessage,
   EditorMessageType,
 } from '../types/Messaging';
 import { type BridgeState } from '../types/EditorBridge';
 import { EditorHelper } from './EditorHelper';
-import type { EditorBridge } from '../types';
+import type { EditorBridge, EditorTheme } from '../types';
 import type BridgeExtension from '../bridges/base';
 import { TenTapStartKit } from '../bridges/StarterKit';
 import { uniqueBy } from '../utils';
+import { defaultEditorTheme } from './theme';
+import type { Subscription } from '../types/Subscription';
 
-type Subscription<T> = (cb: (val: T) => void) => () => void;
+type RecursivePartial<T> = {
+  [P in keyof T]?: RecursivePartial<T[P]>;
+};
 
 export const useEditorBridge = (options?: {
   bridgeExtensions?: BridgeExtension<any, any, any>[];
@@ -21,6 +27,7 @@ export const useEditorBridge = (options?: {
   customSource?: string;
   DEV?: boolean;
   DEV_SERVER_URL?: string;
+  theme?: RecursivePartial<EditorTheme>;
 }): EditorBridge => {
   const webviewRef = useRef<WebView>(null);
   // Till we will implement default per bridgeExtension
@@ -33,6 +40,11 @@ export const useEditorBridge = (options?: {
     return uniqueBy(extensions, 'name');
   }, [options?.bridgeExtensions]);
 
+  const mergedTheme = useMemo(
+    // We must deep clone defaultEditorTheme, because it is read only
+    () => merge(cloneDeep(defaultEditorTheme), options?.theme),
+    [options?.theme]
+  );
   const _updateEditorState = (editorState: BridgeState) => {
     editorStateRef.current = editorState;
     editorStateSubsRef.current.forEach((sub) => sub(editorState));
@@ -73,6 +85,7 @@ export const useEditorBridge = (options?: {
     DEV_SERVER_URL: options?.DEV_SERVER_URL,
     DEV: options?.DEV,
     webviewRef,
+    theme: mergedTheme,
     getEditorState,
     _updateEditorState,
     _subscribeToEditorStateUpdate,

@@ -60,9 +60,11 @@
         
         // Create Keyboard
         RCTRootView *customKeyboard = [[RCTRootView alloc] initWithBridge:self.bridge moduleName:_keyboardID initialProperties:nil];
+        if(_rootBackground != nil){
+            customKeyboard.backgroundColor = _rootBackground;
+        }
 
         customKeyboard.translatesAutoresizingMaskIntoConstraints = NO;
-
         // Add keyboard to inputView
         [inputView addSubview:customKeyboard];
         

@@ -21,5 +21,9 @@ RCT_EXPORT_MODULE(TenTapView)
 RCT_EXPORT_VIEW_PROPERTY(inputTag, NSNumber)
 RCT_EXPORT_VIEW_PROPERTY(keyboardID, NSString)
 RCT_EXPORT_VIEW_PROPERTY(keyboardHeight, NSNumber)
+RCT_CUSTOM_VIEW_PROPERTY(rootBackground, NSString, TenTapViewImpl)
+{
+    view.rootBackground = [RCTConvert UIColor:json];
+}
 
 @end

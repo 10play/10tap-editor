@@ -19,25 +19,29 @@ import {
   useBridgeState,
   TenTapStartKit,
   CoreBridge,
+  darkEditorTheme,
 } from '@10play/tentap-editor';
 import { Images } from '../../../src/assets';
-import { customFont } from './font';
 
-export const WithKeyboard = ({}: NativeStackScreenProps<any, any, any>) => {
+const EDITOR_BACKGROUND_COLOR = '#1C1C1E';
+const DEFAULT_TEXT_COLOR = 'white';
+const darkEditorCss = `
+  * {
+    background-color: ${EDITOR_BACKGROUND_COLOR};
+    color: ${DEFAULT_TEXT_COLOR};
+  }
+`;
+
+export const DarkEditor = ({}: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditorBridge({
     autofocus: true,
     avoidIosKeyboard: true,
     initialContent,
     bridgeExtensions: [
       ...TenTapStartKit,
-      CoreBridge.configureCSS(`
-      ${customFont}
-      * {
-          font-family: 'Protest Riot', sans-serif;
-      }
-
-    `),
+      CoreBridge.configureCSS(darkEditorCss),
     ],
+    theme: darkEditorTheme,
   });
 
   const rootRef = useRef(null);
@@ -45,10 +49,19 @@ export const WithKeyboard = ({}: NativeStackScreenProps<any, any, any>) => {
 
   return (
     <SafeAreaView
-      style={{ ...exampleStyles.fullScreen, backgroundColor: 'white' }}
+      style={{
+        ...exampleStyles.fullScreen,
+        backgroundColor: EDITOR_BACKGROUND_COLOR,
+      }}
       ref={rootRef}
     >
-      <View style={{ ...exampleStyles.fullScreen, paddingHorizontal: 12 }}>
+      <View
+        style={{
+          ...exampleStyles.fullScreen,
+          paddingHorizontal: 12,
+          backgroundColor: EDITOR_BACKGROUND_COLOR,
+        }}
+      >
         <RichText editor={editor} />
       </View>
       <KeyboardAvoidingView
@@ -61,11 +74,11 @@ export const WithKeyboard = ({}: NativeStackScreenProps<any, any, any>) => {
           setActiveKeyboard={setActiveKeyboard}
         />
         <CustomKeyboard
+          editor={editor}
           rootRef={rootRef}
+          keyboards={[ColorKeyboard]}
           activeKeyboardID={activeKeyboard}
           setActiveKeyboardID={setActiveKeyboard}
-          keyboards={[ColorKeyboard]}
-          editor={editor}
         />
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -125,4 +138,4 @@ const exampleStyles = StyleSheet.create({
   },
 });
 
-const initialContent = `<p>This is a basic <a href="https://google.com">example</a> of using ColorKeyboard </p><img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /><p></p>`;
+const initialContent = `<p>darl</p>`;
