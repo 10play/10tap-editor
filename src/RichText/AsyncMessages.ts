@@ -4,7 +4,7 @@ class AsyncMessages {
     this.subscriptions = {};
   }
 
-  onMessage(id: string, value: string) {
+  onMessage(id: string, value: any) {
     if (this.subscriptions[id]) {
       this.subscriptions[id]!.forEach((callback) => {
         callback(value);
@@ -19,11 +19,11 @@ class AsyncMessages {
     this.subscriptions[key]!.push(callback);
   }
 
-  sendAsyncMessage(message: any, postMessage: any) {
+  sendAsyncMessage<T>(message: any, postMessage: any) {
     const messageId = Math.random().toString(36).substring(7);
     message.payload = message.payload || {};
     message.payload.messageId = messageId;
-    return new Promise((resolve) => {
+    return new Promise<T>((resolve) => {
       this.addListener(messageId, resolve);
       postMessage(message);
     });

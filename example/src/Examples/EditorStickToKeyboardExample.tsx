@@ -61,7 +61,7 @@ export const EditorStickToKeyboardExample = ({}: NativeStackScreenProps<
     React.useState<{ text: string; date: number }[]>(defaultMessages);
 
   const onSendMessage = async () => {
-    const content = await editor.getContent();
+    const content = await editor.getHTML();
     setMessages((prev) => [...prev, { text: content, date: Date.now() }]);
     editor.setContent('');
     if (MessagesScrollViewRef.current) {

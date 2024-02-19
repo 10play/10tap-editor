@@ -26,7 +26,7 @@ export const CustomAndStaticToolbar = ({
   });
 
   const onSendClick = async () => {
-    const mailContent = await editor.getContent();
+    const mailContent = await editor.getHTML();
     Alert.alert('Mail Content', mailContent);
     console.log('Send Clicked! Mail content: ', mailContent);
   };
