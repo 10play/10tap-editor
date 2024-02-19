@@ -24,3 +24,4 @@ export * from './bridges/image';
 export * from './types';
 export * from './utils';
 export { EditorHelper } from './RichText/EditorHelper';
+export { editorHtml } from './simpleWebEditor/build/editorHtml';
