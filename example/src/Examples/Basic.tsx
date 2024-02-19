@@ -2,7 +2,6 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import {
   SafeAreaView,
-  View,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -18,9 +17,7 @@ export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
 
   return (
     <SafeAreaView style={exampleStyles.fullScreen}>
-      <View style={exampleStyles.fullScreen}>
-        <RichText editor={editor} />
-      </View>
+      <RichText editor={editor} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={exampleStyles.keyboardAvoidingView}
