@@ -45,7 +45,7 @@ export const useTenTap = (options?: useTenTapArgs) => {
     .filter(filterExists)
     .flat();
 
-  const tiptapOptionsWithExtenstion = {
+  const tiptapOptionsWithExtensions = {
     ...tiptapOptions,
     extensions: [
       blueBackgroundPlugin,
@@ -75,10 +75,16 @@ export const useTenTap = (options?: useTenTapArgs) => {
         type: CoreEditorActionType.EditorReady,
         payload: undefined,
       }),
-    onUpdate: (onUpdate) => sendStateUpdate(onUpdate.editor),
+    onUpdate: (onUpdate) => {
+      sendStateUpdate(onUpdate.editor);
+      sendMessage({
+        type: CoreEditorActionType.ContentUpdate,
+        payload: undefined,
+      });
+    },
     onSelectionUpdate: (onUpdate) => sendStateUpdate(onUpdate.editor),
     onTransaction: (onUpdate) => sendStateUpdate(onUpdate.editor),
-    ...tiptapOptionsWithExtenstion,
+    ...tiptapOptionsWithExtensions,
   });
 
   useEffect(() => {
@@ -92,7 +98,6 @@ export const useTenTap = (options?: useTenTapArgs) => {
     const handleWebviewMessage = (event: MessageEvent | Event) => {
       if (!(event instanceof MessageEvent)) return; // TODO check android
       const { type, payload } = JSON.parse(event.data) as EditorMessage;
-      console.log('Received message from webview', { type, payload });
       // todo: fix this - switch not needed
       switch (type) {
         case EditorMessageType.Action:

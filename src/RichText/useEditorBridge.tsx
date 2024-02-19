@@ -34,6 +34,7 @@ export const useEditorBridge = (options?: {
   // Till we will implement default per bridgeExtension
   const editorStateRef = useRef<BridgeState | {}>({});
   const editorStateSubsRef = useRef<((state: BridgeState) => void)[]>([]);
+  const editorContentSubsRef = useRef<(() => void)[]>([]);
 
   const bridgeExtensions = useMemo(() => {
     const extensions = options?.bridgeExtensions || TenTapStartKit;
@@ -46,15 +47,29 @@ export const useEditorBridge = (options?: {
     () => merge(cloneDeep(defaultEditorTheme), options?.theme),
     [options?.theme]
   );
+
   const _updateEditorState = (editorState: BridgeState) => {
     editorStateRef.current = editorState;
     editorStateSubsRef.current.forEach((sub) => sub(editorState));
+  };
+
+  const _onContentUpdate = () => {
+    editorContentSubsRef.current.forEach((sub) => sub());
   };
 
   const _subscribeToEditorStateUpdate: Subscription<BridgeState> = (cb) => {
     editorStateSubsRef.current.push(cb);
     return () => {
       editorStateSubsRef.current = editorStateSubsRef.current.filter(
+        (sub) => sub !== cb
+      );
+    };
+  };
+
+  const _subscribeToContentUpdate: Subscription<void> = (cb) => {
+    editorContentSubsRef.current.push(cb);
+    return () => {
+      editorContentSubsRef.current = editorContentSubsRef.current.filter(
         (sub) => sub !== cb
       );
     };
@@ -91,6 +106,8 @@ export const useEditorBridge = (options?: {
     getEditorState,
     _updateEditorState,
     _subscribeToEditorStateUpdate,
+    _onContentUpdate,
+    _subscribeToContentUpdate,
   };
 
   const editorInstanceExtendByPlugins = (bridgeExtensions || []).reduce(
@@ -110,7 +127,7 @@ export const useEditorBridge = (options?: {
       );
     },
     editorBridge
-  ) as EditorBridge;
+  ) as unknown as EditorBridge;
 
   EditorHelper.setEditorLastInstance(editorInstanceExtendByPlugins);
 

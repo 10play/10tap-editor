@@ -6,20 +6,24 @@ import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
 
+export type EditorContentType = 'html' | 'text' | 'json';
+
 type CoreEditorState = {
   selection: { from: number; to: number };
   isFocused: boolean;
   isReady: boolean;
 };
 
-type focusArgs = 'start' | 'end' | 'all' | number | boolean | null;
+type FocusArgs = 'start' | 'end' | 'all' | number | boolean | null;
 
 type CoreEditorInstance = {
-  getContent: () => Promise<string>;
+  getHTML: () => Promise<string>;
+  getJSON: () => Promise<object>;
+  getText: () => Promise<string>;
   setContent: (content: string) => void;
   setSelection: (from: number, to: number) => void;
   updateScrollThresholdAndMargin: (offset: number) => void;
-  focus: (pos: focusArgs) => void;
+  focus: (pos: FocusArgs) => void;
   theme: EditorTheme;
 };
 
@@ -30,27 +34,59 @@ declare module '../types/EditorBridge' {
 
 export enum CoreEditorActionType {
   SetSelection = 'set-selection',
-  GetContent = 'get-content',
+  GetHTML = 'get-html',
+  GetJSON = 'get-json',
+  GetText = 'get-text',
+  SendHTMLToNative = 'send-html-back',
+  SendTextToNative = 'send-text-back',
+  SendJSONToNative = 'send-json-back',
   SetContent = 'set-content',
-  SendContentToNative = 'send-content-back',
   StateUpdate = 'stateUpdate',
   Focus = 'Focus',
   EditorReady = 'editor-ready',
   UpdateScrollThresholdAndMargin = 'update-scroll-threshold-and-margin',
+  ContentUpdate = 'content-update',
 }
 
-type MessageToNative = {
-  type: CoreEditorActionType.SendContentToNative;
-  payload: {
-    content: string;
-    messageId: string;
-  };
-};
+type MessageToNative =
+  | {
+      type: CoreEditorActionType.SendHTMLToNative;
+      payload: {
+        content: string;
+        messageId: string;
+      };
+    }
+  | {
+      type: CoreEditorActionType.SendTextToNative;
+      payload: {
+        content: string;
+        messageId: string;
+      };
+    }
+  | {
+      type: CoreEditorActionType.SendJSONToNative;
+      payload: {
+        content: object;
+        messageId: string;
+      };
+    };
 
 export type CoreMessages =
   | MessageToNative
   | {
-      type: CoreEditorActionType.GetContent;
+      type: CoreEditorActionType.GetHTML;
+      payload: {
+        messageId: string;
+      };
+    }
+  | {
+      type: CoreEditorActionType.GetJSON;
+      payload: {
+        messageId: string;
+      };
+    }
+  | {
+      type: CoreEditorActionType.GetText;
       payload: {
         messageId: string;
       };
@@ -71,7 +107,7 @@ export type CoreMessages =
     }
   | {
       type: CoreEditorActionType.Focus;
-      payload: focusArgs;
+      payload: FocusArgs;
     }
   | {
       type: CoreEditorActionType.UpdateScrollThresholdAndMargin;
@@ -83,6 +119,10 @@ export type CoreMessages =
         from: number;
         to: number;
       };
+    }
+  | {
+      type: CoreEditorActionType.ContentUpdate;
+      payload: undefined;
     };
 
 export const CoreBridge = new BridgeExtension<
@@ -97,11 +137,30 @@ export const CoreBridge = new BridgeExtension<
       editor.commands.setContent(message.payload.content);
       return true;
     }
-    if (message.type === CoreEditorActionType.GetContent) {
+    if (message.type === CoreEditorActionType.GetHTML) {
       sendMessageBack({
-        type: CoreEditorActionType.SendContentToNative,
+        type: CoreEditorActionType.SendHTMLToNative,
         payload: {
           content: editor.getHTML(),
+          messageId: message.payload.messageId,
+        },
+      });
+    }
+    if (message.type === CoreEditorActionType.GetJSON) {
+      sendMessageBack({
+        type: CoreEditorActionType.SendJSONToNative,
+        payload: {
+          content: editor.getJSON(),
+          messageId: message.payload.messageId,
+        },
+      });
+    }
+    if (message.type === CoreEditorActionType.GetText) {
+      console.log('!!!!!');
+      sendMessageBack({
+        type: CoreEditorActionType.SendTextToNative,
+        payload: {
+          content: editor.getText(),
           messageId: message.payload.messageId,
         },
       });
@@ -135,7 +194,15 @@ export const CoreBridge = new BridgeExtension<
     return false;
   },
   onEditorMessage: ({ type, payload }, editorBridge) => {
-    if (type === CoreEditorActionType.SendContentToNative) {
+    if (type === CoreEditorActionType.SendHTMLToNative) {
+      asyncMessages.onMessage(payload.messageId, payload.content);
+      return true;
+    }
+    if (type === CoreEditorActionType.SendTextToNative) {
+      asyncMessages.onMessage(payload.messageId, payload.content);
+      return true;
+    }
+    if (type === CoreEditorActionType.SendJSONToNative) {
       asyncMessages.onMessage(payload.messageId, payload.content);
       return true;
     }
@@ -147,6 +214,9 @@ export const CoreBridge = new BridgeExtension<
     }
     if (type === CoreEditorActionType.StateUpdate) {
       editorBridge._updateEditorState(payload);
+    }
+    if (type === CoreEditorActionType.ContentUpdate) {
+      editorBridge._onContentUpdate();
     }
     return false;
   },
@@ -179,16 +249,34 @@ export const CoreBridge = new BridgeExtension<
           },
         });
       },
-      getContent: async () => {
-        const html = (await asyncMessages.sendAsyncMessage(
+      getHTML: async () => {
+        const html = await asyncMessages.sendAsyncMessage<string>(
           {
-            type: CoreEditorActionType.GetContent,
+            type: CoreEditorActionType.GetHTML,
           },
           sendBridgeMessage
-        )) as string;
+        );
         return html;
       },
-      focus: (pos: 'start' | 'end' | 'all' | number | boolean | null) => {
+      getText: async () => {
+        const text = await asyncMessages.sendAsyncMessage<string>(
+          {
+            type: CoreEditorActionType.GetText,
+          },
+          sendBridgeMessage
+        );
+        return text;
+      },
+      getJSON: async () => {
+        const json = await asyncMessages.sendAsyncMessage<object>(
+          {
+            type: CoreEditorActionType.GetJSON,
+          },
+          sendBridgeMessage
+        );
+        return json;
+      },
+      focus: (pos: FocusArgs) => {
         webviewRef?.current?.requestFocus();
         if (editorStateRef && editorStateRef.current) {
           _updateEditorState &&
