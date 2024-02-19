@@ -21,7 +21,6 @@ const sidebars: SidebarsConfig = {
       'examples/navHeader',
       'examples/customKeyboard',
       'examples/customTheme',
-      'examples/autoSave',
     ],
   },
 };
