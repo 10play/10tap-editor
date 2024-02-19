@@ -24,6 +24,7 @@ type CoreEditorInstance = {
   setSelection: (from: number, to: number) => void;
   updateScrollThresholdAndMargin: (offset: number) => void;
   focus: (pos: FocusArgs) => void;
+  blur: () => void;
   theme: EditorTheme;
 };
 
@@ -42,7 +43,8 @@ export enum CoreEditorActionType {
   SendJSONToNative = 'send-json-back',
   SetContent = 'set-content',
   StateUpdate = 'stateUpdate',
-  Focus = 'Focus',
+  Focus = 'focus',
+  Blur = 'blur',
   EditorReady = 'editor-ready',
   UpdateScrollThresholdAndMargin = 'update-scroll-threshold-and-margin',
   ContentUpdate = 'content-update',
@@ -110,6 +112,10 @@ export type CoreMessages =
       payload: FocusArgs;
     }
   | {
+      type: CoreEditorActionType.Blur;
+      payload: undefined;
+    }
+  | {
       type: CoreEditorActionType.UpdateScrollThresholdAndMargin;
       payload: number;
     }
@@ -174,6 +180,10 @@ export const CoreBridge = new BridgeExtension<
     }
     if (message.type === CoreEditorActionType.Focus) {
       editor.commands.focus(message.payload);
+      return true;
+    }
+    if (message.type === CoreEditorActionType.Blur) {
+      editor.commands.blur();
       return true;
     }
     if (message.type === CoreEditorActionType.UpdateScrollThresholdAndMargin) {
@@ -288,6 +298,12 @@ export const CoreBridge = new BridgeExtension<
         sendBridgeMessage({
           type: CoreEditorActionType.Focus,
           payload: pos,
+        });
+      },
+      blur: () => {
+        sendBridgeMessage({
+          type: CoreEditorActionType.Blur,
+          payload: undefined,
         });
       },
     };
