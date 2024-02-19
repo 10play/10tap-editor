@@ -11,6 +11,10 @@ interface of all the interactions you can do with the editor on the react native
 `(pos?: 'start' \| 'end' \| 'all' \| number \| boolean \| null) => void`<br />
 a function that will focus the editor and make sure to open keyboard <br /> extend by [CoreBridge](./BridgeExtensions#coreextension)
 
+#### blur
+
+a function that will blur the editor and close the keyboard <br /> extend by [CoreBridge](./BridgeExtensions#coreextension)
+
 #### webviewRef
 
 `RefObject\<WebView\>`<br />
