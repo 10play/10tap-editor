@@ -33,7 +33,7 @@ export const WithKeyboard = ({}: NativeStackScreenProps<any, any, any>) => {
       CoreBridge.configureCSS(`
       ${customFont}
       * {
-          font-family: 'Protest Riot', sans-serif;
+          font-family: 'Rubik', sans-serif;
       }
 
     `),
