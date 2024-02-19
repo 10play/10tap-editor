@@ -9,7 +9,8 @@ import type {
 export interface EditorTheme {
   toolbar: ToolbarTheme;
   colorKeyboard: ColorKeyboardTheme;
-  richText: RichTextTheme;
+  webview: StyleProp<ViewStyle>;
+  webviewContainer: StyleProp<ViewStyle>;
 }
 
 export type ToolbarTheme = {
@@ -56,9 +57,4 @@ export type ColorKeyboardTheme = {
   defaultTextColor: ColorValue;
   defaultHighlightColor: ColorValue;
   keyboardRootColor: ColorValue;
-};
-
-export type RichTextTheme = {
-  style: StyleProp<ViewStyle>;
-  containerStyle: StyleProp<ViewStyle>;
 };

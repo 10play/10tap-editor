@@ -8,21 +8,17 @@ import { darkToolbarTheme, defaultToolbarTheme } from './Toolbar/toolbarTheme';
 export const defaultEditorTheme: EditorTheme = {
   toolbar: defaultToolbarTheme,
   colorKeyboard: defaultColorKeyboardTheme,
-  richText: {
-    style: {
-      backgroundColor: 'white',
-    },
-    containerStyle: {},
+  webview: {
+    backgroundColor: 'white',
   },
+  webviewContainer: {},
 };
 
 export const darkEditorTheme: EditorTheme = {
   toolbar: darkToolbarTheme as ToolbarTheme,
   colorKeyboard: darkColorKeyboardTheme as ColorKeyboardTheme,
-  richText: {
-    style: {
-      backgroundColor: '#1C1C1E',
-    },
-    containerStyle: {},
+  webview: {
+    backgroundColor: '#1C1C1E',
   },
+  webviewContainer: {},
 };
