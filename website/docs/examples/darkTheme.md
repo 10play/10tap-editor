@@ -22,18 +22,13 @@ useEditorBridge({
 Now we just need to update the web-side css with `extendCss`
 
 ```tsx
-const darkEditorCss = `
-  * {
-    background-color: #1C1C1E;
-    color: white;
-  }
-`;
+import { darkEditorTheme, darkEditorCss } from '@10play/tentap-editor';
 useEditorBridge({
     ...
     bridgeExtensions: [
       ...TenTapStartKit,
       CoreBridge.configureCSS(darkEditorCss), // <--- Add our dark mode css
     ],
-    theme: darkEditorTheme,
+    theme: darkEditorTheme, // <-- Add our dark mode theme
 });
 ```
