@@ -73,9 +73,7 @@ export const Basic = () => {
 
   return (
     <SafeAreaView style={exampleStyles.fullScreen}>
-      <View style={exampleStyles.fullScreen}>
-        <RichText editor={editor} />
-      </View>
+      <RichText editor={editor} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={exampleStyles.keyboardAvoidingView}

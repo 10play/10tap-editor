@@ -20,17 +20,11 @@ import {
   TenTapStartKit,
   CoreBridge,
   darkEditorTheme,
+  darkEditorCss,
 } from '@10play/tentap-editor';
 import { Images } from '../../../src/assets';
 
 const EDITOR_BACKGROUND_COLOR = '#1C1C1E';
-const DEFAULT_TEXT_COLOR = 'white';
-const darkEditorCss = `
-  * {
-    background-color: ${EDITOR_BACKGROUND_COLOR};
-    color: ${DEFAULT_TEXT_COLOR};
-  }
-`;
 
 export const DarkEditor = ({}: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditorBridge({

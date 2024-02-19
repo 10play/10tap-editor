@@ -20,6 +20,7 @@ const sidebars: SidebarsConfig = {
       'examples/colorKeyboard',
       'examples/navHeader',
       'examples/customKeyboard',
+      'examples/darkTheme',
       'examples/customTheme',
     ],
   },
