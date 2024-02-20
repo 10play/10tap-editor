@@ -20,9 +20,9 @@ import {
   ImageBridge,
   EditorHelper,
   CustomKeyboardExtension,
+  Images,
 } from '@10play/tentap-editor';
-import { CustomKeyboard } from '../../../../src/RichText/Keyboard/CustomKeyboardBase';
-import { Images } from '../../../../src/assets';
+import { CustomKeyboard } from '../../../src/RichText/Keyboard/CustomKeyboardBase';
 
 const keyboardStyles = StyleSheet.create({
   keyboardContainer: {

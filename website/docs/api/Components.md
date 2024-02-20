@@ -1,18 +1,20 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 ---
 
-# React components
+# Components
 
 ## RichText
 
-a react component that will render the webview editor, help to locate the editor wherever you wold like, inside a view that stick to your keyboard for example see [chat example](https://10play.dev)
+a components that wraps the webview that renders the editor
 
 props:
 
 | name   | type           | default | description                                                             |
 | ------ | -------------- | ------- | ----------------------------------------------------------------------- |
 | editor | `EditorBridge` |         | The bridge instance that created with [useEditorBridge](./EditorBridge) |
+
+you can also override any of the regular [WebView props](https://github.com/react-native-webview/react-native-webview/blob/HEAD/docs/Reference.md) <i>although this is not recommended</i>
 
 ## Toolbar
 
@@ -48,10 +50,14 @@ props:
 | name   | type            | default               | description                                                             |
 | ------ | --------------- | --------------------- | ----------------------------------------------------------------------- |
 | editor | `EditorBridge`  |                       | The bridge instance that created with [useEditorBridge](./EditorBridge) |
-| hidden | `boolean`       |                       | a prop for control if toolbar shown                                     |
-| items  | `ToolbarItem[]` | DEFAULT_TOOLBAR_ITEMS | array of ToolbarItem that will be shown on the toolbar                  |
+| hidden | `boolean`       |                       | a prop to control if toolbar shown                                      |
+| items  | `ToolbarItem[]` | DEFAULT_TOOLBAR_ITEMS | array of ToolbarItem's that will be shown on the toolbar                |
+
+See how we add a custom toolbar item in the [color keyboard example](../examples/colorKeyboard.md)
 
 ### ToolbarItem
+
+The item rendered by the toolbar component
 
 ```ts
 export interface ToolbarItem {

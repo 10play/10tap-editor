@@ -11,7 +11,7 @@ In this example we will add the ColorKeyboard, and a custom button to toggle it 
 First we need to add two things
 
 1. A ref on the components container (used on ios for opening the custom keyboard)
-2. A current keyboard state (used inside the toolbar to show and hide the color keyboard)
+2. A state of the current active keyboard id (used inside the toolbar to show and hide the color keyboard)
 
 ```tsx
 const rootRef = useRef(null);
@@ -94,3 +94,11 @@ const ToolbarWithColor = ({
 ```
 
 Then all that is left to replace `Toolbar` with our new `ToolbarWithColor` and we're done!
+
+```tsx
+<ToolbarWithColor
+  editor={editor}
+  activeKeyboard={activeKeyboard}
+  setActiveKeyboard={setActiveKeyboard}
+/>
+```

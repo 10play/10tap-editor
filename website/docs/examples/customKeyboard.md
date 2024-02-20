@@ -1,19 +1,19 @@
 ---
-sidebar_position: 4
+sidebar_position: 6
 ---
 
 # Custom Keyboard
 
-In this example we will show how to create and add a custom keyboard to your editor,
+In this example we will create and add a custom sticker keyboard 👯‍♀️
+Im going to show parts of the code we have on the [Full solution](#full-solution) and go into small chunks of the code.
 
-in this example we will build a sticker keyboard 👯‍♀️
-
-Im going to show parts of the code we have on the [Full solution](#full-solution) and to drill down on each
-<img height="400" src="/10tap-editor/img/customkeyboard.gif" />
+<div style={{justifyContent: 'center', display: 'flex'}}>
+  <img height="400" src="/10tap-editor/img/customkeyboard.gif"/>
+</div>
 
 ### First, let's create a new CustomKeyboard
 
-```jsx
+```tsx
 ...
 
 const StickerRow = ({ stickers }: { stickers: string[] }) => {
@@ -59,19 +59,15 @@ export const StickerKeyboard = new CustomKeyboardExtension(
 ...
 ```
 
-- We create here `StickerKeyboardComp` which is the react native view of the keyboard that will be the part that will be render inside your custom keyboard
-- On each sticker we have `onPress={() => EditorHelper.editorLastInstance?.setImage(sticker)}` EditorHelper is a shared class that hold the instance of [EditorBridge](../api/EditorBridge.md), so each time user press on sticker it will call `setImage`
-- Lastly we create new CustomKeyboardExtension, this part is important so it will register our View as a custom keyboard
+- We create here `StickerKeyboardComp` which is the react native view of the keyboard that will be rendered inside our custom keyboard
+- On each sticker we have `onPress={() => EditorHelper.editorLastInstance?.setImage(sticker)}` EditorHelper is a shared class that hold the instance of [EditorBridge](../api/EditorBridge.md), so each time user presses a sticker it will call `setImage`
+- Lastly we create new CustomKeyboardExtension, this part is important so it will register our View as a custom keyboard with `keyboard.sticker` as its id.
 
 ### Now we can use our custom keyboard
 
-```jsx
+```tsx
 ...
-export const CustomKeyboardExample = ({}: NativeStackScreenProps<
-  any,
-  any,
-  any
->) => {
+export const CustomKeyboardExample = () => {
   const editor = useEditorBridge({
     avoidIosKeyboard: true,
     autofocus: true,
@@ -106,7 +102,7 @@ export const CustomKeyboardExample = ({}: NativeStackScreenProps<
           rootRef={TapRef}
           activeKeyboardID={activeKeyboard}
           setActiveKeyboardID={setActiveKeyboard}
-          keyboards={[StickerKeyboard]} // Add our custom keyboard to keyboards prop
+          keyboards={[StickerKeyboard]} // <-- Add our custom keyboard to the keyboards prop
           editor={editor}
         />
       </KeyboardAvoidingView>
@@ -116,15 +112,15 @@ export const CustomKeyboardExample = ({}: NativeStackScreenProps<
 ...
 ```
 
-Here is our editor in that part we will add our custom keyboard that we just created.
+Here we add our keyboard to our editor
 
-- `TapRef` create a ref and add it to some View in your app, probably to the View that wrap the editor
+- `TapRef` create a ref and add it to some View in your app, to the View that wrap the editor
 - Create a react state that will control which custom keyboard is shown
-- Render CustomKeyboard andd pass all props
+- Render CustomKeyboard and pass all props
 
 ### Add button that will toggle our custom keyboard
 
-```jsx
+```tsx
 ...
 const StickerToolbar = ({
   editor,
@@ -150,12 +146,12 @@ const StickerToolbar = ({
         {
           onPress: () => () => {
             const isActive = activeKeyboard === StickerKeyboard.id;
-            if (isActive) editor.webviewRef.current?.requestFocus();
+            if (isActive) editor.focus();
             setActiveKeyboard(isActive ? undefined : StickerKeyboard.id);
           },
           active: () => activeKeyboard === StickerKeyboard.id,
           disabled: () => false,
-          image: () => Images.platte,
+          image: () => Images.palette,
         },
       ]}
     />
@@ -164,16 +160,16 @@ const StickerToolbar = ({
 ...
 ```
 
-Create a way to open and close the custom keyboard can be tricky because of the state of both native keyboard and our custom keyboard
+Creating a way to open and close the custom keyboard can be tricky because we have two states, the native keyboard state and our custom keyboard state
 
-- `const { isKeyboardUp: isNativeKeyboardUp } = useKeyboard();` we will use here useKeyboard a util the lib expose so we will know when the native keyboard is up
+- `const { isKeyboardUp: isNativeKeyboardUp } = useKeyboard();` useKeyboard is a util the lib provides that lets us know when the native keyboard is up
 - That way we can now when to hide toolbar `hideToolbar`
 - We will use [Toolbar](../api/RichText#toolbar) component and will render only one item that will toggle our custom keyboard
-- In case someone press and the custom keyboard is already there we need to refocus the editor that why we: `if (isActive) editor.webviewRef.current?.requestFocus();`
+- In case someone toggles the custom keyboard again we need to refocus the editor. So we add `if (isActive) editor.focus();`
 
 ### Full solution
 
-```jsx
+```tsx
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useRef } from 'react';
 import {
@@ -196,9 +192,9 @@ import {
   ImageBridge,
   EditorHelper,
   CustomKeyboardExtension,
+  Images,
 } from '@10play/tentap-editor';
 import { CustomKeyboard } from '../../../../src/RichText/Keyboard/CustomKeyboardBase';
-import { Images } from '../../../../src/assets';
 
 const keyboardStyles = StyleSheet.create({
   keyboardContainer: {
@@ -280,10 +276,7 @@ export const CustomKeyboardExample = ({}: NativeStackScreenProps<
   const editor = useEditorBridge({
     avoidIosKeyboard: true,
     autofocus: true,
-    DEV: true,
     bridgeExtensions: [
-      // It is important to spread StarterKit BEFORE our extended plugin,
-      // as plugin duplicated will be ignored
       ...TenTapStartKit,
       ImageBridge.configureExtension({
         inline: true,
@@ -353,12 +346,10 @@ const StickerToolbar = ({
           },
           active: () => activeKeyboard === StickerKeyboard.id,
           disabled: () => false,
-          image: () => Images.platte,
+          image: () => Images.palette,
         },
       ]}
     />
   );
 };
-
-
 ```

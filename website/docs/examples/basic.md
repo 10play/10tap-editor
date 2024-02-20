@@ -8,8 +8,8 @@ In this example we will be creating a basic editor that contains all of the pre-
 
 ## Creating The Editor Bridge
 
-The first thing we want to do is create our [EditorBridge](../api/EditorBridge.md) add link to editor bridge.
-To do this we will use the `useEditorBridge` hook in our component. This by default will contain the `TenTapStartKit` (#TODO show link)
+The first thing we want to do is create our [EditorBridge](../api/EditorBridge.md).
+To do this we will use the `useEditorBridge` hook. This by default will contain the `TenTapStartKit` which includes all of [the following bridge extensions](../api/BridgeExtensions.md).
 Now we have added all of the pre-built bridgeExtensions provided by tentap, and our editor will support all of these bridgeExtensions features
 
 ```tsx
@@ -38,10 +38,20 @@ The RichText component receives the EditorBridge we created before
 
 ## Adding a Keyboard Aware Toolbar
 
-Our RichText is pretty empty without a toolbar, so let's add it
+Our RichText is pretty empty without a toolbar, so let's add one
 We need wrap the entire the toolbar and keyboard in a `KeyboardAvoidingView` to display the toolbar right above the keyboard
 
 ```tsx
+const exampleStyles = StyleSheet.create({
+  keyboardAvoidingView: {
+    position: 'absolute',
+    width: '100%',
+    bottom: 0,
+  },
+});
+
+...
+
 <KeyboardAvoidingView
   behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
   style={exampleStyles.keyboardAvoidingView}
@@ -50,10 +60,11 @@ We need wrap the entire the toolbar and keyboard in a `KeyboardAvoidingView` to 
 </KeyboardAvoidingView>
 ```
 
+> The exact configuration of your KeyboardAvoidingView will differ depending on how you build you app, and you might need to alter the `keyboardVerticalOffset` prop. For an example of this case check out [this example](./navHeader.md)
+
 ## Full Example
 
 ```tsx
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import {
   SafeAreaView,

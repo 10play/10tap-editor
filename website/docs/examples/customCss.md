@@ -8,7 +8,7 @@ In this example we will be adding custom css and fonts
 
 ## Adding/Overriding CSS
 
-Each bridge, has gives us the option to `configureCSS`. Some bridges come with css already configured in them, when we can override by configuring.
+Each bridge, gives us the option to `configureCSS`. Some bridges come with css already configured in them, when we can override by configuring.
 Let's give an example by overriding the CodeBridge.
 
 First let's define the css
@@ -42,6 +42,8 @@ const editor = useEditorBridge({
   ],
 });
 ```
+
+> <strong>NOTE</strong> calling configureCSS more than once will override the previous css.
 
 ## Adding Custom Fonts
 

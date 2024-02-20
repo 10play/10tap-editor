@@ -1,97 +1,99 @@
 ---
-sidebar_position: 8
+sidebar_position: 6
 ---
 
 # Built-in BridgeExtensions
 
-tentap is coming with multiple bridges extensions out of the box, in this page we will show all of them and show how they can be configured by use `BridgeExtension.configureExtension`:
+tentap comes with multiple bridges extensions out of the box, in this page we will show all of them and show their relevant configurations, which can be configured with `BridgeExtension.configureExtension`:
 
 ### CoreExtension
 
-use `@tiptap/extension-document` `@tiptap/extension-paragraph` `@tiptap/extension-text`
+uses `@tiptap/extension-document` `@tiptap/extension-paragraph` `@tiptap/extension-text`
 
-This bridge extension is including fundamentals logic that needed to interact with the editor
+This bridge extension includes fundamental logic that is needed to interact with the editor
 
 ### BlockquoteBridge
 
-use `@tiptap/extension-blockquote`
+uses `@tiptap/extension-blockquote`
 relevant configuration: https://tiptap.dev/docs/editor/api/nodes/blockquote#settings
 
 ### CodeBridge
 
-use `@tiptap/extension-code`
+uses `@tiptap/extension-code`
 relevant configuration: https://tiptap.dev/docs/editor/api/marks/code#settings
 
 ### ItalicBridge
 
-use `@tiptap/extension-italic`
+uses `@tiptap/extension-italic`
 relevant configuration: https://tiptap.dev/docs/editor/api/marks/italic#settings
 
 ### BoldBridge
 
-use `@tiptap/extension-bold`
+uses `@tiptap/extension-bold`
 relevant configuration: https://tiptap.dev/docs/editor/api/marks/bold#settings
 
 ### StrikeBridge
 
-use `@tiptap/extension-strike`
+uses `@tiptap/extension-strike`
 relevant configuration: https://tiptap.dev/docs/editor/api/marks/strike#settings
 
 ### BulletListBridge
 
-use `@tiptap/extension-bullet-list` `@tiptap/extension-list-item`
+uses `@tiptap/extension-bullet-list` `@tiptap/extension-list-item`
 relevant configuration: https://tiptap.dev/docs/editor/api/nodes/bullet-list#settings
 
 ### OrderedListBridge
 
-use `@tiptap/extension-ordered-list` `@tiptap/extension-list-item`
+uses `@tiptap/extension-ordered-list` `@tiptap/extension-list-item`
 relevant configuration: https://tiptap.dev/docs/editor/api/nodes/ordered-list#settings
 
 ### HeadingBridge
 
-use `@tiptap/extension-heading`
+uses `@tiptap/extension-heading`
 relevant configuration: https://tiptap.dev/docs/editor/api/nodes/heading#settings
 
 ### ListItemBridge
 
-Basically you can use only OrderedListBridge/BulletListBridge for lists, use ListItemBridge in case you want to control lift/sink of lists
-use `@tiptap/extension-list-item`
+You can use only OrderedListBridge/BulletListBridge for lists, use ListItemBridge in case you want to control lift/sink of lists
+uses `@tiptap/extension-list-item`
 relevant configuration: https://tiptap.dev/docs/editor/api/nodes/list-item#settings
 
 ### HistoryBridge
 
-use `@tiptap/extension-history`
+uses `@tiptap/extension-history`
 relevant configuration: https://tiptap.dev/docs/editor/api/extensions/history#settings
 
 ### ColorBridge
 
-use `@tiptap/extension-color` `@tiptap/extension-text-style`
+uses `@tiptap/extension-color` `@tiptap/extension-text-style`
+no relevant configuration
 
 ### HighlightBridge
 
-use `@tiptap/extension-highlight` `@tiptap/extension-text-style`
+uses `@tiptap/extension-highlight` `@tiptap/extension-text-style`
+no relevant configuration
 
 ### ImageBridge
 
-use `@tiptap/extension-image`
+uses `@tiptap/extension-image`
 relevant configuration: https://tiptap.dev/docs/editor/api/nodes/image#settings
 
 ### LinkBridge
 
-use `@tiptap/extension-link`
+uses `@tiptap/extension-link`
 relevant configuration: https://tiptap.dev/docs/editor/api/marks/link#settings
 
 ### TaskListBridge
 
-use `@tiptap/extension-task-list` `@tiptap/extension-list-item`
+uses `@tiptap/extension-task-list` `@tiptap/extension-list-item`
 relevant configuration: https://tiptap.dev/docs/editor/api/nodes/task-list#settings
 
 ### UnderlineBridge
 
-use `@tiptap/extension-underline`
+uses `@tiptap/extension-underline`
 relevant configuration: https://tiptap.dev/docs/editor/api/marks/underline#settings
 
 ### PlaceholderBridge
 
-use `@tiptap/extension-placeholder`
+uses `@tiptap/extension-placeholder`
 relevant configuration: https://tiptap.dev/docs/editor/api/extensions/placeholder#settings
