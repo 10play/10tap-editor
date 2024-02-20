@@ -1,11 +1,15 @@
 # 10tap-editor
 
+<img src="./website/static/img/cover.webp" alt="cover" />
+<a href="https://github.com/10play/10tap-editor/blob/main/LICENSE">
+  <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License"/>
+</a>
+  <a href="https://www.npmjs.com/package/@10play/tentap-editor">
+  <img src="https://img.shields.io/npm/v/@10play/tentap-editor.svg" alt="npm"/>
+</a>
+
 TenTap is a typed, easy to use, customizable, and extendable Rich Text editor for React-Native based on Tiptap and Prosemirror. It offers a "plug and play" experience and comes with many essential features out of the box that can be incorporated into your apps quickly. Additionally, TenTap allows you the developers to tailor the editor to your applications specific needs.
 
-<img src="./website/static/img/cover.webp" alt="cover" />
-
-<br />
-<br />
 # Features
 
 - 💁 Based on tiptap
