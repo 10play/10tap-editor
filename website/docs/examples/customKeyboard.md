@@ -164,7 +164,7 @@ Creating a way to open and close the custom keyboard can be tricky because we ha
 
 - `const { isKeyboardUp: isNativeKeyboardUp } = useKeyboard();` useKeyboard is a util the lib provides that lets us know when the native keyboard is up
 - That way we can now when to hide toolbar `hideToolbar`
-- We will use [Toolbar](../api/RichText#toolbar) component and will render only one item that will toggle our custom keyboard
+- We will use [Toolbar](../api/Components#toolbar) component and will render only one item that will toggle our custom keyboard
 - In case someone toggles the custom keyboard again we need to refocus the editor. So we add `if (isActive) editor.focus();`
 
 ### Full solution
