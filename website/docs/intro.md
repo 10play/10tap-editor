@@ -6,7 +6,7 @@ sidebar_position: 1
 
 TenTap is a typed, easy to use, customizable, and extendable Rich Text editor for React-Native based on Tiptap and Prosemirror. It offers a "plug and play" experience and comes with many essential features out of the box that can be incorporated into your apps quickly. Additionally, TenTap allows you the developers to tailor the editor to your applications specific needs.
 
-<img src="/10tap-editor/img/cover.gif" alt="cover" />
+<img src="/10tap-editor/img/cover.webp" alt="cover" />
 
 <br />
 <br />
