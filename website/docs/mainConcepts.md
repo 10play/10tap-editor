@@ -4,11 +4,11 @@ sidebar_position: 1
 
 # Main Concept
 
-`EditorBridge` - the react native way to control the webview editor, will extend by bridgeExtensions
+`EditorBridge` - a bridge to control the editor from the native side - will be extended by `bridgeExtensions`
 
-`bridgeExtension` - a plug able typed class that help to communicate between the native part and the webview part
+`bridgeExtension` - a typed class that helps us communicate between the native part and the webview part
 
-Working with this lib split to 2 main usages: [simple](./mainConcepts#simple-usage) and [advance](./mainConcepts#advance-usage), simple should be good enough for most of the cases, we tried to make the API as simple as we can so ppl will be able to plug that lib fast and play, advance usage require advance setup.
+There are two different ways to work with this lib: [simple](./mainConcepts#simple-usage) and [advanced](./mainConcepts#advance-usage), simple should be good enough for most of the cases, we tried to make the API as simple as possible so people will be able to plug and play, on the other hand advanced usage requires a longer setup.
 
 ## Simple usage
 
@@ -24,18 +24,18 @@ With the simple usage you get all the standard rich text abilities as you can ge
 - color/highlight
 - and more...
 
-For that usage you will be use the pre-built editor bundle we build that include all of [these](./api/BridgeExtensions) bridgeExtensions
+With the simple usage you have all of [these](./api/BridgeExtensions) bridgeExtensions available.
 
-With tentap you can also control the scheme of your editor by passing the useBridgeEditor list of bridgeExtensions you want, so in case you build a chat app and you dont want to let users underline you should not pass the Underline bridgeExtension, that will make sure that even if the user will copy paste some text with underline it will paste it without
+With tentap you can also control the scheme of your editor by passing the useBridgeEditor list of bridgeExtensions you want, so in case you build a chat app and you don't want to let users underline you should not pass the Underline bridgeExtension, that will make sure that even if the user will copy paste some text with underline, when pasted the underline will not be parsed.
 
-Custom keyboards - we believe that custom keyboard can be huge improvements for your editing exp, custom keyboard let you switch the keyboard with your react native view, that can be helpfull in case you want to take advange of the room the keyboard takes, see [color keyboard example](./examples/colorKeyboard) and [clean tool bar example](https://10play.dev)
+Custom keyboards - we believe that custom keyboards can be really improve the editing experience, custom keyboards let you switch the keyboard with a react native view, this can be helpful in cases where you want to take advantage of the room the keyboard takes, see [color keyboard example](./examples/colorKeyboard) and [custom keyboard example](./examples/customKeyboard.md)
 
-## Advance usage
+## Advanced usage
 
 In case you want to add your own tiptap extension / build your own bridgeExtension you will have to bundle the web editor by your own that way you will get full control of what running inside the webview.
 
 In this case we provide utils/components/hooks that can help you customize the editor but still get all the features and exp fixes tentap can offer.
 
-See the [advance setup](./setup/advancedSetup)
+See the [advanced setup](./setup/advancedSetup)
 
-See the advance section on examples for more details
+You can also see an example in `./example/src/Examples/Advanced`

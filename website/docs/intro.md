@@ -24,18 +24,18 @@ TenTap is a typed, easy to use, customizable, and extendable Rich Text editor fo
 
 After years of developing rich text editors for mobile, we realized that there is an empty void for open source RichText editors on mobile especially for ReactNative. So we have decided to create this package that incorporates all that we have learned, and that provides the best possible ux. Tentap is designed for getting the best experience of editing rich-text on mobile inspired by state of the art mobile editors like: gdocs, notion, dropbox paper.
 
-# Docs and Examples
+## Docs and Examples
 
 [Click Here For Full Documentation](https://10play.github.io/10tap-editor/docs/intro.html)
 
-# Installation
+## Installation
 
-## React Native
+### React Native
 
 1. `yarn add @10play/tentap-editor react-native-webview`
 2. `cd ios && pod install`
 
-## Expo
+### Expo
 
 `npx expo install @10play/tentap-editor react-native-webview`  
 Only basic usage without custom keyboard is supported by Expo Go (see [basic example](./examples/basic.md)).  
@@ -55,9 +55,7 @@ export const Basic = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <View style={{ flex: 1 }}>
-        <RichText editor={editor} />
-      </View>
+      <RichText editor={editor} />
     </SafeAreaView>
   );
 };

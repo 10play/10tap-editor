@@ -5,7 +5,7 @@ sidebar_position: 5
 # Custom Keyboard Utils
 
 We believe that custom keyboard can be a game changer when it comes to editing experience, that's why we decided that this ability should be part of this lib, in this page we will show the APIs of the custom keyboard utils.
-For examples and better guide please see: [Create custom keyboard](../examples/customKeyboard) or [Using the ColorKeyboard](../examples/colorKeyboard)
+For examples please see: [Create custom keyboard](../examples/customKeyboard) or [Using the ColorKeyboard](../examples/colorKeyboard)
 
 ### CustomKeyboard
 
@@ -19,31 +19,33 @@ Important for iOS where ref of some View is needed for keyboard manipulation
 #### keyboards
 
 `CustomKeyboardExtension[]`
-list of CustomKeyboardExtension
+list of [CustomKeyboardExtension's](#customkeyboardextension)
 
 #### setActiveKeyboardID
 
 `(id: string | undefined) => void`
-Needed so the keyboard will be able to close itself
+a function that changes or unsets the active keyboard
 
 #### activeKeyboardID
 
 `string`
-The active custom keyboard id
+the active custom keyboard id
 
 #### editor
 
 `EditorBridge`
-Needed so when you close custom keyboard we can focus the editor again
+the editors `EditorBridge` instance
 
 #### rootBackground - `IOS ONLY`
 
-The background of the RCTRootView used to render the custom keyboard
+The background of the `RCTRootView` used to render the custom keyboard
 This is helpful when you are using a custom theme
 
 ### CustomKeyboardExtension
 
-A js class that will register new app with the customkeyboard id - it's important to understand that it will be a septate app so state management and other will not work on the custom component as you expected,
+A class that will register a new component with the customkeyboard id
+
+> <strong>It's important to note that the custom keyboard component does not work as a regular react component in your app, and is rendered on IOS in a separate RCTRootView.</strong>
 
 #### id
 
@@ -53,4 +55,4 @@ a unique key for the custom keyboard
 #### comp
 
 `ComponentType<any>`
-The custom keyboard react native view
+The custom keyboard component

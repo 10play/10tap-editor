@@ -1,5 +1,5 @@
 ---
-sidebar_position: 1
+sidebar_position: 7
 ---
 
 # useEditorContent
@@ -8,8 +8,7 @@ The useEditorContent hook is designed to efficiently retrieve the content. It mo
 
 #### editor
 
-`EditorBridge` (<u>required</u>)  
-A list of BridgeExtensions that will be add to the editor on the native side
+`EditorBridge` (<u>required</u>)
 
 ### options
 
@@ -33,7 +32,7 @@ useEffect(() => {
 }, [content]);
 ```
 
-Internally `useEditorContent` get the content by calling `editor.getHTML` (or text/json depending on the `type` option). To reduce
+Internally `useEditorContent` will get the content by calling `editor.getHTML` (or text/json depending on the `type` option). To reduce
 traffic it is called within a `debounce` with a default interval of `10`ms. This can be modified changing the `debounceInterval` option.
 
 In addition we can also get the content as text or as a json.

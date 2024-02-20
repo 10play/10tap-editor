@@ -51,9 +51,7 @@ export const Basic = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <View style={{ flex: 1 }}>
-        <RichText editor={editor} />
-      </View>
+      <RichText editor={editor} />
     </SafeAreaView>
   );
 };
