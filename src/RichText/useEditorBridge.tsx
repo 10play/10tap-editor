@@ -101,7 +101,6 @@ export const useEditorBridge = (options?: {
   const injectCSS = (cssString: string, tag: string = 'custom-css') => {
     // Generate custom stylesheet with `custom-css` tag
     const customCSS = getStyleSheetCSS(cssString, tag);
-    console.log(customCSS);
     webviewRef.current?.injectJavaScript(customCSS);
   };
 

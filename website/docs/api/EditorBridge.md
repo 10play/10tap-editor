@@ -50,6 +50,16 @@ a function that get's html as string and set set's it as the editors content <br
 `(from: number, to: number) => void`<br />
 sets the selection of the editor <br /> extended by [CoreBridge](./BridgeExtensions#coreextension)
 
+#### injectCSS
+
+`(css: string, tag?: string) => void`<br />
+creates or updates the stylesheet with the given tag, see [Dynamically Updating CSS](../examples/customCss/#dynamically-updating-css) <br /> <u>default</u> `tag`: `custom-css`<br /> extended by [CoreBridge](./BridgeExtensions#coreextension)
+
+#### injectJS
+
+`(js: string) => void`<br />
+inject custom javascript into the editor's webview <br /> extended by [CoreBridge](./BridgeExtensions#coreextension)
+
 #### updateScrollThresholdAndMargin
 
 `(offset: number) => void`<br />
