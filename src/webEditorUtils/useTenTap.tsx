@@ -28,7 +28,7 @@ interface useTenTapArgs {
   bridges?: BridgeExtension[];
 }
 
-const configs = JSON.parse(window.bridgeExtensionConfigMap || '{}');
+const extensionConfigs = JSON.parse(window.bridgeExtensionConfigMap || '{}');
 
 // Wrapper for tiptap editor that will add specific mobile functionality and support tentap bridges
 // args:
@@ -41,7 +41,12 @@ export const useTenTap = (options?: useTenTapArgs) => {
   }
 
   const extensions = bridges
-    .map((e) => e.configureTiptapExtensionsOnRunTime(configs[e.name]))
+    .map((e) => {
+      const extensionConfig = extensionConfigs[e.name];
+      if (!extensionConfig) return null;
+      const { optionsConfig, extendConfig } = extensionConfig;
+      return e.configureTiptapExtensionsOnRunTime(optionsConfig, extendConfig);
+    })
     .filter(filterExists)
     .flat();
 

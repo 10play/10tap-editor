@@ -119,7 +119,10 @@ export const RichText = ({ editor, ...props }: RichTextProps) => {
               editor.bridgeExtensions.reduce((acc, bridge) => {
                 return {
                   ...acc,
-                  [bridge.name]: bridge.config,
+                  [bridge.name]: {
+                    optionsConfig: bridge.config,
+                    extendConfig: bridge.extendConfig,
+                  },
                 };
               }, {})
             )}';

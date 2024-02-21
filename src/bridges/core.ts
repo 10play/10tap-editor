@@ -139,7 +139,8 @@ export const CoreBridge = new BridgeExtension<
   CoreMessages
 >({
   forceName: 'coreBridge',
-  tiptapExtensionDeps: [Document, Paragraph, Text],
+  tiptapExtension: Document,
+  tiptapExtensionDeps: [Paragraph, Text],
   onBridgeMessage: (editor, message, sendMessageBack) => {
     if (message.type === CoreEditorActionType.SetContent) {
       editor.commands.setContent(message.payload.content);
