@@ -14,6 +14,7 @@ import { TenTapStartKit } from '../bridges/StarterKit';
 import { uniqueBy } from '../utils';
 import { defaultEditorTheme } from './theme';
 import type { Subscription } from '../types/Subscription';
+import { getStyleSheetCSS } from './utils';
 
 type RecursivePartial<T> = {
   [P in keyof T]?: RecursivePartial<T[P]>;
@@ -92,8 +93,20 @@ export const useEditorBridge = (options?: {
     });
   };
 
+  /**
+   * Injects custom css stylesheet, if stylesheet exists with the same tag, it will be replaced
+   * @param cssString css to inject
+   * @param tag optional - tag to identify the style element
+   */
+  const injectCSS = (cssString: string, tag: string = 'custom-css') => {
+    // Generate custom stylesheet with `custom-css` tag
+    const customCSS = getStyleSheetCSS(cssString, tag);
+    console.log(customCSS);
+    webviewRef.current?.injectJavaScript(customCSS);
+  };
+
   const editorBridge = {
-    bridgeExtensions: bridgeExtensions,
+    bridgeExtensions,
     initialContent: options?.initialContent,
     autofocus: options?.autofocus,
     avoidIosKeyboard: options?.avoidIosKeyboard,
@@ -104,32 +117,30 @@ export const useEditorBridge = (options?: {
     webviewRef,
     theme: mergedTheme,
     getEditorState,
+    injectCSS,
     _updateEditorState,
     _subscribeToEditorStateUpdate,
     _onContentUpdate,
     _subscribeToContentUpdate,
   };
 
-  const editorInstanceExtendByPlugins = (bridgeExtensions || []).reduce(
-    (acc, cur) => {
-      if (!cur.extendEditorInstance) return acc;
-      return Object.assign(
-        acc,
-        cur.extendEditorInstance(
-          sendAction,
-          webviewRef,
-          editorStateRef,
-          _updateEditorState
-        ),
+  const editorInstance = (bridgeExtensions || []).reduce((acc, cur) => {
+    if (!cur.extendEditorInstance) return acc;
+    return Object.assign(
+      acc,
+      cur.extendEditorInstance(
+        sendAction,
         webviewRef,
-        editorStateRef.current,
+        editorStateRef,
         _updateEditorState
-      );
-    },
-    editorBridge
-  ) as unknown as EditorBridge;
+      ),
+      webviewRef,
+      editorStateRef.current,
+      _updateEditorState
+    );
+  }, editorBridge) as EditorBridge; // TODO fix type
 
-  EditorHelper.setEditorLastInstance(editorInstanceExtendByPlugins);
+  EditorHelper.setEditorLastInstance(editorInstance);
 
-  return editorInstanceExtendByPlugins;
+  return editorInstance;
 };
