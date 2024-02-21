@@ -69,6 +69,7 @@ class BridgeExtension<T = any, E = any, M = any> {
   clone(): BridgeExtension<T, E, M> {
     return new BridgeExtension<T, E, M>({
       ...this,
+      forceName: this.name,
     });
   }
 
@@ -78,6 +79,7 @@ class BridgeExtension<T = any, E = any, M = any> {
     cloned.config = config;
     return cloned;
   }
+
   configureCSS(css: string) {
     const cloned = this.clone();
     cloned.extendCSS = css;

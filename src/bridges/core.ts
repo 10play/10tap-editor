@@ -25,6 +25,8 @@ type CoreEditorInstance = {
   updateScrollThresholdAndMargin: (offset: number) => void;
   focus: (pos: FocusArgs) => void;
   blur: () => void;
+  injectJS: (js: string) => void;
+  injectCSS: (css: string, tag?: string) => void;
   theme: EditorTheme;
 };
 
@@ -133,7 +135,7 @@ export type CoreMessages =
 
 export const CoreBridge = new BridgeExtension<
   CoreEditorState,
-  Omit<CoreEditorInstance, 'theme'>,
+  Omit<CoreEditorInstance, 'theme' | 'injectCSS'>,
   CoreMessages
 >({
   forceName: 'coreBridge',
@@ -162,7 +164,6 @@ export const CoreBridge = new BridgeExtension<
       });
     }
     if (message.type === CoreEditorActionType.GetText) {
-      console.log('!!!!!');
       sendMessageBack({
         type: CoreEditorActionType.SendTextToNative,
         payload: {
@@ -305,6 +306,9 @@ export const CoreBridge = new BridgeExtension<
           type: CoreEditorActionType.Blur,
           payload: undefined,
         });
+      },
+      injectJS: (js: string) => {
+        webviewRef?.current?.injectJavaScript(js);
       },
     };
   },

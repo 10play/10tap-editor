@@ -45,6 +45,33 @@ const editor = useEditorBridge({
 
 > <strong>NOTE</strong> calling configureCSS more than once will override the previous css.
 
+## Dynamically Updating CSS
+
+Let's say we want to dynamically update css after the editor is initialized.
+We can do this with [injectCSS](../api/EditorBridge/#injectcss).
+`injectCSS` receives two parameters:
+
+- `css`: the css to inject
+- `tag`: the tag of the stylesheet of which to inject the css into
+
+When we call `injectCSS` it gets or creates a stylesheet with the given `tag` and updates it's css.
+
+If we wanted to update our `CodeBridge` css after it has been initialized we could run
+
+```ts
+editor.injectCSS(ourCustomCSS, CodeBridge.name);
+```
+
+then this would replace or create the existing css with whatever we have given it.
+
+Now let's say that we don't want to override a bridges existing css, we could do this by providing a custom tag
+
+```ts
+editor.injectCSS(ourCustomCSS, 'our-custom-tag');
+```
+
+This will create a new stylesheet with `our-custom-tag` and it will not override any bridge's custom css.
+
 ## Adding Custom Fonts
 
 Let's add a custom font to our Editor (we can also add custom css)

@@ -2,10 +2,10 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import {
   SafeAreaView,
-  View,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  Button,
 } from 'react-native';
 import {
   CodeBridge,
@@ -52,9 +52,49 @@ export const CustomCss = ({}: NativeStackScreenProps<any, any, any>) => {
 
   return (
     <SafeAreaView style={exampleStyles.fullScreen}>
-      <View style={exampleStyles.fullScreen}>
-        <RichText editor={editor} />
-      </View>
+      <Button
+        title={'Random CodeBlock Color'}
+        onPress={() => {
+          editor.injectCSS(
+            `
+            code {
+              background-color: ${
+                '#' + Math.floor(Math.random() * 16777215).toString(16)
+              };
+              border-radius: 0.25em;
+              border-color: ${
+                '#' + Math.floor(Math.random() * 16777215).toString(16)
+              };
+              border-width: 1px;
+              border-style: solid;
+              box-decoration-break: clone;
+              color: ${'#' + Math.floor(Math.random() * 16777215).toString(16)};
+              font-size: 0.9rem;
+              padding: 0.25em;
+          }
+          `,
+            // Because we are passing CodeBridge name here, the existing css from CodeBridge will be replaced
+            // With the css we are injecting here
+            CodeBridge.name
+          );
+        }}
+      />
+      <Button
+        title={'Random Font Size'}
+        onPress={() => {
+          editor.injectCSS(
+            `
+            * {
+              font-size: ${Math.random() * 60}px;
+            }
+          `,
+            // We are passing a custom tag here, so no bridge css will be replaced, instead a new stylesheet with be created with
+            // the tag 'font-size', and it will only be replaced with we injectCSS again with the same tag
+            'font-size'
+          );
+        }}
+      />
+      <RichText editor={editor} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={exampleStyles.keyboardAvoidingView}

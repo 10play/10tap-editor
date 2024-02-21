@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Platform, StyleSheet, TextInput } from 'react-native';
 import {
   WebView,
@@ -11,6 +11,7 @@ import { editorHtml } from '../simpleWebEditor/build/editorHtml';
 import { type EditorMessage } from '../types/Messaging';
 import { useKeyboard } from '../utils';
 import type { EditorBridge } from '../types';
+import { getInjectedJS } from './utils';
 
 interface RichTextProps extends WebViewProps {
   editor: EditorBridge;
@@ -32,22 +33,6 @@ const DEV_SERVER_URL = 'http://localhost:3000';
 
 // TODO: make it a prop
 const TOOLBAR_HEIGHT = 44;
-
-const getStyleSheetCSS = (css: string[]) => {
-  return `
-    let css = \`${css.join(' ')}\`,
-    head = document.head || document.getElementsByTagName('head')[0],
-    style = document.createElement('style');
-        head.appendChild(style);
-        style.type = 'text/css';
-    if (style.styleSheet){
-      // This is required for IE8 and below.
-      style.styleSheet.cssText = css;
-    } else {
-      style.appendChild(document.createTextNode(css));
-    }
-  `;
-};
 
 export const RichText = ({ editor, ...props }: RichTextProps) => {
   const [loaded, setLoaded] = useState(false);
@@ -107,13 +92,10 @@ export const RichText = ({ editor, ...props }: RichTextProps) => {
     }
   }, [editor.avoidIosKeyboard, editor, iosKeyboardHeight, isKeyboardUp]);
 
-  const getInjectedJS = () => {
-    let injectJS = '';
-    const css =
-      editor.bridgeExtensions?.map(({ extendCSS }) => extendCSS || '') || [];
-    injectJS += getStyleSheetCSS(css);
-    return injectJS;
-  };
+  const injectedJavaScript = useMemo(
+    () => getInjectedJS(editor.bridgeExtensions || []),
+    [editor.bridgeExtensions]
+  );
 
   return (
     <>
@@ -129,7 +111,7 @@ export const RichText = ({ editor, ...props }: RichTextProps) => {
         ]}
         containerStyle={editor.theme.webviewContainer}
         source={source}
-        injectedJavaScript={getInjectedJS()}
+        injectedJavaScript={injectedJavaScript}
         injectedJavaScriptBeforeContentLoaded={`${
           editor.bridgeExtensions
             ? `
