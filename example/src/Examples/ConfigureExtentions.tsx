@@ -1,4 +1,3 @@
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import { SafeAreaView, View, StyleSheet, Button } from 'react-native';
 import {
@@ -8,12 +7,10 @@ import {
   TenTapStartKit,
   useEditorBridge,
 } from '@10play/tentap-editor';
+import { DropCursorBridge } from '../../../src/bridges/dropcursor';
 
-export const ConfigureExtensions = ({}: NativeStackScreenProps<
-  any,
-  any,
-  any
->) => {
+export const ConfigureExtensions = () => {
+  const [hideContent, setHideContent] = React.useState(false);
   const editor = useEditorBridge({
     autofocus: true,
     avoidIosKeyboard: true,
@@ -23,29 +20,33 @@ export const ConfigureExtensions = ({}: NativeStackScreenProps<
         placeholder: 'Hey there! Start typing...',
       }),
       LinkBridge.configureExtension({ openOnClick: false }),
+      DropCursorBridge.configureExtension({
+        color: '#84affe',
+        width: 2,
+      }),
     ],
   });
 
   return (
     <SafeAreaView style={exampleStyles.fullScreen}>
-      <View style={exampleStyles.fullScreen}>
-        <RichText editor={editor} />
-      </View>
-      <View style={exampleStyles.fullScreen}>
+      <View>
         <Button
-          title="Click Me To Add Link"
+          title="Toggle Content"
           onPress={() => {
             editor.setContent(
-              '<a href="https://10play.github.io/10tap-editor">Link To TenTap!</a>'
+              hideContent
+                ? ''
+                : `<a href="https://10play.github.io/10tap-editor">Link To TenTap!</a>
+            <p>Try to drag around the image. While you drag, the editor should show a decoration under your cursor. The so called dropcursor.</p></br>
+            <img src="https://source.unsplash.com/8xznAGy4HcY/800x400" /></br>
+            <p>Drag Me Here</p></br></br></br></br></br><p>Or Here</p>`
             );
+            setHideContent(!hideContent);
           }}
         />
-        <Button
-          title="Click Me To Show PlaceHolder"
-          onPress={() => {
-            editor.setContent('');
-          }}
-        />
+      </View>
+      <View style={exampleStyles.fullScreen}>
+        <RichText editor={editor} />
       </View>
     </SafeAreaView>
   );

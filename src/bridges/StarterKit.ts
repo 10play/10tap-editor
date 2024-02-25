@@ -16,6 +16,7 @@ import { HighlightBridge } from './highlight';
 import { CoreBridge } from './core';
 import { ImageBridge } from './image';
 import { PlaceholderBridge } from './placeholder';
+import { DropCursorBridge } from './dropcursor';
 
 export const TenTapStartKit = [
   BoldBridge,
@@ -36,4 +37,5 @@ export const TenTapStartKit = [
   CoreBridge,
   PlaceholderBridge,
   ListItemBridge,
+  DropCursorBridge,
 ];
