@@ -142,7 +142,10 @@ export const RichText = ({ editor, ...props }: RichTextProps) => {
         ref={editor.webviewRef}
         webviewDebuggingEnabled={__DEV__}
         keyboardDisplayRequiresUserAction={false}
-        onLoad={() => setLoaded(true)}
+        onLoad={(e) => {
+          setLoaded(true);
+          props.onLoad && props.onLoad(e);
+        }}
         {...props}
       />
     </>
