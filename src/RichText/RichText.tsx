@@ -142,11 +142,12 @@ export const RichText = ({ editor, ...props }: RichTextProps) => {
         ref={editor.webviewRef}
         webviewDebuggingEnabled={__DEV__}
         keyboardDisplayRequiresUserAction={false}
+        {...props}
+        // Propagated Props
         onLoad={(e) => {
           setLoaded(true);
           props.onLoad && props.onLoad(e);
         }}
-        {...props}
       />
     </>
   );
