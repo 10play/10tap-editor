@@ -37,8 +37,9 @@ export type LinkBarTheme = {
 };
 
 export interface Color {
-  value?: ColorValue;
   name: string;
+  value?: ColorValue;
+  displayColor?: ColorValue;
 }
 export type ColorKeyboardTheme = {
   scrollViewContainer: StyleProp<ViewStyle>;
@@ -54,7 +55,5 @@ export type ColorKeyboardTheme = {
   bottomSpacer: StyleProp<ViewStyle>;
   colorSelection: Color[];
   highlightSelection: Color[];
-  defaultTextColor: ColorValue;
-  defaultHighlightColor: ColorValue;
   keyboardRootColor: ColorValue;
 };

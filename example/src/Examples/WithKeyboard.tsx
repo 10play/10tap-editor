@@ -35,7 +35,6 @@ export const WithKeyboard = ({}: NativeStackScreenProps<any, any, any>) => {
       * {
           font-family: 'Rubik', sans-serif;
       }
-
     `),
     ],
   });

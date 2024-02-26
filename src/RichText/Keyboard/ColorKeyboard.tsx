@@ -133,7 +133,9 @@ const ColorButton = ({
           source={Images.a}
           style={[
             theme?.colorKeyboard.textIcon,
-            { tintColor: color.value || theme?.colorKeyboard.defaultTextColor },
+            {
+              tintColor: color.displayColor || color.value,
+            },
           ]}
           resizeMode="contain"
         />
@@ -145,8 +147,7 @@ const ColorButton = ({
           style={[
             theme?.colorKeyboard.highlight,
             {
-              backgroundColor:
-                color.value || theme?.colorKeyboard.defaultHighlightColor,
+              backgroundColor: color.displayColor || color.value,
             },
           ]}
         />

@@ -28,6 +28,7 @@ useEditorBridge({
         {
           name: 'Custom Color',
           value: '#E5112B',
+          displayColor: '#E5112B', // Optional - the color that will be displayed on ui (if left empty will default to use value)
         },
       ],
       // Check KeyboardTheme type for all options
