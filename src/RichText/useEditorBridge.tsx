@@ -1,7 +1,6 @@
 import { useMemo, useRef } from 'react';
 import WebView from 'react-native-webview';
 import cloneDeep from 'lodash/cloneDeep';
-import merge from 'lodash/merge';
 import {
   type EditorActionMessage,
   EditorMessageType,
@@ -15,8 +14,9 @@ import { uniqueBy } from '../utils';
 import { defaultEditorTheme } from './theme';
 import type { Subscription } from '../types/Subscription';
 import { getStyleSheetCSS } from './utils';
+import { mergeThemes } from '../utils/mergeThemes';
 
-type RecursivePartial<T> = {
+export type RecursivePartial<T> = {
   [P in keyof T]?: RecursivePartial<T[P]>;
 };
 
@@ -45,7 +45,7 @@ export const useEditorBridge = (options?: {
 
   const mergedTheme = useMemo(
     // We must deep clone defaultEditorTheme, because it is read only
-    () => merge(cloneDeep(defaultEditorTheme), options?.theme),
+    () => mergeThemes(cloneDeep(defaultEditorTheme), options?.theme),
     [options?.theme]
   );
 
