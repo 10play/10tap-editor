@@ -207,6 +207,7 @@
     "@tiptap/extension-code-block": "^2.2.1",
     "@tiptap/extension-color": "^2.1.16",
     "@tiptap/extension-document": "^2.2.1",
+    "@tiptap/extension-dropcursor": "^2.2.4",
     "@tiptap/extension-heading": "^2.2.1",
     "@tiptap/extension-highlight": "^2.1.16",
     "@tiptap/extension-history": "^2.2.1",

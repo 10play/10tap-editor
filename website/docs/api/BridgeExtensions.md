@@ -97,3 +97,8 @@ relevant configuration: https://tiptap.dev/docs/editor/api/marks/underline#setti
 
 uses `@tiptap/extension-placeholder`
 relevant configuration: https://tiptap.dev/docs/editor/api/extensions/placeholder#settings
+
+### DropCursorBridge
+
+uses `@tiptap/extension-dropcursor`
+relevant configuration: https://tiptap.dev/docs/editor/api/extensions/dropcursor#settings
