@@ -31,11 +31,13 @@ const styles = StyleSheet.create({
 
 const DEV_SERVER_URL = 'http://localhost:3000';
 
+//@ts-ignore
+const isFabric = () => !!global?.nativeFabricUIManager;
 // TODO: make it a prop
 const TOOLBAR_HEIGHT = 44;
 
 export const RichText = ({ editor, ...props }: RichTextProps) => {
-  const [loaded, setLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(isFabric());
   const { keyboardHeight: iosKeyboardHeight, isKeyboardUp } = useKeyboard();
   const source: WebViewProps['source'] = editor.DEV
     ? { uri: editor.DEV_SERVER_URL || DEV_SERVER_URL }

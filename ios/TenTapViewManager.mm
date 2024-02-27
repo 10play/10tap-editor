@@ -1,7 +1,6 @@
 #import <React/RCTViewManager.h>
 #import <React/RCTUIManager.h>
 #import "RCTBridge.h"
-#import "Utils.h"
 #import "TenTapViewImpl.h"
 #import "RCTBridgeProvider.h"
 
@@ -28,7 +27,6 @@ RCT_CUSTOM_VIEW_PROPERTY(rootBackground, NSString, TenTapViewImpl)
 }
 
 RCT_EXPORT_METHOD(setBridge){
-    NSLog(@"Bridge: %@", self.bridge);
     [RCTBridgeProvider shared].bridge = self.bridge;
 }
 

@@ -8,8 +8,6 @@
 
 #import "RCTFabricComponentsPlugins.h"
 
-#import "TenTapViewImpl.h"
-
 using namespace facebook::react;
 
 @interface TenTapView () <RCTTenTapViewViewProtocol>
