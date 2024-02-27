@@ -3,6 +3,7 @@
 #import "RCTBridge.h"
 #import "Utils.h"
 #import "TenTapViewImpl.h"
+#import "RCTBridgeProvider.h"
 
 @interface TenTapViewManager : RCTViewManager
 @end
@@ -24,6 +25,11 @@ RCT_EXPORT_VIEW_PROPERTY(keyboardHeight, NSNumber)
 RCT_CUSTOM_VIEW_PROPERTY(rootBackground, NSString, TenTapViewImpl)
 {
     view.rootBackground = [RCTConvert UIColor:json];
+}
+
+RCT_EXPORT_METHOD(setBridge){
+    NSLog(@"Bridge: %@", self.bridge);
+    [RCTBridgeProvider shared].bridge = self.bridge;
 }
 
 @end

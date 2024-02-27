@@ -3,7 +3,6 @@ import { processColor, type ColorValue } from 'react-native';
 import { TenTapView, useKeyboard } from '@10play/tentap-editor';
 import { useRefHandle } from '../../utils/useRefHandle';
 import type { CustomKeyboardExtension } from './CustomKeyboardExtension';
-
 export interface CustomKeyboardIOSProps {
   rootRef: React.RefObject<any>;
   onKeyboardHideAndroid?: () => void;
@@ -18,13 +17,12 @@ export const CustomKeyboardIOS = ({
 }: CustomKeyboardIOSProps) => {
   const refHandle = useRefHandle(rootRef);
   const { keyboardHeight } = useKeyboard();
-
   return (
     <TenTapView
       inputTag={customKeyboard ? refHandle : undefined}
       keyboardHeight={keyboardHeight}
       keyboardID={customKeyboard ? customKeyboard.id : undefined}
-      rootBackground={processColor(rootBackground) as unknown as string}
+      rootBackground={processColor(rootBackground) as unknown as number}
     />
   );
 };
