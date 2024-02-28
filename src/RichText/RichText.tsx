@@ -12,6 +12,7 @@ import { type EditorMessage } from '../types/Messaging';
 import { useKeyboard } from '../utils';
 import type { EditorBridge } from '../types';
 import { getInjectedJS } from './utils';
+import { isFabric } from '../utils/misc';
 
 interface RichTextProps extends WebViewProps {
   editor: EditorBridge;
@@ -31,8 +32,6 @@ const styles = StyleSheet.create({
 
 const DEV_SERVER_URL = 'http://localhost:3000';
 
-//@ts-ignore
-const isFabric = () => !!global?.nativeFabricUIManager;
 // TODO: make it a prop
 const TOOLBAR_HEIGHT = 44;
 

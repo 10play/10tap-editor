@@ -65,6 +65,7 @@ class TenTapViewManager :
   }
 
   override fun createShadowNodeInstance(context: ReactApplicationContext): LayoutShadowNode {
+    // This is only called on old ARCH
     shadowNode = super.createShadowNodeInstance(context)
     shadowNode.setDisplay(YogaDisplay.NONE)
     return shadowNode;
@@ -83,6 +84,12 @@ class TenTapViewManager :
   }
 
   private fun setCustomKeyboardVisibility(visible: Boolean){
+    if(BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
+      // Ignore this func on new arch - shadowNode is not set
+      customKeyboardShown = visible
+      return
+    }
+
     dispatchUIUpdate(Runnable {
       customKeyboardShown = visible
       if(!visible){
@@ -132,7 +139,22 @@ class TenTapViewManager :
     }
   }
 
+  // NEEDED FOR NEW ARCH | IOS ONLY
+  override fun setRootBackground(view: TenTapView?, value: Int) {
+    // IOS ONLY DO NOTHING
+  }
 
+  override fun setInputTag(view: TenTapView?, value: Int) {
+    // IOS ONLY DO NOTHING
+  }
+
+  override fun setKeyboardID(view: TenTapView?, value: String?) {
+    // IOS ONLY DO NOTHING
+  }
+
+  override fun setKeyboardHeight(view: TenTapView?, value: Int) {
+    // IOS ONLY DO NOTHING
+  }
 
   companion object {
     const val NAME = "TenTapView"

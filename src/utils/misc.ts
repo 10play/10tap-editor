@@ -1,3 +1,6 @@
+//@ts-ignore
+export const isFabric = () => !!global?.nativeFabricUIManager;
+
 export const isExpo = () => {
   let isRunningOnExpo = false;
 
