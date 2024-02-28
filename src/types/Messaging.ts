@@ -6,6 +6,7 @@ export enum EditorMessageType {
 export interface EditorActionMessage {
   type: EditorMessageType.Action;
   payload: any;
+  id?: string; // Temporary, android new arch only
 }
 
 export type EditorMessage = EditorActionMessage | CoreMessages;

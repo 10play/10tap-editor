@@ -15,6 +15,8 @@ import { defaultEditorTheme } from './theme';
 import type { Subscription } from '../types/Subscription';
 import { getStyleSheetCSS } from './utils';
 import { mergeThemes } from '../utils/mergeThemes';
+import { isFabric } from '../utils/misc';
+import { Platform } from 'react-native';
 
 export type RecursivePartial<T> = {
   [P in keyof T]?: RecursivePartial<T[P]>;
@@ -81,8 +83,13 @@ export const useEditorBridge = (options?: {
   };
 
   const sendMessage = (message: EditorActionMessage) => {
-    // TODO editor ready check
     if (!webviewRef.current) return console.warn("Editor isn't ready yet");
+    // Workaround for https://github.com/react-native-webview/react-native-webview/issues/3305
+    // On the new arch on Android, messages are sent twice, so if we toggle bold it immediately toggles back
+    // We workaround this by adding a random id to the message and not handling it twice on the web side
+    if (isFabric() && Platform.OS === 'android') {
+      message.id = Math.random().toString(36).substring(7);
+    }
     webviewRef.current?.postMessage(JSON.stringify(message));
   };
 

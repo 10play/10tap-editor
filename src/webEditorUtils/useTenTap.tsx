@@ -102,13 +102,17 @@ export const useTenTap = (options?: useTenTapArgs) => {
     };
     const handleWebviewMessage = (event: MessageEvent | Event) => {
       if (!(event instanceof MessageEvent)) return; // TODO check android
-      const { type, payload } = JSON.parse(event.data) as EditorMessage;
-      // todo: fix this - switch not needed
-      switch (type) {
-        case EditorMessageType.Action:
-          // Handle actions
-          handleEditorAction(payload);
-          break;
+      const message = JSON.parse(event.data) as EditorMessage;
+      if (message.type === EditorMessageType.Action) {
+        // Workaround for https://github.com/react-native-webview/react-native-webview/issues/3305
+        if (message.id) {
+          // @ts-ignore
+          if (window.lastMessageID === message.id) return;
+          // @ts-ignore
+          window.lastMessageID = message.id;
+        }
+        // Handle actions
+        handleEditorAction(message.payload);
       }
     };
     // We need to listen to both window and document events because some platform get
