@@ -36,6 +36,7 @@ export const defaultToolbarTheme: ToolbarTheme = {
   },
   iconWrapper: {
     borderRadius: 4,
+    backgroundColor: 'white',
   },
   icon: {
     height: 28,
@@ -95,6 +96,10 @@ export const darkToolbarTheme: Partial<ToolbarTheme> = {
   },
   iconWrapperActive: {
     backgroundColor: '#8E8E93',
+  },
+  iconWrapper: {
+    borderRadius: 4,
+    backgroundColor: '#474747',
   },
   hidden: {
     display: 'none',
