@@ -2,6 +2,8 @@
 #ifdef RCT_NEW_ARCH_ENABLED
 #import <React/RCTViewComponentView.h>
 #import <UIKit/UIKit.h>
+#import "RCTBridgeProvider.h"
+#import "TenTapViewImpl.h"
 
 #ifndef TenTapViewNativeComponent_h
 #define TenTapViewNativeComponent_h

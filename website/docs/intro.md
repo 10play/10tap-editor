@@ -24,6 +24,7 @@ TenTap is a typed, easy to use, customizable, and extendable Rich Text editor fo
 - 🛠️ Native toolbar
 - 💅 Customizable styles
 - 🌒 Darkmode and custom theme support
+- 🏗️ Supports new architecture
 
 ## Why?
 

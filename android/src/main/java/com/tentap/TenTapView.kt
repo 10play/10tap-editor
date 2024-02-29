@@ -21,14 +21,6 @@ class TenTapView : ViewGroup{
   override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
     var height = bottom - top
     Log.i("TenTapView", "Layout $changed height: $height")
-//    // Loop through all the child views of this layout
-//    for (i in 0 until childCount) {
-//      val child = getChildAt(i)
-//
-//        // Position the child view within this layout
-//        child.layout(left, top, right + child.measuredWidth, bottom + child.measuredHeight)
-//
-//    }
   }
 
   override fun onViewAdded(child: View?) {

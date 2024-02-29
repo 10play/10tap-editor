@@ -12,6 +12,7 @@ import { type EditorMessage } from '../types/Messaging';
 import { useKeyboard } from '../utils';
 import type { EditorBridge } from '../types';
 import { getInjectedJS } from './utils';
+import { isFabric } from '../utils/misc';
 
 interface RichTextProps extends WebViewProps {
   editor: EditorBridge;
@@ -35,7 +36,7 @@ const DEV_SERVER_URL = 'http://localhost:3000';
 const TOOLBAR_HEIGHT = 44;
 
 export const RichText = ({ editor, ...props }: RichTextProps) => {
-  const [loaded, setLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(isFabric());
   const { keyboardHeight: iosKeyboardHeight, isKeyboardUp } = useKeyboard();
   const source: WebViewProps['source'] = editor.DEV
     ? { uri: editor.DEV_SERVER_URL || DEV_SERVER_URL }

@@ -7,16 +7,15 @@
 #import <react/renderer/components/RNTenTapViewSpec/RCTComponentViewHelpers.h>
 
 #import "RCTFabricComponentsPlugins.h"
-#import "Utils.h"
 
 using namespace facebook::react;
 
 @interface TenTapView () <RCTTenTapViewViewProtocol>
-
+    
 @end
 
 @implementation TenTapView {
-    UIView * _view;
+    TenTapViewImpl * _view;
 }
 
 + (ComponentDescriptorProvider)componentDescriptorProvider
@@ -24,14 +23,15 @@ using namespace facebook::react;
     return concreteComponentDescriptorProvider<TenTapViewComponentDescriptor>();
 }
 
+
 - (instancetype)initWithFrame:(CGRect)frame
 {
   if (self = [super initWithFrame:frame]) {
     static const auto defaultProps = std::make_shared<const TenTapViewProps>();
     _props = defaultProps;
-
-    _view = [[UIView alloc] init];
-
+    _view = [[TenTapViewImpl alloc] init];
+    // Get RCTBridge from shared bridge provider
+    _view.bridge = [RCTBridgeProvider shared].bridge;
     self.contentView = _view;
   }
 
@@ -43,9 +43,20 @@ using namespace facebook::react;
     const auto &oldViewProps = *std::static_pointer_cast<TenTapViewProps const>(_props);
     const auto &newViewProps = *std::static_pointer_cast<TenTapViewProps const>(props);
 
-    if (oldViewProps.color != newViewProps.color) {
-        NSString * colorToConvert = [[NSString alloc] initWithUTF8String: newViewProps.color.c_str()];
-        [_view setBackgroundColor: [Utils hexStringToColor:colorToConvert]];
+    if (oldViewProps.keyboardID != newViewProps.keyboardID) {
+        NSString *newKeyboardID = [NSString stringWithUTF8String:newViewProps.keyboardID.c_str()];
+        [_view setKeyboardID:newKeyboardID];
+    }
+
+    if (oldViewProps.rootBackground != newViewProps.rootBackground) {
+        NSNumber *colorProp = @(newViewProps.rootBackground);
+        [_view setRootBackground:[RCTConvert UIColor:colorProp]];
+    }
+    if (oldViewProps.keyboardHeight != newViewProps.keyboardHeight) {
+        [_view setKeyboardHeight:[NSNumber numberWithInt:newViewProps.keyboardHeight]];
+    }
+    if (oldViewProps.inputTag != newViewProps.inputTag) {
+        [_view setInputTag:[NSNumber numberWithInt:newViewProps.inputTag]];
     }
 
     [super updateProps:props oldProps:oldProps];

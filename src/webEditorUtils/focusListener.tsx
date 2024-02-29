@@ -1,4 +1,4 @@
-import { isExpo } from '../utils/expoUtils';
+import { isExpo } from '../utils/misc';
 class FocusListener {
   private focus: boolean;
   constructor() {

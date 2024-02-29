@@ -1124,7 +1124,7 @@ PODS:
   - RNSVG (14.1.0):
     - React-Core
   - SocketRocket (0.6.1)
-  - tentap (0.4.24):
+  - tentap (0.4.46):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1400,7 +1400,7 @@ SPEC CHECKSUMS:
   RNScreens: b582cb834dc4133307562e930e8fa914b8c04ef2
   RNSVG: ba3e7232f45e34b7b47e74472386cf4e1a676d0a
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  tentap: c7a1f142c8cab3c5e3d8322b41b9b31dcb7171c1
+  tentap: 3f1764be1c97c5812b18c49eaf661110b1a60c0a
   Yoga: e64aa65de36c0832d04e8c7bd614396c77a80047
 
 PODFILE CHECKSUM: 59f02bbde682eb22b765a58d4a0ce59d95964282

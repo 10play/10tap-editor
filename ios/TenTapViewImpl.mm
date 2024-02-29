@@ -59,7 +59,18 @@
         inputController.inputView = inputView;
         
         // Create Keyboard
-        RCTRootView *customKeyboard = [[RCTRootView alloc] initWithBridge:self.bridge moduleName:_keyboardID initialProperties:nil];
+        UIView *customKeyboard = nil;
+        #ifdef RCT_NEW_ARCH_ENABLED
+            // On new arch use fabric view
+            id<RCTSurfaceProtocol> surface = [[RCTFabricSurface alloc] initWithBridge:self.bridge
+                                                                       moduleName:_keyboardID
+                                                                    initialProperties:{}];
+            customKeyboard = [[RCTSurfaceHostingProxyRootView alloc] initWithSurface:surface];
+        #else
+            // on old arch use RCTRootView
+            customKeyboard = [[RCTRootView alloc] initWithBridge:self.bridge moduleName:_keyboardID initialProperties:nil];
+        #endif /* RCT_NEW_ARCH_ENABLED */
+
         if(_rootBackground != nil){
             customKeyboard.backgroundColor = _rootBackground;
         }
