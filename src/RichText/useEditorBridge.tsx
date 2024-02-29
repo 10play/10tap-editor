@@ -27,6 +27,7 @@ export const useEditorBridge = (options?: {
   avoidIosKeyboard?: boolean;
   customSource?: string;
   webviewBaseURL?: string;
+  onChange?: () => void;
   DEV?: boolean;
   DEV_SERVER_URL?: string;
   theme?: RecursivePartial<EditorTheme>;
@@ -56,6 +57,7 @@ export const useEditorBridge = (options?: {
 
   const _onContentUpdate = () => {
     editorContentSubsRef.current.forEach((sub) => sub());
+    options?.onChange?.();
   };
 
   const _subscribeToEditorStateUpdate: Subscription<BridgeState> = (cb) => {

@@ -42,6 +42,14 @@ this prop can be used to customize default styles, see [theme example](../exampl
 <u>default</u>: `SimpleEditorBundleString`<br />
 used in advance setup, an HTML string that will replace the default simple editor
 
+#### onChange
+
+`() => void`
+you can assign a callback that will be called each time the editors content has changed. Inside this function you can call
+`editor.getHTML`, `editor.getJSON` or `editor.getText` to get the content. The content is not directly provided as to not
+create allot of traffic between the webview and native. It is recommended to request the content in some debounced function
+and not each change.
+
 #### DEV
 
 `boolean`  
