@@ -11,7 +11,7 @@ interface NativeProps extends ViewProps {
 }
 
 if (Platform.OS === 'ios') {
-  NativeModules.TenTapView.setBridge();
+  NativeModules.TenTapView?.setBridge();
 }
 
 export default codegenNativeComponent<NativeProps>('TenTapView');
