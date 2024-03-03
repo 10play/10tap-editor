@@ -26,7 +26,7 @@ TenTap is a typed, easy to use, customizable, and extendable Rich Text editor fo
 - 🌒 Darkmode and custom theme support
 - 🏗️ supports new architecture\*
 
-* might experience some issues on react-native versions below 0.73.5
+\* new arch supported on react-native version 0.73.5 and above
 
 ## Why?
 
