@@ -6,8 +6,8 @@ import {
   RichText,
   TenTapStartKit,
   useEditorBridge,
+  DropCursorBridge,
 } from '@10play/tentap-editor';
-import { DropCursorBridge } from '../../../src/bridges/dropcursor';
 
 export const ConfigureExtensions = () => {
   const [hideContent, setHideContent] = React.useState(false);

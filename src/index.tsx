@@ -13,6 +13,7 @@ export * from './bridges/bulletList';
 export * from './bridges/blockquote';
 export * from './bridges/listItem';
 export * from './bridges/code';
+export * from './bridges/dropcursor';
 export * from './bridges/underline';
 export * from './bridges/tasklist';
 export * from './bridges/link';
