@@ -16,7 +16,8 @@
       "import": "./lib-web/index.mjs",
       "require": "./lib-web/index.umd.cjs",
       "types": "./lib-web/typescript/webEditorUtils/index.d.ts"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "source": "src/index",
   "files": [
