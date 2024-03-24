@@ -50,6 +50,7 @@ export enum CoreEditorActionType {
   EditorReady = 'editor-ready',
   UpdateScrollThresholdAndMargin = 'update-scroll-threshold-and-margin',
   ContentUpdate = 'content-update',
+  DocumentHeight = 'document-height',
 }
 
 type MessageToNative =
@@ -131,6 +132,10 @@ export type CoreMessages =
   | {
       type: CoreEditorActionType.ContentUpdate;
       payload: undefined;
+    }
+  | {
+      type: CoreEditorActionType.DocumentHeight;
+      payload: number;
     };
 
 export const CoreBridge = new BridgeExtension<

@@ -7,6 +7,7 @@ import { type BridgeState } from '../types/EditorBridge';
 import type BridgeExtension from '../bridges/base';
 import { CoreEditorActionType } from '../bridges/core';
 import { blueBackgroundPlugin } from '../bridges/HighlightSelection';
+import { contentHeightListener } from './contentHeight';
 declare global {
   interface Window {
     initialContent: string;
@@ -125,6 +126,19 @@ export const useTenTap = (options?: useTenTapArgs) => {
       document.removeEventListener('message', handleWebviewMessage);
     };
   }, [editor, bridges]);
+
+  useEffect(() => {
+    if (editor && !contentHeightListener.connected)
+      contentHeightListener.connect(
+        document.querySelector('.ProseMirror')!,
+        (height) => {
+          sendMessage({
+            type: CoreEditorActionType.DocumentHeight,
+            payload: height,
+          });
+        }
+      );
+  }, [editor]);
 
   return editor;
 };

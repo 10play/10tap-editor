@@ -11,6 +11,7 @@ export interface EditorBridge {
   webviewBaseURL?: string;
   DEV?: boolean;
   DEV_SERVER_URL?: string;
+  dynamicHeight?: boolean;
   autofocus: boolean;
   focus: (pos?: 'start' | 'end' | 'all' | number | boolean | null) => void;
   initialContent?: string;
@@ -19,6 +20,7 @@ export interface EditorBridge {
   _updateEditorState: (state: BridgeState) => void;
   _subscribeToEditorStateUpdate: Subscription<BridgeState>;
   _onContentUpdate: () => void;
+  _onContentHeightUpdate: (height: number) => void;
   _subscribeToContentUpdate: Subscription<void>;
   bridgeExtensions?: BridgeExtension<unknown, unknown, unknown>[];
 }

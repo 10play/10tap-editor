@@ -12,5 +12,11 @@ let tenTapExtensions = TenTapStartKit.filter(
 export default function Tiptap() {
   const editor = useTenTap({ bridges: tenTapExtensions });
 
-  return <EditorContent editor={editor} />;
+  return (
+    <EditorContent
+      editor={editor}
+      // @ts-ignore
+      className={window.dynamicHeight ? 'dynamic-height' : undefined}
+    />
+  );
 }
