@@ -16,7 +16,7 @@ Now we have added all of the pre-built bridgeExtensions provided by tentap, and 
 const editor = useEditorBridge();
 ```
 
-This is the same ass passing
+This is the same as passing
 
 ```tsx
 const editor = useEditorBridge({
