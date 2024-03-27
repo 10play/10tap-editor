@@ -31,7 +31,13 @@ export const ComposeRichText = ({
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={composeStyles.keyboardAvoidingView}
+        style={
+          (composeStyles.keyboardAvoidingView,
+          {
+            display: 'none',
+          })
+        }
+        keyboardVerticalOffset={100}
       >
         <ComposeToolbar
           editor={editor}

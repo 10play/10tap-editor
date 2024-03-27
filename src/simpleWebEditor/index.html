@@ -11,14 +11,16 @@
       padding: 0;
     }
     #root > div:nth-of-type(1) {
-      overflow: auto;
-      height: 100%;
       position: absolute;
+      height: 100%;
       width: 100%;
       top: 0;
       bottom: 0;
     }
-    #root div .ProseMirror {
+    #root > div:nth-of-type(1) :not(.dynamic-height) {
+      overflow: auto;
+    }
+    #root div .ProseMirror :not(.dynamic-height) {
       height: 100%;
       overflow: auto;
     }
