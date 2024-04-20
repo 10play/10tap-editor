@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import { Platform, View } from 'react-native';
 import { Images } from '../../assets';
 import { EditorActionType } from '../../types/Actions';
 import type { EditorBridge } from '../../types';
@@ -38,7 +38,7 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
         editor.toggleBold(),
     active: ({ editorState }) => editorState.isBoldActive,
     disabled: ({ editorState }) => !editorState.canToggleBold,
-    image: () => Images.bold,
+    image: () => Images.bold , // original
   },
   {
     onPress:
@@ -49,53 +49,53 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     disabled: ({ editorState }) => !editorState.canToggleItalic,
     image: () => Images.italic,
   },
-  {
-    onPress:
-      ({ setToolbarContext, editorState, editor }) =>
-      () => {
-        if (Platform.OS === 'android') {
-          // On android focus outside the editor will lose the tiptap selection so we wait for the next tick and set it with the last selection value we had
-          setTimeout(() => {
-            editor.setSelection(
-              editorState.selection.from,
-              editorState.selection.to
-            );
-          });
-        }
-        setToolbarContext(ToolbarContext.Link);
-      },
-    active: ({ editorState }) => editorState.isLinkActive,
-    disabled: ({ editorState }) =>
-      !editorState.isLinkActive && !editorState.canSetLink,
-    image: () => Images.link,
-  },
-  {
-    onPress:
-      ({ editor }) =>
-      () =>
-        editor.toggleTaskList(),
-    active: ({ editorState }) => editorState.isTaskListActive,
-    disabled: ({ editorState }) => !editorState.canToggleTaskList,
-    image: () => Images.checkList,
-  },
-  {
-    onPress:
-      ({ setToolbarContext }) =>
-      () =>
-        setToolbarContext(ToolbarContext.Heading),
-    active: () => false,
-    disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.Aa,
-  },
-  {
-    onPress:
-      ({ editor }) =>
-      () =>
-        editor.toggleCode(),
-    active: ({ editorState }) => editorState.isCodeActive,
-    disabled: ({ editorState }) => !editorState.canToggleCode,
-    image: () => Images.code,
-  },
+  // {
+  //   onPress:
+  //     ({ setToolbarContext, editorState, editor }) =>
+  //     () => {
+  //       if (Platform.OS === 'android') {
+  //         // On android focus outside the editor will lose the tiptap selection so we wait for the next tick and set it with the last selection value we had
+  //         setTimeout(() => {
+  //           editor.setSelection(
+  //             editorState.selection.from,
+  //             editorState.selection.to
+  //           );
+  //         });
+  //       }
+  //       setToolbarContext(ToolbarContext.Link);
+  //     },
+  //   active: ({ editorState }) => editorState.isLinkActive,
+  //   disabled: ({ editorState }) =>
+  //     !editorState.isLinkActive && !editorState.canSetLink,
+  //   image: () => Images.link,
+  // },
+  // {
+  //   onPress:
+  //     ({ editor }) =>
+  //     () =>
+  //       editor.toggleTaskList(),
+  //   active: ({ editorState }) => editorState.isTaskListActive,
+  //   disabled: ({ editorState }) => !editorState.canToggleTaskList,
+  //   image: () => Images.checkList,
+  // },
+  // {
+  //   onPress:
+  //     ({ setToolbarContext }) =>
+  //     () =>
+  //       setToolbarContext(ToolbarContext.Heading),
+  //   active: () => false,
+  //   disabled: ({ editorState }) => !editorState.canToggleHeading,
+  //   image: () => Images.Aa,
+  // },
+  // {
+  //   onPress:
+  //     ({ editor }) =>
+  //     () =>
+  //       editor.toggleCode(),
+  //   active: ({ editorState }) => editorState.isCodeActive,
+  //   disabled: ({ editorState }) => !editorState.canToggleCode,
+  //   image: () => Images.code,
+  // },
   {
     onPress:
       ({ editor }) =>
@@ -114,15 +114,15 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     disabled: ({ editorState }) => !editorState.canToggleStrike,
     image: () => Images.strikethrough,
   },
-  {
-    onPress:
-      ({ editor }) =>
-      () =>
-        editor.toggleBlockquote(),
-    active: ({ editorState }) => editorState.isBlockquoteActive,
-    disabled: ({ editorState }) => !editorState.canToggleBlockquote,
-    image: () => Images.quote,
-  },
+  // {
+  //   onPress:
+  //     ({ editor }) =>
+  //     () =>
+  //       editor.toggleBlockquote(),
+  //   active: ({ editorState }) => editorState.isBlockquoteActive,
+  //   disabled: ({ editorState }) => !editorState.canToggleBlockquote,
+  //   image: () => Images.quote,
+  // },
   {
     onPress:
       ({ editor }) =>
@@ -141,24 +141,24 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     disabled: ({ editorState }) => !editorState.canToggleBulletList,
     image: () => Images.bulletList,
   },
-  {
-    onPress:
-      ({ editor }) =>
-      () =>
-        editor.sink(),
-    active: () => false,
-    disabled: ({ editorState }) => !editorState.canSink,
-    image: () => Images.indent,
-  },
-  {
-    onPress:
-      ({ editor }) =>
-      () =>
-        editor.lift(),
-    active: () => false,
-    disabled: ({ editorState }) => !editorState.canLift,
-    image: () => Images.outdent,
-  },
+  // {
+  //   onPress:
+  //     ({ editor }) =>
+  //     () =>
+  //       editor.sink(),
+  //   active: () => false,
+  //   disabled: ({ editorState }) => !editorState.canSink,
+  //   image: () => Images.indent,
+  // },
+  // {
+  //   onPress:
+  //     ({ editor }) =>
+  //     () =>
+  //       editor.lift(),
+  //   active: () => false,
+  //   disabled: ({ editorState }) => !editorState.canLift,
+  //   image: () => Images.outdent,
+  // },
   {
     onPress:
       ({ editor }) =>
