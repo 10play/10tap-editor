@@ -6,6 +6,7 @@ export { BulletListBridge } from '../bridges/bulletList';
 export { CodeBridge } from '../bridges/code';
 export { ColorBridge } from '../bridges/color';
 export { CoreBridge } from '../bridges/core';
+export { CollaborationBridge } from '../bridges/collaboration';
 export { HeadingBridge } from '../bridges/heading';
 export { HighlightBridge } from '../bridges/highlight';
 export { blueBackgroundPlugin } from '../bridges/HighlightSelection';

@@ -15,6 +15,7 @@ import { CustomCss } from './Examples/CustomCss';
 import { ConfigureExtensions } from './Examples/ConfigureExtentions';
 import { NavigationHeader } from './Examples/NavigationHeader';
 import { DarkEditor } from './Examples/DarkEditor';
+import { CollaborationExample } from './Examples/Collaboration';
 
 const examples = [
   {
@@ -52,6 +53,10 @@ const examples = [
   {
     name: 'CustomAndStaticToolbar',
     component: CustomAndStaticToolbar,
+  },
+  {
+    name: 'Collaboration',
+    component: CollaborationExample,
   },
   {
     name: 'Advanced',

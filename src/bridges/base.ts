@@ -3,7 +3,7 @@ import type { EditorBridge, BridgeState } from '../types';
 import type WebView from 'react-native-webview';
 import type { RefObject } from 'react';
 
-interface BridgeExtension<T = any, E = any, M = any> {
+interface BridgeExtension<T = any, E = any, M = any, C = any> {
   name: string;
   tiptapExtension?: AnyExtension;
   tiptapExtensionDeps?: AnyExtension[];
@@ -21,12 +21,12 @@ interface BridgeExtension<T = any, E = any, M = any> {
     _setEditorState?: (editorState: BridgeState) => void
   ) => E;
   extendCSS?: string | undefined;
-  config?: any;
+  config?: C;
   extendConfig?: any;
 }
 
-type CreateTenTapBridgeArgs<T = any, E = any, M = any> = Omit<
-  BridgeExtension<T, E, M> & { forceName?: string },
+type CreateTenTapBridgeArgs<T = any, E = any, M = any, C = any> = Omit<
+  BridgeExtension<T, E, M, C> & { forceName?: string },
   | 'name'
   | 'sendMessage'
   | 'configureExtension'
@@ -36,7 +36,7 @@ type CreateTenTapBridgeArgs<T = any, E = any, M = any> = Omit<
   | 'clone'
 >;
 
-class BridgeExtension<T = any, E = any, M = any> {
+class BridgeExtension<T = any, E = any, M = any, C = any> {
   constructor({
     forceName,
     tiptapExtension,
@@ -48,7 +48,7 @@ class BridgeExtension<T = any, E = any, M = any> {
     extendCSS,
     config,
     extendConfig,
-  }: CreateTenTapBridgeArgs<T, E, M>) {
+  }: CreateTenTapBridgeArgs<T, E, M, C>) {
     if (!tiptapExtension) {
       this.name = forceName || 'BridgeExtension';
     } else {
@@ -78,7 +78,7 @@ class BridgeExtension<T = any, E = any, M = any> {
   }
 
   // runs on native
-  configureExtension(config: any) {
+  configureExtension(config: C) {
     const cloned = this.clone();
     cloned.config = config;
     return cloned;

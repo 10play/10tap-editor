@@ -21,6 +21,7 @@ export * from './bridges/color';
 export * from './bridges/highlight';
 export * from './bridges/placeholder';
 export * from './bridges/core';
+export * from './bridges/collaboration';
 export * from './bridges/image';
 export * from './types';
 export * from './utils';

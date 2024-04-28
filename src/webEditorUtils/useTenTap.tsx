@@ -1,5 +1,5 @@
 import debounce from 'lodash/debounce';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useEditor } from '@tiptap/react';
 import { Editor } from '@tiptap/core';
 import { type EditorMessage, EditorMessageType } from '../types/Messaging';
@@ -40,15 +40,23 @@ export const useTenTap = (options?: useTenTapArgs) => {
     return object !== null && object !== undefined;
   }
 
-  const extensions = bridges
-    .map((e) => {
-      const extensionConfig = extensionConfigs[e.name];
-      if (!extensionConfig) return null;
-      const { optionsConfig, extendConfig } = extensionConfig;
-      return e.configureTiptapExtensionsOnRunTime(optionsConfig, extendConfig);
-    })
-    .filter(filterExists)
-    .flat();
+  const extensions = useMemo(
+    () =>
+      bridges
+        .map((e) => {
+          const extensionConfig = extensionConfigs[e.name];
+          if (!extensionConfig) return null;
+          const { optionsConfig, extendConfig } = extensionConfig;
+          return e.configureTiptapExtensionsOnRunTime(
+            optionsConfig,
+            extendConfig
+          );
+        })
+        .filter(filterExists)
+        .flat(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
 
   const tiptapOptionsWithExtensions = {
     ...tiptapOptions,

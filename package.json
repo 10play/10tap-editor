@@ -201,11 +201,13 @@
     "jsSrcsDir": "src"
   },
   "dependencies": {
+    "@hocuspocus/provider": "^2.12.2",
     "@tiptap/extension-blockquote": "^2.2.1",
     "@tiptap/extension-bold": "^2.2.1",
     "@tiptap/extension-bullet-list": "^2.2.1",
     "@tiptap/extension-code": "^2.2.1",
     "@tiptap/extension-code-block": "^2.2.1",
+    "@tiptap/extension-collaboration": "^2.3.0",
     "@tiptap/extension-color": "^2.1.16",
     "@tiptap/extension-document": "^2.2.1",
     "@tiptap/extension-dropcursor": "^2.2.4",
@@ -228,6 +230,9 @@
     "@tiptap/react": "^2.1.16",
     "@tiptap/starter-kit": "^2.1.16",
     "lodash": "^4.17.21",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "y-prosemirror": "^1.2.3",
+    "y-websocket": "^2.0.2",
+    "yjs": "^13.6.15"
   }
 }
