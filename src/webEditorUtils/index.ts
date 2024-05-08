@@ -20,3 +20,4 @@ export { TenTapStartKit } from '../bridges/StarterKit';
 export { StrikeBridge } from '../bridges/strike';
 export { TaskListBridge } from '../bridges/tasklist';
 export { UnderlineBridge } from '../bridges/underline';
+export { HardBreakBridge } from '../bridges/br';
