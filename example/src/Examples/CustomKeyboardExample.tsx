@@ -20,9 +20,10 @@ import {
   ImageBridge,
   EditorHelper,
   CustomKeyboardExtension,
-  Images,
 } from '@10play/tentap-editor';
 import { CustomKeyboard } from '../../../src/RichText/Keyboard/CustomKeyboardBase';
+import { SVGs } from '../../../src/assets';
+import { IconSVG } from '../../../src/assets/IconSVG';
 
 const keyboardStyles = StyleSheet.create({
   keyboardContainer: {
@@ -174,7 +175,13 @@ const StickerToolbar = ({
           },
           active: () => activeKeyboard === StickerKeyboard.id,
           disabled: () => false,
-          image: () => Images.palette,
+          icon: () =>
+            IconSVG({
+              editor,
+              active: activeKeyboard === StickerKeyboard.id,
+              disabled: false,
+              icon: SVGs.palette,
+            }),
         },
       ]}
     />

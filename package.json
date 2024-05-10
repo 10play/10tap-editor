@@ -228,6 +228,7 @@
     "@tiptap/react": "^2.1.16",
     "@tiptap/starter-kit": "^2.1.16",
     "lodash": "^4.17.21",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-native-svg": "^15.2.0"
   }
 }

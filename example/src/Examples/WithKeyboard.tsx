@@ -20,8 +20,9 @@ import {
   TenTapStartKit,
   CoreBridge,
 } from '@10play/tentap-editor';
-import { Images } from '../../../src/assets';
+import { SVGs } from '../../../src/assets';
 import { customFont } from './font';
+import { IconSVG } from '../../../src/assets/IconSVG';
 
 export const WithKeyboard = ({}: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditorBridge({
@@ -105,7 +106,13 @@ const ToolbarWithColor = ({
           },
           active: () => activeKeyboard === ColorKeyboard.id,
           disabled: () => false,
-          image: () => Images.palette,
+          icon: () =>
+            IconSVG({
+              editor,
+              active: activeKeyboard === ColorKeyboard.id,
+              disabled: false,
+              icon: SVGs.palette,
+            }),
         },
         ...DEFAULT_TOOLBAR_ITEMS,
       ]}

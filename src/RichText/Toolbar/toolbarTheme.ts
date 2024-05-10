@@ -17,9 +17,8 @@ export const defaultToolbarTheme: ToolbarTheme = {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  iconDisabled: {
-    tintColor: '#CACACA',
-  },
+  iconSize: 24,
+  iconDisabled: '#aaa',
   iconWrapperDisabled: {
     opacity: 0.3,
   },
@@ -38,12 +37,8 @@ export const defaultToolbarTheme: ToolbarTheme = {
     borderRadius: 4,
     backgroundColor: 'white',
   },
-  icon: {
-    height: 28,
-    width: 28,
-    tintColor: '#898989',
-  },
-  iconActive: {},
+  icon: '#000',
+  iconActive: '#0f0',
   linkBarTheme: {
     addLinkContainer: {
       flex: 1,
@@ -91,9 +86,7 @@ export const darkToolbarTheme: Partial<ToolbarTheme> = {
   toolbarButton: {
     backgroundColor: '#474747',
   },
-  iconDisabled: {
-    tintColor: '#CACACA',
-  },
+  iconDisabled: '#aaa',
   iconWrapperActive: {
     backgroundColor: '#8E8E93',
   },
@@ -104,9 +97,7 @@ export const darkToolbarTheme: Partial<ToolbarTheme> = {
   hidden: {
     display: 'none',
   },
-  icon: {
-    tintColor: 'white',
-  },
+  icon: '#fff',
   linkBarTheme: {
     addLinkContainer: {
       backgroundColor: '#474747',

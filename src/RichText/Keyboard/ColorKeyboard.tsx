@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import {
-  Image,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -9,8 +8,8 @@ import {
 } from 'react-native';
 import { EditorHelper, useRemoteEditorBridge } from '../EditorHelper';
 import { CustomKeyboardExtension } from './CustomKeyboardExtension';
-import { Images } from '../../assets';
 import type { Color, EditorTheme } from '../../types';
+import A from '../../assets/a';
 
 const ColorKeyboardComp = () => {
   const editor = useRemoteEditorBridge();
@@ -129,16 +128,7 @@ const ColorButton = ({
   >
     {icon && (
       <View style={theme?.colorKeyboard.iconContainer}>
-        <Image
-          source={Images.a}
-          style={[
-            theme?.colorKeyboard.textIcon,
-            {
-              tintColor: color.displayColor || color.value,
-            },
-          ]}
-          resizeMode="contain"
-        />
+        <A fill={color.displayColor || color.value} size={24} />
       </View>
     )}
     {!icon && (

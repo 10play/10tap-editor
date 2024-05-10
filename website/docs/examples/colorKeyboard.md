@@ -84,7 +84,13 @@ const ToolbarWithColor = ({
           },
           active: () => activeKeyboard === ColorKeyboard.id,
           disabled: () => false,
-          image: () => Images.platte,
+          icon: () =>
+            IconSVG({
+              editor,
+              active: activeKeyboard === ColorKeyboard.id,
+              disabled: false,
+              icon: SVGs.palette,
+            }),
         },
         ...DEFAULT_TOOLBAR_ITEMS,
       ]}

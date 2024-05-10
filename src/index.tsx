@@ -24,6 +24,6 @@ export * from './bridges/core';
 export * from './bridges/image';
 export * from './types';
 export * from './utils';
-export { Images } from './assets';
+export { SVGs } from './assets';
 export { EditorHelper } from './RichText/EditorHelper';
 export { editorHtml } from './simpleWebEditor/build/editorHtml';

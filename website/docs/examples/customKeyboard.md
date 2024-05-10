@@ -151,7 +151,13 @@ const StickerToolbar = ({
           },
           active: () => activeKeyboard === StickerKeyboard.id,
           disabled: () => false,
-          image: () => Images.palette,
+          icon: () =>
+            IconSVG({
+              editor,
+              active: activeKeyboard === StickerKeyboard.id,
+              disabled: false,
+              icon: SVGs.palette,
+            }),
         },
       ]}
     />
@@ -346,7 +352,13 @@ const StickerToolbar = ({
           },
           active: () => activeKeyboard === StickerKeyboard.id,
           disabled: () => false,
-          image: () => Images.palette,
+          icon: () =>
+            IconSVG({
+              editor,
+              active: activeKeyboard === StickerKeyboard.id,
+              disabled: false,
+              icon: SVGs.palette,
+            }),
         },
       ]}
     />

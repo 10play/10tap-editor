@@ -1,6 +1,6 @@
 import {
   FlatList,
-  Image,
+  // Image,
   TouchableOpacity,
   StyleSheet,
   Platform,
@@ -62,7 +62,7 @@ export function Toolbar({
             editor.theme.toolbar.toolbarBody,
             hideToolbar ? editor.theme.toolbar.hidden : undefined,
           ]}
-          renderItem={({ item: { onPress, disabled, active, image } }) => {
+          renderItem={({ item: { onPress, disabled, active, icon } }) => {
             return (
               <TouchableOpacity
                 onPress={onPress(args)}
@@ -80,19 +80,7 @@ export function Toolbar({
                       : undefined,
                   ]}
                 >
-                  <Image
-                    source={image(args)}
-                    style={[
-                      editor.theme.toolbar.icon,
-                      active(args)
-                        ? editor.theme.toolbar.iconActive
-                        : undefined,
-                      disabled(args)
-                        ? editor.theme.toolbar.iconDisabled
-                        : undefined,
-                    ]}
-                    resizeMode="contain"
-                  />
+                  {icon(args)}
                 </View>
               </TouchableOpacity>
             );

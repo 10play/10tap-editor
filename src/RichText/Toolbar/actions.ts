@@ -1,9 +1,10 @@
 import { Platform } from 'react-native';
-import { Images } from '../../assets';
 import { EditorActionType } from '../../types/Actions';
 import type { EditorBridge } from '../../types';
 import { type BridgeState } from '../../types/EditorBridge';
 import { ToolbarContext } from './Toolbar';
+import { IconSVG } from '../../assets/IconSVG';
+import { SVGs } from '../../assets';
 
 export const ToolbarItems = {
   ...EditorActionType,
@@ -27,7 +28,10 @@ export interface ToolbarItem {
   onPress: ({ editor, editorState }: ArgsToolbarCB) => () => void;
   active: ({ editor, editorState }: ArgsToolbarCB) => boolean;
   disabled: ({ editor, editorState }: ArgsToolbarCB) => boolean;
-  image: ({ editor, editorState }: ArgsToolbarCB) => any;
+  // image: ({ editor, editorState }: ArgsToolbarCB) => any;
+  // accept react icon component
+
+  icon: ({ editor, editorState }: ArgsToolbarCB) => any;
 }
 
 export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
@@ -38,7 +42,13 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
         editor.toggleBold(),
     active: ({ editorState }) => editorState.isBoldActive,
     disabled: ({ editorState }) => !editorState.canToggleBold,
-    image: () => Images.bold,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: editorState.isBoldActive,
+        disabled: !editorState.canToggleBold,
+        icon: SVGs.bold,
+      }),
   },
   {
     onPress:
@@ -47,7 +57,13 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
         editor.toggleItalic(),
     active: ({ editorState }) => editorState.isItalicActive,
     disabled: ({ editorState }) => !editorState.canToggleItalic,
-    image: () => Images.italic,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: editorState.isItalicActive,
+        disabled: !editorState.canToggleItalic,
+        icon: SVGs.italic,
+      }),
   },
   {
     onPress:
@@ -67,7 +83,13 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     active: ({ editorState }) => editorState.isLinkActive,
     disabled: ({ editorState }) =>
       !editorState.isLinkActive && !editorState.canSetLink,
-    image: () => Images.link,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: editorState.isLinkActive,
+        disabled: !editorState.isLinkActive && !editorState.canSetLink,
+        icon: SVGs.link,
+      }),
   },
   {
     onPress:
@@ -76,7 +98,13 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
         editor.toggleTaskList(),
     active: ({ editorState }) => editorState.isTaskListActive,
     disabled: ({ editorState }) => !editorState.canToggleTaskList,
-    image: () => Images.checkList,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: editorState.isTaskListActive,
+        disabled: !editorState.canToggleTaskList,
+        icon: SVGs.checkList,
+      }),
   },
   {
     onPress:
@@ -85,7 +113,13 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
         setToolbarContext(ToolbarContext.Heading),
     active: () => false,
     disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.Aa,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: false,
+        disabled: !editorState.canToggleHeading,
+        icon: SVGs.Aa,
+      }),
   },
   {
     onPress:
@@ -94,7 +128,13 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
         editor.toggleCode(),
     active: ({ editorState }) => editorState.isCodeActive,
     disabled: ({ editorState }) => !editorState.canToggleCode,
-    image: () => Images.code,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: editorState.isCodeActive,
+        disabled: !editorState.canToggleCode,
+        icon: SVGs.code,
+      }),
   },
   {
     onPress:
@@ -103,7 +143,13 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
         editor.toggleUnderline(),
     active: ({ editorState }) => editorState.isUnderlineActive,
     disabled: ({ editorState }) => !editorState.canToggleUnderline,
-    image: () => Images.underline,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: editorState.isUnderlineActive,
+        disabled: !editorState.canToggleUnderline,
+        icon: SVGs.underline,
+      }),
   },
   {
     onPress:
@@ -112,7 +158,13 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
         editor.toggleStrike(),
     active: ({ editorState }) => editorState.isStrikeActive,
     disabled: ({ editorState }) => !editorState.canToggleStrike,
-    image: () => Images.strikethrough,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: editorState.isStrikeActive,
+        disabled: !editorState.canToggleStrike,
+        icon: SVGs.strikethrough,
+      }),
   },
   {
     onPress:
@@ -121,7 +173,13 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
         editor.toggleBlockquote(),
     active: ({ editorState }) => editorState.isBlockquoteActive,
     disabled: ({ editorState }) => !editorState.canToggleBlockquote,
-    image: () => Images.quote,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: editorState.isBlockquoteActive,
+        disabled: !editorState.canToggleBlockquote,
+        icon: SVGs.quote,
+      }),
   },
   {
     onPress:
@@ -130,7 +188,13 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
         editor.toggleOrderedList(),
     active: ({ editorState }) => editorState.isOrderedListActive,
     disabled: ({ editorState }) => !editorState.canToggleOrderedList,
-    image: () => Images.orderedList,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: editorState.isOrderedListActive,
+        disabled: !editorState.canToggleOrderedList,
+        icon: SVGs.orderedList,
+      }),
   },
   {
     onPress:
@@ -139,7 +203,13 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
         editor.toggleBulletList(),
     active: ({ editorState }) => editorState.isBulletListActive,
     disabled: ({ editorState }) => !editorState.canToggleBulletList,
-    image: () => Images.bulletList,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: editorState.isBulletListActive,
+        disabled: !editorState.canToggleBulletList,
+        icon: SVGs.bulletList,
+      }),
   },
   {
     onPress:
@@ -148,7 +218,13 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
         editor.sink(),
     active: () => false,
     disabled: ({ editorState }) => !editorState.canSink,
-    image: () => Images.indent,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: false,
+        disabled: !editorState.canSink,
+        icon: SVGs.indent,
+      }),
   },
   {
     onPress:
@@ -157,7 +233,13 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
         editor.lift(),
     active: () => false,
     disabled: ({ editorState }) => !editorState.canLift,
-    image: () => Images.outdent,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: false,
+        disabled: !editorState.canLift,
+        icon: SVGs.outdent,
+      }),
   },
   {
     onPress:
@@ -166,7 +248,13 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
         editor.undo(),
     active: () => false,
     disabled: ({ editorState }) => !editorState.canUndo,
-    image: () => Images.undo,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: false,
+        disabled: !editorState.canUndo,
+        icon: SVGs.undo,
+      }),
   },
   {
     onPress:
@@ -175,7 +263,13 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
         editor.redo(),
     active: () => false,
     disabled: ({ editorState }) => !editorState.canRedo,
-    image: () => Images.redo,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: false,
+        disabled: !editorState.canRedo,
+        icon: SVGs.redo,
+      }),
   },
 ];
 
@@ -187,7 +281,13 @@ export const HEADING_ITEMS: ToolbarItem[] = [
         setToolbarContext(ToolbarContext.Main),
     active: () => false,
     disabled: () => false,
-    image: () => Images.close,
+    icon: ({ editor }) =>
+      IconSVG({
+        editor,
+        active: false,
+        disabled: false,
+        icon: SVGs.close,
+      }),
   },
   {
     onPress:
@@ -196,7 +296,13 @@ export const HEADING_ITEMS: ToolbarItem[] = [
         editor.toggleHeading(1),
     active: ({ editorState }) => editorState.headingLevel === 1,
     disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.h1,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: editorState.headingLevel === 1,
+        disabled: !editorState.canToggleHeading,
+        icon: SVGs.h1,
+      }),
   },
   {
     onPress:
@@ -205,7 +311,13 @@ export const HEADING_ITEMS: ToolbarItem[] = [
         editor.toggleHeading(2),
     active: ({ editorState }) => editorState.headingLevel === 2,
     disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.h2,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: editorState.headingLevel === 2,
+        disabled: !editorState.canToggleHeading,
+        icon: SVGs.h2,
+      }),
   },
   {
     onPress:
@@ -214,7 +326,13 @@ export const HEADING_ITEMS: ToolbarItem[] = [
         editor.toggleHeading(3),
     active: ({ editorState }) => editorState.headingLevel === 3,
     disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.h3,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: editorState.headingLevel === 3,
+        disabled: !editorState.canToggleHeading,
+        icon: SVGs.h3,
+      }),
   },
   {
     onPress:
@@ -223,7 +341,13 @@ export const HEADING_ITEMS: ToolbarItem[] = [
         editor.toggleHeading(4),
     active: ({ editorState }) => editorState.headingLevel === 4,
     disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.h4,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: editorState.headingLevel === 4,
+        disabled: !editorState.canToggleHeading,
+        icon: SVGs.h4,
+      }),
   },
   {
     onPress:
@@ -232,7 +356,13 @@ export const HEADING_ITEMS: ToolbarItem[] = [
         editor.toggleHeading(5),
     active: ({ editorState }) => editorState.headingLevel === 5,
     disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.h5,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: editorState.headingLevel === 5,
+        disabled: !editorState.canToggleHeading,
+        icon: SVGs.h5,
+      }),
   },
   {
     onPress:
@@ -241,6 +371,12 @@ export const HEADING_ITEMS: ToolbarItem[] = [
         editor.toggleHeading(6),
     active: ({ editorState }) => editorState.headingLevel === 6,
     disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.h6,
+    icon: ({ editor, editorState }) =>
+      IconSVG({
+        editor,
+        active: editorState.headingLevel === 6,
+        disabled: !editorState.canToggleHeading,
+        icon: SVGs.h6,
+      }),
   },
 ];

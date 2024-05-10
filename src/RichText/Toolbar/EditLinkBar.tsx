@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, TextInput, TouchableOpacity, Text, Image } from 'react-native';
-import { Images } from '../../assets';
+import { View, TextInput, TouchableOpacity, Text } from 'react-native';
 import type { EditorTheme } from '../../types';
+import Link from '../../assets/link';
 
 interface EditLinkBarProps {
   theme: EditorTheme;
@@ -31,11 +31,7 @@ export const EditLinkBar = ({
         <View
           style={[theme.toolbar.iconWrapper, theme.toolbar.iconWrapperActive]}
         >
-          <Image
-            source={Images.link}
-            style={[theme.toolbar.icon]}
-            resizeMode="contain"
-          />
+          {Link(theme.toolbar.icon, theme.toolbar.iconSize)}
         </View>
       </TouchableOpacity>
       <TextInput

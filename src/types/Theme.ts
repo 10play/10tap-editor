@@ -16,9 +16,10 @@ export interface EditorTheme {
 export type ToolbarTheme = {
   toolbarBody: StyleProp<ViewStyle>;
   toolbarButton: StyleProp<ViewStyle>;
-  iconDisabled: StyleProp<ImageStyle>;
-  iconActive: StyleProp<ImageStyle>;
-  icon: StyleProp<ImageStyle>;
+  iconDisabled: ColorValue;
+  iconActive: ColorValue;
+  icon: ColorValue;
+  iconSize: number;
   iconWrapper: StyleProp<ViewStyle>;
   iconWrapperDisabled: StyleProp<ViewStyle>;
   iconWrapperActive: StyleProp<ViewStyle>;
