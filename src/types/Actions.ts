@@ -3,6 +3,7 @@ export enum EditorActionType {
   ChangeColor = 'change-color',
   Link = 'link',
   ToggleUnderline = 'toggle-underline',
+  SetHardBreak = 'set-hard-break',
   // start
 }
 // Actions with no payload
@@ -10,7 +11,8 @@ type RegularActions =
   | EditorActionType.ChangeHighlight
   | EditorActionType.ChangeColor
   | EditorActionType.Link
-  | EditorActionType.ToggleUnderline;
+  | EditorActionType.ToggleUnderline
+  | EditorActionType.SetHardBreak;
 
 export interface RegularAction {
   type: RegularActions;
