@@ -9,6 +9,7 @@ export * from './bridges/strike';
 export * from './bridges/history';
 export * from './bridges/orderedList';
 export * from './bridges/heading';
+export * from './bridges/br';
 export * from './bridges/bulletList';
 export * from './bridges/blockquote';
 export * from './bridges/listItem';
