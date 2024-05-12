@@ -41,7 +41,7 @@ After years of developing rich text editors for mobile, we realized that there i
 ## Expo
 
 `npx expo install @10play/tentap-editor react-native-webview`  
-Only basic usage without custom keyboard is supported by Expo Go (see [basic example](../examples/basic.md)).  
+Only basic usage without custom keyboard is supported by Expo Go (see [basic example](https://10play.github.io/10tap-editor/docs/examples/basic)).  
 Otherwise you will need to setup [Expo Dev Client](https://docs.expo.dev/develop/development-builds/introduction/).
 
 Now you ready to add tentap to your app!
@@ -53,12 +53,22 @@ export const Basic = () => {
   const editor = useEditorBridge({
     autofocus: true,
     avoidIosKeyboard: true,
-    initialContent,
+    initialContent: 'Start editing!',
   });
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <RichText editor={editor} />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{
+          position: 'absolute',
+          width: '100%',
+          bottom: 0,
+        }}
+      >
+        <Toolbar editor={editor} />
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
