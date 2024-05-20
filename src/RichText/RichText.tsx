@@ -137,7 +137,9 @@ export const RichText = ({ editor, ...props }: RichTextProps) => {
           editor.initialContent
             ? `window.initialContent = '${editor.initialContent}';`
             : ''
-        }`}
+        }
+          window.editable = ${editor.editable};
+        `}
         hideKeyboardAccessoryView={true}
         onMessage={onWebviewMessage}
         ref={editor.webviewRef}

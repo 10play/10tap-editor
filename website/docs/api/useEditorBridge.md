@@ -36,6 +36,12 @@ This helps us keep the cursor right above the keyboard when the editor is full-s
 <u>default</u>: `defaultEditorTheme` <i>(light theme)</i><br />
 this prop can be used to customize default styles, see [theme example](../examples/customTheme.md)
 
+#### editable
+
+`boolean`
+<u>default</u>: `true`<br />
+When set to false the editor will be `readonly`
+
 #### customSource
 
 `string`  
