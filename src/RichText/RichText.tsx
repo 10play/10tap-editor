@@ -135,7 +135,7 @@ export const RichText = ({ editor, ...props }: RichTextProps) => {
             : ''
         }${
           editor.initialContent
-            ? `window.initialContent = '${editor.initialContent}';`
+            ? `window.initialContent = ${JSON.stringify(editor.initialContent)};`
             : ''
         }
           window.editable = ${editor.editable};

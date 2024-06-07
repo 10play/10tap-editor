@@ -14,7 +14,7 @@ A list of BridgeExtensions that will be added to the editor on the native side
 
 #### initialContent
 
-`string`  
+`string | json`  
 <u>default</u>: `undefined`<br />
 initial content that will be loaded first on the editor
 
