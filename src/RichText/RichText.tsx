@@ -11,7 +11,7 @@ import { editorHtml } from '../simpleWebEditor/build/editorHtml';
 import { type EditorMessage } from '../types/Messaging';
 import { useKeyboard } from '../utils';
 import type { EditorBridge } from '../types';
-import { getInjectedJS } from './utils';
+import { getInjectedJS, getInjectedJSBeforeContentLoad } from './utils';
 import { isFabric } from '../utils/misc';
 
 interface RichTextProps extends WebViewProps {
@@ -113,33 +113,9 @@ export const RichText = ({ editor, ...props }: RichTextProps) => {
         containerStyle={editor.theme.webviewContainer}
         source={source}
         injectedJavaScript={injectedJavaScript}
-        injectedJavaScriptBeforeContentLoaded={`${
-          editor.bridgeExtensions
-            ? `
-            window.bridgeExtensionConfigMap = '${JSON.stringify(
-              editor.bridgeExtensions.reduce((acc, bridge) => {
-                return {
-                  ...acc,
-                  [bridge.name]: {
-                    optionsConfig: bridge.config,
-                    extendConfig: bridge.extendConfig,
-                  },
-                };
-              }, {})
-            )}';
-
-            window.whiteListBridgeExtensions = [${editor.bridgeExtensions
-              .map((bridgeExtension) => `'${bridgeExtension.name}'`)
-              .join(',')}];
-                `
-            : ''
-        }${
-          editor.initialContent
-            ? `window.initialContent = '${editor.initialContent}';`
-            : ''
-        }
-          window.editable = ${editor.editable};
-        `}
+        injectedJavaScriptBeforeContentLoaded={getInjectedJSBeforeContentLoad(
+          editor
+        )}
         hideKeyboardAccessoryView={true}
         onMessage={onWebviewMessage}
         ref={editor.webviewRef}
