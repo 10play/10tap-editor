@@ -24,7 +24,7 @@ export type RecursivePartial<T> = {
 
 export const useEditorBridge = (options?: {
   bridgeExtensions?: BridgeExtension<any, any, any>[];
-  initialContent?: string;
+  initialContent?: string | object;
   autofocus?: boolean;
   avoidIosKeyboard?: boolean;
   customSource?: string;
