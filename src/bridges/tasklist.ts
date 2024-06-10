@@ -5,10 +5,14 @@ import BridgeExtension from './base';
 type TaskListEditorState = {
   isTaskListActive: boolean;
   canToggleTaskList: boolean;
+  canLiftTaskListItem: boolean;
+  canSinkTaskListItem: boolean;
 };
 
 type TaskListEditorInstance = {
   toggleTaskList: () => void;
+  liftTaskListItem: () => void;
+  sinkTaskListItem: () => void;
 };
 
 declare module '../types/EditorBridge' {
@@ -18,12 +22,23 @@ declare module '../types/EditorBridge' {
 
 export enum TaskListEditorActionType {
   ToggleTaskList = 'toggle-task-list',
+  LiftTaskListItem = 'lift-task-list-item',
+  SinkTaskListItem = 'sink-task-list-item',
 }
 
-type TaskListMessage = {
-  type: TaskListEditorActionType.ToggleTaskList;
-  payload?: undefined;
-};
+type TaskListMessage =
+  | {
+      type: TaskListEditorActionType.ToggleTaskList;
+      payload?: undefined;
+    }
+  | {
+      type: TaskListEditorActionType.LiftTaskListItem;
+      payload?: undefined;
+    }
+  | {
+      type: TaskListEditorActionType.SinkTaskListItem;
+      payload?: undefined;
+    };
 
 export const TaskListBridge = new BridgeExtension<
   TaskListEditorState,
@@ -31,24 +46,47 @@ export const TaskListBridge = new BridgeExtension<
   TaskListMessage
 >({
   tiptapExtension: TaskList,
-  tiptapExtensionDeps: [TaskItem],
+  tiptapExtensionDeps: [TaskItem.configure({ nested: true })],
   onBridgeMessage: (editor, message) => {
     if (message.type === TaskListEditorActionType.ToggleTaskList) {
       editor.chain().focus().toggleTaskList().run();
     }
-
+    if (message.type === TaskListEditorActionType.LiftTaskListItem) {
+      editor
+        .chain()
+        .focus()
+        .liftListItem(editor.state.schema.nodes.taskItem!.name)
+        .run();
+    }
+    if (message.type === TaskListEditorActionType.SinkTaskListItem) {
+      editor
+        .chain()
+        .focus()
+        .sinkListItem(editor.state.schema.nodes.taskItem!.name)
+        .run();
+    }
     return false;
   },
   extendEditorInstance: (sendBridgeMessage) => {
     return {
       toggleTaskList: () =>
         sendBridgeMessage({ type: TaskListEditorActionType.ToggleTaskList }),
+      liftTaskListItem: () =>
+        sendBridgeMessage({ type: TaskListEditorActionType.LiftTaskListItem }),
+      sinkTaskListItem: () =>
+        sendBridgeMessage({ type: TaskListEditorActionType.SinkTaskListItem }),
     };
   },
   extendEditorState: (editor) => {
     return {
       canToggleTaskList: editor.can().toggleTaskList(),
       isTaskListActive: editor.isActive('taskList'),
+      canLiftTaskListItem: editor
+        .can()
+        .liftListItem(editor.state.schema.nodes.taskItem!.name),
+      canSinkTaskListItem: editor
+        .can()
+        .sinkListItem(editor.state.schema.nodes.taskItem!.name),
     };
   },
   extendCSS: `
@@ -88,11 +126,6 @@ export const TaskListBridge = new BridgeExtension<
   
   ul[data-type="taskList"] li > div {
     flex: 1 1 auto;
-  }
-  
-  ul[data-type="taskList"] li ul li,
-  ul[data-type="taskList"] li ol li {
-    display: list-item;
-  }
+  }  
   `,
 });

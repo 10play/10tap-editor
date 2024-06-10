@@ -143,20 +143,22 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
   },
   {
     onPress:
-      ({ editor }) =>
+      ({ editor, editorState }) =>
       () =>
-        editor.sink(),
+        editorState.canSink ? editor.sink() : editor.sinkTaskListItem(),
     active: () => false,
-    disabled: ({ editorState }) => !editorState.canSink,
+    disabled: ({ editorState }) =>
+      !editorState.canSink && !editorState.canSinkTaskListItem,
     image: () => Images.indent,
   },
   {
     onPress:
-      ({ editor }) =>
+      ({ editor, editorState }) =>
       () =>
-        editor.lift(),
+        editorState.canLift ? editor.lift() : editor.liftTaskListItem(),
     active: () => false,
-    disabled: ({ editorState }) => !editorState.canLift,
+    disabled: ({ editorState }) =>
+      !editorState.canLift && !editorState.canLiftTaskListItem,
     image: () => Images.outdent,
   },
   {
