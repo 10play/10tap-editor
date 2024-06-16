@@ -10,4 +10,6 @@ This is a Pro example. Get all pro examples, 1:1 support from the 10tap team, pr
 
 :::
 
-Video: TBD
+<div style={{justifyContent: 'center', display: 'flex'}}>
+  <img height="600" src="/10tap-editor/img/mentiondemo.gif"/>
+</div>
