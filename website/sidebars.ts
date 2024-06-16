@@ -16,12 +16,36 @@ const sidebars: SidebarsConfig = {
     Examples: [
       'examples/basic',
       'examples/customCss',
+      {
+        type: 'doc',
+        id: 'examples/fonts',
+        label: 'Formatting keyboard',
+        className: 'pro',
+      },
       'examples/configureExtensions',
       'examples/colorKeyboard',
       'examples/navHeader',
+      {
+        type: 'doc',
+        id: 'examples/mentions',
+        label: 'Mentions',
+        className: 'pro',
+      },
       'examples/customKeyboard',
       'examples/darkTheme',
       'examples/customTheme',
+      {
+        type: 'doc',
+        id: 'examples/realtimeCollab',
+        label: 'Realtime Collaboration',
+        className: 'pro',
+      },
+      {
+        type: 'doc',
+        id: 'examples/comments',
+        label: 'Comments',
+        className: 'pro',
+      },
     ],
   },
 };
