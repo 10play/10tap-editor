@@ -14,7 +14,7 @@ A list of BridgeExtensions that will be added to the editor on the native side
 
 #### initialContent
 
-`string`  
+`string | json`  
 <u>default</u>: `undefined`<br />
 initial content that will be loaded first on the editor
 
@@ -35,6 +35,12 @@ This helps us keep the cursor right above the keyboard when the editor is full-s
 `EditorTheme`  
 <u>default</u>: `defaultEditorTheme` <i>(light theme)</i><br />
 this prop can be used to customize default styles, see [theme example](../examples/customTheme.md)
+
+#### editable
+
+`boolean`
+<u>default</u>: `true`<br />
+When set to false the editor will be `readonly`
 
 #### customSource
 

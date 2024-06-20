@@ -142,21 +142,27 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     image: () => Images.bulletList,
   },
   {
+    // Regular list items (li) and task list items both use the
+    // same sink command and button just with a different parameter, so we check both states here
     onPress:
-      ({ editor }) =>
+      ({ editor, editorState }) =>
       () =>
-        editor.sink(),
+        editorState.canSink ? editor.sink() : editor.sinkTaskListItem(),
     active: () => false,
-    disabled: ({ editorState }) => !editorState.canSink,
+    disabled: ({ editorState }) =>
+      !editorState.canSink && !editorState.canSinkTaskListItem,
     image: () => Images.indent,
   },
   {
+    // Regular list items (li) and task list items both use the
+    // same lift command and button just with a different parameter, so we check both states here
     onPress:
-      ({ editor }) =>
+      ({ editor, editorState }) =>
       () =>
-        editor.lift(),
+        editorState.canLift ? editor.lift() : editor.liftTaskListItem(),
     active: () => false,
-    disabled: ({ editorState }) => !editorState.canLift,
+    disabled: ({ editorState }) =>
+      !editorState.canLift && !editorState.canLiftTaskListItem,
     image: () => Images.outdent,
   },
   {

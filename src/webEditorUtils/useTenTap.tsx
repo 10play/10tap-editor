@@ -11,6 +11,7 @@ import { contentHeightListener } from './contentHeight';
 declare global {
   interface Window {
     initialContent: string;
+    editable: string;
     bridgeExtensionConfigMap: string;
     whiteListBridgeExtensions: string[];
     ReactNativeWebView: { postMessage: (message: string) => void };
@@ -90,6 +91,7 @@ export const useTenTap = (options?: useTenTapArgs) => {
     },
     onSelectionUpdate: (onUpdate) => sendStateUpdate(onUpdate.editor),
     onTransaction: (onUpdate) => sendStateUpdate(onUpdate.editor),
+    editable: window.editable,
     ...tiptapOptionsWithExtensions,
   });
 

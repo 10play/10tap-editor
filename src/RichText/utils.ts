@@ -1,4 +1,5 @@
 import type BridgeExtension from '../bridges/base';
+import type { EditorBridge } from '../types';
 
 /**
  * Creates a new style element and appends it to the head of the document.
@@ -33,4 +34,41 @@ export const getInjectedJS = (bridgeExtensions: BridgeExtension[]) => {
   );
   injectJS += styleSheets.join(' ');
   return injectJS;
+};
+
+/**
+ * Get js code to inject into webview before the content loads
+ */
+export const getInjectedJSBeforeContentLoad = (editor: EditorBridge) => {
+  return formatForInjection(`${
+    editor.bridgeExtensions
+      ? `
+      window.bridgeExtensionConfigMap = '${JSON.stringify(
+        editor.bridgeExtensions.reduce((acc, bridge) => {
+          return {
+            ...acc,
+            [bridge.name]: {
+              optionsConfig: bridge.config,
+              extendConfig: bridge.extendConfig,
+            },
+          };
+        }, {})
+      )}';
+
+      window.whiteListBridgeExtensions = [${editor.bridgeExtensions
+        .map((bridgeExtension) => `'${bridgeExtension.name}'`)
+        .join(',')}];
+          `
+      : ''
+  }${
+    editor.initialContent
+      ? `window.initialContent = ${JSON.stringify(editor.initialContent)};`
+      : ''
+  }
+    window.editable = ${editor.editable};
+  `);
+};
+
+const formatForInjection = (js: string) => {
+  return js.replace(/\n/g, '').trim();
 };

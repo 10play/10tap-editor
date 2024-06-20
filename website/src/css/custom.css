@@ -32,3 +32,18 @@
 .markdown > h4 {
   margin-bottom: 5px;
 }
+
+.menu__list-item.pro a::after {
+  content: 'Pro';
+  background-color: #ffc6d3;
+  border: 1px solid #b4003f;
+  border-radius: 60px;
+  width: 43px;
+  height: 20px;
+  box-sizing: border-box;
+  font-size: 13px;
+  line-height: 17px;
+  color: #b4003f;
+  margin-left: 5px;
+  text-align: center;
+}

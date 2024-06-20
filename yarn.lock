@@ -21,6 +21,7 @@ __metadata:
     "@tiptap/extension-color": ^2.1.16
     "@tiptap/extension-document": ^2.2.1
     "@tiptap/extension-dropcursor": ^2.2.4
+    "@tiptap/extension-hard-break": ^2.3.1
     "@tiptap/extension-heading": ^2.2.1
     "@tiptap/extension-highlight": ^2.1.16
     "@tiptap/extension-history": ^2.2.1
@@ -5354,6 +5355,15 @@ __metadata:
   peerDependencies:
     "@tiptap/core": ^2.0.0
   checksum: c2c974c0af8680c29e0beea5396285efc181d5da3b37af854ffdb0722dbfc0f0f639781ea73e1531b3806dcadc7462c8dfb202e2919b468571fe33130394e4fd
+  languageName: node
+  linkType: hard
+
+"@tiptap/extension-hard-break@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "@tiptap/extension-hard-break@npm:2.3.1"
+  peerDependencies:
+    "@tiptap/core": ^2.0.0
+  checksum: 3205d384bfd881ab4c490fa273301b3f4099150f969408e00635bea489f20df4b5efa883ad1bf768a86de7be92a8f51b08eec86690f7fdd3219561962557f543
   languageName: node
   linkType: hard
 

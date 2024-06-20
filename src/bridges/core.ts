@@ -12,6 +12,7 @@ type CoreEditorState = {
   selection: { from: number; to: number };
   isFocused: boolean;
   isReady: boolean;
+  editable: boolean;
 };
 
 type FocusArgs = 'start' | 'end' | 'all' | number | boolean | null;
@@ -27,6 +28,7 @@ type CoreEditorInstance = {
   blur: () => void;
   injectJS: (js: string) => void;
   injectCSS: (css: string, tag?: string) => void;
+  setEditable: (editable: boolean) => void;
   theme: EditorTheme;
 };
 
@@ -51,6 +53,7 @@ export enum CoreEditorActionType {
   UpdateScrollThresholdAndMargin = 'update-scroll-threshold-and-margin',
   ContentUpdate = 'content-update',
   DocumentHeight = 'document-height',
+  SetEditable = 'set-editable',
 }
 
 type MessageToNative =
@@ -136,6 +139,10 @@ export type CoreMessages =
   | {
       type: CoreEditorActionType.DocumentHeight;
       payload: number;
+    }
+  | {
+      type: CoreEditorActionType.SetEditable;
+      payload: boolean;
     };
 
 export const CoreBridge = new BridgeExtension<
@@ -205,6 +212,10 @@ export const CoreBridge = new BridgeExtension<
           scrollMargin: { top: 0, bottom: message.payload, right: 0, left: 0 },
         },
       });
+      return true;
+    }
+    if (message.type === CoreEditorActionType.SetEditable) {
+      editor.setEditable(message.payload);
       return true;
     }
 
@@ -316,6 +327,12 @@ export const CoreBridge = new BridgeExtension<
       injectJS: (js: string) => {
         webviewRef?.current?.injectJavaScript(js);
       },
+      setEditable: (editable: boolean) => {
+        sendBridgeMessage({
+          type: CoreEditorActionType.SetEditable,
+          payload: editable,
+        });
+      },
     };
   },
   extendEditorState: (editor) => {
@@ -326,6 +343,7 @@ export const CoreBridge = new BridgeExtension<
         from: editor.state.selection.from,
         to: editor.state.selection.to,
       },
+      editable: editor.isEditable,
     };
   },
 });

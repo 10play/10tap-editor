@@ -82,7 +82,15 @@ export function Toolbar({
                 >
                   <Image
                     source={image(args)}
-                    style={[editor.theme.toolbar.icon]}
+                    style={[
+                      editor.theme.toolbar.icon,
+                      active(args)
+                        ? editor.theme.toolbar.iconActive
+                        : undefined,
+                      disabled(args)
+                        ? editor.theme.toolbar.iconDisabled
+                        : undefined,
+                    ]}
                     resizeMode="contain"
                   />
                 </View>

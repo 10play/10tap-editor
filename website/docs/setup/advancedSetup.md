@@ -197,4 +197,57 @@ const editor = useEditorBridge({
 });
 ```
 
+### Step 8 - Install react-dom
+
+`yarn add react-dom`
+
+`yarn add -D @types/react-dom`
+
 You basically done with the advance setup now you have full control of the editor-web you can write your own bridgeExtensions add additional tiptapExtensions
+
+## Alternative Setup
+
+:::info
+
+In case you are using Expo you have to use this Alternative Setup for dev mode on your advance setup editor
+
+:::
+
+There is an alternative vite setup that does not require a vite dev server as suggested in [#80](https://github.com/10play/10tap-editor/issues/80). This setup does not require we add the `DEV` prop
+
+### Update vite.config.ts
+
+In `vite.config.ts` replace plugins with
+
+```ts title="vite.config.ts"
+plugins: [
+   react(),
+   viteSingleFile(),
+   {
+     name: 'postbuild-commands',
+     closeBundle: async () => {
+       exec('yarn editor:post-build', (error, stdout, stderr) => {
+         if (error) {
+           console.error(`exec error: ${error}`);
+           return;
+         }
+       });
+     },
+   },
+ ],
+```
+
+And add `emptyOutDir: false` to the build options
+
+```ts title="vite.config.ts"
+build: {
+  outDir: 'build',
+  emptyOutDir: false,
+},
+```
+
+### Update package.json
+
+Update the `editor:dev` script to watch the advanced editor instead of running a dev-server, the hot reload will be handled by metro and not vite.
+
+`"editor:dev": "vite --config ./editor-web/vite.config.ts -w build"`

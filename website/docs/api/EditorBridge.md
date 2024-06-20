@@ -45,6 +45,11 @@ an async function that will return the content of the editor in json format <br 
 `(content: string) => void`<br />
 a function that get's html as string and set set's it as the editors content <br /> extended by [CoreBridge](./BridgeExtensions#coreextension)
 
+#### setEditable
+
+`(editable: boolean) => void`<br />
+a function that sets the editable state <br /> extended by [CoreBridge](./BridgeExtensions#coreextension)
+
 #### setSelection
 
 `(from: number, to: number) => void`<br />

@@ -10,6 +10,11 @@ The list above is the interface of BridgeState in case you use `TenTapStarterkit
 
 ### BridgeState properties
 
+#### editable
+
+`boolean`
+<br />Is the editor editable or not <br /> extended by [CoreBridge](./BridgeExtensions#coreextension)
+
 #### selection
 
 `{ from: number; to: number }`

@@ -15,6 +15,7 @@ export interface EditorBridge {
   autofocus: boolean;
   focus: (pos?: 'start' | 'end' | 'all' | number | boolean | null) => void;
   initialContent?: string;
+  editable?: boolean;
   webviewRef: RefObject<WebView>;
   getEditorState: () => BridgeState;
   _updateEditorState: (state: BridgeState) => void;
