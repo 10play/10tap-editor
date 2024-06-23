@@ -8,7 +8,6 @@ import {
   Text,
   TextInput,
   Alert,
-  ScrollView,
 } from 'react-native';
 import {
   useEditorBridge,
@@ -23,7 +22,6 @@ export const CustomAndStaticToolbar = ({
 }: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditorBridge({
     avoidIosKeyboard: true,
-    dynamicHeight: true,
     initialContent: MAIL_INITIAL_CONTENT,
   });
 
@@ -35,41 +33,39 @@ export const CustomAndStaticToolbar = ({
 
   return (
     <SafeAreaView style={[exampleStyles.fullScreen]}>
-      <ScrollView style={[exampleStyles.fullScreen]}>
-        <View style={exampleStyles.header}>
-          <View style={exampleStyles.topBar}>
-            <TouchableOpacity onPress={navigation.goBack}>
-              <Icon name="close" fill="#5F6368" />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={onSendClick}>
-              <Icon name="send" fill="#5F6368" />
-            </TouchableOpacity>
-          </View>
-          <View style={exampleStyles.recipientArea}>
-            <View style={exampleStyles.recipientField}>
-              <Text style={exampleStyles.textSecondary}>To</Text>
-              <TextInput
-                style={exampleStyles.textPrimary}
-                autoFocus
-                placeholder="tentap@10play.dev"
-              />
-            </View>
-            <View style={exampleStyles.recipientField}>
-              <Text style={exampleStyles.textSecondary}>From</Text>
-              <TextInput
-                style={exampleStyles.textPrimary}
-                placeholder="you@10play.dev"
-              />
-            </View>
-            <TextInput
-              style={[exampleStyles.textPrimary, exampleStyles.recipientField]}
-              placeholder="Subject"
-            />
-            <StaticToolbar editor={editor} />
-          </View>
+      <View style={exampleStyles.header}>
+        <View style={exampleStyles.topBar}>
+          <TouchableOpacity onPress={navigation.goBack}>
+            <Icon name="close" fill="#5F6368" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={onSendClick}>
+            <Icon name="send" fill="#5F6368" />
+          </TouchableOpacity>
         </View>
-        <ComposeRichText editor={editor} onSendClick={onSendClick} />
-      </ScrollView>
+        <View style={exampleStyles.recipientArea}>
+          <View style={exampleStyles.recipientField}>
+            <Text style={exampleStyles.textSecondary}>To</Text>
+            <TextInput
+              style={exampleStyles.textPrimary}
+              autoFocus
+              placeholder="tentap@10play.dev"
+            />
+          </View>
+          <View style={exampleStyles.recipientField}>
+            <Text style={exampleStyles.textSecondary}>From</Text>
+            <TextInput
+              style={exampleStyles.textPrimary}
+              placeholder="you@10play.dev"
+            />
+          </View>
+          <TextInput
+            style={[exampleStyles.textPrimary, exampleStyles.recipientField]}
+            placeholder="Subject"
+          />
+          <StaticToolbar editor={editor} />
+        </View>
+      </View>
+      <ComposeRichText editor={editor} onSendClick={onSendClick} />
     </SafeAreaView>
   );
 };
