@@ -1,6 +1,8 @@
 name: CD
 on:
   push:
+    paths:
+      - 'src/**'
     branches:
       - main
 
