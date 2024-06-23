@@ -30,6 +30,12 @@ when true the editor will auto focus
 <u>default</u>: `false`<br />
 This helps us keep the cursor right above the keyboard when the editor is full-screen and the virtual keyboard hides the bottom portion of the editor.
 
+#### dynamicHeight
+
+`boolean`  
+<u>default</u>: `false`<br />
+when true the editor's webview will keep the same height as the content height
+
 #### theme
 
 `EditorTheme`  

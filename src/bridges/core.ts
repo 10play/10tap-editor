@@ -52,6 +52,7 @@ export enum CoreEditorActionType {
   EditorReady = 'editor-ready',
   UpdateScrollThresholdAndMargin = 'update-scroll-threshold-and-margin',
   ContentUpdate = 'content-update',
+  DocumentHeight = 'document-height',
   SetEditable = 'set-editable',
 }
 
@@ -134,6 +135,10 @@ export type CoreMessages =
   | {
       type: CoreEditorActionType.ContentUpdate;
       payload: undefined;
+    }
+  | {
+      type: CoreEditorActionType.DocumentHeight;
+      payload: number;
     }
   | {
       type: CoreEditorActionType.SetEditable;

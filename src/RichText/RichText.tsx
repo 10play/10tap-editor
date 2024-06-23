@@ -13,6 +13,7 @@ import { useKeyboard } from '../utils';
 import type { EditorBridge } from '../types';
 import { getInjectedJS, getInjectedJSBeforeContentLoad } from './utils';
 import { isFabric } from '../utils/misc';
+import { CoreEditorActionType } from '../bridges/core';
 
 interface RichTextProps extends WebViewProps {
   editor: EditorBridge;
@@ -36,6 +37,7 @@ const DEV_SERVER_URL = 'http://localhost:3000';
 const TOOLBAR_HEIGHT = 44;
 
 export const RichText = ({ editor, ...props }: RichTextProps) => {
+  const [editorHeight, setEditorHeight] = useState(0);
   const [loaded, setLoaded] = useState(isFabric());
   const { keyboardHeight: iosKeyboardHeight, isKeyboardUp } = useKeyboard();
   const source: WebViewProps['source'] = editor.DEV
@@ -49,6 +51,9 @@ export const RichText = ({ editor, ...props }: RichTextProps) => {
     const { data } = event.nativeEvent;
     // Parse the message sent from the editor
     const { type, payload } = JSON.parse(data) as EditorMessage;
+    if (type === CoreEditorActionType.DocumentHeight) {
+      setEditorHeight(payload);
+    }
     editor.bridgeExtensions?.forEach((e) => {
       e.onEditorMessage && e.onEditorMessage({ type, payload }, editor);
     });
@@ -108,6 +113,7 @@ export const RichText = ({ editor, ...props }: RichTextProps) => {
         style={[
           RichTextStyles.fullScreen,
           { display: loaded ? 'flex' : 'none' },
+          { height: editor.dynamicHeight ? editorHeight : undefined },
           editor.theme.webview,
         ]}
         containerStyle={editor.theme.webviewContainer}

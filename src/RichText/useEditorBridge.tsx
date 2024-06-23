@@ -29,6 +29,7 @@ export const useEditorBridge = (options?: {
   avoidIosKeyboard?: boolean;
   customSource?: string;
   webviewBaseURL?: string;
+  dynamicHeight?: boolean;
   editable?: boolean;
   onChange?: () => void;
   DEV?: boolean;
@@ -127,6 +128,7 @@ export const useEditorBridge = (options?: {
     bridgeExtensions,
     initialContent: options?.initialContent,
     autofocus: options?.autofocus,
+    dynamicHeight: options?.dynamicHeight,
     avoidIosKeyboard: options?.avoidIosKeyboard,
     customSource: options?.customSource,
     editable,
