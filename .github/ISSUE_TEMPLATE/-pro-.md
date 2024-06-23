@@ -1,7 +1,7 @@
 ---
 name: "[PRO]"
 about: If you are a Pro user of 10tap, please report it here.
-title: ''
+title: "[PRO]: "
 labels: ''
 assignees: ''
 
