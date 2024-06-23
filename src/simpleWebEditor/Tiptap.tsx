@@ -15,7 +15,6 @@ export default function Tiptap() {
   return (
     <EditorContent
       editor={editor}
-      // @ts-ignore
       className={window.dynamicHeight ? 'dynamic-height' : undefined}
     />
   );

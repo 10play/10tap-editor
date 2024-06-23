@@ -1,5 +1,4 @@
 // For some reason on expo, this file is parsed on native, and then we get an error
-
 import { isExpo } from '../utils/misc';
 
 class ContentHeightListener {
@@ -13,7 +12,6 @@ class ContentHeightListener {
     cb(this.currentHeight);
 
     this.resizeObserver = new ResizeObserver((entries) => {
-      console.log('entries', entries);
       for (let entry of entries) {
         const newHeight = entry.target.getBoundingClientRect().height;
         if (this.currentHeight !== newHeight) {

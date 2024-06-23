@@ -14,6 +14,7 @@ declare global {
     editable: string;
     bridgeExtensionConfigMap: string;
     whiteListBridgeExtensions: string[];
+    dynamicHeight?: boolean;
     ReactNativeWebView: { postMessage: (message: string) => void };
   }
 }
@@ -130,7 +131,7 @@ export const useTenTap = (options?: useTenTapArgs) => {
   }, [editor, bridges]);
 
   useEffect(() => {
-    if (editor && !contentHeightListener.connected)
+    if (editor && !contentHeightListener.connected && window.dynamicHeight)
       contentHeightListener.connect(
         document.querySelector('.ProseMirror')!,
         (height) => {
