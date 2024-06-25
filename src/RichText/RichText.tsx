@@ -39,7 +39,7 @@ const TOOLBAR_HEIGHT = 44;
 export const RichText = ({ editor, ...props }: RichTextProps) => {
   const [editorHeight, setEditorHeight] = useState(0);
   const [loaded, setLoaded] = useState(isFabric());
-  const { keyboardHeight: iosKeyboardHeight, isKeyboardUp } = useKeyboard();
+  const { keyboardHeight, isKeyboardUp } = useKeyboard();
   const source: WebViewProps['source'] = editor.DEV
     ? { uri: editor.DEV_SERVER_URL || DEV_SERVER_URL }
     : {
@@ -69,17 +69,15 @@ export const RichText = ({ editor, ...props }: RichTextProps) => {
       }
     };
     if (editor.webviewRef.current && Platform.OS === 'android') {
-      if (iosKeyboardHeight && isKeyboardUp) {
-        setTimeout(() => {
-          setDocBottomPadding(TOOLBAR_HEIGHT);
-          editor.updateScrollThresholdAndMargin(TOOLBAR_HEIGHT);
-        }, 200);
-      } else {
-        setTimeout(() => {
-          setDocBottomPadding(0);
-          editor.updateScrollThresholdAndMargin(0);
-        }, 200);
-      }
+      // In case the keyboard is up we need to add padding to the bottom of the document
+      const paddingThreshold =
+        editor.avoidIosKeyboard && keyboardHeight && isKeyboardUp // avoidIosKeyboard should change to avoidKeyboard because used in android too (v1.0.0)
+          ? TOOLBAR_HEIGHT
+          : 0;
+      setTimeout(() => {
+        setDocBottomPadding(paddingThreshold);
+        editor.updateScrollThresholdAndMargin(paddingThreshold);
+      }, 200);
     }
     // On iOS we want to control the scroll and not use the scrollview that comes with react-native-webview
     // That's way we can get better exp on scroll and scroll to element when we need to
@@ -88,15 +86,15 @@ export const RichText = ({ editor, ...props }: RichTextProps) => {
       editor.webviewRef.current &&
       Platform.OS === 'ios'
     ) {
-      if (iosKeyboardHeight) {
-        setDocBottomPadding(iosKeyboardHeight + 10);
-        editor.updateScrollThresholdAndMargin(iosKeyboardHeight + 10);
+      if (keyboardHeight) {
+        setDocBottomPadding(keyboardHeight + 10);
+        editor.updateScrollThresholdAndMargin(keyboardHeight + 10);
       } else {
         setDocBottomPadding(0);
         editor.updateScrollThresholdAndMargin(0);
       }
     }
-  }, [editor.avoidIosKeyboard, editor, iosKeyboardHeight, isKeyboardUp]);
+  }, [editor.avoidIosKeyboard, editor, keyboardHeight, isKeyboardUp]);
 
   const injectedJavaScript = useMemo(
     () => getInjectedJS(editor.bridgeExtensions || []),

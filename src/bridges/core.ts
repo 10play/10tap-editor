@@ -305,7 +305,11 @@ export const CoreBridge = new BridgeExtension<
         return json;
       },
       focus: (pos: FocusArgs) => {
-        webviewRef?.current?.requestFocus();
+        setTimeout(() => {
+          webviewRef?.current?.requestFocus();
+          // Adding this for android, there is a race where the focus is not set if it's too close to Load
+          // https://github.com/react-native-webview/react-native-webview/issues/1172
+        }, 100);
         if (editorStateRef && editorStateRef.current) {
           _updateEditorState &&
             _updateEditorState({
