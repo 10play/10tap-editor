@@ -15,7 +15,7 @@ export default defineConfig({
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: ['react'],
+      external: ['@tiptap/pm/view', 'react', 'react/jsx-runtime', 'react-dom'],
       output: {
         dir: 'lib-web',
         // Provide global variables to use in the UMD build
