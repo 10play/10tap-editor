@@ -220,6 +220,9 @@ There is an alternative vite setup that does not require a vite dev server as su
 In `vite.config.ts` replace plugins with
 
 ```ts title="vite.config.ts"
+const exec =  require('child_process').exec;
+
+...
 plugins: [
    react(),
    viteSingleFile(),
