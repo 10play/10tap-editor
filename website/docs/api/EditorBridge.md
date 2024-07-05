@@ -96,7 +96,7 @@ a function that gets offset in px and changes [scrollThreshold](https://prosemir
 
 #### toggleHeading
 
-`(level: number) => void` <br />gets level and and toggles heading on the editor if possible <br /> extended by [HeadingBridge](./BridgeExtensions#headingbridge)
+`(level: number) => void` <br />gets level and toggles heading on the editor if possible <br /> extended by [HeadingBridge](./BridgeExtensions#headingbridge)
 
 #### lift
 
