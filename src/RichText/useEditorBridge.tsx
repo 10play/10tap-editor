@@ -97,6 +97,7 @@ export const useEditorBridge = (options?: {
 
   const sendMessage = (message: EditorActionMessage) => {
     if (!webviewRef.current) return console.warn("Editor isn't ready yet");
+
     // Workaround for https://github.com/react-native-webview/react-native-webview/issues/3305
     // On the new arch on Android, messages are sent twice, so if we toggle bold it immediately toggles back
     // We workaround this by adding a random id to the message and not handling it twice on the web side
