@@ -44,6 +44,9 @@ const config: Config = {
         theme: {
           customCss: './src/css/custom.css',
         },
+        gtag: {
+          trackingID: 'G-CD8W7RK52L',
+        },
       } satisfies Preset.Options,
     ],
   ],
@@ -86,17 +89,13 @@ const config: Config = {
         {
           title: 'Community',
           items: [
-            {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-            },
-            {
-              label: 'Discord',
-              href: 'https://discordapp.com/invite/docusaurus',
-            },
+            // {
+            //   label: 'Discord',
+            //   href: 'https://x.com/10play_software',
+            // },
             {
               label: 'Twitter',
-              href: 'https://twitter.com/docusaurus',
+              href: 'https://x.com/10play_software',
             },
           ],
         },
@@ -110,7 +109,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} 10play, Inc. Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,
