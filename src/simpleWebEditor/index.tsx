@@ -9,7 +9,8 @@ declare global {
 }
 
 /**
- * On android - react-native-webview there is a bug where sometimes the content is injected https://github.com/react-native-webview/react-native-webview/pull/2960
+ * On android - react-native-webview there is a bug where sometimes the content
+ * is injected after the window is loaded https://github.com/react-native-webview/react-native-webview/pull/2960
  * To overcome this we will check if the content is injected before rendering the editor
  */
 const contentInjected = () => window.contentInjected;
