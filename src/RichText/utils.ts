@@ -67,6 +67,7 @@ export const getInjectedJSBeforeContentLoad = (editor: EditorBridge) => {
   }
     window.editable = ${editor.editable};
     window.dynamicHeight = ${editor.dynamicHeight};
+    window.contentInjected = true;
   `);
 };
 
