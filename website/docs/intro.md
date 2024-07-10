@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# React native rich text editor 10tap
+# 10tap-editor
 
 <img src="/10tap-editor/img/cover.webp" alt="cover" />
 
