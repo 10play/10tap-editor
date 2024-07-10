@@ -1,5 +1,5 @@
 #import "TenTapViewImpl.h"
-#import "Utils.h"
+#import "TentapUtils.h"
 #import <WebKit/WebKit.h>
 #import <React/RCTUIManager.h>
 
