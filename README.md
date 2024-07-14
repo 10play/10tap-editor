@@ -1,4 +1,4 @@
-# 10tap-editor
+# React native rich text editor 10tap
 
 <img src="./website/static/img/cover.webp" alt="cover" />
 <a href="https://github.com/10play/10tap-editor/blob/main/LICENSE">

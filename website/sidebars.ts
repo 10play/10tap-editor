@@ -47,6 +47,12 @@ const sidebars: SidebarsConfig = {
           label: 'Mentions',
           className: 'pro',
         },
+        {
+          type: 'doc',
+          id: 'examples/search',
+          label: 'Search',
+          className: 'pro',
+        },
         'examples/customKeyboard',
         'examples/darkTheme',
         'examples/customTheme',

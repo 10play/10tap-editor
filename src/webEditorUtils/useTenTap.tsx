@@ -1,5 +1,5 @@
 import debounce from 'lodash/debounce';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useEditor } from '@tiptap/react';
 import { Editor } from '@tiptap/core';
 import { type EditorMessage, EditorMessageType } from '../types/Messaging';
@@ -31,14 +31,17 @@ interface useTenTapArgs {
   bridges?: BridgeExtension[];
 }
 
-const extensionConfigs = JSON.parse(window.bridgeExtensionConfigMap || '{}');
-
 // Wrapper for tiptap editor that will add specific mobile functionality and support tentap bridges
 // args:
 // tiptapOptions - all the options that tiptap editor accepts
 // bridges - array of bridges that will be used to extend the editor
 export const useTenTap = (options?: useTenTapArgs) => {
   const { tiptapOptions = {}, bridges = [] } = options || {};
+  const extensionConfigs = useMemo(
+    () => JSON.parse(window.bridgeExtensionConfigMap || '{}'),
+    []
+  );
+
   function filterExists<T>(object: T): object is NonNullable<T> {
     return object !== null && object !== undefined;
   }
