@@ -1124,7 +1124,7 @@ PODS:
   - RNSVG (14.1.0):
     - React-Core
   - SocketRocket (0.6.1)
-  - tentap (0.5.2):
+  - tentap (0.5.13):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1350,7 +1350,7 @@ SPEC CHECKSUMS:
   Flipper-PeerTalk: 116d8f857dc6ef55c7a5a75ea3ceaafe878aadc9
   FlipperKit: 37525a5d056ef9b93d1578e04bc3ea1de940094f
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
-  glog: 035f1e36e53b355cf70f6434d161b36e7d21fecd
+  glog: c5d68082e772fa1c511173d6b30a9de2c05a69a2
   hermes-engine: 1d1835b2cc54c381909d94d1b3c8e0a2f1a94a0e
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
@@ -1400,9 +1400,9 @@ SPEC CHECKSUMS:
   RNScreens: 17e2f657f1b09a71ec3c821368a04acbb7ebcb46
   RNSVG: ba3e7232f45e34b7b47e74472386cf4e1a676d0a
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  tentap: cd55c8d991abd94603ec17e5304b62a1e36a4cf0
-  Yoga: 9e6a04eacbd94f97d94577017e9f23b3ab41cf6c
+  tentap: 8e2c016dfd3719bf24ceee3e818f4bd4029186e9
+  Yoga: a716eea57d0d3430219c0a5a233e1e93ee931eb7
 
 PODFILE CHECKSUM: 59f02bbde682eb22b765a58d4a0ce59d95964282
 
-COCOAPODS: 1.12.0
+COCOAPODS: 1.15.2
