@@ -6,6 +6,8 @@ sidebar_position: 2
 
 In this example we will be creating a basic editor that contains all of the pre-built bridgeExtensions and a keyboard aware toolbar which works with [@gorhom/bottom-sheet](https://ui.gorhom.dev/components/bottom-sheet).
 
+<img height="400" src="/10tap-editor/img/bottomSheetModalTenTapToolbar.gif"/>
+
 [Jump To Full Example](#full-example)
 
 ## Adding [@gorhom/bottom-sheet](https://ui.gorhom.dev/components/bottom-sheet) to your react-native project
