@@ -52,7 +52,7 @@ props:
 | editor        | `EditorBridge`  |                       | The bridge instance that created with [useEditorBridge](./EditorBridge)                   |
 | hidden        | `boolean`       |                       | a prop to control if toolbar shown                                                        |
 | items         | `ToolbarItem[]` | DEFAULT_TOOLBAR_ITEMS | array of ToolbarItem's that will be shown on the toolbar                                  |
-| ListComponent | `React.ComponentType<FlatListProps<any>>` | FlatList              | <b>Optional</b> prop to use custom Flatlist implementation as conatiner for Toolbar Items |
+| ListComponent | `React.ComponentType<FlatListProps<any>>` | FlatList              | <b>Optional</b> prop to use custom Flatlist implementation as container for Toolbar Items |
 
 See how we add a custom toolbar item in the [color keyboard example](../examples/colorKeyboard.md)
 
