@@ -5,13 +5,11 @@ import {
   createNativeStackNavigator,
   type NativeStackScreenProps,
 } from '@react-navigation/native-stack';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Basic } from './Examples/Basic';
 import { CustomKeyboardExample } from './Examples/CustomKeyboardExample';
 import { EditorStickToKeyboardExample } from './Examples/EditorStickToKeyboardExample';
 import { Advanced } from './Examples/Advanced/AdvancedRichText';
 import { CustomAndStaticToolbar } from './Examples/CustomAndStaticToolbar/CustomAndStaticToolbar';
-import { WithBottomSheet } from './Examples/WithBottomSheet';
 import { WithKeyboard } from './Examples/WithKeyboard';
 import { CustomCss } from './Examples/CustomCss';
 import { ConfigureExtensions } from './Examples/ConfigureExtentions';
@@ -26,10 +24,6 @@ const examples = [
   {
     name: 'With Color Keyboard',
     component: WithKeyboard,
-  },
-  {
-    name: 'With @gorhom/bottom-sheet',
-    component: WithBottomSheet,
   },
   {
     name: 'Custom CSS',
@@ -83,33 +77,28 @@ const HomeScreen = ({ navigation }: NativeStackScreenProps<any, any, any>) => {
 const Stack = createNativeStackNavigator();
 const App = () => {
   return (
-    <GestureHandlerRootView style={homeStyles.root}>
-      <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={({ route }) => {
-            return {
-              headerShown: route.name === 'NavigationHeader',
-            };
-          }}
-        >
-          <Stack.Screen name="Examples" component={HomeScreen} />
-          {examples.map((example) => (
-            <Stack.Screen
-              key={example.name}
-              name={example.name}
-              component={example.component}
-            />
-          ))}
-        </Stack.Navigator>
-      </NavigationContainer>
-    </GestureHandlerRootView>
+    <NavigationContainer>
+      <Stack.Navigator
+        screenOptions={({ route }) => {
+          return {
+            headerShown: route.name === 'NavigationHeader',
+          };
+        }}
+      >
+        <Stack.Screen name="Examples" component={HomeScreen} />
+        {examples.map((example) => (
+          <Stack.Screen
+            key={example.name}
+            name={example.name}
+            component={example.component}
+          />
+        ))}
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 };
 
 const homeStyles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
   container: {
     flex: 1,
     alignItems: 'center',
