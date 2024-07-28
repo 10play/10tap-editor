@@ -14,6 +14,5 @@ module.exports = {
       },
     ],
     ['babel-plugin-inline-import', { extensions: ['.html', '.svg'] }],
-    'react-native-reanimated/plugin',
   ],
 };
