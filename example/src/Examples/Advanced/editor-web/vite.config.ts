@@ -16,6 +16,15 @@ export default defineConfig({
         find: '@10play/tentap-editor',
         replacement: resolve(__dirname, '../../../../../src/webEditorUtils'),
       },
+      // We alias tiptap view and state to use the internal version of tiptap to avoid this error https://github.com/ueberdosis/tiptap/issues/3869#issuecomment-2167931620
+      {
+        find: '@tiptap/pm/view',
+        replacement: '@10play/tentap-editor/web',
+      },
+      {
+        find: '@tiptap/pm/state',
+        replacement: '@10play/tentap-editor/web',
+      },
     ],
   },
   plugins: [react(), viteSingleFile()],
