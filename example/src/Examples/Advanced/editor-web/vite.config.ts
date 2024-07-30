@@ -1,4 +1,3 @@
-import { resolve } from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { viteSingleFile } from 'vite-plugin-singlefile';
@@ -14,13 +13,10 @@ export default defineConfig({
     alias: [
       {
         find: '@10play/tentap-editor',
-        replacement: resolve(__dirname, '../../../../../src/webEditorUtils'),
-      },
-      // We alias tiptap view and state to use the internal version of tiptap to avoid this error https://github.com/ueberdosis/tiptap/issues/3869#issuecomment-2167931620
-      {
-        find: '@tiptap/pm/view',
         replacement: '@10play/tentap-editor/web',
       },
+      // We alias tiptap view and state to use the internal version of tiptap to avoid this error https://github.com/ueberdosis/tiptap/issues/3869#issuecomment-2167931620      {
+      { find: '@tiptap/pm/view', replacement: '@10play/tentap-editor/web' },
       {
         find: '@tiptap/pm/state',
         replacement: '@10play/tentap-editor/web',
