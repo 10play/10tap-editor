@@ -1,25 +1,63 @@
-import BottomSheet, { BottomSheetFlatList } from '@gorhom/bottom-sheet';
+import BottomSheet, {
+  BottomSheetScrollView,
+  BottomSheetView,
+} from '@gorhom/bottom-sheet';
+import { Portal } from '@gorhom/portal';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   SafeAreaView,
-  KeyboardAvoidingView,
   Platform,
   StyleSheet,
   Button,
+  Keyboard,
+  type KeyboardEvent,
+  TouchableOpacity,
+  Text,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
 
+const useKeyboard = () => {
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    function onKeyboardDidShow(e: KeyboardEvent) {
+      // Remove type here if not using TypeScript
+      setKeyboardHeight(e.endCoordinates.height);
+    }
+
+    function onKeyboardDidHide() {
+      setKeyboardHeight(0);
+    }
+
+    const showSubscription = Keyboard.addListener(
+      'keyboardDidShow',
+      onKeyboardDidShow
+    );
+    const hideSubscription = Keyboard.addListener(
+      'keyboardDidHide',
+      onKeyboardDidHide
+    );
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
+
+  return keyboardHeight;
+};
+
 export const WithBottomSheet = ({}: NativeStackScreenProps<any, any, any>) => {
   const bottomSheetRef = React.useRef<BottomSheet>(null);
+  const keyboardHeight = useKeyboard();
   const editor = useEditorBridge({
-    autofocus: true,
+    // autofocus: true,
     avoidIosKeyboard: true,
     initialContent,
   });
-
   const openBottomSheet = () => {
-    bottomSheetRef.current?.expand();
+    bottomSheetRef.current?.snapToIndex(0);
   };
 
   const closeBottomSheet = () => {
@@ -29,30 +67,77 @@ export const WithBottomSheet = ({}: NativeStackScreenProps<any, any, any>) => {
   return (
     <SafeAreaView style={exampleStyles.fullScreen}>
       <Button title="Open Bottom Sheet" onPress={openBottomSheet} />
-      <BottomSheet snapPoints={['70%']} ref={bottomSheetRef}>
-        <Button title="Close Bottom Sheet" onPress={closeBottomSheet} />
-        <RichText editor={editor} />
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={exampleStyles.keyboardAvoidingView}
+      <Portal>
+        <BottomSheet
+          snapPoints={['90%']}
+          ref={bottomSheetRef}
+          keyboardBehavior="extend"
+          android_keyboardInputMode="adjustResize"
+          keyboardBlurBehavior="restore"
+          bottomInset={0.2}
         >
-          <Toolbar editor={editor} ListComponent={BottomSheetFlatList} />
-        </KeyboardAvoidingView>
-      </BottomSheet>
+          <BottomSheetScrollView
+            keyboardDismissMode="interactive"
+            keyboardShouldPersistTaps="handled"
+          >
+            <BottomSheetView>
+              <TouchableOpacity
+                onPress={closeBottomSheet}
+                style={exampleStyles.closeButton}
+              >
+                <Text style={exampleStyles.closeButtonText}>
+                  Close BottomSheet
+                </Text>
+              </TouchableOpacity>
+            </BottomSheetView>
+            <BottomSheetView style={exampleStyles.editorContainer}>
+              <RichText editor={editor} hideKeyboardAccessoryView={false} />
+            </BottomSheetView>
+          </BottomSheetScrollView>
+          <Portal>
+            <KeyboardAvoidingView
+              style={{
+                position: 'absolute',
+                bottom: Keyboard.isVisible()
+                  ? Platform.OS === 'android'
+                    ? 0
+                    : keyboardHeight
+                  : -100,
+                width: '100%',
+              }}
+            >
+              <Toolbar editor={editor} />
+            </KeyboardAvoidingView>
+          </Portal>
+        </BottomSheet>
+      </Portal>
     </SafeAreaView>
   );
 };
 
 const exampleStyles = StyleSheet.create({
+  closeButton: {
+    marginTop: 16,
+    marginHorizontal: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderWidth: 2,
+    borderRadius: 8,
+  },
+  closeButtonText: {
+    textAlign: 'center',
+  },
+  editorContainer: {
+    height: 100,
+    marginHorizontal: 16,
+    paddingHorizontal: 16,
+    marginTop: 10,
+    borderWidth: 1,
+  },
   fullScreen: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  keyboardAvoidingView: {
-    position: 'absolute',
-    width: '100%',
-    bottom: 0,
   },
 });
 

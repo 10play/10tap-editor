@@ -1,3 +1,4 @@
+import { PortalProvider } from '@gorhom/portal';
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -84,24 +85,26 @@ const Stack = createNativeStackNavigator();
 const App = () => {
   return (
     <GestureHandlerRootView style={homeStyles.root}>
-      <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={({ route }) => {
-            return {
-              headerShown: route.name === 'NavigationHeader',
-            };
-          }}
-        >
-          <Stack.Screen name="Examples" component={HomeScreen} />
-          {examples.map((example) => (
-            <Stack.Screen
-              key={example.name}
-              name={example.name}
-              component={example.component}
-            />
-          ))}
-        </Stack.Navigator>
-      </NavigationContainer>
+      <PortalProvider>
+        <NavigationContainer>
+          <Stack.Navigator
+            screenOptions={({ route }) => {
+              return {
+                headerShown: route.name === 'NavigationHeader',
+              };
+            }}
+          >
+            <Stack.Screen name="Examples" component={HomeScreen} />
+            {examples.map((example) => (
+              <Stack.Screen
+                key={example.name}
+                name={example.name}
+                component={example.component}
+              />
+            ))}
+          </Stack.Navigator>
+        </NavigationContainer>
+      </PortalProvider>
     </GestureHandlerRootView>
   );
 };
