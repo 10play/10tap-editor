@@ -33,7 +33,7 @@ export const EditLinkBar = ({
         >
           <Image
             source={Images.link}
-            style={[theme.toolbar.icon]}
+            style={[theme.toolbar.icon, theme.toolbar.iconActive]}
             resizeMode="contain"
           />
         </View>

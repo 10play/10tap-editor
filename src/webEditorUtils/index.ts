@@ -21,3 +21,7 @@ export { StrikeBridge } from '../bridges/strike';
 export { TaskListBridge } from '../bridges/tasklist';
 export { UnderlineBridge } from '../bridges/underline';
 export { HardBreakBridge } from '../bridges/br';
+
+// We are exposing tiptap view + state here to avoid this error https://github.com/ueberdosis/tiptap/issues/3869#issuecomment-2167931620
+export * from '@tiptap/pm/view';
+export * from '@tiptap/pm/state';
