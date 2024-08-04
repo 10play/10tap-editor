@@ -17,3 +17,7 @@ Only basic usage without custom keyboard is supported by Expo Go (see [basic exa
 Otherwise you will need to setup [Expo Dev Client](https://docs.expo.dev/develop/development-builds/introduction/).
 
 Now you ready to add tentap to your app!
+
+:::note
+On Android, API level 29+ is required.
+:::
