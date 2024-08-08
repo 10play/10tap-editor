@@ -23,7 +23,7 @@ export const blueBackgroundPlugin = Extension.create({
               const { from, to } = tr.selection;
               decorations.push(
                 Decoration.inline(from, to, {
-                  style: 'background-color: #e6e6ff;',
+                  class: 'highlight-background',
                 })
               );
               return DecorationSet.create(newEditorState.doc, decorations);
