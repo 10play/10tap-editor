@@ -33,4 +33,7 @@ export const darkEditorCss = `
     border-left: 3px solid #babaca;
     padding-left: 1rem;
   }
+  .highlight-background {
+    background-color: #474749;
+  }
 `;
