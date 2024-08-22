@@ -12,6 +12,7 @@ export interface EditorBridge {
   DEV?: boolean;
   DEV_SERVER_URL?: string;
   dynamicHeight?: boolean;
+  disableColorHighlight?: boolean;
   autofocus: boolean;
   focus: (pos?: 'start' | 'end' | 'all' | number | boolean | null) => void;
   initialContent?: string;

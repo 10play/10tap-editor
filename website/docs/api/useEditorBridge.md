@@ -36,6 +36,13 @@ This helps us keep the cursor right above the keyboard when the editor is full-s
 <u>default</u>: `false`<br />
 when true the editor's webview will keep the same height as the content height
 
+#### disableColorHighlight
+
+`boolean`  
+<u>default</u>: `undefined`<br />
+when true the selection highlight will be off and when false will be on, on android this will be off by default, please see:
+https://github.com/10play/10tap-editor/issues/184#issuecomment-2304826219
+
 #### theme
 
 `EditorTheme`  
