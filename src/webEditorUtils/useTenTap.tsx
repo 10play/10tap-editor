@@ -15,6 +15,7 @@ declare global {
     bridgeExtensionConfigMap: string;
     whiteListBridgeExtensions: string[];
     dynamicHeight?: boolean;
+    disableColorHighlight?: boolean;
     ReactNativeWebView: { postMessage: (message: string) => void };
   }
 }
@@ -59,7 +60,7 @@ export const useTenTap = (options?: useTenTapArgs) => {
   const tiptapOptionsWithExtensions = {
     ...tiptapOptions,
     extensions: [
-      blueBackgroundPlugin,
+      ...(!window.disableColorHighlight ? [blueBackgroundPlugin] : []),
       ...extensions,
       ...(tiptapOptions.extensions || []),
     ],

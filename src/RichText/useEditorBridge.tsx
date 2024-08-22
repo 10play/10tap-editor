@@ -30,6 +30,7 @@ export const useEditorBridge = (options?: {
   customSource?: string;
   webviewBaseURL?: string;
   dynamicHeight?: boolean;
+  disableColorHighlight?: boolean;
   editable?: boolean;
   onChange?: () => void;
   DEV?: boolean;
@@ -125,11 +126,19 @@ export const useEditorBridge = (options?: {
     webviewRef.current?.injectJavaScript(customCSS);
   };
 
+  // Disable color highlight on Android if not passed
+  // see: https://github.com/10play/10tap-editor/issues/184
+  const disableColorHighlight =
+    options?.disableColorHighlight === undefined
+      ? !!(Platform.OS === 'android')
+      : options?.disableColorHighlight;
+
   const editorBridge = {
     bridgeExtensions,
     initialContent: options?.initialContent,
     autofocus: options?.autofocus,
     dynamicHeight: options?.dynamicHeight,
+    disableColorHighlight: disableColorHighlight,
     avoidIosKeyboard: options?.avoidIosKeyboard,
     customSource: options?.customSource,
     editable,
