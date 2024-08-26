@@ -22,7 +22,7 @@ const createExpoWebpackConfigAsync = require('@expo/webpack-config');
 module.exports = async function (env, argv) {
   const config = await createExpoWebpackConfigAsync(env, argv);
 
-  // Alias react-native-web and react-native-webview on web
+  // Alias react-native-webview and crypto
   config.resolve.alias = {
     ...config.resolve.alias,
     'react-native': 'react-native-web',
@@ -30,7 +30,7 @@ module.exports = async function (env, argv) {
     'crypto': 'expo-crypto',
   };
 
-  // Shim codegenNativeComponent and add crypto
+  // Shim codegenNativeComponent
   config.resolve.fallback = {
     ...config.resolve.fallback,
     'react-native/Libraries/Utilities/codegenNativeComponent':
