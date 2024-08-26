@@ -49,6 +49,7 @@ export const RichText = ({ editor, ...props }: RichTextProps) => {
 
   const onWebviewMessage = (event: WebViewMessageEvent) => {
     const { data } = event.nativeEvent;
+    if (typeof data !== 'string') return;
     // Parse the message sent from the editor
     const { type, payload } = JSON.parse(data) as EditorMessage;
     if (type === CoreEditorActionType.DocumentHeight) {
