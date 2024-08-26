@@ -21,3 +21,7 @@ Now you ready to add tentap to your app!
 :::note
 On Android, API level 29+ is required.
 :::
+
+### Expo Web
+
+For expo-web support follow this [guide](./expoWeb)
