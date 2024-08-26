@@ -1,11 +1,4 @@
-import {
-  FlatList,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
-  Platform,
-  View,
-} from 'react-native';
+import { FlatList, StyleSheet, Platform } from 'react-native';
 import { useBridgeState } from '../useBridgeState';
 import React from 'react';
 import {
@@ -16,6 +9,8 @@ import {
 import { EditLinkBar } from './EditLinkBar';
 import { useKeyboard } from '../../utils';
 import type { EditorBridge } from '../../types';
+import { ToolbarItemComp } from './ToolbarItemComp';
+import { WebToolbar } from './WebToolbar';
 
 interface ToolbarProps {
   editor: EditorBridge;
@@ -55,6 +50,18 @@ export function Toolbar({
   switch (toolbarContext) {
     case ToolbarContext.Main:
     case ToolbarContext.Heading:
+      if (Platform.OS === 'web') {
+        return (
+          <WebToolbar
+            items={
+              toolbarContext === ToolbarContext.Main ? items : HEADING_ITEMS
+            }
+            args={args}
+            editor={editor}
+            hidden={hidden}
+          />
+        );
+      }
       return (
         <FlatList
           data={toolbarContext === ToolbarContext.Main ? items : HEADING_ITEMS}
@@ -62,40 +69,8 @@ export function Toolbar({
             editor.theme.toolbar.toolbarBody,
             hideToolbar ? editor.theme.toolbar.hidden : undefined,
           ]}
-          renderItem={({ item: { onPress, disabled, active, image } }) => {
-            return (
-              <TouchableOpacity
-                onPress={onPress(args)}
-                disabled={disabled(args)}
-                style={[editor.theme.toolbar.toolbarButton]}
-              >
-                <View
-                  style={[
-                    editor.theme.toolbar.iconWrapper,
-                    active(args)
-                      ? editor.theme.toolbar.iconWrapperActive
-                      : undefined,
-                    disabled(args)
-                      ? editor.theme.toolbar.iconWrapperDisabled
-                      : undefined,
-                  ]}
-                >
-                  <Image
-                    source={image(args)}
-                    style={[
-                      editor.theme.toolbar.icon,
-                      active(args)
-                        ? editor.theme.toolbar.iconActive
-                        : undefined,
-                      disabled(args)
-                        ? editor.theme.toolbar.iconDisabled
-                        : undefined,
-                    ]}
-                    resizeMode="contain"
-                  />
-                </View>
-              </TouchableOpacity>
-            );
+          renderItem={({ item }) => {
+            return <ToolbarItemComp {...item} args={args} editor={editor} />;
           }}
           horizontal
         />
