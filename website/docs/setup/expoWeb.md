@@ -2,7 +2,7 @@
 sidebar_position: 3
 ---
 
-# Expo Web Setup
+# Expo Web Setup (Beta)
 
 Some additional steps are necessary for supporting expo web - see working example [here](https://github.com/10play/10tap-web-example)
 
