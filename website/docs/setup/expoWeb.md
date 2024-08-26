@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Expo Web Setup
 
-Some additional steps are necessary for supporting expo web
+Some additional steps are necessary for supporting expo web - see working example [here](https://github.com/10play/10tap-web-example)
 
 ### Step 1 - Install required deps
 
