@@ -37,6 +37,8 @@ export const useEditorBridge = (options?: {
   DEV_SERVER_URL?: string;
   theme?: RecursivePartial<EditorTheme>;
 }): EditorBridge => {
+  console.log('test');
+
   const webviewRef = useRef<WebView>(null);
   // Till we will implement default per bridgeExtension
   const editorStateRef = useRef<BridgeState | {}>({});
