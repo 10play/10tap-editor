@@ -10,6 +10,7 @@ export const ToolbarItemComp = ({
   image,
   editor,
   args,
+  style,
 }: ToolbarItem & {
   editor: EditorBridge;
   args: Parameters<ToolbarItem['onPress']>[0];
@@ -33,6 +34,7 @@ export const ToolbarItemComp = ({
             editor.theme.toolbar.icon,
             active(args) ? editor.theme.toolbar.iconActive : undefined,
             disabled(args) ? editor.theme.toolbar.iconDisabled : undefined,
+            style,
           ]}
           resizeMode="contain"
         />

@@ -33,6 +33,7 @@ export interface ToolbarItem {
   active: ({ editor, editorState }: ArgsToolbarCB) => boolean;
   disabled: ({ editor, editorState }: ArgsToolbarCB) => boolean;
   image: ({ editor, editorState }: ArgsToolbarCB) => any;
+  style?: any;
 }
 
 export interface ToolbarSection {
@@ -199,6 +200,27 @@ const REDO: ToolbarItem = {
   disabled: ({ editorState }) => !editorState.canRedo,
   image: () => Images.redo,
 };
+const WATERMARK: ToolbarItem = {
+  onPress:
+    ({ setToolbarContext }) =>
+    () =>
+      setToolbarContext(ToolbarContext.Main),
+  active: () => false,
+  disabled: () => false,
+  image: () => Images.watermark,
+  style: { tintColor: null },
+};
+
+export const STICKY_KEYBOARD: ToolbarItem = {
+  onPress:
+    ({ editor }) =>
+    () => {
+      editor.blur();
+    },
+  active: () => false,
+  disabled: () => false,
+  image: () => Images.keyboard,
+};
 
 export const TOOLBAR_SECTIONS: Record<string, ToolbarSection> = {
   textFormatting: {
@@ -212,6 +234,9 @@ export const TOOLBAR_SECTIONS: Record<string, ToolbarSection> = {
   },
   history: {
     items: [UNDO, REDO],
+  },
+  watermark: {
+    items: [WATERMARK],
   },
 };
 

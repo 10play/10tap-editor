@@ -10,6 +10,8 @@ export const defaultToolbarTheme: ToolbarTheme = {
     backgroundColor: 'white',
     minWidth: '100%',
     height: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   toolbarButton: {
     paddingHorizontal: 8,
@@ -39,8 +41,8 @@ export const defaultToolbarTheme: ToolbarTheme = {
     backgroundColor: 'white',
   },
   icon: {
-    height: 28,
-    width: 28,
+    height: 20,
+    width: 20,
     tintColor: '#898989',
   },
   iconActive: {},
@@ -80,6 +82,29 @@ export const defaultToolbarTheme: ToolbarTheme = {
       paddingHorizontal: 0,
     },
   },
+  section: {
+    flexDirection: 'row',
+  },
+  stickyKeyboardContainer: {
+    width: 44,
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  flatList: {
+    flex: 1,
+  },
+  separatorContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 5,
+    height: '100%',
+  },
+  separatorLine: {
+    width: 1,
+    height: '60%',
+    backgroundColor: '#C6C6C6B3',
+  },
 };
 
 export const darkToolbarTheme: Partial<ToolbarTheme> = {
@@ -87,6 +112,8 @@ export const darkToolbarTheme: Partial<ToolbarTheme> = {
     borderTopColor: '#C6C6C6B3',
     borderBottomColor: '#C6C6C6B3',
     backgroundColor: '#474747',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   toolbarButton: {
     backgroundColor: '#474747',
@@ -125,5 +152,28 @@ export const darkToolbarTheme: Partial<ToolbarTheme> = {
       color: 'white',
     },
     linkToolbarButton: {},
+  },
+  separatorContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 5,
+    height: '100%',
+  },
+  separatorLine: {
+    width: 1,
+    height: '60%',
+    backgroundColor: '#C6C6C6B3',
+  },
+  section: {
+    flexDirection: 'row',
+  },
+  stickyKeyboardContainer: {
+    width: 44,
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  flatList: {
+    flex: 1,
   },
 };
