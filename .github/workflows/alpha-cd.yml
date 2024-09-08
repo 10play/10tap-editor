@@ -32,7 +32,7 @@ jobs:
       - name: Build package
         run: yarn prepare
       - run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
-      - run: yarn release
+      - run: yarn release --preRelease=alpha
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
