@@ -58,7 +58,6 @@ export const useEditorBridge = (options?: {
   const editable = options?.editable === undefined ? true : options.editable;
   useEffect(() => {
     if (options) {
-      console.log('Set editable');
       // Special case for editable prop, since its command is on the core bridge and we want to access it via useEditorBridge
       editorInstance?.setEditable(editable);
     }
