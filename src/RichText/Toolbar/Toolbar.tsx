@@ -1,10 +1,11 @@
-import { FlatList, StyleSheet, Platform } from 'react-native';
+import { FlatList, StyleSheet, Platform, View } from 'react-native';
 import { useBridgeState } from '../useBridgeState';
 import React from 'react';
 import {
   DEFAULT_TOOLBAR_ITEMS,
   HEADING_ITEMS,
   type ToolbarItem,
+  type ToolbarSection,
 } from './actions';
 import { EditLinkBar } from './EditLinkBar';
 import { useKeyboard } from '../../utils';
@@ -16,6 +17,8 @@ interface ToolbarProps {
   editor: EditorBridge;
   hidden?: boolean;
   items?: ToolbarItem[];
+  sections?: Record<string, ToolbarSection>;
+  itemRenderer?: (item: ToolbarItem) => React.ReactNode | null;
 }
 
 export const toolbarStyles = StyleSheet.create({});
@@ -26,10 +29,17 @@ export enum ToolbarContext {
   Heading,
 }
 
+type ToolbarSectionData = {
+  key: string;
+  section: ToolbarSection;
+};
+
 export function Toolbar({
   editor,
   hidden = undefined,
   items = DEFAULT_TOOLBAR_ITEMS,
+  sections,
+  itemRenderer,
 }: ToolbarProps) {
   const editorState = useBridgeState(editor);
   const { isKeyboardUp } = useKeyboard();
@@ -47,31 +57,79 @@ export function Toolbar({
     toolbarContext,
   };
 
+  const renderSection = ({ key, section }: ToolbarSectionData) => {
+    if (section.sectionComponent) {
+      // If a custom section component exists, render it
+      const SectionComponent = section.sectionComponent;
+      return (
+        <SectionComponent
+          key={key}
+          items={section.items}
+          itemRenderer={itemRenderer}
+        />
+      );
+    }
+    // Otherwise, render the default section with toolbar items
+    return (
+      <View key={key} style={styles.section}>
+        {section.items.map((item, index) => (
+          <React.Fragment key={index}>
+            {itemRenderer ? itemRenderer(item) : renderDefaultItem(item, index)}
+          </React.Fragment>
+        ))}
+      </View>
+    );
+  };
+
+  const renderDefaultItem = (item: ToolbarItem, index: number) => (
+    <ToolbarItemComp key={index} {...item} args={args} editor={editor} />
+  );
+
+  // Get toolbar items based on the current context
+  const getToolbarItems = (): ToolbarItem[] => {
+    if (toolbarContext === ToolbarContext.Heading) {
+      return HEADING_ITEMS;
+    }
+    if (sections) {
+      return Object.values(sections).flatMap((section) => section.items);
+    }
+    return items;
+  };
+
+  const getFlatListData = (): ToolbarSectionData[] => {
+    if (sections) {
+      return Object.entries(sections).map(([key, section]) => ({
+        key,
+        section,
+      }));
+    }
+    return [{ key: 'default', section: { items: getToolbarItems() } }];
+  };
+
   switch (toolbarContext) {
     case ToolbarContext.Main:
     case ToolbarContext.Heading:
       if (Platform.OS === 'web') {
         return (
           <WebToolbar
-            items={
-              toolbarContext === ToolbarContext.Main ? items : HEADING_ITEMS
-            }
+            items={getToolbarItems()}
             args={args}
             editor={editor}
             hidden={hidden}
+            sections={sections}
+            itemRenderer={itemRenderer}
           />
         );
       }
       return (
-        <FlatList
-          data={toolbarContext === ToolbarContext.Main ? items : HEADING_ITEMS}
+        <FlatList<ToolbarSectionData>
+          data={getFlatListData()}
           style={[
             editor.theme.toolbar.toolbarBody,
             hideToolbar ? editor.theme.toolbar.hidden : undefined,
           ]}
-          renderItem={({ item }) => {
-            return <ToolbarItemComp {...item} args={args} editor={editor} />;
-          }}
+          renderItem={({ item }) => renderSection(item)}
+          keyExtractor={(item) => item.key}
           horizontal
         />
       );
@@ -103,3 +161,9 @@ export function Toolbar({
       );
   }
 }
+
+const styles = StyleSheet.create({
+  section: {
+    flexDirection: 'row',
+  },
+});

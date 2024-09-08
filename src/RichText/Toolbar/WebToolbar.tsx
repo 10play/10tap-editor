@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import type { EditorBridge } from '../../types';
-import type { ToolbarItem } from './actions';
+import type { ToolbarItem, ToolbarSection } from './actions';
 import { ToolbarItemComp } from './ToolbarItemComp';
 
 interface WebToolbarProps {
@@ -9,6 +9,8 @@ interface WebToolbarProps {
   args: Parameters<ToolbarItem['onPress']>[0];
   items: ToolbarItem[];
   hidden?: boolean;
+  sections?: Record<string, ToolbarSection>;
+  itemRenderer?: (item: ToolbarItem) => React.ReactNode;
 }
 export const WebToolbar = ({
   args,
