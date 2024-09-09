@@ -43,8 +43,17 @@ export function Toolbar({
   const [isStickyKeyboardActive, setIsStickyKeyboardActive] =
     React.useState(false);
 
+  React.useEffect(() => {
+    // Effect to show/hide the keyboard and toolbar
+    if (editorState.isFocused) {
+      setIsStickyKeyboardActive(false);
+    }
+  }, [editorState.isFocused]);
+
   const hideToolbar =
-    hidden === undefined ? !isKeyboardUp || !editorState.isFocused : hidden;
+    hidden === undefined
+      ? !isKeyboardUp || !editorState.isFocused || isStickyKeyboardActive
+      : hidden || isStickyKeyboardActive;
 
   const args: ArgsToolbarCB = {
     editor,
@@ -89,6 +98,9 @@ export function Toolbar({
       ]}
       onPress={() => {
         setIsStickyKeyboardActive(!isStickyKeyboardActive);
+        if (!isStickyKeyboardActive) {
+          editor.blur();
+        }
         STICKY_KEYBOARD.onPress(args)();
       }}
     >
@@ -200,6 +212,10 @@ export function Toolbar({
         }}
       />
     );
+  }
+
+  if (isStickyKeyboardActive && !editorState.isFocused) {
+    return null;
   }
 
   return (
