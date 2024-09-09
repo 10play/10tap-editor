@@ -3,7 +3,7 @@ import { Images } from '../../assets';
 import { EditorActionType } from '../../types/Actions';
 import type { EditorBridge } from '../../types';
 import { type BridgeState } from '../../types/EditorBridge';
-import { ToolbarContext } from './Toolbar';
+import { type ToolbarContext } from './Toolbar';
 import type { Level } from '@tiptap/extension-heading';
 
 export const ToolbarItems = {
@@ -48,7 +48,7 @@ const HEADING: ToolbarItem = {
   onPress:
     ({ setToolbarContext }) =>
     () =>
-      setToolbarContext(ToolbarContext.Heading),
+      setToolbarContext('Heading'),
   active: () => false,
   disabled: ({ editorState }) => !editorState.canToggleHeading,
   image: () => Images.Aa,
@@ -107,7 +107,7 @@ const LINK: ToolbarItem = {
           );
         });
       }
-      setToolbarContext(ToolbarContext.Link);
+      setToolbarContext('Link');
     },
   active: ({ editorState }) => editorState.isLinkActive,
   disabled: ({ editorState }) =>
@@ -200,11 +200,12 @@ const REDO: ToolbarItem = {
   disabled: ({ editorState }) => !editorState.canRedo,
   image: () => Images.redo,
 };
+
 const WATERMARK: ToolbarItem = {
   onPress:
     ({ setToolbarContext }) =>
     () =>
-      setToolbarContext(ToolbarContext.Main),
+      setToolbarContext('Main'),
   active: () => false,
   disabled: () => false,
   image: () => Images.watermark,
@@ -249,7 +250,7 @@ export const HEADING_ITEMS: ToolbarItem[] = [
     onPress:
       ({ setToolbarContext }) =>
       () =>
-        setToolbarContext(ToolbarContext.Main),
+        setToolbarContext('Main'),
     active: () => false,
     disabled: () => false,
     image: () => Images.close,
