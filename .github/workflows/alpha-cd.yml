@@ -1,0 +1,38 @@
+name: ALPHA CD
+
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'ios/**'
+      - 'android/**'
+    branches:
+      - alpha
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GH_PAT }}
+          fetch-depth: 0
+      - name: git config
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Build simple editor bundle
+        run: yarn editor:build
+      - name: Build web utils
+        run: yarn editor:build-web-utils
+      - name: Bump version for alpha release
+        run: npm version prerelease --preid=alpha
+      - name: Build package
+        run: yarn prepare
+      - run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
+      - run: yarn release
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}

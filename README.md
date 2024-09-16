@@ -46,6 +46,11 @@ Otherwise you will need to setup [Expo Dev Client](https://docs.expo.dev/develop
 
 Now you ready to add tentap to your app!
 
+### Expo Web
+
+TenTap supports expo web!
+See setup [here](https://10play.github.io/10tap-editor/docs/setup/expoWeb)
+
 ## Usage
 
 ```tsx

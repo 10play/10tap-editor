@@ -10,7 +10,7 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Setup',
-      items: ['setup/installation', 'setup/advancedSetup'],
+      items: ['setup/installation', 'setup/advancedSetup', 'setup/expoWeb'],
     },
     {
       type: 'category',
