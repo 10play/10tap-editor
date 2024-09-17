@@ -4,177 +4,78 @@ sidebar_position: 3
 
 # BridgeState
 
-The BridgeState is the latest state of the editor webview on the native side, it's extendable by BridgeExtensions and is generally used with [useBridgeState](#usebridgestate)
-
-The list above is the interface of BridgeState in case you use `TenTapStarterkit` or using all the BridgeExtensions the lib exports, on each prop we specify what bridgeExtension adds it
-
-### BridgeState properties
-
-#### editable
-
-`boolean`
-<br />Is the editor editable or not <br /> extended by [CoreBridge](./BridgeExtensions#coreextension)
-
-#### selection
-
-`{ from: number; to: number }`
-<br />The selection on the editor-web <br /> extended by [CoreBridge](./BridgeExtensions#coreextension)
-
-#### isFocused
-
-`boolean`
-<br />true when the editor is focused <br /> extended by [CoreBridge](./BridgeExtensions#coreextension)
-
-#### isReady
-
-`boolean`
-<br />true when the editor is fully loaded <br /> extended by [CoreBridge](./BridgeExtensions#coreextension)
-
-#### isBlockquoteActive
-
-`boolean`
-<br />true when the cursor is where blockquote is active <br /> extended by [BlockquoteBridge](./BridgeExtensions#blockquotebridge)
-
-#### canToggleBlockquote
-
-`boolean`
-<br />true when it's possible to toggle blockquote <br /> extended by [BlockquoteBridge](./BridgeExtensions#blockquotebridge)
-
-#### isCodeActive
-
-`boolean`
-<br />true when the cursor is where code is active <br /> extended by [CodeBridge](./BridgeExtensions#codebridge)
-
-#### canToggleCode
-
-`boolean`
-<br />true when it's possible to toggle code <br /> extended by [CodeBridge](./BridgeExtensions#codebridge)
-
-#### isBoldActive
-
-`boolean`
-<br />true when the cursor is where bold is active <br /> extended by [BoldBridge](./BridgeExtensions#boldbridge)
-
-#### canToggleBold
-
-`boolean`
-<br />true when it's possible to toggle bold <br /> extended by [BoldBridge](./BridgeExtensions#boldbridge)
-
-#### isItalicActive
-
-`boolean`
-<br />true when the cursor is where italic is active <br /> extended by [ItalicBridge](./BridgeExtensions#italicbridge)
-
-#### canToggleItalic
-
-`boolean`
-<br />true when it's possible to toggle italic <br /> extended by [ItalicBridge](./BridgeExtensions#italicbridge)
-
-#### isUnderlineActive
-
-`boolean`
-<br />true when the cursor is where underline is active <br /> extended by [UnderlineBridge](./BridgeExtensions#underlinebridge)
-
-#### canToggleUnderline
-
-`boolean`
-<br />true when it's possible to toggle underline <br /> extended by [UnderlineBridge](./BridgeExtensions#underlinebridge)
-
-#### isStrikeActive
-
-`boolean`
-<br />true when the cursor is where Strike is active <br /> extended by [StrikeBridge](./BridgeExtensions#strikebridge)
-
-#### canToggleStrike
-
-`boolean`
-<br />true when it's possible to toggle Strike <br /> extended by [StrikeBridge](./BridgeExtensions#strikebridge)
-
-#### isBulletListActive
-
-`boolean`
-<br />true when the cursor is where bullet list is active <br /> extended by [BulletListBridge](./BridgeExtensions#bulletlistbridge)
-
-#### canToggleBulletList
-
-`boolean`
-<br />true when it's possible to toggle bullet list <br /> extended by [BulletListBridge](./BridgeExtensions#bulletlistbridge)
-
-#### isOrderedListActive
-
-`boolean`
-<br />true when the cursor is where ordered list is active <br /> extended by [OrderedListBridge](./BridgeExtensions#orderedlistbridge)
-
-#### canToggleOrderedList
-
-`boolean`
-<br />true when it's possible to toggle ordered list <br /> extended by [OrderedListBridge](./BridgeExtensions#orderedlistbridge)
-
-#### isTaskListActive
-
-`boolean`
-<br />true when the cursor is where task list is active <br /> extended by [TaskListBridge](./BridgeExtensions#tasklistbridge)
-
-#### canToggleTaskList
-
-`boolean`
-<br />true when it's possible to toggle task list <br /> extended by [TaskListBridge](./BridgeExtensions#tasklistbridge)
-
-#### headingLevel
-
-`number | undefined`
-<br />undefined when no heading is applied, number of the heading level <br /> extended by [HeadingBridge](./BridgeExtensions#headingbridge)
-
-#### canToggleHeading
-
-`boolean`
-<br />true when it's possible to toggle heading <br /> extended by [HeadingBridge](./BridgeExtensions#headingbridge)
-
-#### canLift
-
-`boolean`
-<br />true when it's possible to lift list item <br /> extended by [ListItemBridge](./BridgeExtensions#listitembridge)
-
-#### canSink
-
-`boolean`
-<br />true when it's possible to sink a list item <br /> extended by [ListItemBridge](./BridgeExtensions#listitembridge)
-
-#### canUndo
-
-`boolean`
-<br />true when it's possible to undo the doc history stack <br /> extended by [HistoryBridge](./BridgeExtensions#historybridge)
-
-#### canRedo
-
-`boolean`
-<br />true when it's possible to redo the doc history stack <br /> extended by [HistoryBridge](./BridgeExtensions#historybridge)
-
-#### activeColor
-
-`string | undefined`
-<br />undefined when no color is applied, string of the color that is active on the selection <br /> extended by [ColorBridge](./BridgeExtensions#colorbridge)
-
-#### activeHighlight
-
-`string | undefined`
-<br />undefined when no highlight is applied, string of the highlight that active on the selection <br /> extended by [HighlightBridge](./BridgeExtensions#highlightbridge)
-
-#### isLinkActive
-
-`boolean`
-<br />true when the link is in the selection <br /> extended by [LinkBridge](./BridgeExtensions#linkbridge)
-
-#### canSetLink
-
-`boolean`
-<br />true when it's possible to add link, for example when there is no selection it not possible <br /> extended by [LinkBridge](./BridgeExtensions#linkbridge)
-
-#### activeLink
-
-`string | undefined`
-<br />undefined when there is no link, string of the link that active on the selection position <br /> extended by [LinkBridge](./BridgeExtensions#linkbridge)
-
-### useBridgeState
-
-a react hook to subscribe to changes on the BridgeState, get EditorBridge
+The BridgeState represents the latest state of the editor webview on the native side. It's extendable by BridgeExtensions and is typically used with [useBridgeState](#usebridgestate).
+
+The following properties are available when using `TenTapStarterkit` or all the BridgeExtensions exported by the library. Each property specifies which BridgeExtension adds it.
+
+## Core Properties
+
+| Property  | Type                           | Description                          | Extended By                                    |
+| --------- | ------------------------------ | ------------------------------------ | ---------------------------------------------- |
+| editable  | `boolean`                      | Indicates if the editor is editable  | [CoreBridge](./BridgeExtensions#coreextension) |
+| selection | `{ from: number; to: number }` | The current selection in the editor  | [CoreBridge](./BridgeExtensions#coreextension) |
+| isFocused | `boolean`                      | True when the editor is focused      | [CoreBridge](./BridgeExtensions#coreextension) |
+| isReady   | `boolean`                      | True when the editor is fully loaded | [CoreBridge](./BridgeExtensions#coreextension) |
+
+## Formatting Properties
+
+| Property            | Type      | Description                                          | Extended By                                             |
+| ------------------- | --------- | ---------------------------------------------------- | ------------------------------------------------------- |
+| isBlockquoteActive  | `boolean` | True when the cursor is in an active blockquote      | [BlockquoteBridge](./BridgeExtensions#blockquotebridge) |
+| canToggleBlockquote | `boolean` | True when it's possible to toggle blockquote         | [BlockquoteBridge](./BridgeExtensions#blockquotebridge) |
+| isCodeActive        | `boolean` | True when the cursor is in active code               | [CodeBridge](./BridgeExtensions#codebridge)             |
+| canToggleCode       | `boolean` | True when it's possible to toggle code               | [CodeBridge](./BridgeExtensions#codebridge)             |
+| isBoldActive        | `boolean` | True when the cursor is in active bold text          | [BoldBridge](./BridgeExtensions#boldbridge)             |
+| canToggleBold       | `boolean` | True when it's possible to toggle bold               | [BoldBridge](./BridgeExtensions#boldbridge)             |
+| isItalicActive      | `boolean` | True when the cursor is in active italic text        | [ItalicBridge](./BridgeExtensions#italicbridge)         |
+| canToggleItalic     | `boolean` | True when it's possible to toggle italic             | [ItalicBridge](./BridgeExtensions#italicbridge)         |
+| isUnderlineActive   | `boolean` | True when the cursor is in active underlined text    | [UnderlineBridge](./BridgeExtensions#underlinebridge)   |
+| canToggleUnderline  | `boolean` | True when it's possible to toggle underline          | [UnderlineBridge](./BridgeExtensions#underlinebridge)   |
+| isStrikeActive      | `boolean` | True when the cursor is in active strikethrough text | [StrikeBridge](./BridgeExtensions#strikebridge)         |
+| canToggleStrike     | `boolean` | True when it's possible to toggle strikethrough      | [StrikeBridge](./BridgeExtensions#strikebridge)         |
+
+## List Properties
+
+| Property             | Type      | Description                                       | Extended By                                               |
+| -------------------- | --------- | ------------------------------------------------- | --------------------------------------------------------- |
+| isBulletListActive   | `boolean` | True when the cursor is in an active bullet list  | [BulletListBridge](./BridgeExtensions#bulletlistbridge)   |
+| canToggleBulletList  | `boolean` | True when it's possible to toggle bullet list     | [BulletListBridge](./BridgeExtensions#bulletlistbridge)   |
+| isOrderedListActive  | `boolean` | True when the cursor is in an active ordered list | [OrderedListBridge](./BridgeExtensions#orderedlistbridge) |
+| canToggleOrderedList | `boolean` | True when it's possible to toggle ordered list    | [OrderedListBridge](./BridgeExtensions#orderedlistbridge) |
+| isTaskListActive     | `boolean` | True when the cursor is in an active task list    | [TaskListBridge](./BridgeExtensions#tasklistbridge)       |
+| canToggleTaskList    | `boolean` | True when it's possible to toggle task list       | [TaskListBridge](./BridgeExtensions#tasklistbridge)       |
+| canLift              | `boolean` | True when it's possible to lift a list item       | [ListItemBridge](./BridgeExtensions#listitembridge)       |
+| canSink              | `boolean` | True when it's possible to sink a list item       | [ListItemBridge](./BridgeExtensions#listitembridge)       |
+
+## Heading Properties
+
+| Property         | Type                  | Description                                              | Extended By                                       |
+| ---------------- | --------------------- | -------------------------------------------------------- | ------------------------------------------------- |
+| headingLevel     | `number \| undefined` | The current heading level, or undefined if not a heading | [HeadingBridge](./BridgeExtensions#headingbridge) |
+| canToggleHeading | `boolean`             | True when it's possible to toggle heading                | [HeadingBridge](./BridgeExtensions#headingbridge) |
+
+## History Properties
+
+| Property | Type      | Description                     | Extended By                                       |
+| -------- | --------- | ------------------------------- | ------------------------------------------------- |
+| canUndo  | `boolean` | True when it's possible to undo | [HistoryBridge](./BridgeExtensions#historybridge) |
+| canRedo  | `boolean` | True when it's possible to redo | [HistoryBridge](./BridgeExtensions#historybridge) |
+
+## Color and Highlight Properties
+
+| Property        | Type                  | Description                                                         | Extended By                                           |
+| --------------- | --------------------- | ------------------------------------------------------------------- | ----------------------------------------------------- |
+| activeColor     | `string \| undefined` | The active text color, or undefined if no color is applied          | [ColorBridge](./BridgeExtensions#colorbridge)         |
+| activeHighlight | `string \| undefined` | The active highlight color, or undefined if no highlight is applied | [HighlightBridge](./BridgeExtensions#highlightbridge) |
+
+## Link Properties
+
+| Property     | Type                  | Description                                            | Extended By                                 |
+| ------------ | --------------------- | ------------------------------------------------------ | ------------------------------------------- |
+| isLinkActive | `boolean`             | True when a link is in the selection                   | [LinkBridge](./BridgeExtensions#linkbridge) |
+| canSetLink   | `boolean`             | True when it's possible to add a link                  | [LinkBridge](./BridgeExtensions#linkbridge) |
+| activeLink   | `string \| undefined` | The active link URL, or undefined if no link is active | [LinkBridge](./BridgeExtensions#linkbridge) |
+
+## useBridgeState
+
+`useBridgeState` is a React hook used to subscribe to changes in the BridgeState. It provides access to the EditorBridge.
