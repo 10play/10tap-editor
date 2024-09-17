@@ -4,55 +4,33 @@ sidebar_position: 5
 
 # Custom Keyboard Utils
 
-We believe that custom keyboard can be a game changer when it comes to editing experience, that's why we decided that this ability should be part of this lib, in this page we will show the APIs of the custom keyboard utils.
-For examples please see: [Create custom keyboard](../examples/customKeyboard) or [Using the ColorKeyboard](../examples/colorKeyboard)
+Custom keyboards can significantly enhance the editing experience. This page outlines the APIs for custom keyboard utilities.
 
-### CustomKeyboard
+For practical examples, see:
 
-A react component that need to render so we will register the custom keyboard and show them properly
+- [Create custom keyboard](../examples/customKeyboard)
+- [Using the ColorKeyboard](../examples/colorKeyboard)
 
-#### rootRef
+## CustomKeyboard Component
 
-`React.RefObject<any>`
-Important for iOS where ref of some View is needed for keyboard manipulation
+A React component used to register and display custom keyboards.
 
-#### keyboards
+| Prop                | Type                                | Description                                                                                        |
+| ------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------- |
+| rootRef             | `React.RefObject<any>`              | Reference to a View, crucial for iOS keyboard manipulation                                         |
+| keyboards           | `CustomKeyboardExtension[]`         | List of [CustomKeyboardExtension](#customkeyboardextension) instances                              |
+| setActiveKeyboardID | `(id: string \| undefined) => void` | Function to change or unset the active keyboard                                                    |
+| activeKeyboardID    | `string`                            | ID of the currently active custom keyboard                                                         |
+| editor              | `EditorBridge`                      | Instance of the editor's `EditorBridge`                                                            |
+| rootBackground      | `string`                            | (iOS only) Background of the `RCTRootView` rendering the custom keyboard. Useful for custom themes |
 
-`CustomKeyboardExtension[]`
-list of [CustomKeyboardExtension's](#customkeyboardextension)
+## CustomKeyboardExtension
 
-#### setActiveKeyboardID
+A class for registering new components with a custom keyboard ID.
 
-`(id: string | undefined) => void`
-a function that changes or unsets the active keyboard
+**Note:** The custom keyboard component is rendered in a separate `RCTRootView` on iOS and doesn't function as a regular React component in your app.
 
-#### activeKeyboardID
-
-`string`
-the active custom keyboard id
-
-#### editor
-
-`EditorBridge`
-the editors `EditorBridge` instance
-
-#### rootBackground - `IOS ONLY`
-
-The background of the `RCTRootView` used to render the custom keyboard
-This is helpful when you are using a custom theme
-
-### CustomKeyboardExtension
-
-A class that will register a new component with the customkeyboard id
-
-> <strong>It's important to note that the custom keyboard component does not work as a regular react component in your app, and is rendered on IOS in a separate RCTRootView.</strong>
-
-#### id
-
-`string`
-a unique key for the custom keyboard
-
-#### comp
-
-`ComponentType<any>`
-The custom keyboard component
+| Property | Type                 | Description                               |
+| -------- | -------------------- | ----------------------------------------- |
+| id       | `string`             | Unique identifier for the custom keyboard |
+| comp     | `ComponentType<any>` | The custom keyboard component             |

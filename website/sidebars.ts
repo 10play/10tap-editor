@@ -19,10 +19,11 @@ const sidebars: SidebarsConfig = {
         'api/useEditorBridge',
         'api/EditorBridge',
         'api/BridgeState',
-        'api/Components',
+        'api/RichText',
         'api/CustomKeyboardUtils',
         'api/BridgeExtensions',
         'api/useEditorContent',
+        'api/Toolbar',
       ],
     },
     {
@@ -31,6 +32,7 @@ const sidebars: SidebarsConfig = {
       collapsed: false, // Ensure the Examples category is open by default
       items: [
         'examples/basic',
+        'examples/CustomContext',
         'examples/customCss',
         {
           type: 'doc',
