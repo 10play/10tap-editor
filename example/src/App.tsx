@@ -15,11 +15,16 @@ import { CustomCss } from './Examples/CustomCss';
 import { ConfigureExtensions } from './Examples/ConfigureExtentions';
 import { NavigationHeader } from './Examples/NavigationHeader';
 import { DarkEditor } from './Examples/DarkEditor';
+import { BasicContext } from './Examples/BasicContext';
 
 const examples = [
   {
     name: 'Basic',
     component: Basic,
+  },
+  {
+    name: 'Basic With Custom Context',
+    component: BasicContext,
   },
   {
     name: 'With Color Keyboard',
