@@ -1,105 +1,232 @@
-import { FlatList, StyleSheet, Platform } from 'react-native';
-import { useBridgeState } from '../useBridgeState';
 import React from 'react';
 import {
+  FlatList,
+  Platform,
+  View,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
+import { useBridgeState } from '../useBridgeState';
+import {
+  STICKY_KEYBOARD,
   DEFAULT_TOOLBAR_ITEMS,
+  TOOLBAR_SECTIONS,
   HEADING_ITEMS,
-  type ToolbarItem,
 } from './actions';
-import { EditLinkBar } from './EditLinkBar';
 import { useKeyboard } from '../../utils';
-import type { EditorBridge } from '../../types';
 import { ToolbarItemComp } from './ToolbarItemComp';
 import { WebToolbar } from './WebToolbar';
+import { Separator } from './Separator';
+import { EditLinkBar } from './EditLinkBar';
+import type {
+  ToolbarProps,
+  ToolbarSection,
+  ArgsToolbarCB,
+  ToolbarContextConfig,
+} from './ToolbarTypes';
 
-interface ToolbarProps {
-  editor: EditorBridge;
-  hidden?: boolean;
-  items?: ToolbarItem[];
-}
-
-export const toolbarStyles = StyleSheet.create({});
-
-export enum ToolbarContext {
-  Main,
-  Link,
-  Heading,
-}
+export type ToolbarContext = 'Main' | 'Link' | 'Heading' | string;
 
 export function Toolbar({
   editor,
   hidden = undefined,
   items = DEFAULT_TOOLBAR_ITEMS,
+  sections = TOOLBAR_SECTIONS,
+  contexts = {},
+  showStickyKeyboard = false,
+  stickyKeyboardPosition = 'right',
 }: ToolbarProps) {
   const editorState = useBridgeState(editor);
   const { isKeyboardUp } = useKeyboard();
-  const [toolbarContext, setToolbarContext] = React.useState<ToolbarContext>(
-    ToolbarContext.Main
-  );
+  const [toolbarContext, setToolbarContext] =
+    React.useState<ToolbarContext>('Main');
+  const [isStickyKeyboardActive, setIsStickyKeyboardActive] =
+    React.useState(false);
+
+  React.useEffect(() => {
+    // Effect to show/hide the keyboard and toolbar
+    if (editorState.isFocused) {
+      setIsStickyKeyboardActive(false);
+    }
+  }, [editorState.isFocused]);
 
   const hideToolbar =
-    hidden === undefined ? !isKeyboardUp || !editorState.isFocused : hidden;
+    hidden === undefined
+      ? !isKeyboardUp || !editorState.isFocused || isStickyKeyboardActive
+      : hidden || isStickyKeyboardActive;
 
-  const args = {
+  const args: ArgsToolbarCB = {
     editor,
     editorState,
     setToolbarContext,
     toolbarContext,
   };
 
-  switch (toolbarContext) {
-    case ToolbarContext.Main:
-    case ToolbarContext.Heading:
-      if (Platform.OS === 'web') {
+  const renderSection = ({
+    section,
+    isLast,
+  }: {
+    section: ToolbarSection;
+    isLast: boolean;
+  }) => (
+    <>
+      <View style={editor.theme.toolbar.section}>
+        {section.items.map((item, index) => (
+          <ToolbarItemComp key={index} {...item} args={args} editor={editor} />
+        ))}
+      </View>
+      {!isLast && <Separator />}
+    </>
+  );
+
+  const getSectionsWithSeparators = (
+    sectionsToUse: Record<string, ToolbarSection>
+  ) => {
+    const sectionEntries = Object.entries(sectionsToUse);
+    return sectionEntries.map((entry, index) => ({
+      key: entry[0],
+      section: entry[1],
+      isLast: index === sectionEntries.length - 1,
+    }));
+  };
+
+  const renderStickyKeyboard = () => (
+    <TouchableOpacity
+      style={[
+        editor.theme.toolbar.toolbarButton,
+        editor.theme.toolbar.stickyKeyboardContainer,
+      ]}
+      onPress={() => {
+        setIsStickyKeyboardActive(!isStickyKeyboardActive);
+        if (!isStickyKeyboardActive) {
+          editor.blur();
+        }
+        STICKY_KEYBOARD.onPress(args)();
+      }}
+    >
+      <View style={editor.theme.toolbar.iconWrapper}>
+        <Image
+          source={STICKY_KEYBOARD.image(args)}
+          style={editor.theme.toolbar.icon}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+
+  const renderToolbarContent = () => {
+    const currentContext: ToolbarContextConfig | undefined =
+      contexts[toolbarContext];
+
+    if (currentContext) {
+      if (currentContext.component) {
+        const CustomComponent = currentContext.component;
+        return <CustomComponent {...args} />;
+      }
+      if (currentContext.sections) {
         return (
-          <WebToolbar
-            items={
-              toolbarContext === ToolbarContext.Main ? items : HEADING_ITEMS
-            }
-            args={args}
-            editor={editor}
-            hidden={hidden}
+          <FlatList
+            data={getSectionsWithSeparators(currentContext.sections)}
+            style={[
+              editor.theme.toolbar.flatList,
+              hideToolbar && editor.theme.toolbar.hidden,
+            ]}
+            renderItem={({ item }) => renderSection(item)}
+            keyExtractor={(item) => item.key}
+            horizontal
           />
         );
       }
-      return (
-        <FlatList
-          data={toolbarContext === ToolbarContext.Main ? items : HEADING_ITEMS}
-          style={[
-            editor.theme.toolbar.toolbarBody,
-            hideToolbar ? editor.theme.toolbar.hidden : undefined,
-          ]}
-          renderItem={({ item }) => {
-            return <ToolbarItemComp {...item} args={args} editor={editor} />;
-          }}
-          horizontal
-        />
-      );
-    case ToolbarContext.Link:
-      return (
-        <EditLinkBar
-          theme={editor.theme}
-          initialLink={editorState.activeLink}
-          onBlur={() => setToolbarContext(ToolbarContext.Main)}
-          onLinkIconClick={() => {
-            setToolbarContext(ToolbarContext.Main);
-            editor.focus();
-          }}
-          onEditLink={(link) => {
-            editor.setLink(link);
-            editor.focus();
+    }
 
-            if (Platform.OS === 'android') {
-              // On android we dont want to hide the link input before we finished focus on editor
-              // Add here 100ms and we can try to find better solution later
-              setTimeout(() => {
-                setToolbarContext(ToolbarContext.Main);
-              }, 100);
-            } else {
-              setToolbarContext(ToolbarContext.Main);
-            }
-          }}
-        />
-      );
+    // Fallback to default behavior for Main context and undefined contexts
+    const sectionsToUse =
+      toolbarContext === 'Main'
+        ? sections
+        : toolbarContext === 'Heading'
+        ? { heading: { items: HEADING_ITEMS } }
+        : {};
+    return (
+      <FlatList
+        data={getSectionsWithSeparators(sectionsToUse)}
+        scrollIndicatorInsets={{ bottom: -3 }}
+        style={[
+          editor.theme.toolbar.flatList,
+          hideToolbar && editor.theme.toolbar.hidden,
+        ]}
+        renderItem={({ item }) => renderSection(item)}
+        keyExtractor={(item) => item.key}
+        horizontal
+      />
+    );
+  };
+
+  if (Platform.OS === 'web') {
+    const currentContext = contexts[toolbarContext];
+    const webItems = currentContext?.sections
+      ? Object.values(currentContext.sections).flatMap(
+          (section) => section.items
+        )
+      : toolbarContext === 'Main'
+      ? items
+      : toolbarContext === 'Heading'
+      ? HEADING_ITEMS
+      : [];
+
+    return (
+      <WebToolbar
+        items={webItems}
+        args={args}
+        editor={editor}
+        hidden={hidden}
+        sections={
+          currentContext?.sections ||
+          (toolbarContext === 'Main' ? sections : undefined)
+        }
+      />
+    );
   }
+
+  if (toolbarContext === 'Link') {
+    return (
+      <EditLinkBar
+        theme={editor.theme}
+        initialLink={editorState.activeLink}
+        onBlur={() => setToolbarContext('Main')}
+        onLinkIconClick={() => {
+          setToolbarContext('Main');
+          editor.focus();
+        }}
+        onEditLink={(link) => {
+          editor.setLink(link);
+          editor.focus();
+
+          if (Platform.OS === 'android') {
+            // On android we dont want to hide the link input before we finished focus on editor
+            // Add here 100ms and we can try to find better solution later
+            setTimeout(() => {
+              setToolbarContext('Main');
+            }, 100);
+          } else {
+            setToolbarContext('Main');
+          }
+        }}
+      />
+    );
+  }
+
+  if (isStickyKeyboardActive && !editorState.isFocused) {
+    return null;
+  }
+
+  return (
+    <View style={editor.theme.toolbar.toolbarBody}>
+      {showStickyKeyboard &&
+        stickyKeyboardPosition === 'left' &&
+        renderStickyKeyboard()}
+      {renderToolbarContent()}
+      {showStickyKeyboard &&
+        stickyKeyboardPosition === 'right' &&
+        renderStickyKeyboard()}
+    </View>
+  );
 }

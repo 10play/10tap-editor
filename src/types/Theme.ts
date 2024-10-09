@@ -25,6 +25,11 @@ export type ToolbarTheme = {
   hidden: StyleProp<ViewStyle>;
   keyboardAvoidingView: StyleProp<ViewStyle>;
   linkBarTheme: LinkBarTheme;
+  section: StyleProp<ViewStyle>;
+  stickyKeyboardContainer: StyleProp<ViewStyle>;
+  flatList: StyleProp<ViewStyle>;
+  separatorContainer: StyleProp<ViewStyle>;
+  separatorLine: StyleProp<ViewStyle>;
 };
 
 export type LinkBarTheme = {
