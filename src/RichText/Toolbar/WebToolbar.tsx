@@ -11,6 +11,9 @@ interface WebToolbarProps {
   hidden?: boolean;
   sections?: Record<string, ToolbarSection>;
   itemRenderer?: (item: ToolbarItem) => React.ReactNode;
+  showStickyKeyboard?: boolean;
+  stickyKeyboardPosition?: 'left' | 'right';
+  showWatermark?: boolean;
 }
 export const WebToolbar = ({
   args,

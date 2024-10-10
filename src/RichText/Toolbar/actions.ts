@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import { Linking, Platform } from 'react-native';
 import { Images } from '../../assets';
 import { EditorActionType } from '../../types/Actions';
 import type { EditorBridge } from '../../types';
@@ -201,11 +201,12 @@ const REDO: ToolbarItem = {
   image: () => Images.redo,
 };
 
-const WATERMARK: ToolbarItem = {
+export const WATERMARK: ToolbarItem = {
   onPress:
-    ({ setToolbarContext }) =>
-    () =>
-      setToolbarContext('Main'),
+    ({}) =>
+    () => {
+      Linking.openURL('https://github.com/10play/10tap-editor');
+    },
   active: () => false,
   disabled: () => false,
   image: () => Images.watermark,

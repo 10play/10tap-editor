@@ -35,6 +35,7 @@ export function Toolbar({
   contexts = {},
   showStickyKeyboard = false,
   stickyKeyboardPosition = 'right',
+  showWatermark = true,
 }: ToolbarProps) {
   const editorState = useBridgeState(editor);
   const { isKeyboardUp } = useKeyboard();
@@ -83,11 +84,13 @@ export function Toolbar({
     sectionsToUse: Record<string, ToolbarSection>
   ) => {
     const sectionEntries = Object.entries(sectionsToUse);
-    return sectionEntries.map((entry, index) => ({
-      key: entry[0],
-      section: entry[1],
-      isLast: index === sectionEntries.length - 1,
-    }));
+    return sectionEntries
+      .filter(([key]) => showWatermark || key !== 'watermark')
+      .map((entry, index, filteredEntries) => ({
+        key: entry[0],
+        section: entry[1],
+        isLast: index === filteredEntries.length - 1,
+      }));
   };
 
   const renderStickyKeyboard = () => (
@@ -167,7 +170,10 @@ export function Toolbar({
           (section) => section.items
         )
       : toolbarContext === 'Main'
-      ? items
+      ? items.filter(
+          (item) =>
+            showWatermark || item !== TOOLBAR_SECTIONS.watermark?.items[0]
+        )
       : toolbarContext === 'Heading'
       ? HEADING_ITEMS
       : [];
@@ -182,6 +188,7 @@ export function Toolbar({
           currentContext?.sections ||
           (toolbarContext === 'Main' ? sections : undefined)
         }
+        showWatermark={showWatermark}
       />
     );
   }

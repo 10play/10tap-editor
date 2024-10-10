@@ -40,6 +40,7 @@ export interface ToolbarProps {
   itemRenderer?: (item: ToolbarItem) => React.ReactNode | null;
   showStickyKeyboard?: boolean;
   stickyKeyboardPosition?: 'left' | 'right';
+  showWatermark?: boolean;
 }
 
 export interface ToolbarContextConfig {

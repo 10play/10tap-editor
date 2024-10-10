@@ -26,7 +26,7 @@ export const defaultToolbarTheme: ToolbarTheme = {
     opacity: 0.3,
   },
   iconWrapperActive: {
-    backgroundColor: '#E5E5E5',
+    backgroundColor: '#F5F5F5',
   },
   hidden: {
     display: 'none',
@@ -39,6 +39,7 @@ export const defaultToolbarTheme: ToolbarTheme = {
   iconWrapper: {
     borderRadius: 4,
     backgroundColor: 'white',
+    padding: 4,
   },
   icon: {
     height: 20,
