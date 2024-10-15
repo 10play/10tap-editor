@@ -8,7 +8,7 @@ sidebar_position: 1
 
 `bridgeExtension` - a typed class that helps us communicate between the native part and the webview part
 
-There are two different ways to work with this lib: [simple](./mainConcepts#simple-usage) and [advanced](./mainConcepts#advance-usage), simple should be good enough for most of the cases, we tried to make the API as simple as possible so people will be able to plug and play, on the other hand advanced usage requires a longer setup.
+There are two different ways to work with this lib: [simple](./mainConcepts#simple-usage) and [advanced](./mainConcepts#advanced-usage), simple should be good enough for most of the cases, we tried to make the API as simple as possible so people will be able to plug and play, on the other hand advanced usage requires a longer setup.
 
 ## Simple usage
 

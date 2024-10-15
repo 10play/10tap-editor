@@ -4,79 +4,37 @@ sidebar_position: 1
 
 # useEditorBridge
 
-a react hook that will return [EditorBridge](./EditorBridge)
+A React hook that returns an [EditorBridge](./EditorBridge) instance.
 
-#### bridgeExtensions
+## Parameters
 
-`BridgeExtension[]`  
-<u>default</u>: `undefined`<br />
-A list of BridgeExtensions that will be added to the editor on the native side
+| Parameter             | Type                | Default                    | Description                                                                                                                                                                                                |
+| --------------------- | ------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| bridgeExtensions      | `BridgeExtension[]` | `undefined`                | A list of BridgeExtensions to be added to the editor on the native side.                                                                                                                                   |
+| initialContent        | `string \| json`    | `undefined`                | Initial content to be loaded first in the editor.                                                                                                                                                          |
+| autofocus             | `boolean`           | `false`                    | When true, the editor will auto-focus.                                                                                                                                                                     |
+| avoidIosKeyboard      | `boolean`           | `false`                    | **(iOS only)** Helps keep the cursor above the keyboard when the editor is full-screen and the virtual keyboard hides the bottom portion.                                                                  |
+| dynamicHeight         | `boolean`           | `false`                    | When true, the editor's webview will maintain the same height as the content.                                                                                                                              |
+| disableColorHighlight | `boolean`           | `undefined`                | When true, the selection highlight will be off. When false, it will be on. On Android, this is off by default. [See issue #184](https://github.com/10play/10tap-editor/issues/184#issuecomment-2304826219) |
+| theme                 | `EditorTheme`       | `defaultEditorTheme`       | Customizes default styles. See [theme example](../examples/customTheme.md).                                                                                                                                |
+| editable              | `boolean`           | `true`                     | When set to false, the editor will be read-only.                                                                                                                                                           |
+| customSource          | `string`            | `SimpleEditorBundleString` | Used in advanced setup. An HTML string that replaces the default simple editor.                                                                                                                            |
+| onChange              | `() => void`        | `undefined`                | Callback triggered when editor content changes.                                                                                                                                                            |
+| DEV                   | `boolean`           | `false`                    | Used in advanced setup. When true, the webview will load DEV_SERVER_URL instead of the HTML string.                                                                                                        |
+| DEV_SERVER_URL        | `string`            | `'http://localhost:3000'`  | Used in advanced setup. URL pointing to the editor dev server.                                                                                                                                             |
 
-#### initialContent
+## Usage Notes
 
-`string | json`  
-<u>default</u>: `undefined`<br />
-initial content that will be loaded first on the editor
+### onChange Callback
 
-#### autofocus
+The `onChange` callback is called each time the editor's content changes. Within this function, you can call:
 
-`boolean`  
-<u>default</u>: `false`<br />
-when true the editor will auto focus
+- `editor.getHTML()`
+- `editor.getJSON()`
+- `editor.getText()`
 
-#### avoidIosKeyboard `IOS ONLY`
+to retrieve the content. The content is not directly provided to reduce traffic between the webview and native. It's recommended to request the content in a debounced function rather than on each change.
 
-`boolean`  
-<u>default</u>: `false`<br />
-This helps us keep the cursor right above the keyboard when the editor is full-screen and the virtual keyboard hides the bottom portion of the editor.
+### Advanced Setup
 
-#### dynamicHeight
-
-`boolean`  
-<u>default</u>: `false`<br />
-when true the editor's webview will keep the same height as the content height
-
-#### disableColorHighlight
-
-`boolean`  
-<u>default</u>: `undefined`<br />
-when true the selection highlight will be off and when false will be on, on android this will be off by default, please see:
-https://github.com/10play/10tap-editor/issues/184#issuecomment-2304826219
-
-#### theme
-
-`EditorTheme`  
-<u>default</u>: `defaultEditorTheme` <i>(light theme)</i><br />
-this prop can be used to customize default styles, see [theme example](../examples/customTheme.md)
-
-#### editable
-
-`boolean`
-<u>default</u>: `true`<br />
-When set to false the editor will be `readonly`
-
-#### customSource
-
-`string`  
-<u>default</u>: `SimpleEditorBundleString`<br />
-used in advance setup, an HTML string that will replace the default simple editor
-
-#### onChange
-
-`() => void`
-you can assign a callback that will be called each time the editors content has changed. Inside this function you can call
-`editor.getHTML`, `editor.getJSON` or `editor.getText` to get the content. The content is not directly provided as to not
-create allot of traffic between the webview and native. It is recommended to request the content in some debounced function
-and not each change.
-
-#### DEV
-
-`boolean`  
-<u>default</u>: `false`<br />
-prop used in advance setup, when true the webview will load DEV_SERVER_URL instead of the html string
-
-#### DEV_SERVER_URL
-
-`string`  
-<u>default</u>: `http://localhost:3000`<br />
-prop used in advanced setup, a url string that points to the editor dev server
+The `customSource`, `DEV`, and `DEV_SERVER_URL` parameters are used in advanced setups. They allow for custom HTML content and development server configurations.
