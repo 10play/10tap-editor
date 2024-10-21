@@ -3,16 +3,28 @@ import BridgeExtension from './base';
 
 type PlaceholderEditorState = {};
 
-type PlaceholderEditorInstance = {};
+type PlaceholderEditorInstance = {
+  setPlaceholder: (newPlaceholder: string) => void;
+};
 
 declare module '../types/EditorBridge' {
   interface BridgeState extends PlaceholderEditorState {}
   interface EditorBridge extends PlaceholderEditorInstance {}
 }
 
+export enum PlaceholderEditorActionType {
+  setPlaceholder = 'set-placeholder',
+}
+
+export interface PlaceholderMessage {
+  type: PlaceholderEditorActionType.setPlaceholder;
+  payload: string;
+}
+
 export const PlaceholderBridge = new BridgeExtension<
   PlaceholderEditorState,
-  PlaceholderEditorInstance
+  PlaceholderEditorInstance,
+  PlaceholderMessage
 >({
   tiptapExtension: Placeholder,
   extendCSS: `
@@ -24,4 +36,32 @@ export const PlaceholderBridge = new BridgeExtension<
         pointer-events: none;
     }
   `,
+  onBridgeMessage: (editor, message) => {
+    switch (message.type) {
+      case PlaceholderEditorActionType.setPlaceholder:
+        const currentExtensions = editor.extensionManager.extensions;
+        currentExtensions.forEach((extension) => {
+          if (extension.name === 'placeholder') {
+            extension.options.placeholder = message.payload;
+          }
+        });
+
+        // TODO: find better way to update the editor
+        editor.setOptions();
+        break;
+    }
+
+    return false;
+  },
+  extendEditorInstance: (sendBridgeMessage) => {
+    const setPlaceholder = (newPlaceholder: string) =>
+      sendBridgeMessage({
+        type: PlaceholderEditorActionType.setPlaceholder,
+        payload: newPlaceholder,
+      });
+
+    return {
+      setPlaceholder,
+    };
+  },
 });
