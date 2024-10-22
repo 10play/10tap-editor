@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { SafeAreaView, View, StyleSheet, Button } from 'react-native';
 import {
   LinkBridge,
