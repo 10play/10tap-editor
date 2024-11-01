@@ -1,5 +1,6 @@
 name: CD
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'src/**'

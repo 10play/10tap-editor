@@ -80,7 +80,17 @@ export function Toolbar({
         <EditLinkBar
           theme={editor.theme}
           initialLink={editorState.activeLink}
-          onBlur={() => setToolbarContext(ToolbarContext.Main)}
+          onBlur={() => {
+            if (Platform.OS === 'web') {
+              // On web blur is called before onEditLink. This isn't an ideal fix however this is going to be change soon when we
+              // add the new api for toolbar where we will have more control. This is a temporary fix for now.
+              setTimeout(() => {
+                setToolbarContext(ToolbarContext.Main);
+              }, 100);
+            } else {
+              setToolbarContext(ToolbarContext.Main);
+            }
+          }}
           onLinkIconClick={() => {
             setToolbarContext(ToolbarContext.Main);
             editor.focus();
