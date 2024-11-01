@@ -44,6 +44,15 @@ export const ConfigureExtensions = () => {
             setHideContent(!hideContent);
           }}
         />
+        <Button
+          title="Change Placeholder"
+          onPress={() => {
+            editor.setPlaceholder(
+              `New PLACEHOLDER at: ${new Date().toISOString()}`
+            );
+            setHideContent(!hideContent);
+          }}
+        />
       </View>
       <View style={exampleStyles.fullScreen}>
         <RichText editor={editor} />

@@ -150,4 +150,8 @@ a function that gets offset in px and changes [scrollThreshold](https://prosemir
 
 `() => void` <br />will toggle underline on the editor if possible <br /> extended by [UnderlineBridge](./BridgeExtensions#underlinebridge)
 
+#### setPlaceholder
+
+`(newPlaceholder: string) => void` <br />will change the placeholder on run time <br /> extended by [PlaceholderBridge](./BridgeExtensions#placeholderbridge)
+
 <!-- toggleUnderline: () => void; -->
