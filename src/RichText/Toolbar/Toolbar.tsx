@@ -1,4 +1,12 @@
-import { FlatList, StyleSheet, Platform } from 'react-native';
+import {
+  FlatList,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+  View,
+  type FlatListProps,
+} from 'react-native';
 import { useBridgeState } from '../useBridgeState';
 import React from 'react';
 import {
@@ -16,6 +24,7 @@ interface ToolbarProps {
   editor: EditorBridge;
   hidden?: boolean;
   items?: ToolbarItem[];
+  ListComponent?: React.ComponentType<FlatListProps<any>>;
 }
 
 export const toolbarStyles = StyleSheet.create({});
@@ -30,6 +39,7 @@ export function Toolbar({
   editor,
   hidden = undefined,
   items = DEFAULT_TOOLBAR_ITEMS,
+  ListComponent = FlatList,
 }: ToolbarProps) {
   const editorState = useBridgeState(editor);
   const { isKeyboardUp } = useKeyboard();
@@ -63,7 +73,7 @@ export function Toolbar({
         );
       }
       return (
-        <FlatList
+        <ListComponent
           data={toolbarContext === ToolbarContext.Main ? items : HEADING_ITEMS}
           style={[
             editor.theme.toolbar.toolbarBody,
