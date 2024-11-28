@@ -33,6 +33,7 @@ export const getInjectedJS = (bridgeExtensions: BridgeExtension[]) => {
     getStyleSheetCSS(extendCSS || '', name)
   );
   injectJS += styleSheets.join(' ');
+  injectJS += ' true;';
   return injectJS;
 };
 
