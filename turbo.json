@@ -12,7 +12,12 @@
         "example/android",
         "!example/android/.gradle",
         "!example/android/build",
-        "!example/android/app/build"
+        "!example/android/app/build"ת
+        "example76/package.json",
+        "example76/android",
+        "!example76/android/.gradle",
+        "!example76/android/build",
+        "!example76/android/app/build"
       ],
       "outputs": []
     },
@@ -26,7 +31,11 @@
         "example/package.json",
         "example/ios",
         "!example/ios/build",
-        "!example/ios/Pods"
+        "!example/ios/Pods",
+        "example76/package.json",
+        "example76/ios",
+        "!example76/ios/build",
+        "!example76/ios/Pods"
       ],
       "outputs": []
     }

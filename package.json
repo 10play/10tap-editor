@@ -45,6 +45,7 @@
     "editor:build": "vite build && node ./scripts/buildEditor.js ./src/simpleWebEditor/build/index.html",
     "editor:build-web-utils": "rimraf lib-web && vite build --config ./src/webEditorUtils/vite.config.ts && tsc --project ./src/webEditorUtils",
     "example": "yarn workspace tentap-example",
+    "example76": "yarn workspace example76",
     "test": "jest",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
@@ -116,6 +117,7 @@
   },
   "workspaces": [
     "example",
+    "example76",
     "website"
   ],
   "packageManager": "yarn@3.6.1",
@@ -126,6 +128,7 @@
     "preset": "react-native",
     "modulePathIgnorePatterns": [
       "<rootDir>/example/node_modules",
+      "<rootDir>/example76/node_modules",
       "<rootDir>/lib/"
     ]
   },
