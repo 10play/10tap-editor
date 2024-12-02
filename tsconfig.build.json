@@ -1,4 +1,12 @@
 {
   "extends": "./tsconfig",
-  "exclude": ["./src/simpleWebEditor","./website", "./example/src/Examples/Advanced/editor-web", "./src/webEditorUtils", "example", "./src/webEditorUtils/vite.config.ts"]
+  "exclude": [
+    "./src/simpleWebEditor",
+    "./website",
+    "./example/src/Examples/Advanced/editor-web",
+    "./src/webEditorUtils",
+    "example",
+    "example76",
+    "./src/webEditorUtils/vite.config.ts"
+  ]
 }

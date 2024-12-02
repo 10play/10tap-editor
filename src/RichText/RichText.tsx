@@ -38,6 +38,7 @@ const TOOLBAR_HEIGHT = 44;
 
 export const RichText = ({ editor, ...props }: RichTextProps) => {
   const [editorHeight, setEditorHeight] = useState(0);
+  const [key, setKey] = useState('webview');
   const [loaded, setLoaded] = useState(isFabric());
   const { keyboardHeight, isKeyboardUp } = useKeyboard();
   const source: WebViewProps['source'] = editor.DEV
@@ -110,6 +111,7 @@ export const RichText = ({ editor, ...props }: RichTextProps) => {
       )}
       <WebView
         scrollEnabled={false}
+        key={key}
         style={[
           RichTextStyles.fullScreen,
           { display: loaded ? 'flex' : 'none' },
@@ -133,6 +135,11 @@ export const RichText = ({ editor, ...props }: RichTextProps) => {
         // Propagated Props
         onLoad={(e) => {
           setLoaded(true);
+          // This is a workaround for iOS to make sure the webview is loaded
+          // See https://github.com/react-native-webview/react-native-webview/issues/3578
+          if (Platform.OS === 'ios' && key === 'webview') {
+            setKey('webview_reloaded');
+          }
           props.onLoad && props.onLoad(e);
         }}
       />
