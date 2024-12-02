@@ -135,6 +135,8 @@ export const RichText = ({ editor, ...props }: RichTextProps) => {
         // Propagated Props
         onLoad={(e) => {
           setLoaded(true);
+          // This is a workaround for iOS to make sure the webview is loaded
+          // See https://github.com/react-native-webview/react-native-webview/issues/3578
           if (Platform.OS === 'ios' && key === 'webview') {
             setKey('webview_reloaded');
           }

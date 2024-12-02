@@ -12,7 +12,7 @@
         "example/android",
         "!example/android/.gradle",
         "!example/android/build",
-        "!example/android/app/build"ת
+        "!example/android/app/build",
         "example76/package.json",
         "example76/android",
         "!example76/android/.gradle",

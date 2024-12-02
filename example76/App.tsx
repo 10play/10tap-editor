@@ -28,10 +28,7 @@ export const Basic = () => {
 
   return (
     <SafeAreaView style={exampleStyles.fullScreen}>
-      {/* <Text>s2111s223s</Text> */}
-      {/* <WebView source={{html: '<p>apapzpapa</p>'}} /> */}
       <RichText editor={editor} />
-
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={keyboardVerticalOffset}
@@ -53,7 +50,7 @@ const exampleStyles = StyleSheet.create({
   },
 });
 
-const initialContent = '<p>This is a basic 22example!</p>';
+const initialContent = '<p>This is a basic example!</p>';
 
 const RootStack = createNativeStackNavigator({
   screens: {
