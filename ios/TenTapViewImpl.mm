@@ -9,7 +9,6 @@
 #import <React/RCTSurfacePresenterBridgeAdapter.h>
 
 static UIView *globalCustomKeyboard; // Store the custom keyboard reference globally
-static id globalFabricSurface; // Use id to store the Fabric surface reference dynamically
 
 @interface HelperViewTemp : UIView
 
@@ -41,37 +40,10 @@ static id globalFabricSurface; // Use id to store the Fabric surface reference d
 }
 
 - (void)cleanupKeyboard {
-#ifdef RCT_NEW_ARCH_ENABLED
-    // Stop and unregister the Fabric surface
-    if (globalFabricSurface) {
-        RCTFabricSurface *fabricSurface = (RCTFabricSurface *)globalFabricSurface;
-
-        // Stop the Fabric surface
-        [fabricSurface stop];
-        NSLog(@"Fabric surface stopped.");
-
-        // Access the private _surfacePresenter using the runtime
-        Ivar surfacePresenterIvar = class_getInstanceVariable([RCTFabricSurface class], "_surfacePresenter");
-        RCTSurfacePresenter *surfacePresenter = object_getIvar(fabricSurface, surfacePresenterIvar);
-
-        if (surfacePresenter) {
-            // Unregister the Fabric surface
-            [surfacePresenter unregisterSurface:fabricSurface];
-            NSLog(@"Successfully unregistered Fabric surface.");
-        } else {
-            NSLog(@"Surface presenter is nil. Cannot unregister Fabric surface.");
-        }
-
-        // Clear the Fabric surface reference
-        globalFabricSurface = nil;
-    }
-#endif
-
     // Remove the custom keyboard from its superview
     if (globalCustomKeyboard) {
         [globalCustomKeyboard removeFromSuperview];
         globalCustomKeyboard = nil;
-        NSLog(@"Custom keyboard removed and deallocated.");
     }
 }
 
@@ -115,7 +87,6 @@ static id globalFabricSurface; // Use id to store the Fabric surface reference d
                                     objc_msgSend)(rootViewFactory, viewWithModuleNameSelector, _keyboardID, @{});
                 customKeyboard = rootView;
                 RCTSurfaceHostingProxyRootView *hostingRootView = (RCTSurfaceHostingProxyRootView *)rootView;
-                globalFabricSurface = (RCTFabricSurface *)hostingRootView.surface;
             } else {
                 NSLog(@"rootViewFactory does not respond to viewWithModuleName:initialProperties:");
                 return;
