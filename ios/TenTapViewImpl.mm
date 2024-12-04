@@ -4,6 +4,11 @@
 #import <React/RCTUIManager.h>
 #import <objc/runtime.h>
 #import <objc/message.h>
+#import <React/RCTBridge.h>
+#import <React/RCTSurfacePresenter.h>
+#import <React/RCTSurfacePresenterBridgeAdapter.h>
+
+static id globalFabricSurface; // Use id to store the Fabric surface reference dynamically
 
 @interface HelperViewTemp : UIView
 
@@ -33,9 +38,31 @@
 
 - (instancetype)init {
     self = [super init];
-    if (self) {
-    }
     return self;
+}
+
+- (void)dealloc {
+    [self cleanupKeyboard];
+}
+
+- (void)cleanupKeyboard {
+    if (globalFabricSurface) {
+#ifdef RCT_NEW_ARCH_ENABLED
+      RCTFabricSurface *fabricSurface = (RCTFabricSurface *)globalFabricSurface;
+
+       // Access the private _surfacePresenter using the runtime
+       Ivar surfacePresenterIvar = class_getInstanceVariable([RCTFabricSurface class], "_surfacePresenter");
+       RCTSurfacePresenter *surfacePresenter = object_getIvar(fabricSurface, surfacePresenterIvar);
+
+       if (surfacePresenter) {
+           // Unregister the surface
+           [surfacePresenter unregisterSurface:fabricSurface];
+           NSLog(@"Successfully unregistered Fabric surface.");
+       } else {
+           NSLog(@"Surface presenter is nil. Cannot unregister Fabric surface.");
+       }
+#endif
+    }
 }
 
 - (void)setKeyboardID:(NSString *)keyboardID {
@@ -44,8 +71,7 @@
 
 - (void)setInputTag:(NSNumber *)inputTag {
     _inputTag = inputTag;
-    if(self.bridge == nil)
-    {
+    if (self.bridge == nil) {
         NSLog(@"No bridge");
         return;
     }
@@ -59,35 +85,31 @@
         inputView.allowsSelfSizing = YES;
         inputView.translatesAutoresizingMaskIntoConstraints = NO;
         inputController.inputView = inputView;
-        
-        // Create Keyboard
+
         UIView *customKeyboard = nil;
 #ifdef RCT_NEW_ARCH_ENABLED
-      // Access AppDelegate to get ReactHost via UIApplication
-      id appDelegate = [UIApplication sharedApplication].delegate;
-      if ([appDelegate respondsToSelector:NSSelectorFromString(@"rootViewFactory")]) {
-          id rootViewFactory = [appDelegate valueForKey:@"rootViewFactory"];
-          
-          // Create the selector dynamically
-          SEL viewWithModuleNameSelector = NSSelectorFromString(@"viewWithModuleName:initialProperties:");
-          
-          // Check if rootViewFactory responds to the selector
-          if ([rootViewFactory respondsToSelector:viewWithModuleNameSelector]) {
-              // Dynamically invoke the method
-              UIView *rootView = ((UIView *(*)(id, SEL, NSString *, NSDictionary *))
-                                  objc_msgSend)(rootViewFactory, viewWithModuleNameSelector, _keyboardID, @{});
-              customKeyboard = rootView;
-          } else {
-              NSLog(@"rootViewFactory does not respond to viewWithModuleName:initialProperties:");
-              return;
-          }
-      } else {
-          NSLog(@"AppDelegate does not have a rootViewFactory property");
-          return;
-      }
+        id appDelegate = [UIApplication sharedApplication].delegate;
+      // Ensure the app delegate responds to `bridgeAdapter`
+        if ([appDelegate respondsToSelector:NSSelectorFromString(@"rootViewFactory")]) {
+            id rootViewFactory = [appDelegate valueForKey:@"rootViewFactory"];
+            SEL viewWithModuleNameSelector = NSSelectorFromString(@"viewWithModuleName:initialProperties:");
+            if ([rootViewFactory respondsToSelector:viewWithModuleNameSelector]) {
+                UIView *rootView = ((UIView *(*)(id, SEL, NSString *, NSDictionary *))
+                                    objc_msgSend)(rootViewFactory, viewWithModuleNameSelector, _keyboardID, @{});
+                customKeyboard = rootView;
+                RCTSurfaceHostingProxyRootView *hostingRootView = (RCTSurfaceHostingProxyRootView *)rootView;
+                globalFabricSurface = (RCTFabricSurface * )hostingRootView.surface;
+            } else {
+                NSLog(@"rootViewFactory does not respond to viewWithModuleName:initialProperties:");
+                return;
+            }
+        } else {
+            NSLog(@"AppDelegate does not have a rootViewFactory property");
+            return;
+        }
 #endif
 
-        if(_rootBackground != nil){
+        if (_rootBackground != nil) {
             customKeyboard.backgroundColor = _rootBackground;
         }
 
@@ -120,7 +142,7 @@
     }
 }
 
-- (void) setKeyboardHeight:(NSNumber *)keyboardHeight{
+- (void)setKeyboardHeight:(NSNumber *)keyboardHeight {
     _keyboardHeight = keyboardHeight;
 }
 
