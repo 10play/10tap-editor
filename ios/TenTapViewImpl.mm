@@ -8,6 +8,7 @@
 #import <React/RCTSurfacePresenter.h>
 #import <React/RCTSurfacePresenterBridgeAdapter.h>
 
+static UIView *globalCustomKeyboard; // Store the custom keyboard reference globally
 static id globalFabricSurface; // Use id to store the Fabric surface reference dynamically
 
 @interface HelperViewTemp : UIView
@@ -18,14 +19,12 @@ static id globalFabricSurface; // Use id to store the Fabric surface reference d
 
 @implementation HelperViewTemp
 
-- (BOOL)canBecomeFirstResponder
-{
+- (BOOL)canBecomeFirstResponder {
     // In order for our keyboard to popup - our helper view (which contains the inputViewController) must be first responder
     return YES;
 }
 
-- (BOOL)resignFirstResponder
-{
+- (BOOL)resignFirstResponder {
     // Once no longer first responder (blur) - remove self from super view
     BOOL rv = [super resignFirstResponder];
     [self removeFromSuperview];
@@ -41,44 +40,61 @@ static id globalFabricSurface; // Use id to store the Fabric surface reference d
     return self;
 }
 
-- (void)dealloc {
-    [self cleanupKeyboard];
-}
-
 - (void)cleanupKeyboard {
-    if (globalFabricSurface) {
 #ifdef RCT_NEW_ARCH_ENABLED
-      RCTFabricSurface *fabricSurface = (RCTFabricSurface *)globalFabricSurface;
+    // Stop and unregister the Fabric surface
+    if (globalFabricSurface) {
+        RCTFabricSurface *fabricSurface = (RCTFabricSurface *)globalFabricSurface;
 
-       // Access the private _surfacePresenter using the runtime
-       Ivar surfacePresenterIvar = class_getInstanceVariable([RCTFabricSurface class], "_surfacePresenter");
-       RCTSurfacePresenter *surfacePresenter = object_getIvar(fabricSurface, surfacePresenterIvar);
+        // Stop the Fabric surface
+        [fabricSurface stop];
+        NSLog(@"Fabric surface stopped.");
 
-       if (surfacePresenter) {
-           // Unregister the surface
-           [surfacePresenter unregisterSurface:fabricSurface];
-           NSLog(@"Successfully unregistered Fabric surface.");
-       } else {
-           NSLog(@"Surface presenter is nil. Cannot unregister Fabric surface.");
-       }
+        // Access the private _surfacePresenter using the runtime
+        Ivar surfacePresenterIvar = class_getInstanceVariable([RCTFabricSurface class], "_surfacePresenter");
+        RCTSurfacePresenter *surfacePresenter = object_getIvar(fabricSurface, surfacePresenterIvar);
+
+        if (surfacePresenter) {
+            // Unregister the Fabric surface
+            [surfacePresenter unregisterSurface:fabricSurface];
+            NSLog(@"Successfully unregistered Fabric surface.");
+        } else {
+            NSLog(@"Surface presenter is nil. Cannot unregister Fabric surface.");
+        }
+
+        // Clear the Fabric surface reference
+        globalFabricSurface = nil;
+    }
 #endif
+
+    // Remove the custom keyboard from its superview
+    if (globalCustomKeyboard) {
+        [globalCustomKeyboard removeFromSuperview];
+        globalCustomKeyboard = nil;
+        NSLog(@"Custom keyboard removed and deallocated.");
     }
 }
 
 - (void)setKeyboardID:(NSString *)keyboardID {
     _keyboardID = keyboardID;
+
+    // When keyboardID is unset, clean up the keyboard
+    if ([_keyboardID isEqualToString:@""]) {
+        [self cleanupKeyboard];
+    }
 }
 
 - (void)setInputTag:(NSNumber *)inputTag {
     _inputTag = inputTag;
+
     if (self.bridge == nil) {
         NSLog(@"No bridge");
         return;
     }
-    
+
     // Get input field from tag (react ref)
-    UIView* inputField = [self.bridge.uiManager viewForReactTag:inputTag];
-    if(inputField != nil) {
+    UIView *inputField = [self.bridge.uiManager viewForReactTag:inputTag];
+    if (inputField != nil) {
         // Create input controller
         UIInputViewController *inputController = [[UIInputViewController alloc] init];
         UIInputView *inputView = [[UIInputView alloc] initWithFrame:CGRectZero inputViewStyle:UIInputViewStyleKeyboard];
@@ -89,7 +105,8 @@ static id globalFabricSurface; // Use id to store the Fabric surface reference d
         UIView *customKeyboard = nil;
 #ifdef RCT_NEW_ARCH_ENABLED
         id appDelegate = [UIApplication sharedApplication].delegate;
-      // Ensure the app delegate responds to `bridgeAdapter`
+
+        // Ensure the app delegate responds to `rootViewFactory`
         if ([appDelegate respondsToSelector:NSSelectorFromString(@"rootViewFactory")]) {
             id rootViewFactory = [appDelegate valueForKey:@"rootViewFactory"];
             SEL viewWithModuleNameSelector = NSSelectorFromString(@"viewWithModuleName:initialProperties:");
@@ -98,7 +115,7 @@ static id globalFabricSurface; // Use id to store the Fabric surface reference d
                                     objc_msgSend)(rootViewFactory, viewWithModuleNameSelector, _keyboardID, @{});
                 customKeyboard = rootView;
                 RCTSurfaceHostingProxyRootView *hostingRootView = (RCTSurfaceHostingProxyRootView *)rootView;
-                globalFabricSurface = (RCTFabricSurface * )hostingRootView.surface;
+                globalFabricSurface = (RCTFabricSurface *)hostingRootView.surface;
             } else {
                 NSLog(@"rootViewFactory does not respond to viewWithModuleName:initialProperties:");
                 return;
@@ -116,7 +133,7 @@ static id globalFabricSurface; // Use id to store the Fabric surface reference d
         customKeyboard.translatesAutoresizingMaskIntoConstraints = NO;
         // Add keyboard to inputView
         [inputView addSubview:customKeyboard];
-        
+
         // Activate constraints
         [NSLayoutConstraint activateConstraints:@[
             [customKeyboard.leadingAnchor constraintEqualToAnchor:inputController.view.leadingAnchor],
@@ -126,9 +143,8 @@ static id globalFabricSurface; // Use id to store the Fabric surface reference d
             [customKeyboard.heightAnchor constraintEqualToConstant:[self.keyboardHeight floatValue]]
         ]];
         [inputView setNeedsLayout];
-        
+
         // Create helper view
-        // This view will contain our custom inputController and will be the first responder
         HelperViewTemp *helperView = [[HelperViewTemp alloc] initWithFrame:CGRectZero];
         helperView.backgroundColor = [UIColor clearColor];
 
@@ -138,6 +154,9 @@ static id globalFabricSurface; // Use id to store the Fabric surface reference d
         helperView.inputViewController = inputController;
         [helperView reloadInputViews];
         [helperView becomeFirstResponder];
+
+        // Store the custom keyboard reference globally
+        globalCustomKeyboard = customKeyboard;
         return;
     }
 }
