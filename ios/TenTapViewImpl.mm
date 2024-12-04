@@ -2,6 +2,8 @@
 #import "TentapUtils.h"
 #import <WebKit/WebKit.h>
 #import <React/RCTUIManager.h>
+#import <objc/runtime.h>
+#import <objc/message.h>
 
 @interface HelperViewTemp : UIView
 
@@ -60,16 +62,30 @@
         
         // Create Keyboard
         UIView *customKeyboard = nil;
-        #ifdef RCT_NEW_ARCH_ENABLED
-            // On new arch use fabric view
-            id<RCTSurfaceProtocol> surface = [[RCTFabricSurface alloc] initWithBridge:self.bridge
-                                                                       moduleName:_keyboardID
-                                                                    initialProperties:{}];
-            customKeyboard = [[RCTSurfaceHostingProxyRootView alloc] initWithSurface:surface];
-        #else
-            // on old arch use RCTRootView
-            customKeyboard = [[RCTRootView alloc] initWithBridge:self.bridge moduleName:_keyboardID initialProperties:nil];
-        #endif /* RCT_NEW_ARCH_ENABLED */
+#ifdef RCT_NEW_ARCH_ENABLED
+      // Access AppDelegate to get ReactHost via UIApplication
+      id appDelegate = [UIApplication sharedApplication].delegate;
+      if ([appDelegate respondsToSelector:NSSelectorFromString(@"rootViewFactory")]) {
+          id rootViewFactory = [appDelegate valueForKey:@"rootViewFactory"];
+          
+          // Create the selector dynamically
+          SEL viewWithModuleNameSelector = NSSelectorFromString(@"viewWithModuleName:initialProperties:");
+          
+          // Check if rootViewFactory responds to the selector
+          if ([rootViewFactory respondsToSelector:viewWithModuleNameSelector]) {
+              // Dynamically invoke the method
+              UIView *rootView = ((UIView *(*)(id, SEL, NSString *, NSDictionary *))
+                                  objc_msgSend)(rootViewFactory, viewWithModuleNameSelector, _keyboardID, @{});
+              customKeyboard = rootView;
+          } else {
+              NSLog(@"rootViewFactory does not respond to viewWithModuleName:initialProperties:");
+              return;
+          }
+      } else {
+          NSLog(@"AppDelegate does not have a rootViewFactory property");
+          return;
+      }
+#endif
 
         if(_rootBackground != nil){
             customKeyboard.backgroundColor = _rootBackground;
