@@ -39,6 +39,8 @@ static UIView *globalCustomKeyboard; // Store the custom keyboard reference glob
     return self;
 }
 
+
+
 - (void)cleanupKeyboard {
     // Remove the custom keyboard from its superview
     if (globalCustomKeyboard) {
@@ -76,6 +78,8 @@ static UIView *globalCustomKeyboard; // Store the custom keyboard reference glob
 
         UIView *customKeyboard = nil;
 #ifdef RCT_NEW_ARCH_ENABLED
+        // On new arch we create RCTSurfaceHostingProxyRootView via rootViewFactory which is on AppDelegate
+        // using the viewWithModuleName function
         id appDelegate = [UIApplication sharedApplication].delegate;
 
         // Ensure the app delegate responds to `rootViewFactory`
@@ -83,10 +87,9 @@ static UIView *globalCustomKeyboard; // Store the custom keyboard reference glob
             id rootViewFactory = [appDelegate valueForKey:@"rootViewFactory"];
             SEL viewWithModuleNameSelector = NSSelectorFromString(@"viewWithModuleName:initialProperties:");
             if ([rootViewFactory respondsToSelector:viewWithModuleNameSelector]) {
-                UIView *rootView = ((UIView *(*)(id, SEL, NSString *, NSDictionary *))
+              RCTSurfaceHostingProxyRootView *hostingRootView = (RCTSurfaceHostingProxyRootView *)((UIView *(*)(id, SEL, NSString *, NSDictionary *))
                                     objc_msgSend)(rootViewFactory, viewWithModuleNameSelector, _keyboardID, @{});
-                customKeyboard = rootView;
-                RCTSurfaceHostingProxyRootView *hostingRootView = (RCTSurfaceHostingProxyRootView *)rootView;
+              customKeyboard = hostingRootView;
             } else {
                 NSLog(@"rootViewFactory does not respond to viewWithModuleName:initialProperties:");
                 return;
@@ -95,6 +98,9 @@ static UIView *globalCustomKeyboard; // Store the custom keyboard reference glob
             NSLog(@"AppDelegate does not have a rootViewFactory property");
             return;
         }
+#else
+    // on old arch use legacy RCTRootView
+    customKeyboard = [[RCTRootView alloc] initWithBridge:self.bridge moduleName:_keyboardID initialProperties:nil];
 #endif
 
         if (_rootBackground != nil) {
