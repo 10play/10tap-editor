@@ -18,7 +18,8 @@ interface BridgeExtension<T = any, E = any, M = any> {
     sendBridgeMessage: (message: M) => void,
     webviewRef?: RefObject<WebView>,
     editorState?: RefObject<BridgeState | {}>,
-    _setEditorState?: (editorState: BridgeState) => void
+    _setEditorState?: (editorState: BridgeState) => void,
+    platform?: string
   ) => E;
   extendCSS?: string | undefined;
   config?: any;

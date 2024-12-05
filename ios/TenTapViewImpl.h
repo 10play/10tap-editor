@@ -5,7 +5,7 @@
 // Fabric
 #import <React/RCTFabricSurface.h>
 #import <React/RCTSurfaceHostingProxyRootView.h>
-
+#import <React/RCTSurfacePresenter.h>
 #endif // RCT_NEW_ARCH_ENABLED
 
 @interface TenTapViewImpl : UIView

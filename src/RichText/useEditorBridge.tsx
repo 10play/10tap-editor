@@ -163,7 +163,8 @@ export const useEditorBridge = (options?: {
         sendAction,
         webviewRef,
         editorStateRef,
-        _updateEditorState
+        _updateEditorState,
+        Platform.OS
       ),
       webviewRef,
       editorStateRef.current,
