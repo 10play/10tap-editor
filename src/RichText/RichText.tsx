@@ -114,7 +114,7 @@ export const RichText = ({ editor, ...props }: RichTextProps) => {
         key={key}
         style={[
           RichTextStyles.fullScreen,
-          { display: loaded ? 'flex' : 'none' },
+          { display: loaded ? 'flex' : 'flex' },
           editor.theme.webview,
         ]}
         containerStyle={[
