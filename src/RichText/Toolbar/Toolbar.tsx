@@ -95,6 +95,7 @@ export function Toolbar({
             setToolbarContext(ToolbarContext.Main);
             editor.focus();
           }}
+          hintText={editor.theme.toolbar.linkBarTheme.hintText}
           onEditLink={(link) => {
             editor.setLink(link);
             editor.focus();
