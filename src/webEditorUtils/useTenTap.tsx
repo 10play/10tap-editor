@@ -149,7 +149,6 @@ export const useTenTap = (options?: useTenTapArgs) => {
               payload: height + paragraphHeight,
             });
           }
-          // document.body.style.overflow = 'hidden';
           sendMessage({
             type: CoreEditorActionType.DocumentHeight,
             payload: height,
