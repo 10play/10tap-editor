@@ -141,9 +141,18 @@ export const useTenTap = (options?: useTenTapArgs) => {
       contentHeightListener.connect(
         document.querySelector('.ProseMirror')!,
         (height) => {
+          // On android we first need to send the height of the document + paragraph height
+          // to avoid an issue where text jumps https://github.com/10play/10tap-editor/issues/236
+          if (window.platform === 'android') {
+            sendMessage({
+              type: CoreEditorActionType.DocumentHeight,
+              payload: height + paragraphHeight,
+            });
+          }
+          // document.body.style.overflow = 'hidden';
           sendMessage({
             type: CoreEditorActionType.DocumentHeight,
-            payload: height + paragraphHeight,
+            payload: height,
           });
         }
       );
@@ -153,8 +162,6 @@ export const useTenTap = (options?: useTenTapArgs) => {
   return editor;
 };
 
-// This is a utility to get the height of a paragraph element
-// This is needed on android to avoid an issue where text jumps https://github.com/10play/10tap-editor/issues/236
 const getParagraphHeight = () => {
   if (window.platform !== 'android') return 0;
   const tempParagraph = document.createElement('p');
