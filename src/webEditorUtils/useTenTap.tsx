@@ -16,6 +16,7 @@ declare global {
     whiteListBridgeExtensions: string[];
     dynamicHeight?: boolean;
     disableColorHighlight?: boolean;
+    platform?: 'ios' | 'android' | 'web';
     ReactNativeWebView: { postMessage: (message: string) => void };
   }
 }
@@ -135,17 +136,39 @@ export const useTenTap = (options?: useTenTapArgs) => {
   }, [editor, bridges]);
 
   useEffect(() => {
-    if (editor && !contentHeightListener.connected && window.dynamicHeight)
+    if (editor && !contentHeightListener.connected && window.dynamicHeight) {
+      const paragraphHeight = getParagraphHeight();
       contentHeightListener.connect(
         document.querySelector('.ProseMirror')!,
         (height) => {
+          // On android we first need to send the height of the document + paragraph height
+          // to avoid an issue where text jumps https://github.com/10play/10tap-editor/issues/236
+          if (window.platform === 'android') {
+            sendMessage({
+              type: CoreEditorActionType.DocumentHeight,
+              payload: height + paragraphHeight,
+            });
+          }
           sendMessage({
             type: CoreEditorActionType.DocumentHeight,
             payload: height,
           });
         }
       );
+    }
   }, [editor]);
 
   return editor;
+};
+
+const getParagraphHeight = () => {
+  if (window.platform !== 'android') return 0;
+  const tempParagraph = document.createElement('p');
+  tempParagraph.style.visibility = 'hidden'; // Ensure it's not visible
+  tempParagraph.textContent = 'tmp';
+  document.body.appendChild(tempParagraph);
+
+  const pHeight = tempParagraph.getBoundingClientRect().height;
+  document.body.removeChild(tempParagraph);
+  return pHeight;
 };
