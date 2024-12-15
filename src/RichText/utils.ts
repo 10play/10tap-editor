@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import type BridgeExtension from '../bridges/base';
 import type { EditorBridge } from '../types';
 
@@ -70,6 +71,7 @@ export const getInjectedJSBeforeContentLoad = (editor: EditorBridge) => {
     window.disableColorHighlight = ${!!editor.disableColorHighlight};
     window.dynamicHeight = ${editor.dynamicHeight};
     window.contentInjected = true;
+    window.platform = "${Platform.OS}";
   `);
 };
 
