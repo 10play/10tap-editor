@@ -8,6 +8,19 @@ import Text from '@tiptap/extension-text';
 
 export type EditorContentType = 'html' | 'text' | 'json';
 
+type JSONContent = {
+  type?: string;
+  attrs?: Record<string, any>;
+  content?: JSONContent[];
+  marks?: {
+    type: string;
+    attrs?: Record<string, any>;
+    [key: string]: any;
+  }[];
+  text?: string;
+  [key: string]: any;
+};
+
 type CoreEditorState = {
   selection: { from: number; to: number };
   isFocused: boolean;
@@ -21,7 +34,7 @@ type CoreEditorInstance = {
   getHTML: () => Promise<string>;
   getJSON: () => Promise<object>;
   getText: () => Promise<string>;
-  setContent: (content: string) => void;
+  setContent: (content: string | JSONContent) => void;
   setSelection: (from: number, to: number) => void;
   updateScrollThresholdAndMargin: (offset: number) => void;
   focus: (pos: FocusArgs) => void;
@@ -102,7 +115,7 @@ export type CoreMessages =
   | {
       type: CoreEditorActionType.SetContent;
       payload: {
-        content: string;
+        content: string | JSONContent;
       };
     }
   | {
@@ -270,7 +283,7 @@ export const CoreBridge = new BridgeExtension<
           },
         });
       },
-      setContent: (content: string) => {
+      setContent: (content: string | JSONContent) => {
         sendBridgeMessage({
           type: CoreEditorActionType.SetContent,
           payload: {
