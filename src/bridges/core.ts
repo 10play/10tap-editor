@@ -5,21 +5,9 @@ import { focusListener } from '../webEditorUtils/focusListener';
 import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
+import type { Content } from '@tiptap/react';
 
 export type EditorContentType = 'html' | 'text' | 'json';
-
-type JSONContent = {
-  type?: string;
-  attrs?: Record<string, any>;
-  content?: JSONContent[];
-  marks?: {
-    type: string;
-    attrs?: Record<string, any>;
-    [key: string]: any;
-  }[];
-  text?: string;
-  [key: string]: any;
-};
 
 type CoreEditorState = {
   selection: { from: number; to: number };
@@ -34,7 +22,7 @@ type CoreEditorInstance = {
   getHTML: () => Promise<string>;
   getJSON: () => Promise<object>;
   getText: () => Promise<string>;
-  setContent: (content: string | JSONContent) => void;
+  setContent: (content: Content) => void;
   setSelection: (from: number, to: number) => void;
   updateScrollThresholdAndMargin: (offset: number) => void;
   focus: (pos: FocusArgs) => void;
@@ -115,7 +103,7 @@ export type CoreMessages =
   | {
       type: CoreEditorActionType.SetContent;
       payload: {
-        content: string | JSONContent;
+        content: Content;
       };
     }
   | {
@@ -283,7 +271,7 @@ export const CoreBridge = new BridgeExtension<
           },
         });
       },
-      setContent: (content: string | JSONContent) => {
+      setContent: (content: Content) => {
         sendBridgeMessage({
           type: CoreEditorActionType.SetContent,
           payload: {
