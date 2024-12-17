@@ -19,6 +19,7 @@ export const EditLinkBar = ({
   onEditLink,
   onLinkIconClick,
   onBlur,
+  hintText = "Insert",
 }: EditLinkBarProps) => {
   const [link, setLink] = React.useState(initialLink || '');
   return (
@@ -56,7 +57,7 @@ export const EditLinkBar = ({
           onEditLink(link);
         }}
       >
-        <Text style={theme.toolbar.linkBarTheme.doneButtonText}>{hintText || "Insert"}</Text>
+        <Text style={theme.toolbar.linkBarTheme.doneButtonText}>{hintText}</Text>
       </TouchableOpacity>
     </View>
   );
