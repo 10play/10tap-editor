@@ -57,12 +57,13 @@ export const useEditorBridge = (options?: {
 
   const editable = options?.editable === undefined ? true : options.editable;
   useEffect(() => {
+    if (!webviewRef.current) return;
     if (options) {
       // Special case for editable prop, since its command is on the core bridge and we want to access it via useEditorBridge
       editorInstance?.setEditable(editable);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editable]);
+  }, [editable, webviewRef.current]);
 
   const _updateEditorState = (editorState: BridgeState) => {
     editorStateRef.current = editorState;
