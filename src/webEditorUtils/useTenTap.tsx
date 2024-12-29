@@ -21,8 +21,6 @@ declare global {
   }
 }
 
-const content = window.initialContent || '';
-
 export const sendMessage = (message: EditorMessage) => {
   // @ts-ignore TODO fix type
   window.ReactNativeWebView?.postMessage(JSON.stringify(message));
@@ -80,6 +78,8 @@ export const useTenTap = (options?: useTenTapArgs) => {
       payload: state,
     });
   }, 10);
+
+  const content = window.initialContent || '';
 
   const editor = useEditor({
     content,
