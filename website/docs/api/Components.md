@@ -10,9 +10,10 @@ a components that wraps the webview that renders the editor
 
 props:
 
-| name   | type           | default | description                                                             |
-| ------ | -------------- | ------- | ----------------------------------------------------------------------- |
-| editor | `EditorBridge` |         | The bridge instance that created with [useEditorBridge](./EditorBridge) |
+| name                          | type           | default | description                                                                                                                                                  |
+| ----------------------------- | -------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| editor                        | `EditorBridge` |         | The bridge instance that created with [useEditorBridge](./EditorBridge)                                                                                      |
+| exclusivelyUseCustomOnMessage | `boolean`      | true    | When true, if you pass an `onMessage` prop (webview) this will override tentap's own `onMessage` property. You probably want to disable this, it's here for compatibility. |
 
 you can also override any of the regular [WebView props](https://github.com/react-native-webview/react-native-webview/blob/HEAD/docs/Reference.md) <i>although this is not recommended</i>
 
