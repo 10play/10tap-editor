@@ -21,8 +21,6 @@ declare global {
   }
 }
 
-const content = window.initialContent || '';
-
 export const sendMessage = (message: EditorMessage) => {
   // @ts-ignore TODO fix type
   window.ReactNativeWebView?.postMessage(JSON.stringify(message));
@@ -81,6 +79,8 @@ export const useTenTap = (options?: useTenTapArgs) => {
     });
   }, 10);
 
+  const content = window.initialContent || '';
+
   const editor = useEditor({
     content,
     onCreate: () =>
@@ -137,18 +137,13 @@ export const useTenTap = (options?: useTenTapArgs) => {
 
   useEffect(() => {
     if (editor && !contentHeightListener.connected && window.dynamicHeight) {
-      const paragraphHeight = getParagraphHeight();
+      const dynamicHeightDiv = document.querySelector('.dynamic-height');
       contentHeightListener.connect(
         document.querySelector('.ProseMirror')!,
         (height) => {
-          // On android we first need to send the height of the document + paragraph height
+          // We need to reset the scroll position to fix a text jumping issue
           // to avoid an issue where text jumps https://github.com/10play/10tap-editor/issues/236
-          if (window.platform === 'android') {
-            sendMessage({
-              type: CoreEditorActionType.DocumentHeight,
-              payload: height + paragraphHeight,
-            });
-          }
+          if (dynamicHeightDiv) dynamicHeightDiv.scrollTop = 0;
           sendMessage({
             type: CoreEditorActionType.DocumentHeight,
             payload: height,
@@ -159,16 +154,4 @@ export const useTenTap = (options?: useTenTapArgs) => {
   }, [editor]);
 
   return editor;
-};
-
-const getParagraphHeight = () => {
-  if (window.platform !== 'android') return 0;
-  const tempParagraph = document.createElement('p');
-  tempParagraph.style.visibility = 'hidden'; // Ensure it's not visible
-  tempParagraph.textContent = 'tmp';
-  document.body.appendChild(tempParagraph);
-
-  const pHeight = tempParagraph.getBoundingClientRect().height;
-  document.body.removeChild(tempParagraph);
-  return pHeight;
 };
