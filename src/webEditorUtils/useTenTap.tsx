@@ -142,7 +142,7 @@ export const useTenTap = (options?: useTenTapArgs) => {
         document.querySelector('.ProseMirror')!,
         (height) => {
           // We need to reset the scroll position to fix a text jumping issue
-          // to avoid an issue where text jumps https://github.com/10play/10tap-editor/issues/236
+          // to avoid an issue where text jumps https://github.com/10play/10tap-editor/issues/236 and https://github.com/10play/10tap-editor/issues/244
           if (dynamicHeightDiv) dynamicHeightDiv.scrollTop = 0;
           sendMessage({
             type: CoreEditorActionType.DocumentHeight,
