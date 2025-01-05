@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { AdvancedEditor } from './AdvancedEditor';
 
 /**
- * This is the entrypoint for the "web" part of our editor that will be built with vite
+ * This is the entrypoint for the web part of our editor that will be built with vite
  */
 
 declare global {
