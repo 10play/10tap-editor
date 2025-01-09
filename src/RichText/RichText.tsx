@@ -17,6 +17,11 @@ import { CoreEditorActionType } from '../bridges/core';
 
 interface RichTextProps extends WebViewProps {
   editor: EditorBridge;
+
+  /** Makes it so that the onMessage method provided by Tentap does not fire if you have your own custom onMessage method.
+   * Introduced for backwards compatibility with previous versions of Tentap that had this behaviour by default.
+   * */
+  exclusivelyUseCustomOnMessage?: boolean;
 }
 
 const styles = StyleSheet.create({
@@ -36,7 +41,12 @@ const DEV_SERVER_URL = 'http://localhost:3000';
 // TODO: make it a prop
 const TOOLBAR_HEIGHT = 44;
 
-export const RichText = ({ editor, ...props }: RichTextProps) => {
+export const RichText = ({
+  editor,
+  onMessage,
+  exclusivelyUseCustomOnMessage = true,
+  ...props
+}: RichTextProps) => {
   const [editorHeight, setEditorHeight] = useState(0);
   const [key, setKey] = useState('webview');
   const [loaded, setLoaded] = useState(isFabric());
@@ -49,6 +59,9 @@ export const RichText = ({ editor, ...props }: RichTextProps) => {
       };
 
   const onWebviewMessage = (event: WebViewMessageEvent) => {
+    onMessage && onMessage(event);
+    if (exclusivelyUseCustomOnMessage && onMessage) return;
+
     const { data } = event.nativeEvent;
     // on expo-web we sometimes get react-dev messages that come in as objects - so we ignore these
     if (typeof data !== 'string') return;
