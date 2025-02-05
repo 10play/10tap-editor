@@ -4,6 +4,7 @@ import React from 'react';
 import {
   DEFAULT_TOOLBAR_ITEMS,
   HEADING_ITEMS,
+  ToolbarContext,
   type ToolbarItem,
 } from './actions';
 import { EditLinkBar } from './EditLinkBar';
@@ -19,12 +20,6 @@ interface ToolbarProps {
 }
 
 export const toolbarStyles = StyleSheet.create({});
-
-export enum ToolbarContext {
-  Main,
-  Link,
-  Heading,
-}
 
 export function Toolbar({
   editor,
