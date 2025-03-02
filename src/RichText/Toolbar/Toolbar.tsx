@@ -17,6 +17,7 @@ interface ToolbarProps {
   editor: EditorBridge;
   hidden?: boolean;
   items?: ToolbarItem[];
+  shouldHideDisabledToolbarItems?: boolean;
 }
 
 export const toolbarStyles = StyleSheet.create({});
@@ -25,6 +26,7 @@ export function Toolbar({
   editor,
   hidden = undefined,
   items = DEFAULT_TOOLBAR_ITEMS,
+  shouldHideDisabledToolbarItems = false
 }: ToolbarProps) {
   const editorState = useBridgeState(editor);
   const { isKeyboardUp } = useKeyboard();
@@ -65,7 +67,10 @@ export function Toolbar({
             hideToolbar ? editor.theme.toolbar.hidden : undefined,
           ]}
           renderItem={({ item }) => {
-            return <ToolbarItemComp {...item} args={args} editor={editor} />;
+            if(shouldHideDisabledToolbarItems && item.disabled(args) ){
+              return null
+             }
+             return <ToolbarItemComp {...item} args={args} editor={editor} />;
           }}
           horizontal
         />
