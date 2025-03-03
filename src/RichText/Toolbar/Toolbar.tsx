@@ -26,7 +26,7 @@ export function Toolbar({
   editor,
   hidden = undefined,
   items = DEFAULT_TOOLBAR_ITEMS,
-  shouldHideDisabledToolbarItems = false
+  shouldHideDisabledToolbarItems = false,
 }: ToolbarProps) {
   const editorState = useBridgeState(editor);
   const { isKeyboardUp } = useKeyboard();
@@ -44,6 +44,10 @@ export function Toolbar({
     toolbarContext,
   };
 
+  const filteredItems = shouldHideDisabledToolbarItems
+    ? items.filter((item) => !item.disabled(args))
+    : items;
+
   switch (toolbarContext) {
     case ToolbarContext.Main:
     case ToolbarContext.Heading:
@@ -51,7 +55,9 @@ export function Toolbar({
         return (
           <WebToolbar
             items={
-              toolbarContext === ToolbarContext.Main ? items : HEADING_ITEMS
+              toolbarContext === ToolbarContext.Main
+                ? filteredItems
+                : HEADING_ITEMS
             }
             args={args}
             editor={editor}
@@ -61,16 +67,17 @@ export function Toolbar({
       }
       return (
         <FlatList
-          data={toolbarContext === ToolbarContext.Main ? items : HEADING_ITEMS}
+          data={
+            toolbarContext === ToolbarContext.Main
+              ? filteredItems
+              : HEADING_ITEMS
+          }
           style={[
             editor.theme.toolbar.toolbarBody,
             hideToolbar ? editor.theme.toolbar.hidden : undefined,
           ]}
           renderItem={({ item }) => {
-            if(shouldHideDisabledToolbarItems && item.disabled(args) ){
-              return null
-             }
-             return <ToolbarItemComp {...item} args={args} editor={editor} />;
+            return <ToolbarItemComp {...item} args={args} editor={editor} />;
           }}
           horizontal
         />
