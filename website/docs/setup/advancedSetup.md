@@ -6,6 +6,8 @@ sidebar_position: 2
 
 Make sure you read the core concepts page before setup advance and check if the simple usage is good enough for you.
 
+See full working example here https://github.com/10play/10TapAdvancedExample
+
 ## Setting Up Our Custom Editor Directory
 
 ### Step 1 - creating the directory
@@ -60,10 +62,7 @@ Add the following files
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RichTextEditor</title>
   </head>
   <style>
@@ -72,19 +71,29 @@ Add the following files
       padding: 0;
     }
     #root > div:nth-of-type(1) {
-      overflow: auto;
-      height: 100%;
       position: absolute;
+      height: 100%;
+      overflow: auto;
       width: 100%;
       top: 0;
       bottom: 0;
     }
+    #root > div.dynamic-height {
+      height: unset;
+    }
+
     #root div .ProseMirror {
       height: 100%;
       overflow: auto;
     }
+    #root div.dynamic-height .ProseMirror {
+      height: unset;
+    }
     .ProseMirror:focus {
       outline: none;
+    }
+    .highlight-background {
+      background-color: #e6e6ff;
     }
   </style>
   <body>
@@ -97,7 +106,8 @@ Add the following files
 ```tsx title="AdvancedEditor.tsx"
 import React from 'react';
 import { EditorContent } from '@tiptap/react';
-import { useTenTap, CoreBridge } from '@10play/tentap-editor';
+import { useTenTap, TenTapStartKit } from '@10play/tentap-editor';
+import { CounterBridge } from '../CounterBridge';
 import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
@@ -107,12 +117,17 @@ import Text from '@tiptap/extension-text';
  */
 export const AdvancedEditor = () => {
   const editor = useTenTap({
-    bridges: [CoreBridge],
+    bridges: [...TenTapStartKit, CounterBridge],
     tiptapOptions: {
       extensions: [Document, Paragraph, Text],
     },
   });
-  return <EditorContent editor={editor} />;
+  return (
+    <EditorContent
+      editor={editor}
+      className={window.dynamicHeight ? 'dynamic-height' : undefined}
+    />
+  );
 };
 ```
 
