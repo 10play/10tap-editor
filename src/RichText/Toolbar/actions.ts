@@ -3,7 +3,12 @@ import { Images } from '../../assets';
 import { EditorActionType } from '../../types/Actions';
 import type { EditorBridge } from '../../types';
 import { type BridgeState } from '../../types/EditorBridge';
-import { ToolbarContext } from './Toolbar';
+
+export enum ToolbarContext {
+  Main,
+  Link,
+  Heading,
+}
 
 export const ToolbarItems = {
   ...EditorActionType,
