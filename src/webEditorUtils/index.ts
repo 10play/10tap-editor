@@ -1,4 +1,8 @@
-export * from './useTenTap';
+export { useTenTap, sendMessage } from './useTenTap';
+export type {
+  sendMessage as SendMessage,
+  useTenTap as UseTenTap,
+} from './useTenTap';
 export { default as BridgeExtension } from '../bridges/base';
 export { BlockquoteBridge } from '../bridges/blockquote';
 export { BoldBridge } from '../bridges/bold';
