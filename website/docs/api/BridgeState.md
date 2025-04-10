@@ -15,6 +15,11 @@ The list above is the interface of BridgeState in case you use `TenTapStarterkit
 `boolean`
 <br />Is the editor editable or not <br /> extended by [CoreBridge](./BridgeExtensions#coreextension)
 
+#### empty
+
+`boolean`
+<br />Is the editor empty or not <br /> extended by [CoreBridge](./BridgeExtensions#coreextension)
+
 #### selection
 
 `{ from: number; to: number }`

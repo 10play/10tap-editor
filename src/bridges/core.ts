@@ -14,6 +14,7 @@ type CoreEditorState = {
   isFocused: boolean;
   isReady: boolean;
   editable: boolean;
+  empty: boolean;
 };
 
 type FocusArgs = 'start' | 'end' | 'all' | number | boolean | null;
@@ -354,6 +355,7 @@ export const CoreBridge = new BridgeExtension<
         to: editor.state.selection.to,
       },
       editable: editor.isEditable,
+      empty: editor.isEmpty,
     };
   },
 });
