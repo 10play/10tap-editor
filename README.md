@@ -54,6 +54,16 @@ See setup [here](https://10play.github.io/10tap-editor/docs/setup/expoWeb)
 ## Usage
 
 ```tsx
+import React from 'react';
+import {
+  SafeAreaView,
+  View,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+} from 'react-native';
+import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
+
 export const Basic = () => {
   const editor = useEditorBridge({
     autofocus: true,
