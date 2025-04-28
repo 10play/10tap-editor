@@ -17,6 +17,7 @@ interface ToolbarProps {
   editor: EditorBridge;
   hidden?: boolean;
   items?: ToolbarItem[];
+  headingItems?: ToolbarItem[];
   shouldHideDisabledToolbarItems?: boolean;
 }
 
@@ -26,6 +27,7 @@ export function Toolbar({
   editor,
   hidden = undefined,
   items = DEFAULT_TOOLBAR_ITEMS,
+  headingItems = HEADING_ITEMS,
   shouldHideDisabledToolbarItems = false,
 }: ToolbarProps) {
   const editorState = useBridgeState(editor);
@@ -57,7 +59,7 @@ export function Toolbar({
             items={
               toolbarContext === ToolbarContext.Main
                 ? filteredItems
-                : HEADING_ITEMS
+                : headingItems
             }
             args={args}
             editor={editor}
@@ -70,7 +72,7 @@ export function Toolbar({
           data={
             toolbarContext === ToolbarContext.Main
               ? filteredItems
-              : HEADING_ITEMS
+              : headingItems
           }
           style={[
             editor.theme.toolbar.toolbarBody,
