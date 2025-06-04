@@ -201,7 +201,12 @@
   "codegenConfig": {
     "name": "RNTenTapViewSpec",
     "type": "components",
-    "jsSrcsDir": "src"
+    "jsSrcsDir": "src",
+    "ios": {
+      "componentProvider": {
+        "TenTapView": "TenTapView"
+      }
+    }
   },
   "dependencies": {
     "@tiptap/extension-blockquote": "^2.2.1",
