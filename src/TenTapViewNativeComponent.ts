@@ -20,6 +20,9 @@ if (Platform.OS === 'ios' || Platform.OS === 'android') {
     // Only export codegenNativeComponent if the TenTapView native module is available
     // This fixes https://github.com/10play/10tap-editor/issues/300#issuecomment-2948843654
     if (NativeModules.TenTapView) {
+      if (Platform.OS === 'ios') {
+        NativeModules.TenTapView.setBridge();
+      }
       TenTapView = codegenNativeComponent<NativeProps>('TenTapView');
     } else {
       TenTapView = View as unknown as NativeComponentType<NativeProps>;
