@@ -2,14 +2,14 @@
   "name": "@10play/tentap-editor",
   "version": "0.7.0",
   "description": "React Native Rich Text Editor",
-  "main": "lib/commonjs/index",
-  "module": "lib/module/index",
+  "main": "lib/commonjs/index.js",
+  "module": "lib/module/index.js",
   "types": "lib/typescript/src/index.d.ts",
   "react-native": "src/index",
   "exports": {
     ".": {
-      "import": "./lib/module/index",
-      "require": "./lib/commonjs/index",
+      "import": "./lib/module/index.js",
+      "require": "./lib/commonjs/index.js",
       "types": "./lib/typescript/src/index.d.ts"
     },
     "./web": {
