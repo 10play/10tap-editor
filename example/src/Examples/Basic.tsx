@@ -39,4 +39,4 @@ const exampleStyles = StyleSheet.create({
   },
 });
 
-const initialContent = `<p>This is a basic example!</p>`;
+const initialContent = `<p>This is a basic example</p>`;
