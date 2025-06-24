@@ -14,7 +14,9 @@ interface NativeProps extends ViewProps {
 
 let TenTapView: NativeComponentType<NativeProps>;
 
-if (Platform.OS === 'ios' || Platform.OS === 'android') {
+const disableCodegen = true;
+
+if (!disableCodegen && (Platform.OS === 'ios' || Platform.OS === 'android')) {
   try {
     const { NativeModules } = require('react-native');
     // Only export codegenNativeComponent if the TenTapView native module is available
