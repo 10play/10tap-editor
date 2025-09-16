@@ -118,6 +118,7 @@
   "workspaces": [
     "example",
     "example76",
+    "example-expo",
     "website"
   ],
   "packageManager": "yarn@3.6.1",
