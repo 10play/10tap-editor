@@ -1,7 +1,7 @@
 import debounce from 'lodash/debounce';
 import { useEffect, useMemo } from 'react';
-import { useEditor } from '@tiptap/react';
-import { Editor } from '@tiptap/core';
+import { useEditor, UseEditorOptions } from '@tiptap/react';
+import { Editor, Extension } from '@tiptap/core';
 import { type EditorMessage, EditorMessageType } from '../types/Messaging';
 import { type BridgeState } from '../types/EditorBridge';
 import type BridgeExtension from '../bridges/base';
@@ -27,7 +27,7 @@ export const sendMessage = (message: EditorMessage) => {
 };
 
 interface useTenTapArgs {
-  tiptapOptions?: any;
+  tiptapOptions?: UseEditorOptions;
   bridges?: BridgeExtension[];
 }
 
@@ -56,11 +56,11 @@ export const useTenTap = (options?: useTenTapArgs) => {
     .filter(filterExists)
     .flat();
 
-  const tiptapOptionsWithExtensions = {
+  const tiptapOptionsWithExtensions: UseEditorOptions = {
     ...tiptapOptions,
     extensions: [
       ...(!window.disableColorHighlight ? [blueBackgroundPlugin] : []),
-      ...extensions,
+      ...(extensions.filter(Boolean) as Extension[]),
       ...(tiptapOptions.extensions || []),
     ],
   };
@@ -97,7 +97,7 @@ export const useTenTap = (options?: useTenTapArgs) => {
     },
     onSelectionUpdate: (onUpdate) => sendStateUpdate(onUpdate.editor),
     onTransaction: (onUpdate) => sendStateUpdate(onUpdate.editor),
-    editable: window.editable,
+    editable: !!window.editable,
     ...tiptapOptionsWithExtensions,
   });
 
