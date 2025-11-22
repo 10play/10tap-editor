@@ -21240,16 +21240,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-webview@npm:13.6.4":
-  version: 13.6.4
-  resolution: "react-native-webview@npm:13.6.4"
+"react-native-webview@npm:13.16.0":
+  version: 13.16.0
+  resolution: "react-native-webview@npm:13.16.0"
   dependencies:
-    escape-string-regexp: 2.0.0
+    escape-string-regexp: ^4.0.0
     invariant: 2.2.4
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 72df9422ededdcf2de6232629bb447932e63c824904ef5eba0aa0a082d0899148f4e5bda713de931336d23204c7dd025b80221aa8c9bc10306f3d8948ebd0dcb
+  checksum: a6fefc1bc977c1d121057c91696edb08ca170421a6d6ad5a9bcda279a20eca84aaaf553eca3a8e51b621e22fd473afa8bc994888807fb7db154eb9d7acb87928
   languageName: node
   linkType: hard
 
@@ -23574,7 +23574,7 @@ __metadata:
     react-native-safe-area-context: ^5.5.2
     react-native-screens: ^4.9.0
     react-native-svg: ^15.11.0
-    react-native-webview: 13.6.4
+    react-native-webview: 13.16.0
     react-test-renderer: 19.1.1
     typescript: ^5.8.3
     vite: ^5.0.12
