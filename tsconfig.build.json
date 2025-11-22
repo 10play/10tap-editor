@@ -3,9 +3,9 @@
   "exclude": [
     "./src/simpleWebEditor",
     "./website",
-    "./example/src/Examples/Advanced/editor-web",
+    "./examplelatest/src/Examples/Advanced/editor-web",
     "./src/webEditorUtils",
-    "example",
+    "examplelatest",
     "example76",
     "./src/webEditorUtils/vite.config.ts"
   ]

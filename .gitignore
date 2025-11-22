@@ -28,7 +28,7 @@ DerivedData
 *.ipa
 *.xcuserstate
 project.xcworkspace
-# example/ios/.xcode.env.local
+# examplelatest/ios/.xcode.env.local
 
 # Android/IJ
 #
@@ -43,10 +43,10 @@ android.iml
 
 # Cocoapods
 #
-example/ios/Pods
+examplelatest/ios/Pods
 
 # Ruby
-example/vendor/
+examplelatest/vendor/
 
 # node.js
 #

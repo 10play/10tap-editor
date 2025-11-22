@@ -44,12 +44,12 @@
     "editor:dev": "vite",
     "editor:build": "vite build && node ./scripts/buildEditor.js ./src/simpleWebEditor/build/index.html",
     "editor:build-web-utils": "rimraf lib-web && vite build --config ./src/webEditorUtils/vite.config.ts && tsc --project ./src/webEditorUtils",
-    "example": "yarn workspace tentap-example",
     "example76": "yarn workspace example76",
+    "examplelatest": "yarn workspace tentap-example-latest",
     "test": "jest",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
-    "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
+    "clean": "del-cli android/build examplelatest/android/build examplelatest/android/app/build examplelatest/ios/build example76/android/build example76/android/app/build example76/ios/build lib",
     "prepare": "bob build",
     "release": "release-it"
   },
@@ -116,8 +116,8 @@
     "react-native-webview": "*"
   },
   "workspaces": [
-    "example",
     "example76",
+    "examplelatest",
     "website"
   ],
   "packageManager": "yarn@3.6.1",
@@ -127,8 +127,8 @@
   "jest": {
     "preset": "react-native",
     "modulePathIgnorePatterns": [
-      "<rootDir>/example/node_modules",
       "<rootDir>/example76",
+      "<rootDir>/examplelatest",
       "<rootDir>/lib/"
     ]
   },
