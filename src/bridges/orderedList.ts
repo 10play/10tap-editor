@@ -1,5 +1,4 @@
-import ListItem from '@tiptap/extension-list-item';
-import OrderedList from '@tiptap/extension-ordered-list';
+import { OrderedList, ListItem } from '@tiptap/extension-list';
 import BridgeExtension from './base';
 
 type OrderedListEditorState = {

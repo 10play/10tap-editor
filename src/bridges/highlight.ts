@@ -1,5 +1,5 @@
-import TextStyle from '@tiptap/extension-text-style';
-import Highlight from '@tiptap/extension-highlight';
+import { TextStyle } from '@tiptap/extension-text-style';
+import { Highlight } from '@tiptap/extension-highlight';
 import BridgeExtension from './base';
 
 type HighlightEditorState = {

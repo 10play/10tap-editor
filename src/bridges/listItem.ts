@@ -1,4 +1,4 @@
-import ListItem from '@tiptap/extension-list-item';
+import { ListItem } from '@tiptap/extension-list';
 import BridgeExtension from './base';
 
 type ListItemEditorState = {

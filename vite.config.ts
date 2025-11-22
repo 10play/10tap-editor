@@ -6,9 +6,14 @@ export default defineConfig({
   root: 'src/simpleWebEditor',
   build: {
     outDir: 'build',
+    minify: 'esbuild',
+    target: 'es2015',
   },
   plugins: [react(), viteSingleFile()],
   server: {
     port: 3000,
+  },
+  esbuild: {
+    charset: 'ascii',
   },
 });

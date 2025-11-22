@@ -1,5 +1,4 @@
-import ListItem from '@tiptap/extension-list-item';
-import BulletList from '@tiptap/extension-bullet-list';
+import { BulletList, ListItem } from '@tiptap/extension-list';
 import BridgeExtension from './base';
 
 type BulletListEditorState = {
