@@ -1,5 +1,5 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useRef } from 'react';
+import React from 'react';
 import {
   SafeAreaView,
   View,
@@ -11,8 +11,6 @@ import {
   RichText,
   Toolbar,
   useEditorBridge,
-  ColorKeyboard,
-  CustomKeyboard,
   DEFAULT_TOOLBAR_ITEMS,
   useKeyboard,
   type EditorBridge,
@@ -22,7 +20,6 @@ import {
   darkEditorTheme,
   darkEditorCss,
 } from '@10play/tentap-editor';
-import { Images } from '../../../src/assets';
 
 const EDITOR_BACKGROUND_COLOR = '#1C1C1E';
 
@@ -38,16 +35,12 @@ export const DarkEditor = ({}: NativeStackScreenProps<any, any, any>) => {
     theme: darkEditorTheme,
   });
 
-  const rootRef = useRef(null);
-  const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
-
   return (
     <SafeAreaView
       style={{
         ...exampleStyles.fullScreen,
         backgroundColor: EDITOR_BACKGROUND_COLOR,
       }}
-      ref={rootRef}
     >
       <View
         style={{
@@ -62,18 +55,7 @@ export const DarkEditor = ({}: NativeStackScreenProps<any, any, any>) => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={exampleStyles.keyboardAvoidingView}
       >
-        <ToolbarWithColor
-          editor={editor}
-          activeKeyboard={activeKeyboard}
-          setActiveKeyboard={setActiveKeyboard}
-        />
-        <CustomKeyboard
-          editor={editor}
-          rootRef={rootRef}
-          keyboards={[ColorKeyboard]}
-          activeKeyboardID={activeKeyboard}
-          setActiveKeyboardID={setActiveKeyboard}
-        />
+        <ToolbarWithColor editor={editor} />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -81,42 +63,19 @@ export const DarkEditor = ({}: NativeStackScreenProps<any, any, any>) => {
 
 interface ToolbarWithColorProps {
   editor: EditorBridge;
-  activeKeyboard: string | undefined;
-  setActiveKeyboard: (id: string | undefined) => void;
 }
-const ToolbarWithColor = ({
-  editor,
-  activeKeyboard,
-  setActiveKeyboard,
-}: ToolbarWithColorProps) => {
+const ToolbarWithColor = ({ editor }: ToolbarWithColorProps) => {
   // Get updates of editor state
   const editorState = useBridgeState(editor);
 
   const { isKeyboardUp: isNativeKeyboardUp } = useKeyboard();
-  const customKeyboardOpen = activeKeyboard !== undefined;
-  const isKeyboardUp = isNativeKeyboardUp || customKeyboardOpen;
-
-  // Here we make sure not to hide the keyboard if our custom keyboard is visible
-  const hideToolbar =
-    !isKeyboardUp || (!editorState.isFocused && !customKeyboardOpen);
+  const hideToolbar = !isNativeKeyboardUp || !editorState.isFocused;
 
   return (
     <Toolbar
       editor={editor}
       hidden={hideToolbar}
-      items={[
-        {
-          onPress: () => () => {
-            const isActive = activeKeyboard === ColorKeyboard.id;
-            if (isActive) editor.focus();
-            setActiveKeyboard(isActive ? undefined : ColorKeyboard.id);
-          },
-          active: () => activeKeyboard === ColorKeyboard.id,
-          disabled: () => false,
-          image: () => Images.palette,
-        },
-        ...DEFAULT_TOOLBAR_ITEMS,
-      ]}
+      items={DEFAULT_TOOLBAR_ITEMS}
     />
   );
 };
@@ -132,4 +91,4 @@ const exampleStyles = StyleSheet.create({
   },
 });
 
-const initialContent = `<p>darl</p>`;
+const initialContent = `<p>dark</p>`;

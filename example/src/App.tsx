@@ -6,11 +6,9 @@ import {
   type NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 import { Basic } from './Examples/Basic';
-import { CustomKeyboardExample } from './Examples/CustomKeyboardExample';
 import { EditorStickToKeyboardExample } from './Examples/EditorStickToKeyboardExample';
 import { Advanced } from './Examples/Advanced/AdvancedRichText';
 import { CustomAndStaticToolbar } from './Examples/CustomAndStaticToolbar/CustomAndStaticToolbar';
-import { WithKeyboard } from './Examples/WithKeyboard';
 import { CustomCss } from './Examples/CustomCss';
 import { ConfigureExtensions } from './Examples/ConfigureExtentions';
 import { NavigationHeader } from './Examples/NavigationHeader';
@@ -22,20 +20,12 @@ const examples = [
     component: Basic,
   },
   {
-    name: 'With Color Keyboard',
-    component: WithKeyboard,
-  },
-  {
     name: 'Custom CSS',
     component: CustomCss,
   },
   {
     name: 'Configure Extensions',
     component: ConfigureExtensions,
-  },
-  {
-    name: 'CustomKeyboard',
-    component: CustomKeyboardExample,
   },
   {
     name: 'Dark Editor',

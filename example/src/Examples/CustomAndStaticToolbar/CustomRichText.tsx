@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   KeyboardAvoidingView,
@@ -6,7 +6,6 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { CustomKeyboard, ColorKeyboard } from '@10play/tentap-editor';
 import { RichText, useBridgeState } from '../../../../src/RichText';
 import type { EditorBridge } from '../../../../src/types';
 import { icons } from '../../assets';
@@ -21,9 +20,6 @@ export const ComposeRichText = ({
   editor,
   onSendClick,
 }: ComposeRichTextProps) => {
-  const rootRef = useRef(null);
-  const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
-
   return (
     <>
       <View style={composeStyles.compose}>
@@ -33,19 +29,7 @@ export const ComposeRichText = ({
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={composeStyles.keyboardAvoidingView}
       >
-        <ComposeToolbar
-          editor={editor}
-          activeKeyboard={activeKeyboard}
-          setActiveKeyboard={setActiveKeyboard}
-          onSendClick={onSendClick}
-        />
-        <CustomKeyboard
-          rootRef={rootRef}
-          activeKeyboardID={activeKeyboard}
-          setActiveKeyboardID={setActiveKeyboard}
-          keyboards={[ColorKeyboard]}
-          editor={editor}
-        />
+        <ComposeToolbar editor={editor} onSendClick={onSendClick} />
       </KeyboardAvoidingView>
     </>
   );
@@ -53,8 +37,6 @@ export const ComposeRichText = ({
 
 interface ComposeToolbarProps {
   editor: EditorBridge;
-  activeKeyboard: string | undefined;
-  setActiveKeyboard: (keyboard: string) => void;
   onSendClick: () => void;
 }
 interface CustomToolbarAction {

@@ -55,8 +55,6 @@ props:
 | items  | `ToolbarItem[]` | DEFAULT_TOOLBAR_ITEMS | array of ToolbarItem's that will be shown on the toolbar                |
 | shouldHideDisabledToolbarItems  | `boolean` | false | Indicates whether disabled items should be hidden |
 
-See how we add a custom toolbar item in the [color keyboard example](../examples/colorKeyboard.md)
-
 ### ToolbarItem
 
 The item rendered by the toolbar component

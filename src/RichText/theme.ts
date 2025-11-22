@@ -1,13 +1,8 @@
-import type { ColorKeyboardTheme, EditorTheme, ToolbarTheme } from '../types';
-import {
-  darkColorKeyboardTheme,
-  defaultColorKeyboardTheme,
-} from './Keyboard/keyboardTheme';
+import type { EditorTheme, ToolbarTheme } from '../types';
 import { darkToolbarTheme, defaultToolbarTheme } from './Toolbar/toolbarTheme';
 
 export const defaultEditorTheme: EditorTheme = {
   toolbar: defaultToolbarTheme,
-  colorKeyboard: defaultColorKeyboardTheme,
   webview: {
     backgroundColor: 'white',
   },
@@ -17,7 +12,6 @@ export const defaultEditorTheme: EditorTheme = {
 const DARK_EDITOR_BACKGROUND_COLOR = '#1C1C1E';
 export const darkEditorTheme: EditorTheme = {
   toolbar: darkToolbarTheme as ToolbarTheme,
-  colorKeyboard: darkColorKeyboardTheme as ColorKeyboardTheme,
   webview: {
     backgroundColor: DARK_EDITOR_BACKGROUND_COLOR,
   },

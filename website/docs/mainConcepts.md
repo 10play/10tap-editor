@@ -28,8 +28,6 @@ With the simple usage you have all of [these](./api/BridgeExtensions) bridgeExte
 
 With tentap you can also control the scheme of your editor by passing the useBridgeEditor list of bridgeExtensions you want, so in case you build a chat app and you don't want to let users underline you should not pass the Underline bridgeExtension, that will make sure that even if the user will copy paste some text with underline, when pasted the underline will not be parsed.
 
-Custom keyboards - we believe that custom keyboards can be really improve the editing experience, custom keyboards let you switch the keyboard with a react native view, this can be helpful in cases where you want to take advantage of the room the keyboard takes, see [color keyboard example](./examples/colorKeyboard) and [custom keyboard example](./examples/customKeyboard.md)
-
 ## Advanced usage
 
 In case you want to add your own tiptap extension / build your own bridgeExtension you will have to bundle the web editor by your own that way you will get full control of what running inside the webview.
