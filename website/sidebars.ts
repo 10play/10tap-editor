@@ -14,6 +14,11 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
+      label: 'Migration Guides',
+      items: ['migrations/v1.0'],
+    },
+    {
+      type: 'category',
       label: 'API',
       items: [
         'api/useEditorBridge',
@@ -66,11 +71,6 @@ const sidebars: SidebarsConfig = {
           className: 'pro',
         },
       ],
-    },
-    {
-      type: 'category',
-      label: 'Migration Guides',
-      items: ['migrations/v1.0'],
     },
   ],
 };
