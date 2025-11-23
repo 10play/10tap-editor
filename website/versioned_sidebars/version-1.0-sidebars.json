@@ -64,6 +64,11 @@
           "className": "pro"
         }
       ]
+    },
+    {
+      "type": "category",
+      "label": "Migration Guides",
+      "items": ["migrations/v1.0"]
     }
   ]
 }

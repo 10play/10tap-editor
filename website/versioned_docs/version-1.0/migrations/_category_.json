@@ -1,0 +1,8 @@
+{
+  "label": "Migration Guides",
+  "position": 5,
+  "link": {
+    "type": "generated-index",
+    "description": "Guides for migrating between major versions of 10tap-editor."
+  }
+}
