@@ -1,5 +1,6 @@
 import React from 'react';
-import { SafeAreaView, View, StyleSheet, Button } from 'react-native';
+import { View, StyleSheet, Button } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   LinkBridge,
   PlaceholderBridge,

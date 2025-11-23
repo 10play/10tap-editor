@@ -1,12 +1,11 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import {
-  SafeAreaView,
   KeyboardAvoidingView,
-  Platform,
   StyleSheet,
   Button,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   CodeBridge,
   CoreBridge,
@@ -96,7 +95,7 @@ export const CustomCss = ({}: NativeStackScreenProps<any, any, any>) => {
       />
       <RichText editor={editor} />
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={'padding'}
         style={exampleStyles.keyboardAvoidingView}
       >
         <Toolbar editor={editor} />

@@ -1,15 +1,14 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useRef } from 'react';
 import {
-  SafeAreaView,
   View,
   KeyboardAvoidingView,
-  Platform,
   StyleSheet,
   TouchableOpacity,
   Text,
   ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
 import WebView from 'react-native-webview';
 
@@ -89,7 +88,7 @@ export const EditorStickToKeyboardExample = ({}: NativeStackScreenProps<
         ))}
       </ScrollView>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={'padding'}
         style={exampleStyles.keyboardAvoidingView}
       >
         <View style={exampleStyles.editorWrapper}>

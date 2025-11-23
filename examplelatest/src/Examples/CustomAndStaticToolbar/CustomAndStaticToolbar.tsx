@@ -1,7 +1,6 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import {
-  SafeAreaView,
   View,
   StyleSheet,
   TouchableOpacity,
@@ -9,6 +8,7 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   useEditorBridge,
   useBridgeState,

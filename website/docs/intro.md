@@ -64,7 +64,7 @@ export const Basic = () => {
     <SafeAreaView style={{ flex: 1 }}>
       <RichText editor={editor} />
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={'padding'}
         style={{
           position: 'absolute',
           width: '100%',

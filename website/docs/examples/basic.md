@@ -31,6 +31,8 @@ Now we will add our RichText component, this is simply a WebView that runs a pre
 The RichText component receives the EditorBridge we created before
 
 ```tsx
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 <SafeAreaView style={exampleStyles.fullScreen}>
   <RichText editor={editor} />
 </SafeAreaView>
@@ -53,7 +55,7 @@ const exampleStyles = StyleSheet.create({
 ...
 
 <KeyboardAvoidingView
-  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  behavior={'padding'}
   style={exampleStyles.keyboardAvoidingView}
 >
   <Toolbar editor={editor} />
@@ -67,12 +69,10 @@ const exampleStyles = StyleSheet.create({
 ```tsx
 import React from 'react';
 import {
-  SafeAreaView,
-  View,
   KeyboardAvoidingView,
-  Platform,
   StyleSheet,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
 
 export const Basic = () => {
@@ -86,7 +86,7 @@ export const Basic = () => {
     <SafeAreaView style={exampleStyles.fullScreen}>
       <RichText editor={editor} />
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={'padding'}
         style={exampleStyles.keyboardAvoidingView}
       >
         <Toolbar editor={editor} />

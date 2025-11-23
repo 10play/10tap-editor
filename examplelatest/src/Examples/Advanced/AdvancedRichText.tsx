@@ -1,6 +1,7 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useRef } from 'react';
-import { SafeAreaView, View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   RichText,
   useEditorBridge,

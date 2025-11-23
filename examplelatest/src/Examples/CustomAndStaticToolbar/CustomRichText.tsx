@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   KeyboardAvoidingView,
-  Platform,
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
@@ -26,7 +25,7 @@ export const ComposeRichText = ({
         <RichText editor={editor} />
       </View>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={'padding'}
         style={composeStyles.keyboardAvoidingView}
       >
         <ComposeToolbar editor={editor} onSendClick={onSendClick} />

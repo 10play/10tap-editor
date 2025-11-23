@@ -1,11 +1,7 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
-import {
-  SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-} from 'react-native';
+import { KeyboardAvoidingView, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
 
 export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
@@ -19,7 +15,7 @@ export const Basic = ({}: NativeStackScreenProps<any, any, any>) => {
     <SafeAreaView style={exampleStyles.fullScreen}>
       <RichText editor={editor} />
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={'padding'}
         style={exampleStyles.keyboardAvoidingView}
       >
         <Toolbar editor={editor} />

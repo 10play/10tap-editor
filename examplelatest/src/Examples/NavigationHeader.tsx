@@ -1,14 +1,11 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
-import {
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  useWindowDimensions,
-} from 'react-native';
+import { View, KeyboardAvoidingView, StyleSheet, Platform } from 'react-native';
 import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+const HEADER_HEIGHT = 38; // IOS Only
+
 export const NavigationHeader = ({}: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditorBridge({
     autofocus: true,
@@ -18,20 +15,19 @@ export const NavigationHeader = ({}: NativeStackScreenProps<any, any, any>) => {
   // when we are using react-navigation header, we need to add keyboardVerticalOffset to KeyboardAvoidingView
   // the value of this should be the height of the header + the top inset
   const { top } = useSafeAreaInsets();
-  const { width, height } = useWindowDimensions();
-  const isLandscape = width > height;
-  const headerHeight = isLandscape ? 32 : 44; // IOS Only
-  const keyboardVerticalOffset = headerHeight + top;
+  const keyboardVerticalOffset = HEADER_HEIGHT + top;
 
   return (
     <>
-      <View style={exampleStyles.fullScreen}>
+      <View style={exampleStyles.contentContainer}>
         <RichText editor={editor} />
       </View>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={'padding'}
         style={exampleStyles.keyboardAvoidingView}
-        keyboardVerticalOffset={keyboardVerticalOffset}
+        keyboardVerticalOffset={
+          Platform.OS === 'ios' ? keyboardVerticalOffset : undefined
+        }
       >
         <Toolbar editor={editor} />
       </KeyboardAvoidingView>
@@ -40,8 +36,9 @@ export const NavigationHeader = ({}: NativeStackScreenProps<any, any, any>) => {
 };
 
 const exampleStyles = StyleSheet.create({
-  fullScreen: {
+  contentContainer: {
     flex: 1,
+    paddingBottom: Platform.OS === 'ios' ? HEADER_HEIGHT : 0,
   },
   keyboardAvoidingView: {
     position: 'absolute',

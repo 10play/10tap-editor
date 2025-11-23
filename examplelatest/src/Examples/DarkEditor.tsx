@@ -1,12 +1,11 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
 import {
-  SafeAreaView,
   View,
   KeyboardAvoidingView,
-  Platform,
   StyleSheet,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   RichText,
   Toolbar,
@@ -52,7 +51,7 @@ export const DarkEditor = ({}: NativeStackScreenProps<any, any, any>) => {
         <RichText editor={editor} />
       </View>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={'padding'}
         style={exampleStyles.keyboardAvoidingView}
       >
         <ToolbarWithColor editor={editor} />
