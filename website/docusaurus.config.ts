@@ -36,6 +36,18 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
+          lastVersion: '1.0',
+          includeCurrentVersion: false,
+          versions: {
+            '1.0': {
+              label: '1.0',
+              badge: true,
+            },
+            'pre-1.0': {
+              label: 'Pre-1.0',
+              badge: true,
+            },
+          },
           // // Please change this to your repo.
           // // Remove this to remove the "edit this page" links.
           // editUrl:
@@ -66,6 +78,11 @@ const config: Config = {
           sidebarId: 'tutorialSidebar',
           position: 'left',
           label: 'Docs',
+        },
+        {
+          type: 'docsVersionDropdown',
+          position: 'right',
+          dropdownActiveClassDisabled: true,
         },
         {
           href: 'https://github.com/10play/10tap-editor',
