@@ -54,8 +54,8 @@ export const HistoryBridge = new BridgeExtension<
   },
   extendEditorState: (editor) => {
     return {
-      canUndo: editor.can().undo(),
-      canRedo: editor.can().redo(),
+      canUndo: editor.can().undo?.() ?? false,
+      canRedo: editor.can().redo?.() ?? false,
     };
   },
 });

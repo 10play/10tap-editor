@@ -1,6 +1,6 @@
 {
   "name": "@10play/tentap-editor",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.2",
   "description": "React Native Rich Text Editor",
   "main": "lib/commonjs/index.js",
   "module": "lib/module/index.js",
@@ -44,7 +44,6 @@
     "editor:dev": "vite",
     "editor:build": "vite build && node ./scripts/buildEditor.js ./src/simpleWebEditor/build/index.html",
     "editor:build-web-utils": "rimraf lib-web && vite build --config ./src/webEditorUtils/vite.config.ts && tsc --project ./src/webEditorUtils",
-    "example76": "yarn workspace example76",
     "examplelatest": "yarn workspace tentap-example-latest",
     "test": "jest",
     "typecheck": "tsc --noEmit",
