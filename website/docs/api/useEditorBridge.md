@@ -24,11 +24,18 @@ initial content that will be loaded first on the editor
 <u>default</u>: `false`<br />
 when true the editor will auto focus
 
-#### avoidIosKeyboard `IOS ONLY`
+#### avoidIosKeyboard
 
-`boolean`  
+`boolean`
 <u>default</u>: `false`<br />
-This helps us keep the cursor right above the keyboard when the editor is full-screen and the virtual keyboard hides the bottom portion of the editor.
+This helps keep the cursor visible above the keyboard when the editor is full-screen and the virtual keyboard hides the bottom portion of the editor.
+
+When enabled, the editor automatically:
+- Adds bottom padding to the document equal to the keyboard height
+- Adjusts ProseMirror's scroll threshold and margin so the cursor stays visible
+- Removes the padding when the keyboard is dismissed
+
+**Note:** This option works on both iOS and Android, despite the name. On Android, it uses a fixed toolbar height for calculations.
 
 #### dynamicHeight
 

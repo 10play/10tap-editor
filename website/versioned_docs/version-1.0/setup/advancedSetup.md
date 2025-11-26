@@ -83,8 +83,8 @@ Add the following files
     }
 
     #root div .ProseMirror {
-      height: 100%;
-      overflow: auto;
+      min-height: 100%;
+      overflow: visible;
     }
     #root div.dynamic-height .ProseMirror {
       height: unset;
