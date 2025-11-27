@@ -1,4 +1,4 @@
-import History from '@tiptap/extension-history';
+import { UndoRedo } from '@tiptap/extensions';
 import BridgeExtension from './base';
 
 type HistoryEditorState = {
@@ -31,7 +31,7 @@ export const HistoryBridge = new BridgeExtension<
   HistoryEditorInstance,
   HistoryMessage
 >({
-  tiptapExtension: History,
+  tiptapExtension: UndoRedo,
   onBridgeMessage: (editor, message) => {
     if (message.type === HistoryEditorActionType.Undo) {
       editor.chain().focus().undo().run();
@@ -54,8 +54,8 @@ export const HistoryBridge = new BridgeExtension<
   },
   extendEditorState: (editor) => {
     return {
-      canUndo: editor.can().undo(),
-      canRedo: editor.can().redo(),
+      canUndo: editor.can().undo?.() ?? false,
+      canRedo: editor.can().redo?.() ?? false,
     };
   },
 });

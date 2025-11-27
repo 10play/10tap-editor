@@ -1,0 +1,72 @@
+{
+  "tutorialSidebar": [
+    {
+      "type": "category",
+      "label": "Introduction",
+      "items": ["intro", "mainConcepts"]
+    },
+    {
+      "type": "category",
+      "label": "Setup",
+      "items": ["setup/installation", "setup/advancedSetup", "setup/expoWeb"]
+    },
+    {
+      "type": "category",
+      "label": "API",
+      "items": [
+        "api/useEditorBridge",
+        "api/EditorBridge",
+        "api/BridgeState",
+        "api/Components",
+        "api/CustomKeyboardUtils",
+        "api/BridgeExtensions",
+        "api/useEditorContent"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Examples",
+      "collapsed": false,
+      "items": [
+        "examples/basic",
+        "examples/customCss",
+        {
+          "type": "doc",
+          "id": "examples/fonts",
+          "label": "Formatting",
+          "className": "pro"
+        },
+        "examples/configureExtensions",
+        "examples/colorKeyboard",
+        "examples/navHeader",
+        {
+          "type": "doc",
+          "id": "examples/mentions",
+          "label": "Mentions",
+          "className": "pro"
+        },
+        {
+          "type": "doc",
+          "id": "examples/search",
+          "label": "Search",
+          "className": "pro"
+        },
+        "examples/customKeyboard",
+        "examples/darkTheme",
+        "examples/customTheme",
+        {
+          "type": "doc",
+          "id": "examples/realtimeCollab",
+          "label": "Realtime Collaboration",
+          "className": "pro"
+        },
+        {
+          "type": "doc",
+          "id": "examples/comments",
+          "label": "Comments",
+          "className": "pro"
+        }
+      ]
+    }
+  ]
+}

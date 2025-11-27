@@ -14,13 +14,17 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
+      label: 'Migration Guides',
+      items: ['migrations/v1.0'],
+    },
+    {
+      type: 'category',
       label: 'API',
       items: [
         'api/useEditorBridge',
         'api/EditorBridge',
         'api/BridgeState',
         'api/Components',
-        'api/CustomKeyboardUtils',
         'api/BridgeExtensions',
         'api/useEditorContent',
       ],
@@ -35,11 +39,10 @@ const sidebars: SidebarsConfig = {
         {
           type: 'doc',
           id: 'examples/fonts',
-          label: 'Formatting keyboard',
+          label: 'Formatting',
           className: 'pro',
         },
         'examples/configureExtensions',
-        'examples/colorKeyboard',
         'examples/navHeader',
         {
           type: 'doc',
@@ -53,7 +56,6 @@ const sidebars: SidebarsConfig = {
           label: 'Search',
           className: 'pro',
         },
-        'examples/customKeyboard',
         'examples/darkTheme',
         'examples/customTheme',
         {

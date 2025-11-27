@@ -1,5 +1,4 @@
-import TaskList from '@tiptap/extension-task-list';
-import TaskItem from '@tiptap/extension-task-item';
+import { TaskList, TaskItem } from '@tiptap/extension-list';
 import BridgeExtension from './base';
 
 type TaskListEditorState = {

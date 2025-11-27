@@ -1,6 +1,6 @@
-import DropCursor from '@tiptap/extension-dropcursor';
+import { Dropcursor } from '@tiptap/extensions';
 import BridgeExtension from './base';
 
 export const DropCursorBridge = new BridgeExtension({
-  tiptapExtension: DropCursor,
+  tiptapExtension: Dropcursor,
 });

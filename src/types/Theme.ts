@@ -8,7 +8,6 @@ import type {
 
 export interface EditorTheme {
   toolbar: ToolbarTheme;
-  colorKeyboard: ColorKeyboardTheme;
   webview: StyleProp<ViewStyle>;
   webviewContainer: StyleProp<ViewStyle>;
 }
@@ -34,26 +33,4 @@ export type LinkBarTheme = {
   doneButton: StyleProp<ViewStyle>;
   doneButtonText: StyleProp<TextStyle>;
   linkToolbarButton: StyleProp<ViewStyle>;
-};
-
-export interface Color {
-  name: string;
-  value?: ColorValue;
-  displayColor?: ColorValue;
-}
-export type ColorKeyboardTheme = {
-  scrollViewContainer: StyleProp<ViewStyle>;
-  keyboardContainer: StyleProp<ViewStyle>;
-  colorRow: StyleProp<ViewStyle>;
-  colorButton: StyleProp<ViewStyle>;
-  activeButton: StyleProp<ViewStyle>;
-  iconContainer: StyleProp<ViewStyle>;
-  textIcon: StyleProp<ImageStyle>;
-  highlight: StyleProp<ViewStyle>;
-  colorText: StyleProp<TextStyle>;
-  sectionTitle: StyleProp<TextStyle>;
-  bottomSpacer: StyleProp<ViewStyle>;
-  colorSelection: Color[];
-  highlightSelection: Color[];
-  keyboardRootColor: ColorValue;
 };

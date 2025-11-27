@@ -98,6 +98,7 @@ export const useTenTap = (options?: useTenTapArgs) => {
     onSelectionUpdate: (onUpdate) => sendStateUpdate(onUpdate.editor),
     onTransaction: (onUpdate) => sendStateUpdate(onUpdate.editor),
     editable: window.editable,
+    shouldRerenderOnTransaction: true,
     ...tiptapOptionsWithExtensions,
   });
 

@@ -23,6 +23,7 @@ export const useKeyboard = () => {
     });
     const hideSubscription = Keyboard.addListener(hideEvent, () => {
       setIsKeyboardUp(false);
+      setKeyboardHeight(0);
     });
 
     return () => {
