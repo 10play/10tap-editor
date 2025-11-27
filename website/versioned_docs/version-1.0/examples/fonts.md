@@ -2,7 +2,7 @@
 sidebar_position: 6
 ---
 
-# Formatting keyboard
+# Formatting
 
 :::info
 
@@ -11,5 +11,5 @@ This is a Pro example. Get all pro examples, 1:1 support from the 10tap team, pr
 :::
 
 <div style={{justifyContent: 'center', display: 'flex'}}>
-  <img height="400" src="/10tap-editor/img/format.png"/>
+  <img height="600" src="/10tap-editor/img/formatting.gif"/>
 </div>

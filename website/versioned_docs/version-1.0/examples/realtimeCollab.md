@@ -10,4 +10,6 @@ This is a Pro example. Get all pro examples, 1:1 support from the 10tap team, pr
 
 :::
 
-Video: TBD
+<div style={{justifyContent: 'center', display: 'flex'}}>
+  <img style={{maxWidth: '100%'}} src="/10tap-editor/img/collaboration.gif"/>
+</div>

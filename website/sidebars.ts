@@ -39,7 +39,7 @@ const sidebars: SidebarsConfig = {
         {
           type: 'doc',
           id: 'examples/fonts',
-          label: 'Formatting keyboard',
+          label: 'Formatting',
           className: 'pro',
         },
         'examples/configureExtensions',
