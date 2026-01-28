@@ -330,6 +330,13 @@ export const CoreBridge = new BridgeExtension<
         });
       },
       blur: () => {
+        if (editorStateRef && editorStateRef.current) {
+          _updateEditorState &&
+            _updateEditorState({
+              ...(editorStateRef.current as BridgeState),
+              isFocused: false,
+            });
+        }
         sendBridgeMessage({
           type: CoreEditorActionType.Blur,
           payload: undefined,
