@@ -489,6 +489,8 @@ describe('closing to the system keyboard', () => {
       slotHeight: 0,
       renderedKeyboardID: undefined,
     });
+    jest.advanceTimersByTime(REFOCUS_DELAY_MS);
+    expect(t.native!.showSystemKeyboard).not.toHaveBeenCalled();
   });
 
   it('Android: shows the IME again when no focused WebView was restored', async () => {
