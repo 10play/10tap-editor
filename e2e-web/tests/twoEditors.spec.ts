@@ -2,9 +2,6 @@ import { expect, test } from '@playwright/test';
 
 // #318: with two editors on a page, messages from one must not reach the other.
 test('two editors on one page stay independent', async ({ page }) => {
-  // TODO(WP-E): drop once RichText routes messages through the controller's
-  // editorId filter. Until then this reproduces #318.
-  test.fail();
   await page.goto('/?scenario=two-editors');
 
   const firstState = page.getByTestId('first-state');

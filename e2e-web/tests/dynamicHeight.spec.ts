@@ -7,9 +7,6 @@ const iframeHeight = async (iframe: Locator) =>
 test('a dynamicHeight editor resizes its iframe to the content', async ({
   page,
 }) => {
-  // TODO(WP-E): drop once RichText puts the height on the WebView style.
-  // Until then this reproduces #205.
-  test.fail();
   await page.goto('/?scenario=dynamic-height');
   await expect(page.getByTestId('dynamic-state')).toContainText('ready:true');
 
