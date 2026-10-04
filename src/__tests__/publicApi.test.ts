@@ -92,8 +92,7 @@ describe('root entry compatibility with 1.0.1', () => {
   });
 });
 
-// Pending: the keyboard API is restored by WP-M/WP-T and exported by WP-Z.
-// Enable at the WP-L gate.
+// Pending: the keyboard exports land with WP-Z. Enable at the WP-L gate.
 describe('root entry compatibility with the 0.7.x keyboard API', () => {
   it.skip('exports the keyboard components again', () => {
     const current = currentRuntime();
@@ -109,7 +108,7 @@ describe('root entry compatibility with the 0.7.x keyboard API', () => {
     ).toEqual([]);
   });
 
-  it.skip('restores the colorKeyboard theme defaults', () => {
+  it('restores the colorKeyboard theme defaults', () => {
     const current = currentRuntime();
     const themeMember = (snapshot: ExportsSnapshot, theme: string) =>
       (snapshot[theme] as Extract<Shape, { type: 'object' }>).members
