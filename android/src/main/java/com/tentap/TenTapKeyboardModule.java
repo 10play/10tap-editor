@@ -126,6 +126,7 @@ public class TenTapKeyboardModule extends TenTapKeyboardSpec implements Lifecycl
       promise.resolve(false);
       return;
     }
+    releaseSuppressedWebView(webView);
     suppressedWebView = new WeakReference<>(webView);
     // inputmode="none" keeps Chromium from showing the IME again on the next
     // tap; hiding it explicitly avoids waiting for Chromium to react.
@@ -138,12 +139,8 @@ public class TenTapKeyboardModule extends TenTapKeyboardSpec implements Lifecycl
   }
 
   private void restore(Promise promise) {
-    WebView previous = suppressedWebView != null ? suppressedWebView.get() : null;
-    suppressedWebView = null;
     WebView focused = focusedWebView();
-    if (previous != null && previous != focused) {
-      previous.evaluateJavascript(InputModeScript.RESTORE, null);
-    }
+    releaseSuppressedWebView(focused);
     if (focused == null) {
       promise.resolve(false);
       return;
@@ -152,6 +149,18 @@ public class TenTapKeyboardModule extends TenTapKeyboardSpec implements Lifecycl
     // explicitly, and only once the attribute is gone.
     focused.evaluateJavascript(
         InputModeScript.RESTORE, ignored -> promise.resolve(showSoftInput(focused)));
+  }
+
+  /**
+   * Forgets the suppressed WebView and restores its inputmode unless it is
+   * {@code next}, which the caller is about to script itself.
+   */
+  private void releaseSuppressedWebView(@Nullable WebView next) {
+    WebView previous = suppressedWebView != null ? suppressedWebView.get() : null;
+    suppressedWebView = null;
+    if (previous != null && previous != next) {
+      previous.evaluateJavascript(InputModeScript.RESTORE, null);
+    }
   }
 
   private boolean showSoftInput(WebView webView) {
