@@ -34,7 +34,7 @@ export const useEditorBridge = (
   useEffect(() => {
     if (sentEditable.current === editable) return;
     sentEditable.current = editable;
-    editor.setEditable(editable);
+    editor.setEditable?.(editable);
     controller.setState({ ...controller.getState(), editable });
   }, [controller, editable, editor]);
 

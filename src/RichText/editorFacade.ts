@@ -98,7 +98,8 @@ export function createEditorFacade(
     initialState: initialState(options.editable ?? true),
     rpcTimeoutMs: options.rpcTimeoutMs,
     onReady: () => {
-      if (options.autofocus) editor.focus('end');
+      // `focus` comes from CoreBridge, which a custom bridge list may omit.
+      if (options.autofocus) editor.focus?.('end');
     },
   });
   attachEditorController(editor, controller);

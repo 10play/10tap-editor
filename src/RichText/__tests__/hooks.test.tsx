@@ -211,6 +211,19 @@ describe('useEditorBridge', () => {
     expect(webView.focusCount).toBe(1);
   });
 
+  it('tolerates autofocus and editable changes without CoreBridge', () => {
+    const { result, rerender } = renderEditor({
+      autofocus: true,
+      bridgeExtensions: [BoldBridge],
+    });
+    const { webView } = connect(result.current);
+
+    rerender({ editable: false, bridgeExtensions: [BoldBridge] });
+
+    expect(webView.types).toEqual([]);
+    expect(result.current.getEditorState().editable).toBe(false);
+  });
+
   it('becomes ready for legacy bundles that only post editor-ready', () => {
     jest.useFakeTimers();
     const { result } = renderEditor();
