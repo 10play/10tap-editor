@@ -113,7 +113,7 @@ jobs:
           xcode-version: latest-stable
 
       - name: Pack the library
-        run: yarn prepack && npm pack --pack-destination "$RUNNER_TEMP"
+        run: npm pack --pack-destination "$RUNNER_TEMP"
 
       - name: Prebuild and build an Expo SDK ${{ matrix.sdk }} app
         run: .github/scripts/expo-smoke.sh ${{ matrix.sdk }} ${{ matrix.platform }} "$RUNNER_TEMP"
@@ -137,7 +137,7 @@ jobs:
         uses: ./.github/actions/setup-android
 
       - name: Pack the library
-        run: yarn prepack && npm pack --pack-destination "$RUNNER_TEMP"
+        run: npm pack --pack-destination "$RUNNER_TEMP"
 
       - name: Build a React Native 0.74 app with the library
         run: .github/scripts/rn-smoke.sh 0.74.7 "$RUNNER_TEMP" -PnewArchEnabled=${{ matrix.new-arch }}
@@ -157,7 +157,7 @@ jobs:
         uses: ./.github/actions/setup-android
 
       - name: Pack the library
-        run: yarn prepack && npm pack --pack-destination "$RUNNER_TEMP"
+        run: npm pack --pack-destination "$RUNNER_TEMP"
 
       - name: Build a React Native nightly app with the library
         run: .github/scripts/rn-smoke.sh nightly "$RUNNER_TEMP" -PnewArchEnabled=true

@@ -11,6 +11,7 @@
     "build:ios": "cd ios && xcodebuild -workspace exampleoldarch.xcworkspace -scheme exampleoldarch -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO -quiet build",
     "build:ios:release": "cd ios && xcodebuild -workspace exampleoldarch.xcworkspace -scheme exampleoldarch -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO -quiet build",
     "pods": "cd ios && bundle exec pod install",
+    "typecheck": "tsc --noEmit",
     "e2e": "maestro test -e APP_ID=com.exampleoldarch ../examplelatest/.maestro"
   },
   "dependencies": {

@@ -75,14 +75,12 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
-      - name: Build package
-        run: yarn prepack
-
-      - name: Check the packed files
-        run: npm pack --dry-run
+      # npm pack runs prepack once and lists the packed files.
+      - name: Build and pack the library
+        run: npm pack --pack-destination "$RUNNER_TEMP"
 
       - name: Bundle the packed library with Metro (no react-dom)
-        run: yarn check:bundle
+        run: yarn check:bundle --tarball "$RUNNER_TEMP"/10play-tentap-editor-*.tgz
 
   typecheck-examples:
     runs-on: ubuntu-latest
@@ -101,6 +99,9 @@ jobs:
 
       - name: Typecheck examplelatest
         run: yarn examplelatest typecheck
+
+      - name: Typecheck exampleoldarch
+        run: yarn exampleoldarch typecheck
 
       - name: Typecheck the web E2E app
         run: yarn workspace tentap-e2e-web typecheck
