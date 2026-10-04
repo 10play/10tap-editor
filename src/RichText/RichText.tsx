@@ -14,6 +14,8 @@ import type { EditorBridge } from '../types';
 import { getInjectedJS, getInjectedJSBeforeContentLoad } from './utils';
 import { isFabric } from '../utils/misc';
 import { CoreEditorActionType } from '../bridges/core';
+import { buildBootConfig, buildBootScript } from '../shared/bootConfig';
+import { getEditorController } from '../shared/contracts';
 
 interface RichTextProps extends WebViewProps {
   editor: EditorBridge;
@@ -51,6 +53,7 @@ export const RichText = ({
   const [key, setKey] = useState('webview');
   const [loaded, setLoaded] = useState(isFabric());
   const { keyboardHeight, isKeyboardUp } = useKeyboard();
+  const controller = getEditorController(editor);
   const source: WebViewProps['source'] = editor.DEV
     ? { uri: editor.DEV_SERVER_URL || DEV_SERVER_URL }
     : {
@@ -60,6 +63,7 @@ export const RichText = ({
 
   const onWebviewMessage = (event: WebViewMessageEvent) => {
     onMessage && onMessage(event);
+    controller?.handleWebViewMessage(event.nativeEvent.data);
     if (exclusivelyUseCustomOnMessage && onMessage) return;
 
     const { data } = event.nativeEvent;
@@ -136,9 +140,22 @@ export const RichText = ({
         ]}
         source={source}
         injectedJavaScript={injectedJavaScript}
-        injectedJavaScriptBeforeContentLoaded={getInjectedJSBeforeContentLoad(
-          editor
-        )}
+        injectedJavaScriptBeforeContentLoaded={
+          controller
+            ? buildBootScript(
+                buildBootConfig({
+                  editorId: controller.editorId,
+                  bridges: editor.bridgeExtensions ?? [],
+                  platform: controller.platform,
+                  initialContent: editor.initialContent,
+                  editable: editor.editable,
+                  disableColorHighlight: editor.disableColorHighlight,
+                  dynamicHeight: editor.dynamicHeight,
+                  parseOptions: editor.parseOptions,
+                })
+              )
+            : getInjectedJSBeforeContentLoad(editor)
+        }
         hideKeyboardAccessoryView={true}
         onMessage={onWebviewMessage}
         ref={editor.webviewRef}
@@ -146,6 +163,14 @@ export const RichText = ({
         keyboardDisplayRequiresUserAction={false}
         {...props}
         // Propagated Props
+        onLoadStart={(e) => {
+          controller?.onLoadStart();
+          props.onLoadStart && props.onLoadStart(e);
+        }}
+        onLoadEnd={(e) => {
+          controller?.onLoadEnd();
+          props.onLoadEnd && props.onLoadEnd(e);
+        }}
         onLoad={(e) => {
           setLoaded(true);
           // This is a workaround for iOS to make sure the webview is loaded
