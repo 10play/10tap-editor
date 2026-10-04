@@ -1,0 +1,6 @@
+# `maestro test examplelatest/.maestro` runs every flow below. The flows also
+# drive exampleoldarch: pass -e APP_ID=com.exampleoldarch.
+flows:
+  - smoke/*
+  - repro/*
+  - keyboard/*

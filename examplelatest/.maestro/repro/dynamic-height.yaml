@@ -1,0 +1,47 @@
+# #342, #336: a dynamicHeight editor grows and shrinks with its content.
+# #323: typing at the end of a height-capped dynamicHeight editor keeps the
+# caret in view; the screenshot is for the manual check (gate G-ALL-3).
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'com.examplelatest'}
+name: 'Repro: dynamic height follows the content'
+tags:
+  - repro
+---
+- launchApp:
+    clearState: true
+- scrollUntilVisible:
+    element: 'Repro: Dynamic height'
+    timeout: 60000
+- tapOn: 'Repro: Dynamic height'
+- extendedWaitUntil:
+    visible:
+      id: editor-status
+      text: 'ready:true.*'
+    timeout: 15000
+- assertVisible:
+    id: dynamic-height-status
+    text: 'height:[1-9][0-9]*'
+- tapOn:
+    id: grow-content
+- extendedWaitUntil:
+    visible:
+      id: dynamic-height-status
+      text: '.* grow:ok'
+    timeout: 5000
+- tapOn:
+    id: shrink-content
+- extendedWaitUntil:
+    visible:
+      id: dynamic-height-status
+      text: '.* shrink:ok'
+    timeout: 5000
+- scrollUntilVisible:
+    element:
+      id: capped-dynamic-editor
+- tapOn:
+    id: capped-dynamic-editor
+- waitForAnimationToEnd
+- inputText: ' typed at the end'
+- waitForAnimationToEnd
+- takeScreenshot: capped-dynamic-height
