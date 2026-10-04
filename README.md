@@ -16,11 +16,12 @@ TenTap is a typed, easy to use, customizable, and extendable Rich Text editor fo
 - ➕ Extendable
 - ⚙️ Support dynamic scheme
 - 🛠️ Native toolbar
+- 🎹 Custom keyboards
 - 💅 Customizable styles
 - 🌒 Darkmode and custom theme support
-- 🏗️ supports new architecture\*
+- 🏗️ Supports the new architecture (including bridgeless) and the old architecture
 
-\* new arch supported on react-native version 0.73.5 and above
+Needs react-native-webview 13.7+; the native module needs React Native 0.74+ (Expo SDK 51+). See [requirements](https://10play.github.io/10tap-editor/docs/setup/installation#requirements).
 
 ## Why?
 
@@ -37,11 +38,13 @@ After years of developing rich text editors for mobile, we realized that there i
 1. `yarn add @10play/tentap-editor react-native-webview`
 2. `cd ios && pod install`
 
+The package includes a small autolinked native module used by custom keyboards, so rebuild your app after installing or upgrading.
+
 ## Expo
 
 `npx expo install @10play/tentap-editor react-native-webview`  
-Only basic usage is supported by Expo Go (see [basic example](https://10play.github.io/10tap-editor/docs/examples/basic)).  
-Otherwise you will need to setup [Expo Dev Client](https://docs.expo.dev/develop/development-builds/introduction/).
+The editor works in Expo Go, and custom keyboards use a JavaScript fallback there (see [basic example](https://10play.github.io/10tap-editor/docs/examples/basic)).  
+For the native keyboard driver and the advanced setup you will need an [Expo Dev Client](https://docs.expo.dev/develop/development-builds/introduction/).
 
 Now you ready to add tentap to your app!
 
@@ -54,13 +57,8 @@ See setup [here](https://10play.github.io/10tap-editor/docs/setup/expoWeb)
 
 ```tsx
 import React from 'react';
-import {
-  SafeAreaView,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-} from 'react-native';
+import { KeyboardAvoidingView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
 
 export const Basic = () => {
@@ -74,7 +72,7 @@ export const Basic = () => {
     <SafeAreaView style={{ flex: 1 }}>
       <RichText editor={editor} />
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={'padding'}
         style={{
           position: 'absolute',
           width: '100%',
@@ -87,6 +85,10 @@ export const Basic = () => {
   );
 };
 ```
+
+## Upgrading
+
+- From 1.0 or 0.7.x to 1.1: see the [1.1 migration guide](https://10play.github.io/10tap-editor/docs/migrations/v1.1) and the [changelog](CHANGELOG.md).
 
 ## Contributing
 
