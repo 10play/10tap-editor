@@ -204,4 +204,4 @@ const editorState = useBridgeState(editor);
 />
 ```
 
-Before the editor is ready the core fields already have values (`isReady: false`, `isFocused: false`, `empty: true`, `selection: { from: 0, to: 0 }`), so reading them never throws.
+Before the editor is ready the core fields already have values (`isReady: false`, `isFocused: false`, `empty: true`, `selection: { from: 0, to: 0 }`, and `editable` from the option), so reading them never throws.

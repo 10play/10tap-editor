@@ -6,6 +6,13 @@ Each entry lists the disposition from the release plan, the docs page that cover
 
 Docs links use the published site: `https://10play.github.io/10tap-editor/docs/...`.
 
+## Verification status (1.1.0 docs pass)
+
+Checked on `v1.1-rewrite` before the release candidate:
+
+- Automated and passing: unit and web suites, the 1.0.1 and 0.7.x compatibility gate, the isolated-bundle check (no `react-dom` in the native bundle), `npm pack`, and the two web E2E checks (#318 two editors, #205 dynamic height). The #318 check runs with the shim at 0.0.3, so it shows that the editor-id filtering alone keeps two editors apart; the 0.0.4 shim fix is still unreleased.
+- Not run yet: every device gate (G-iOS-1/2/3, G-AND-1/2/3, G-ALL-1/2/3), the Maestro flows on a device, and an AGP 9 build. Entries that depend on them say so under "Before posting"; hold those comments until the gate has passed on the release candidate.
+
 ---
 
 ## Issues
@@ -255,7 +262,7 @@ If tapping the editor still doesn't open the keyboard after updating, please ope
 ### #318 Multiple editor instances on Expo web
 
 - Disposition: fixed in 1.1.0 (editor ids on every message, native filtering) plus the shim fix in `@10play/react-native-web-webview` 0.0.4.
-- Before posting: the shim fix has to be released first. See [react-native-web-webview issue and PR](#react-native-web-webview-issue-and-pr-for-318) below. Confirm with the two-editor Playwright smoke (G-WEB-1).
+- Before posting: the shim fix has to be released first. See [react-native-web-webview issue and PR](#react-native-web-webview-issue-and-pr-for-318) below. The two-editor Playwright check (G-WEB-1) passes on `v1.1-rewrite`.
 
 ````md
 Thanks for the detailed report and the repro! You were right that messages from different editors were getting mixed up on Expo web. The iframe-based WebView we use on web, `@10play/react-native-web-webview`, listened to every `message` event on the page and didn't check which iframe it came from, so focus state, height updates and other messages from one editor reached every editor on the screen. Native iOS/Android weren't affected.
@@ -569,7 +576,7 @@ If you still see this after upgrading, please reopen with your device, Android v
 ### #205 Dynamic height on Expo web
 
 - Disposition: fixed in 1.1.0.
-- Before posting: confirm with the Playwright smoke (G-WEB-1).
+- Verified: the dynamic-height Playwright check (G-WEB-1) passes on `v1.1-rewrite`.
 
 ````md
 Thanks for reporting this, @casperstr, and @mrkdyrit and @janlasota for the extra details and the workaround!
@@ -603,14 +610,14 @@ This skips sending and parsing a large base64 string on every load. The base64 m
 ### #67 Reduce dependencies
 
 - Disposition: fixed in 1.1.0. Moving `@tiptap/*` to peer dependencies is wontfix in 1.x (breaking).
-- Before posting: confirm that `react-dom` was moved out of `dependencies` (WP-Z, after `check:bundle`). If it wasn't, drop the third bullet.
+- Verified: `react-dom` is a devDependency plus an optional `*` peer, and `check:bundle` confirms the native bundle never imports it.
 
 ````md
 This is cleaned up in 1.1.0:
 
 - Removed dependencies the library never imported: `@tiptap/starter-kit`, `@tiptap/extension-code-block` and `@tiptap/extension-horizontal-rule`.
 - Added `@tiptap/extension-paragraph` and `@tiptap/extension-text`, which CoreBridge uses and which until now only resolved through hoisting.
-- `react-dom` is no longer a runtime dependency. It was only needed to prebuild the default editor, and pinning it to v18 caused peer conflicts in React 19 apps. If you use the advanced setup, keep `react-dom` in your own dependencies, as the docs already say.
+- `react-dom` is no longer a runtime dependency, only an optional peer dependency. It was only needed to prebuild the default editor, and pinning it to v18 caused peer conflicts in React 19 apps. If you use the advanced setup, keep `react-dom` in your own dependencies, as the docs already say.
 
 The remaining `@tiptap/*` packages stay regular dependencies on purpose: the bridges import their tiptap extensions directly, so custom web editors and custom bridges need them installed, and moving them to peer dependencies would be a breaking change. Thanks for the patience!
 ````
@@ -700,6 +707,8 @@ Thank you for this! The 1.1.0 rewrite of `useEditorBridge` keeps the `editor` ob
 
 ### #350 (AGP 9, @gabrieldonadel)
 
+- Before posting: build an app with AGP 9 against the release candidate. CI has no AGP 9 job, so "builds with AGP 9" is not verified yet; if it fails, keep the PR open.
+
 ````md
 Thanks @gabrieldonadel! In 1.1.0 the Android part of the library was rewritten in Java (it now contains the custom keyboard module), so it no longer applies the Kotlin Gradle plugin at all, and it builds with AGP 9. That makes this change unnecessary, so we're closing it, but thank you for raising it; credited in the changelog.
 ````
@@ -714,11 +723,28 @@ Thanks for this! We applied the same fix as part of the 1.1.0 tooling update: th
 
 ### #239 (link input hint text) and #173 (custom toolbar list component)
 
-These were adopted in WP-H. Merge or close with a "shipped in 1.1.0" note depending on how they were applied; adjust the text after WP-H lands.
+Both were applied by hand on top of the rewritten toolbar (the branches no longer merge), so close them with credit after 1.1.0 is published.
+
+#239:
+
+````md
+Thanks for this! 1.1.0 ships it: the link bar's placeholder comes from the new `toolbar.linkBarTheme.hintText` theme key (default `Type your URL here...`). The toolbar was rewritten in the same release, so we applied the change there instead of merging this branch, and credited you in the changelog. Docs: https://10play.github.io/10tap-editor/docs/examples/customTheme#link-bar. Thanks again!
+````
+
+#173:
+
+````md
+Thanks for this! 1.1.0 adds a `ListComponent` prop to `Toolbar`, so you can pass a bottom-sheet `FlatList` (or any component with `FlatList` props). It renders both the main and the heading toolbar. The toolbar was rewritten in the same release, so we applied the idea there instead of merging this branch, and credited you in the changelog. Docs: https://10play.github.io/10tap-editor/docs/api/Components#toolbar. Thanks again!
+````
 
 ### #251 (exported hook types)
 
-Verified in WP-H / WP-L. Respond after that verification.
+- Status: `@10play/tentap-editor/web` exports `useTenTap`, `sendMessage` and the `UseTenTapArgs` options type. `tiptapOptions` stays typed as `any`, as in 1.0: typing it as `UseEditorOptions` would make some existing editor-web code stop compiling in a minor release.
+- Before posting: the maintainer decides whether to close this or keep it open for 2.0.
+
+````md
+Thanks for this, and sorry for the long wait! In 1.1.0 the web entry exports `useTenTap`, `sendMessage` and the `UseTenTapArgs` type. We kept `tiptapOptions` loosely typed for now, because typing it as `UseEditorOptions` would break the build for some existing custom editors in a minor release. We'll revisit stricter types for the next major. Closing this one; thank you for pushing on it!
+````
 
 ---
 

@@ -18,7 +18,7 @@ Switching is done by a **driver**:
 
 ## CustomKeyboard
 
-A react component that renders the active custom keyboard. Render it under your toolbar, inside the same bottom `KeyboardAvoidingView` (see [layout](#layout)).
+A react component that renders the active custom keyboard. Render it under your toolbar, as the last child of the same bottom `KeyboardAvoidingView` (see [layout](#layout)). In development on iOS, a warning is logged if the inline keyboard doesn't end at the bottom of the window.
 
 #### keyboards
 
@@ -28,7 +28,7 @@ list of [CustomKeyboardExtension's](#customkeyboardextension)
 #### activeKeyboardID
 
 `string | undefined`  
-the id of the custom keyboard to show. `undefined` shows the system keyboard.
+the id of the custom keyboard to show. Changing it from an id to `undefined` closes the custom keyboard and brings the system keyboard back.
 
 #### setActiveKeyboardID
 
@@ -83,20 +83,37 @@ Edge-to-edge apps don't need `'stable'`: their window never resizes.
 <u>default</u>: `false`<br />
 Always use the JavaScript fallback driver, even when the native module is available.
 
-#### onOpen / onClose
+#### onOpen
 
 `(id: string) => void`  
-Called when a custom keyboard finished opening or closing.
+Called when a custom keyboard has finished opening, with its id.
+
+#### onClose
+
+`() => void`  
+Called when the custom keyboard has finished closing.
 
 #### onKeyboardError
 
-`(error: { reason: string }) => void`  
-Called when the native driver couldn't hide the system keyboard (for example `reason: 'verify-timeout'`). `CustomKeyboard` then switches to the fallback driver for the rest of the session. A warning is also logged in development.
+`(event: KeyboardErrorEvent) => void`
+
+```ts
+interface KeyboardErrorEvent {
+  reason: 'verify-timeout' | 'native-error';
+  driver: 'native' | 'fallback' | 'inline';
+  error?: unknown;
+}
+```
+
+- `'verify-timeout'`: the system keyboard was still up 600 ms after the driver tried to hide it. If the native driver failed, `CustomKeyboard` switches to the fallback driver for as long as it stays mounted. If the fallback failed too, the custom keyboard closes and the system keyboard stays.
+- `'native-error'`: the native module threw; `error` holds what it threw.
+
+A warning is also logged in development.
 
 #### onKeyboardHideAndroid
 
 `() => void`  
-Kept from 0.7.x. Called when the system keyboard comes back after a custom keyboard closes, on both platforms.
+**Deprecated**, use `onClose`. Kept from 0.7.x. Called on both platforms when the system keyboard comes back while a custom keyboard is up.
 
 #### rootRef
 
@@ -131,27 +148,35 @@ The custom keyboard component. It is rendered inside your app like any other com
 | `close` | `() => void` | closes the custom keyboard and brings back the system keyboard |
 | `keyboardHeight` | `number` | the height the keyboard is drawn at |
 
-Components written for 0.7.x that take no props keep working.
+The props type is exported as `CustomKeyboardComponentProps`. Components written for 0.7.x that take no props keep working.
 
 #### options.height
 
 `number`  
 <u>optional</u><br />
-A fixed height for this keyboard, instead of following the system keyboard's height.
+A fixed height in dp for this keyboard, instead of following the system keyboard's height.
 
 The constructor still registers the component with `AppRegistry` under `id`, as in 0.7.x. tentap no longer uses that registration.
 
 ## ColorKeyboard
 
-A ready-made `CustomKeyboardExtension` (id `keyboard.color`) with text color and highlight buttons. Picking a color applies it and returns to the system keyboard. Colors and styles come from the [`colorKeyboard` theme](../examples/customTheme.md#color-keyboard-theme). See the [ColorKeyboard example](../examples/colorKeyboard.md).
+A ready-made `CustomKeyboardExtension` (id `keyboard.color`) with text color and highlight buttons. Picking a color applies it and focuses the editor, which returns to the system keyboard. Colors and styles come from the [`colorKeyboard` theme](../examples/customTheme.md#color-keyboard-theme). See the [ColorKeyboard example](../examples/colorKeyboard.md).
 
 ## useCustomKeyboard
 
 ```ts
-const { activeKeyboardID, open, close, dismiss } = useCustomKeyboard();
+const { activeKeyboardID, open, close, dismiss } = useCustomKeyboard(); // or useCustomKeyboard(editor)
 ```
 
-A hook to control the custom keyboard from your own components, such as a toolbar button or the keyboard itself.
+A hook to control the custom keyboard from your own components, such as a toolbar button or the keyboard itself. It can be called anywhere, not only inside `CustomKeyboard`. It controls:
+
+1. the `CustomKeyboard` of `editor`, when you pass one;
+2. otherwise, the `CustomKeyboard` rendering the component that calls it (inside a keyboard component);
+3. otherwise, the most recently mounted `CustomKeyboard`.
+
+When there is no matching `CustomKeyboard`, `activeKeyboardID` is `undefined` and the functions do nothing.
+
+`open` and `close` go through the same transitions as changing `activeKeyboardID`, and `setActiveKeyboardID` is called so your state follows.
 
 | field | type | description |
 | --- | --- | --- |
@@ -163,21 +188,31 @@ A hook to control the custom keyboard from your own components, such as a toolba
 ## useCustomKeyboardHeight
 
 ```ts
-const height = useCustomKeyboardHeight();
+const height = useCustomKeyboardHeight(); // or useCustomKeyboardHeight(editor)
 ```
 
-The height of the open custom keyboard, or `0`. Use it with `layout="overlay"` to add space under your toolbar or content. The same value is available through `CustomKeyboardHeightContext`.
+The height of the open custom keyboard, or `0`. Use it with `layout="overlay"` to add space under your toolbar or content, for example when another library already handles the system keyboard. It reads the `CustomKeyboard` of `editor`, or the most recently mounted one.
 
 ## EditorKeyboardAvoidingView
 
-A view that adds bottom padding equal to the height of whichever keyboard is up, system or custom. Unlike React Native's `KeyboardAvoidingView` it keeps the same padding while switching between the two, so the toolbar doesn't move. Accepts all `View` props.
+A view that adds bottom padding equal to the height of whichever keyboard is up, system or custom. Unlike React Native's `KeyboardAvoidingView` it keeps the same padding while switching between the two, so the toolbar doesn't move. Where the window itself resizes for the system keyboard (Android `adjustResize` without edge-to-edge or `'stable'` mode), it only pads for the custom keyboard.
 
 ```tsx
-<EditorKeyboardAvoidingView style={{ position: 'absolute', width: '100%', bottom: 0 }}>
-  <Toolbar editor={editor} />
+<SafeAreaView style={{ flex: 1 }} edges={['top']}>
+  <EditorKeyboardAvoidingView style={{ flex: 1 }}>
+    <RichText editor={editor} />
+    <Toolbar editor={editor} />
+  </EditorKeyboardAvoidingView>
   <CustomKeyboard layout="overlay" {...keyboardProps} />
-</EditorKeyboardAvoidingView>
+</SafeAreaView>
 ```
+
+Props: all `View` props, plus
+
+| prop | type | default | description |
+| --- | --- | --- | --- |
+| `keyboardVerticalOffset` | `number` | `0` | distance in dp between the bottom of this view and the bottom of the window, subtracted from the padding |
+| `enabled` | `boolean` | `true` | `false` removes the padding |
 
 ## useKeyboard
 
@@ -199,9 +234,12 @@ const {
 | `isCustomKeyboardOpen` | `true` while a custom keyboard is open |
 | `activeCustomKeyboardID` | id of the open custom keyboard |
 | `systemKeyboardHeight` | height of the system keyboard, `0` while it is hidden |
-| `lastKeyboardHeight` | the last non-zero system keyboard height |
+| `lastKeyboardHeight` | the last usable system keyboard height, kept after it hides; `0` before the first one |
+| `windowOverlaysKeyboard` | `true` when the keyboard covers the window instead of resizing it: iOS, Android edge-to-edge or `'stable'` mode |
 
-`isKeyboardUp` and `keyboardHeight` behave as in 1.0 when no custom keyboard is used.
+The object also has `systemVisible`, `systemHeight`, `customOpen` and `effectiveHeight`, the same values under lower-level names. Its type is exported as `KeyboardState`.
+
+`isKeyboardUp` and `keyboardHeight` behave as in 1.0 when no custom keyboard is used. Heights are in dp.
 
 ## TenTapView
 
@@ -216,7 +254,13 @@ The custom keyboard closes, and `setActiveKeyboardID(undefined)` is called, when
 - `activeKeyboardID` is set to `undefined`, or `close()` from `useCustomKeyboard` is called
 - the editor loses focus, or another input opens the system keyboard
 - the Android back button is pressed: both keyboards are dismissed
-- the editor's WebView reloads, or `CustomKeyboard` unmounts
+- the editor's WebView reloads
+
+When `CustomKeyboard` unmounts, the system keyboard suppression is undone, but `setActiveKeyboardID` is not called.
+
+## Types
+
+`CustomKeyboardProps`, `CustomKeyboardComponentProps`, `CustomKeyboardExtensionOptions`, `AnyCustomKeyboardExtension`, `CustomKeyboardControls` (the return type of `useCustomKeyboard`), `EditorKeyboardAvoidingViewProps`, `AndroidKeyboardMode`, `KeyboardErrorEvent`, `KeyboardPhase`, `KeyboardDriverKind`, `KeyboardState` and `TenTapViewProps` are exported from `@10play/tentap-editor`.
 
 ## Limitations
 

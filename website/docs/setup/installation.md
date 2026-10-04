@@ -23,10 +23,6 @@ The [advanced setup](./advancedSetup.md) also needs a dev client.
 
 Now you ready to add tentap to your app!
 
-:::note
-On Android, API level 29+ is required.
-:::
-
 ## Requirements
 
 | | Supported |
@@ -35,6 +31,7 @@ On Android, API level 29+ is required.
 | Expo | SDK 51 or newer for dev clients and prebuild. Expo Go is supported with the keyboard fallback. |
 | react-native-webview | 13.7 or newer. Use **13.13.3 or newer** on the new architecture if the editor is inside a `ScrollView` (see [Editor inside a ScrollView](../examples/scrollView.md)). |
 | iOS | 15.1 or newer (or your app's `min_ios_version_supported`) |
+| Android | The library builds with `minSdkVersion` 24. The editor is tested on Android 10 (API level 29) and newer, which we recommend as your minimum. `androidKeyboardMode="stable"` needs Android 11 (API level 30). |
 
 `peerDependencies` are declared as `*`, so installation never fails on version ranges. On React Native 0.73 and older the JavaScript part still works, but the Android native module does not compile because it needs `BaseReactPackage` (added in 0.74). Stay on 1.0.x if you cannot upgrade React Native.
 

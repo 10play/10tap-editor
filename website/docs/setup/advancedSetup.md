@@ -287,7 +287,10 @@ const editor = useTenTap({
 ```
 
 - `bridges`: the bridges the editor-web knows about. A bridge is enabled when the native side's `bridgeExtensions` contains a bridge with the same name. Bridges and extensions are resolved once, when the editor is created.
-- `tiptapOptions`: options passed to TipTap's `useEditor`. The event handlers `onCreate`, `onUpdate`, `onSelectionUpdate` and `onTransaction` run **in addition** to tentap's own handlers, so they no longer break the connection to React Native. `content`, `editable`, `parseOptions` and `shouldRerenderOnTransaction` can still be overridden.
+- `tiptapOptions`: options passed to TipTap's `useEditor`. Its `extensions` are added after the bridges' extensions. The event handlers `onUpdate`, `onSelectionUpdate` and `onTransaction` run **after** tentap's own handlers instead of replacing them, and `onCreate` is yours alone (tentap no longer uses it to announce the editor), so none of them can break the connection to React Native. Every other option, such as `content`, `editable`, `parseOptions`, `editorProps` or `shouldRerenderOnTransaction`, overrides tentap's default.
+- `stateUpdateDebounceMs`: how long editor state updates are debounced before they are sent to React Native. <u>default</u>: `10`. The first state update after the editor is created is always sent right away.
+
+`useTenTap` returns the TipTap `Editor` (or `null` before it exists). Its options type is exported as `UseTenTapArgs`.
 
 ## Upgrading your editor-web
 

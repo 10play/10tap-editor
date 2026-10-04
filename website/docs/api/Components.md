@@ -15,6 +15,8 @@ props:
 | editor                        | `EditorBridge` |         | The bridge instance that created with [useEditorBridge](./EditorBridge.md)                                                                                      |
 | exclusivelyUseCustomOnMessage | `boolean`      | true    | When true, if you pass an `onMessage` prop (webview) this will override tentap's own `onMessage` property. You probably want to disable this, it's here for compatibility. |
 
+`editor` must be the object returned by `useEditorBridge`. A copy such as `{ ...editor }` is not connected to the WebView, so `RichText` throws an error for it.
+
 you can also override any of the regular [WebView props](https://github.com/react-native-webview/react-native-webview/blob/HEAD/docs/Reference.md) <i>although this is not recommended</i>
 
 ### Passing your own onMessage
@@ -38,8 +40,10 @@ A warning is logged in development when `onMessage` is passed without `exclusive
 
 ### Styles
 
-- `containerStyle` is merged with the editor's container styles. With `dynamicHeight`, the content height is applied last, so a `flex: 1` in your style doesn't override it.
-- `style` replaces the editor's own WebView styles, as in 1.0. Set [mergeStyles](./useEditorBridge.md#mergestyles) to merge it instead.
+- `style` replaces the editor's own WebView styles (including `theme.webview`), as in 1.0.
+- `containerStyle` replaces `theme.webviewContainer`, as in 1.0.
+- Set [mergeStyles](./useEditorBridge.md#mergestyles) to merge both on top of the defaults instead.
+- With `dynamicHeight`, the content height is always applied last, so a `flex: 1` or `height` in your styles doesn't override it. A `maxHeight` is respected.
 
 ### Editor swaps and reloads
 
@@ -83,6 +87,7 @@ props:
 | items  | `ToolbarItem[]` | DEFAULT_TOOLBAR_ITEMS | array of ToolbarItem's that will be shown on the toolbar                |
 | headingItems | `ToolbarItem[]` | HEADING_ITEMS | array of ToolbarItem's shown in the heading context (after pressing `Aa`) |
 | shouldHideDisabledToolbarItems  | `boolean` | false | Indicates whether disabled items should be hidden. Applies to both `items` and `headingItems`. |
+| ListComponent | `ComponentType<FlatListProps<ToolbarItem>>` | `FlatList` | The list that renders the main and heading toolbars, for example a `FlatList` from a bottom-sheet library. Not used on web. |
 
 Each toolbar context (main, link, heading) renders its own list, so the heading toolbar always opens scrolled to the start.
 
@@ -100,7 +105,7 @@ If you write your own list, include an item that calls `setToolbarContext(Toolba
 
 ### Link bar
 
-Pressing the link item opens the link bar. The link is inserted with the **Insert** button or the keyboard's **Done** key, and the link bar stays open when the input loses focus.
+Pressing the link item opens the link bar. The link is inserted with the **Insert** button or the keyboard's **Done** key, and the link bar stays open when the input loses focus. The input's placeholder (default `Type your URL here...`) is set with the `toolbar.linkBarTheme.hintText` key of the [theme](../examples/customTheme.md#link-bar).
 
 :::tip
 If the editor or the toolbar is inside a `ScrollView`, `FlatList` or `KeyboardAwareScrollView`, set `keyboardShouldPersistTaps="handled"` on it. Otherwise the first tap on a toolbar button only dismisses the keyboard.

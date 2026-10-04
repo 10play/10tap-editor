@@ -6,7 +6,7 @@ sidebar_position: 1
 
 a react hook that will return [EditorBridge](./EditorBridge.md)
 
-The returned `editor` keeps the same reference for the lifetime of the component, so it is safe to use in dependency arrays.
+The returned `editor` keeps the same reference for the lifetime of the component, so it is safe to use in dependency arrays. Pass that object itself to [RichText](./Components.md#richtext): a copy such as `{ ...editor }` is not connected to the WebView, and `RichText` throws when it gets one.
 
 #### bridgeExtensions
 
@@ -24,9 +24,9 @@ initial content that will be loaded first on the editor. A string is parsed as H
 
 #### parseOptions
 
-`{ preserveWhitespace?: boolean | 'full' }`  
+`{ preserveWhitespace?: boolean | 'full'; from?: number; to?: number; topOpen?: boolean }`  
 <u>default</u>: `undefined`<br />
-ProseMirror [parse options](https://prosemirror.net/docs/ref/#model.ParseOptions) used when HTML is parsed: for `initialContent` and for every [setContent](./EditorBridge.md#setcontent) call that doesn't pass its own.
+The serializable subset of ProseMirror [parse options](https://prosemirror.net/docs/ref/#model.ParseOptions) used when HTML is parsed: for `initialContent`, for [insertContent](./EditorBridge.md#insertcontent) and for every [setContent](./EditorBridge.md#setcontent) call that doesn't pass its own. It is read when the editor loads.
 
 By default ProseMirror collapses runs of whitespace in HTML to a single space. Use `preserveWhitespace: 'full'` to keep them:
 
@@ -47,7 +47,7 @@ With `'full'`, newlines and indentation between tags in pretty-printed HTML also
 
 `boolean`  
 <u>default</u>: `false`<br />
-when true the editor will focus when it becomes ready. It runs once per load, so it also refocuses after the WebView reloads.
+when true the editor focuses at the end of its content when it becomes ready. It runs once per load, so it also refocuses after the WebView reloads.
 
 #### avoidIosKeyboard
 
@@ -68,7 +68,7 @@ The padding follows the keyboard height reported by [useKeyboard](./CustomKeyboa
 
 `boolean`  
 <u>default</u>: `false`<br />
-An alias of `avoidIosKeyboard` with a name that matches what it does. `avoidIosKeyboard` keeps working.
+An alias of `avoidIosKeyboard` with a name that matches what it does. `avoidIosKeyboard` keeps working and wins when both are set.
 
 #### scrollBottomOffset
 
@@ -138,13 +138,15 @@ If you prefer `onChange`, fetch the content inside it with `editor.getHTML`, `ed
 
 `boolean`  
 <u>default</u>: `false`<br />
-By default a `style` prop passed to [RichText](./Components.md#richtext) replaces the editor's own WebView styles, as in 1.0. When `true`, your `style` is merged on top of them instead. `containerStyle` is always merged.
+By default the `style` and `containerStyle` props of [RichText](./Components.md#richtext) replace the editor's own styles (the default WebView styles and `theme.webview`, and `theme.webviewContainer`), as in 1.0. When `true`, your styles are merged on top of them instead. With `dynamicHeight` the content height is applied in both cases.
 
 #### rpcTimeoutMs
 
 `number`  
 <u>default</u>: `undefined` (no timeout)<br />
-How long the async methods (`getHTML`, `getText`, `getJSON`, `getSelectedText`) wait for the WebView before rejecting with a `TentapRpcTimeoutError`. Without it they wait indefinitely, as in 1.0.
+How long the async methods (`getHTML`, `getText`, `getJSON`, `getSelectedText`, and requests sent by custom bridges through `context.rpc`) wait for the WebView before rejecting with a `TentapRpcTimeoutError`. Without it they wait indefinitely, as in 1.0.
+
+The time counts from the call, including any wait for the editor to load. The option is read when the editor is created.
 
 ```tsx
 import { TentapRpcTimeoutError } from '@10play/tentap-editor';

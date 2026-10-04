@@ -18,7 +18,7 @@ Then, into our `KeyboardAvoidingView` we want to add the `CustomKeyboard` compon
 
 ```tsx
 <KeyboardAvoidingView
-  behavior={'padding'}
+  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
   style={exampleStyles.keyboardAvoidingView}
 >
   <Toolbar
@@ -86,7 +86,7 @@ Then all that is left to replace `Toolbar` with our new `ToolbarWithColor` and w
 
 ```tsx
 import React from 'react';
-import { KeyboardAvoidingView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ColorKeyboard,
@@ -108,12 +108,12 @@ export const WithColorKeyboard = () => {
   const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
 
   return (
-    <SafeAreaView style={exampleStyles.fullScreen}>
+    <SafeAreaView style={exampleStyles.fullScreen} edges={['top']}>
       <View style={exampleStyles.fullScreen}>
         <RichText editor={editor} />
       </View>
       <KeyboardAvoidingView
-        behavior={'padding'}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={exampleStyles.keyboardAvoidingView}
       >
         <ToolbarWithColor

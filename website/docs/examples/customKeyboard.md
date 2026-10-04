@@ -48,12 +48,12 @@ export const CustomKeyboardExample = () => {
   const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
 
   return (
-    <SafeAreaView style={exampleStyles.fullScreen}>
+    <SafeAreaView style={exampleStyles.fullScreen} edges={['top']}>
       <View style={exampleStyles.fullScreen}>
         <RichText editor={editor} />
       </View>
       <KeyboardAvoidingView
-        behavior={'padding'}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={exampleStyles.keyboardAvoidingView}
       >
         <StickerToolbar
@@ -74,7 +74,7 @@ export const CustomKeyboardExample = () => {
 ```
 
 - A react state controls which custom keyboard is shown. `CustomKeyboard` calls `setActiveKeyboard(undefined)` itself when the keyboard closes, for example when the user taps the editor.
-- `CustomKeyboard` goes right under the toolbar, inside the same `KeyboardAvoidingView`, so the toolbar stays where it is when the keyboards switch.
+- `CustomKeyboard` goes right under the toolbar, as the last child of the same `KeyboardAvoidingView`, so the toolbar stays where it is when the keyboards switch. Use `behavior="padding"` on iOS and `"height"` on Android, as in 0.7.x.
 
 ### Add button that will toggle our custom keyboard
 
@@ -119,6 +119,7 @@ import React from 'react';
 import {
   View,
   KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   TouchableOpacity,
   Image,
@@ -196,12 +197,12 @@ export const CustomKeyboardExample = () => {
   const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
 
   return (
-    <SafeAreaView style={exampleStyles.fullScreen}>
+    <SafeAreaView style={exampleStyles.fullScreen} edges={['top']}>
       <View style={exampleStyles.fullScreen}>
         <RichText editor={editor} />
       </View>
       <KeyboardAvoidingView
-        behavior={'padding'}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={exampleStyles.keyboardAvoidingView}
       >
         <StickerToolbar
@@ -288,15 +289,20 @@ The layout above: `CustomKeyboard` takes up the keyboard's height under the tool
 
 ### Overlay with EditorKeyboardAvoidingView
 
-`EditorKeyboardAvoidingView` pads its content by the height of whichever keyboard is up and keeps the same padding while switching, so it doesn't depend on the timing of React Native's keyboard events. Combine it with `layout="overlay"`:
+`EditorKeyboardAvoidingView` pads its content by the height of whichever keyboard is up and keeps the same padding while switching, so it doesn't depend on the timing of React Native's keyboard events. Combine it with `layout="overlay"`, and render `CustomKeyboard` after it, outside the padded view:
 
 ```tsx
-<EditorKeyboardAvoidingView style={exampleStyles.keyboardAvoidingView}>
-  <StickerToolbar
-    activeKeyboard={activeKeyboard}
-    setActiveKeyboard={setActiveKeyboard}
-    editor={editor}
-  />
+<SafeAreaView style={exampleStyles.fullScreen} edges={['top']}>
+  <EditorKeyboardAvoidingView style={exampleStyles.fullScreen}>
+    <View style={exampleStyles.fullScreen}>
+      <RichText editor={editor} />
+    </View>
+    <StickerToolbar
+      activeKeyboard={activeKeyboard}
+      setActiveKeyboard={setActiveKeyboard}
+      editor={editor}
+    />
+  </EditorKeyboardAvoidingView>
   <CustomKeyboard
     layout="overlay"
     activeKeyboardID={activeKeyboard}
@@ -304,8 +310,10 @@ The layout above: `CustomKeyboard` takes up the keyboard's height under the tool
     keyboards={[StickerKeyboard]}
     editor={editor}
   />
-</EditorKeyboardAvoidingView>
+</SafeAreaView>
 ```
+
+Here the toolbar is part of the layout instead of being absolutely positioned, and the editor shrinks to make room for whichever keyboard is up.
 
 This is the recommended layout for edge-to-edge Android apps.
 

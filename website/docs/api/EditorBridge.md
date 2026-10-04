@@ -71,14 +71,14 @@ a function that gets html as string or document object and sets it as the editor
 #### insertContent
 
 `(content: Content) => void`<br />
-inserts HTML, plain text or TipTap JSON at the cursor, replacing the current selection if there is one. It works with the default editor, no custom bundle needed.
+inserts HTML, plain text or TipTap JSON at the cursor, replacing the current selection if there is one, and focuses the editor. HTML is parsed with the editor's [parseOptions](./useEditorBridge.md#parseoptions). It works with the default editor, no custom bundle needed.
 
 ```ts
 editor.insertContent('<strong>Hello</strong> world');
 editor.insertContent('just some text');
 ```
 
-The content still has to fit the editor's schema: a custom node type needs a bridge extension that defines it ([advanced setup](../setup/advancedSetup.md)). With a custom bundle built with an older version, rebuild the bundle to use it. <br /> extended by [CoreBridge](./BridgeExtensions.md#coreextension)
+The content still has to fit the editor's schema: a custom node type needs a bridge extension that defines it ([advanced setup](../setup/advancedSetup.md)). A custom bundle built with an older version ignores the command; rebuild the bundle to use it. <br /> extended by [CoreBridge](./BridgeExtensions.md#coreextension)
 
 #### setEditable
 
@@ -93,7 +93,7 @@ sets the selection of the editor <br /> extended by [CoreBridge](./BridgeExtensi
 #### injectCSS
 
 `(css: string, tag?: string) => void`<br />
-creates or updates the stylesheet with the given tag, see [Dynamically Updating CSS](../examples/customCss.md#dynamically-updating-css). The stylesheet is re-applied if the WebView reloads. For CSS that has to be there from the first paint, such as fonts, use `configureCSS` on a bridge instead. <br /> <u>default</u> `tag`: `custom-css`<br /> extended by [CoreBridge](./BridgeExtensions.md#coreextension)
+creates or updates the stylesheet with the given tag, see [Dynamically Updating CSS](../examples/customCss.md#dynamically-updating-css). The stylesheet is re-applied if the WebView reloads. For CSS that has to be there from the first paint, such as fonts, use `configureCSS` on a bridge instead. <br /> <u>default</u> `tag`: `custom-css`<br /> available on every editor, also without CoreBridge
 
 #### injectJS
 
