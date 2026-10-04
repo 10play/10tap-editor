@@ -2,7 +2,7 @@
 
 The 1.1 docs were drafted from the release plan before WP-C, WP-D, WP-E, WP-F, WP-G, WP-H, WP-M, WP-N, WP-O and WP-Z landed. Check each item below against the integrated code, fix the docs, then delete this file.
 
-Verify: `yarn --cwd website build` and `npx markdown-link-check -q -c website/.markdown-link-check.json website/docs/*.md website/docs/*/*.md`.
+Verify: `yarn workspace website build` (Yarn 3 ignores `--cwd`, so the plan's `yarn --cwd website build` runs the root scripts and fails) and `npx markdown-link-check -q -c website/.markdown-link-check.json website/docs/*.md website/docs/*/*.md`.
 
 ## Names and signatures to confirm
 
@@ -35,4 +35,4 @@ Verify: `yarn --cwd website build` and `npx markdown-link-check -q -c website/.m
 ## Release
 
 - `CHANGELOG.md` says "1.1.0 (unreleased)"; set the date at release. The release-it conventional-changelog plugin has no `infile`, so it does not update this file; either add `"infile": "CHANGELOG.md"` (WP-J/WP-Z) or keep editing it by hand.
-- When 1.2 docs start, cut 1.1 with `yarn --cwd website docusaurus docs:version 1.1`.
+- When 1.2 docs start, cut 1.1 with `yarn workspace website docusaurus docs:version 1.1`.
