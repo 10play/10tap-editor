@@ -20,7 +20,7 @@ describe('react-native-webview mock', () => {
     expect(webView.sources).toHaveLength(1);
     // RichText inlines its boot script into the editor HTML.
     const { html } = webView.sources[0] as { html: string };
-    expect(html.replace(/<script>\(function\(\)\{.*?<\/script>/, '')).toBe(
+    expect(html.replace(/<script>;\(function\(\)\{.*?<\/script>/, '')).toBe(
       editorHtml
     );
   });

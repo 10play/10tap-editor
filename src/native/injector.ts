@@ -7,11 +7,13 @@ export const DEFAULT_CSS_TAG = 'custom-css';
  * Script that upserts `<style data-tag={tag}>` with `css`. It runs in strict
  * mode without creating globals, survives any character in `css` or `tag`,
  * and uses the web runtime's `applyStyleSheet` when the bundle has one, so
- * legacy bundles and the new runtime get the same result.
+ * legacy bundles and the new runtime get the same result. The leading `;`
+ * keeps it valid when a host concatenates it after another script without a
+ * separator, as react-native-web-webview does.
  */
 export function buildStyleSheetScript(css: string, tag: string): string {
   return (
-    `(function(){var t=${jsStringLiteral(tag)},c=${jsStringLiteral(css)},` +
+    `;(function(){var t=${jsStringLiteral(tag)},c=${jsStringLiteral(css)},` +
     `r=window.${WEB_RUNTIME_GLOBAL};` +
     'if(r&&typeof r.applyStyleSheet==="function"){r.applyStyleSheet(t,c);return}' +
     'var d=document,h=d.head||d.documentElement,l=h.getElementsByTagName("style"),s=null,i;' +

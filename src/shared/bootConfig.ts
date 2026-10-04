@@ -238,11 +238,12 @@ export function buildLegacyGlobalsScript(config: BootConfig): string {
 /**
  * Sets `window.__TENTAP__` and the legacy globals once. Safe to evaluate
  * repeatedly (inline, before-content-loaded and `onLoad` re-injection), and
- * creates no implicit globals. Ends with `true;` as WebView injection expects.
+ * creates no implicit globals. Ends with `true;` as WebView injection expects,
+ * and starts with `;` so it can follow another script without a separator.
  */
 export function buildBootScript(config: BootConfig): string {
   return (
-    '(function(){"use strict";' +
+    ';(function(){"use strict";' +
     `if(window.${BOOT_CONFIG_GLOBAL})return;` +
     `window.${BOOT_CONFIG_GLOBAL}=${safeJSON(config)};` +
     buildLegacyGlobalsScript(config) +

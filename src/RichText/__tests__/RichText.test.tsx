@@ -130,7 +130,7 @@ describe('RichText boot', () => {
     const boot = html.indexOf('window.__TENTAP__=');
     expect(boot).toBeGreaterThan(-1);
     expect(boot).toBeLessThan(html.indexOf('/* tentap editor */'));
-    expect(html.indexOf('<script')).toBe(html.indexOf('<script>(function(){'));
+    expect(html.indexOf('<script')).toBe(html.indexOf('<script>;(function(){'));
     expect(html).toContain(
       `"editorId":"${controllerOf(result.current).editorId}"`
     );
@@ -811,7 +811,7 @@ describe('RichText utils', () => {
 
     expect(
       htmlOf(mockWebViews.latest()).replace(
-        /<script>\(function.*?<\/script>/,
+        /<script>;\(function.*?<\/script>/,
         ''
       )
     ).toBe(editorHtml);
