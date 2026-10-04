@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ColorKeyboard,
   CustomKeyboard,
-  DEFAULT_TOOLBAR_ITEMS,
   EditorKeyboardAvoidingView,
-  Images,
   RichText,
   Toolbar,
   useEditorBridge,
 } from '@10play/tentap-editor';
+import { KeyboardDebugBar } from './KeyboardDebugBar';
+import { KeyboardSwitcher, colorKeyboardEntry } from './KeyboardSwitcher';
 
 /**
  * `layout="overlay"`: the keyboard is drawn over the bottom of the window and
@@ -29,23 +29,13 @@ export const OverlayKeyboardExample = () => {
 
   return (
     <SafeAreaView style={styles.fullScreen} edges={['top']}>
+      <KeyboardDebugBar editor={editor} />
       <EditorKeyboardAvoidingView style={styles.fullScreen}>
-        <RichText editor={editor} testID="keyboard-example-editor" />
-        <Toolbar
-          editor={editor}
-          items={[
-            {
-              onPress: () => () =>
-                setActiveKeyboard((current) =>
-                  current === ColorKeyboard.id ? undefined : ColorKeyboard.id
-                ),
-              active: () => activeKeyboard === ColorKeyboard.id,
-              disabled: () => false,
-              image: () => Images.palette,
-            },
-            ...DEFAULT_TOOLBAR_ITEMS,
-          ]}
-        />
+        <View style={styles.fullScreen}>
+          <RichText editor={editor} testID="keyboard-example-editor" />
+        </View>
+        <KeyboardSwitcher editor={editor} entries={[colorKeyboardEntry]} />
+        <Toolbar editor={editor} />
       </EditorKeyboardAvoidingView>
       <CustomKeyboard
         editor={editor}

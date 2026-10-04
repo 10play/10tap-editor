@@ -12,13 +12,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ColorKeyboard,
   CustomKeyboard,
-  DEFAULT_TOOLBAR_ITEMS,
-  Images,
   RichText,
   Toolbar,
   useEditorBridge,
   type KeyboardDriverKind,
 } from '@10play/tentap-editor';
+import { KeyboardDebugBar } from './KeyboardDebugBar';
+import { KeyboardSwitcher, colorKeyboardEntry } from './KeyboardSwitcher';
 
 /**
  * An editor inside a React Native `Modal`. On Android the Modal is a separate
@@ -60,6 +60,7 @@ const ModalEditor = ({ onClose }: { onClose: () => void }) => {
         <Button testID="close-editor-modal" title="Done" onPress={onClose} />
         {failedDriver && <Text>{`The ${failedDriver} driver failed`}</Text>}
       </View>
+      <KeyboardDebugBar editor={editor} />
       <View style={styles.fullScreen}>
         <RichText editor={editor} testID="keyboard-example-editor" />
       </View>
@@ -67,21 +68,8 @@ const ModalEditor = ({ onClose }: { onClose: () => void }) => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}
       >
-        <Toolbar
-          editor={editor}
-          items={[
-            {
-              onPress: () => () =>
-                setActiveKeyboard((current) =>
-                  current === ColorKeyboard.id ? undefined : ColorKeyboard.id
-                ),
-              active: () => activeKeyboard === ColorKeyboard.id,
-              disabled: () => false,
-              image: () => Images.palette,
-            },
-            ...DEFAULT_TOOLBAR_ITEMS,
-          ]}
-        />
+        <KeyboardSwitcher editor={editor} entries={[colorKeyboardEntry]} />
+        <Toolbar editor={editor} />
         <CustomKeyboard
           editor={editor}
           keyboards={[ColorKeyboard]}
