@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import type { Level } from '@tiptap/extension-heading';
 import { Images } from '../../assets';
 import { EditorActionType } from '../../types/Actions';
 import type { EditorBridge } from '../../types';
@@ -20,7 +21,7 @@ export const ToolbarItems = {
   ToggleH6: 'toggle-h6',
 } as const;
 
-type ArgsToolbarCB = {
+export type ArgsToolbarCB = {
   editor: EditorBridge;
   editorState: BridgeState;
   setToolbarContext: (
@@ -190,6 +191,22 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
   },
 ];
 
+const HEADING_LEVELS: readonly Level[] = [1, 2, 3, 4, 5, 6];
+
+const headingItem = (level: Level): ToolbarItem => ({
+  onPress:
+    ({ editor }) =>
+    () =>
+      editor.toggleHeading(level),
+  active: ({ editorState }) => editorState.headingLevel === level,
+  disabled: ({ editorState }) => !editorState.canToggleHeading,
+  image: () => Images[`h${level}`],
+});
+
+/**
+ * The heading sub-toolbar: a close item back to the main toolbar, then H1-H6.
+ * Replace it with `<Toolbar headingItems={...} />`.
+ */
 export const HEADING_ITEMS: ToolbarItem[] = [
   {
     onPress:
@@ -200,58 +217,5 @@ export const HEADING_ITEMS: ToolbarItem[] = [
     disabled: () => false,
     image: () => Images.close,
   },
-  {
-    onPress:
-      ({ editor }) =>
-      () =>
-        editor.toggleHeading(1),
-    active: ({ editorState }) => editorState.headingLevel === 1,
-    disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.h1,
-  },
-  {
-    onPress:
-      ({ editor }) =>
-      () =>
-        editor.toggleHeading(2),
-    active: ({ editorState }) => editorState.headingLevel === 2,
-    disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.h2,
-  },
-  {
-    onPress:
-      ({ editor }) =>
-      () =>
-        editor.toggleHeading(3),
-    active: ({ editorState }) => editorState.headingLevel === 3,
-    disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.h3,
-  },
-  {
-    onPress:
-      ({ editor }) =>
-      () =>
-        editor.toggleHeading(4),
-    active: ({ editorState }) => editorState.headingLevel === 4,
-    disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.h4,
-  },
-  {
-    onPress:
-      ({ editor }) =>
-      () =>
-        editor.toggleHeading(5),
-    active: ({ editorState }) => editorState.headingLevel === 5,
-    disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.h5,
-  },
-  {
-    onPress:
-      ({ editor }) =>
-      () =>
-        editor.toggleHeading(6),
-    active: ({ editorState }) => editorState.headingLevel === 6,
-    disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.h6,
-  },
+  ...HEADING_LEVELS.map(headingItem),
 ];
