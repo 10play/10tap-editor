@@ -8,7 +8,6 @@ import {
   createEditorController,
   type NativeEditorController,
 } from '../native/EditorController';
-import type { RuntimePlatform } from '../shared/bootConfig';
 import { attachEditorController } from '../shared/contracts';
 import type { BridgeMessage } from '../shared/protocol';
 import type {
@@ -20,6 +19,7 @@ import type {
 import { mergeThemes } from '../utils/mergeThemes';
 import { uniqueBy } from '../utils/uniqueBy';
 import { defaultEditorTheme } from './theme';
+import { toRuntimePlatform } from './utils';
 
 /**
  * The object behind `useEditorBridge`: one stable `EditorBridge` per hook,
@@ -38,18 +38,6 @@ type CoreState = Pick<
   BridgeState,
   'selection' | 'isFocused' | 'isReady' | 'editable' | 'empty'
 >;
-
-const toRuntimePlatform = (os: typeof Platform.OS): RuntimePlatform => {
-  switch (os) {
-    case 'android':
-    case 'web':
-    case 'windows':
-    case 'macos':
-      return os;
-    default:
-      return 'ios';
-  }
-};
 
 const resolveBridges = (options: EditorBridgeOptions) =>
   uniqueBy(options.bridgeExtensions ?? TenTapStartKit, 'name');

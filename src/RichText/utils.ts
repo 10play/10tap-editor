@@ -28,7 +28,7 @@ export const getInjectedJS = (bridgeExtensions: BridgeExtension[]) =>
     .map(({ extendCSS, name }) => getStyleSheetCSS(extendCSS || '', name))
     .join('') + 'true;';
 
-const toRuntimePlatform = (os: string): RuntimePlatform => {
+export const toRuntimePlatform = (os: typeof Platform.OS): RuntimePlatform => {
   switch (os) {
     case 'android':
     case 'web':
