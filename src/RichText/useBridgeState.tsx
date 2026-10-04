@@ -1,13 +1,11 @@
-import { useEffect, useState } from 'react';
-import type { EditorBridge } from '../types';
+import { useCallback, useSyncExternalStore } from 'react';
+import type { BridgeState, EditorBridge } from '../types';
 
-export const useBridgeState = (editor: EditorBridge) => {
-  const [editorState, setEditorState] = useState(editor.getEditorState());
-
-  useEffect(() => {
-    const unsubscribe = editor._subscribeToEditorStateUpdate(setEditorState);
-    return unsubscribe;
-  }, [editor]);
-
-  return editorState;
+export const useBridgeState = (editor: EditorBridge): BridgeState => {
+  const subscribe = useCallback(
+    (onChange: () => void) => editor._subscribeToEditorStateUpdate(onChange),
+    [editor]
+  );
+  const getSnapshot = useCallback(() => editor.getEditorState(), [editor]);
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 };

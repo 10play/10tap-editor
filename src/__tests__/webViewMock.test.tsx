@@ -24,10 +24,9 @@ describe('react-native-webview mock', () => {
   it('exposes the imperative handle through the editor webviewRef', () => {
     const { editor, webView } = renderEditor();
 
-    editor.injectCSS('p { color: red; }', 'test-css');
+    editor.webviewRef.current?.injectJavaScript('window.injected = true;');
 
-    expect(webView.injectedJavaScript).toHaveLength(1);
-    expect(webView.injectedJavaScript[0]).toContain('p { color: red; }');
+    expect(webView.injectedJavaScript).toEqual(['window.injected = true;']);
   });
 
   it('delivers simulated web messages to the WebView props', () => {
