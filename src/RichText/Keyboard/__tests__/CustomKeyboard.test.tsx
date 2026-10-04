@@ -17,6 +17,7 @@ import {
 } from '@testing-library/react-native';
 import { useKeyboard } from '../../../utils/useKeyboard';
 import type { EditorBridge } from '../../../types';
+import { EditorHelper } from '../../EditorHelper';
 import { ColorKeyboard } from '../ColorKeyboard';
 import { CustomKeyboard, type CustomKeyboardProps } from '../CustomKeyboard';
 import {
@@ -250,6 +251,30 @@ describe('ColorKeyboard', () => {
     expect(selectedNames()).toEqual(['Default', 'Default']);
     act(() => fake.setState({ activeColor: '#EF233C' }));
     expect(selectedNames()).toEqual(['Red', 'Default']);
+  });
+
+  it("uses the editor theme's colorKeyboard", async () => {
+    const { editor } = createFakeEditor({
+      theme: {
+        colorKeyboard: {
+          ...defaultColorKeyboardTheme,
+          colorSelection: [{ name: 'Brand', value: '#123456' }],
+        },
+      },
+    });
+    render(<Host editor={editor} initialId={ColorKeyboard.id} />);
+    await settle();
+    fireEvent.press(screen.getByText('Brand'));
+    expect(editor.setColor).toHaveBeenCalledWith('#123456');
+  });
+
+  it('targets the last editor when rendered without props (0.7.x)', () => {
+    const { editor } = createFakeEditor();
+    EditorHelper.setEditorLastInstance(editor);
+    const Comp = ColorKeyboard.comp;
+    render(<Comp />);
+    fireEvent.press(screen.getAllByText('Red')[0]!);
+    expect(editor.setColor).toHaveBeenCalledWith('#EF233C');
   });
 });
 
