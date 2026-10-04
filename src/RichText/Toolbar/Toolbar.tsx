@@ -91,9 +91,7 @@ export function Toolbar({
   const { theme } = editor;
   const renderItem = useCallback<ListRenderItem<ToolbarItem>>(
     ({ item }) => <ToolbarItemComp {...item} args={args} editor={editor} />,
-    // The theme is a dependency so a theme change re-renders the items.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [args, editor, theme]
+    [args, editor]
   );
 
   const closeLinkBar = () => {
@@ -146,6 +144,8 @@ export function Toolbar({
       data={visibleItems}
       style={[theme.toolbar.toolbarBody, hideToolbar && theme.toolbar.hidden]}
       renderItem={renderItem}
+      // Items read their styles from the editor theme.
+      extraData={theme}
       keyExtractor={keyExtractor}
       horizontal
     />

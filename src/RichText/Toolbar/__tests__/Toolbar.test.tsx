@@ -329,6 +329,21 @@ describe('<Toolbar />', () => {
 
     expect(list().props.style).toContain(darkEditorTheme.toolbar.toolbarBody);
   });
+
+  it('restyles the items when the theme changes without a state update', () => {
+    const editor = createMockEditor();
+    const { rerender } = render(<Toolbar editor={editor} />);
+    const boldIconStyle = () =>
+      screen
+        .UNSAFE_getAllByType(Image)
+        .find((image) => image.props.source === Images.bold)!.props.style;
+    expect(boldIconStyle()).toContain(defaultEditorTheme.toolbar.icon);
+
+    editor.theme = darkEditorTheme;
+    rerender(<Toolbar editor={editor} />);
+
+    expect(boldIconStyle()).toContain(darkEditorTheme.toolbar.icon);
+  });
 });
 
 describe('link bar (#252)', () => {
