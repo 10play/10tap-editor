@@ -1,21 +1,17 @@
 import React from 'react';
 import { EditorContent } from '@tiptap/react';
-import { useTenTap } from '../webEditorUtils';
+import { useTenTap } from '../web/useTenTap';
+import { boot } from '../web/runtime';
 import { TenTapStartKit } from '../bridges/StarterKit';
 
-const tenTapExtensions = TenTapStartKit.filter(
-  (e) =>
-    !window.whiteListBridgeExtensions ||
-    window.whiteListBridgeExtensions.includes(e.name)
-);
-
 export default function Tiptap() {
-  const editor = useTenTap({ bridges: tenTapExtensions });
+  const editor = useTenTap({ bridges: TenTapStartKit });
+  const { dynamicHeight } = boot().requireConfig();
 
   return (
     <EditorContent
       editor={editor}
-      className={window.dynamicHeight ? 'dynamic-height' : undefined}
+      className={dynamicHeight ? 'tentap-root dynamic-height' : 'tentap-root'}
     />
   );
 }
