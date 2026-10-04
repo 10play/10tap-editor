@@ -1,0 +1,12 @@
+{
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "moduleResolution": "node10",
+    "paths": {
+      "@10play/tentap-editor/src/*": ["../../../src/*"]
+    }
+  },
+  "include": ["./deepImport.ts"],
+  "exclude": []
+}
