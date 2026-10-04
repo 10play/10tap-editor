@@ -168,11 +168,6 @@ export default tseslint.config(
     rules: { '@typescript-eslint/no-unsafe-declaration-merging': 'off' },
   },
   {
-    // TODO(WP-C): AsyncMessages becomes a typed shim over the RPC registry.
-    files: ['src/RichText/AsyncMessages.ts'],
-    rules: { '@typescript-eslint/no-unsafe-function-type': 'off' },
-  },
-  {
     files: WEB_SOURCES,
     languageOptions: { globals: globals.browser },
   },

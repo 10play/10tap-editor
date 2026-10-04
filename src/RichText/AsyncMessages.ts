@@ -1,31 +1,62 @@
+import type { EditorController } from '../shared/contracts';
+import {
+  createSequence,
+  withMessageId,
+  type BridgeMessage,
+} from '../shared/protocol';
+import {
+  getLastAttachedController,
+  subscribeControllerReleased,
+} from '../native/EditorController';
+
+type Callback = (value: unknown) => void;
+/** Method syntax keeps parameters bivariant, so typed bridge senders fit. */
+type MessageSender = { send(message: BridgeMessage): void }['send'];
+
+/**
+ * @deprecated Kept for custom bridges written against 1.0. Use the
+ * `BridgeContext` passed as the sixth `extendEditorInstance` argument:
+ * `context.rpc(message)` resolves replies by `messageId` on its own.
+ *
+ * Requests still go through the given per-editor sender, and replies still
+ * arrive through `onMessage`. Unlike 1.0, callbacks are removed once called
+ * (#346), and requests are dropped when the editor that was attached last at
+ * request time detaches, so an unanswered request cannot pin memory forever.
+ */
 class AsyncMessages {
-  subscriptions: { [key: string]: Function[] } = {};
+  subscriptions: { [key: string]: Callback[] } = {};
+  private readonly sequence = createSequence('tentap-async');
+  private readonly owners = new Map<string, EditorController<object>>();
+
   constructor() {
-    this.subscriptions = {};
-  }
-
-  onMessage(id: string, value: any) {
-    if (this.subscriptions[id]) {
-      this.subscriptions[id]!.forEach((callback) => {
-        callback(value);
+    subscribeControllerReleased((controller) => {
+      this.owners.forEach((owner, id) => {
+        if (owner !== controller) return;
+        this.owners.delete(id);
+        delete this.subscriptions[id];
       });
-    }
+    });
   }
 
-  addListener(key: string, callback: Function) {
-    if (!this.subscriptions[key]) {
-      this.subscriptions[key] = [];
-    }
-    this.subscriptions[key]!.push(callback);
+  onMessage(id: string, value: unknown) {
+    const callbacks = this.subscriptions[id];
+    if (!callbacks) return;
+    delete this.subscriptions[id];
+    this.owners.delete(id);
+    callbacks.forEach((callback) => callback(value));
   }
 
-  sendAsyncMessage<T>(message: any, postMessage: any) {
-    const messageId = Math.random().toString(36).substring(7);
-    message.payload = message.payload || {};
-    message.payload.messageId = messageId;
+  addListener(key: string, callback: Callback) {
+    (this.subscriptions[key] ??= []).push(callback);
+  }
+
+  sendAsyncMessage<T>(message: BridgeMessage, postMessage: MessageSender) {
+    const messageId = this.sequence.next();
+    const owner = getLastAttachedController();
     return new Promise<T>((resolve) => {
-      this.addListener(messageId, resolve);
-      postMessage(message);
+      this.addListener(messageId, resolve as Callback);
+      if (owner) this.owners.set(messageId, owner);
+      postMessage(withMessageId(message, messageId));
     });
   }
 }
