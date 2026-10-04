@@ -24,5 +24,16 @@ export * from './bridges/image';
 export * from './types';
 export * from './utils';
 export { Images } from './assets';
-export { EditorHelper } from './RichText/EditorHelper';
+export { EditorHelper, useRemoteEditorBridge } from './RichText/EditorHelper';
+export {
+  defaultColorKeyboardTheme,
+  darkColorKeyboardTheme,
+} from './RichText/Keyboard/keyboardTheme';
+export { TentapRpcTimeoutError, TentapUnsupportedError } from './shared/errors';
+export type {
+  BridgeContext,
+  RpcOptions,
+  SendOptions,
+} from './shared/contracts';
+export type { Capabilities, CapabilityName } from './shared/capabilities';
 export { editorHtml } from './simpleWebEditor/build/editorHtml';
