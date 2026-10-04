@@ -51,18 +51,10 @@ export const TaskListBridge = new BridgeExtension<
       editor.chain().focus().toggleTaskList().run();
     }
     if (message.type === TaskListEditorActionType.LiftTaskListItem) {
-      editor
-        .chain()
-        .focus()
-        .liftListItem(editor.state.schema.nodes.taskItem!.name)
-        .run();
+      editor.chain().focus().liftListItem(TaskItem.name).run();
     }
     if (message.type === TaskListEditorActionType.SinkTaskListItem) {
-      editor
-        .chain()
-        .focus()
-        .sinkListItem(editor.state.schema.nodes.taskItem!.name)
-        .run();
+      editor.chain().focus().sinkListItem(TaskItem.name).run();
     }
     return false;
   },
@@ -80,12 +72,8 @@ export const TaskListBridge = new BridgeExtension<
     return {
       canToggleTaskList: editor.can().toggleTaskList(),
       isTaskListActive: editor.isActive('taskList'),
-      canLiftTaskListItem: editor
-        .can()
-        .liftListItem(editor.state.schema.nodes.taskItem!.name),
-      canSinkTaskListItem: editor
-        .can()
-        .sinkListItem(editor.state.schema.nodes.taskItem!.name),
+      canLiftTaskListItem: editor.can().liftListItem(TaskItem.name),
+      canSinkTaskListItem: editor.can().sinkListItem(TaskItem.name),
     };
   },
   extendCSS: `

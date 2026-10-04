@@ -158,11 +158,6 @@ export default tseslint.config(
     },
   },
   {
-    // TODO(WP-G): HighlightSelection moves to @tiptap/core; drop this override.
-    files: ['src/bridges/HighlightSelection.ts'],
-    rules: { '@typescript-eslint/no-restricted-imports': 'off' },
-  },
-  {
     // The BridgeExtension interface/class merge is part of the public API.
     files: ['src/bridges/base.ts'],
     rules: { '@typescript-eslint/no-unsafe-declaration-merging': 'off' },

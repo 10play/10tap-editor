@@ -1,14 +1,13 @@
 import Strike from '@tiptap/extension-strike';
-import BridgeExtension from './base';
+import {
+  createToggleBridge,
+  type ToggleInstance,
+  type ToggleState,
+} from './factories';
 
-type StrikeEditorState = {
-  isStrikeActive: boolean;
-  canToggleStrike: boolean;
-};
+type StrikeEditorState = ToggleState<'Strike'>;
 
-type StrikeEditorInstance = {
-  toggleStrike: () => void;
-};
+type StrikeEditorInstance = ToggleInstance<'Strike'>;
 
 declare module '../types/EditorBridge' {
   interface BridgeState extends StrikeEditorState {}
@@ -19,34 +18,10 @@ export enum StrikeEditorActionType {
   ToggleStrike = 'toggle-strike',
 }
 
-type StrikeMessage = {
-  type: StrikeEditorActionType.ToggleStrike;
-  payload?: undefined;
-};
-
-export const StrikeBridge = new BridgeExtension<
-  StrikeEditorState,
-  StrikeEditorInstance,
-  StrikeMessage
->({
+export const StrikeBridge = createToggleBridge({
+  label: 'Strike',
+  type: StrikeEditorActionType.ToggleStrike,
   tiptapExtension: Strike,
-  onBridgeMessage: (editor, message) => {
-    if (message.type === StrikeEditorActionType.ToggleStrike) {
-      editor.chain().focus().toggleStrike().run();
-    }
-
-    return false;
-  },
-  extendEditorInstance: (sendBridgeMessage) => {
-    return {
-      toggleStrike: () =>
-        sendBridgeMessage({ type: StrikeEditorActionType.ToggleStrike }),
-    };
-  },
-  extendEditorState: (editor) => {
-    return {
-      canToggleStrike: editor.can().toggleStrike(),
-      isStrikeActive: editor.isActive('strike'),
-    };
-  },
+  activeName: 'strike',
+  toggle: (chain) => chain.toggleStrike(),
 });

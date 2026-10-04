@@ -39,42 +39,21 @@ export const ListItemBridge = new BridgeExtension<
   onBridgeMessage: (editor, message) => {
     switch (message.type) {
       case ListItemEditorActionType.Lift:
-        editor
-          .chain()
-          .focus()
-          .liftListItem(editor.schema.nodes.listItem!.name)
-          .run();
+        editor.chain().focus().liftListItem(ListItem.name).run();
         break;
       case ListItemEditorActionType.Sink:
-        editor
-          .chain()
-          .focus()
-          .sinkListItem(editor.schema.nodes.listItem!.name)
-          .run();
+        editor.chain().focus().sinkListItem(ListItem.name).run();
         break;
     }
 
     return false;
   },
-  extendEditorInstance: (sendBridgeMessage) => {
-    const lift = () =>
-      sendBridgeMessage({ type: ListItemEditorActionType.Lift });
-    const sink = () =>
-      sendBridgeMessage({ type: ListItemEditorActionType.Sink });
-
-    return {
-      lift,
-      sink,
-    };
-  },
-  extendEditorState: (editor) => {
-    return {
-      canLift: editor
-        .can()
-        .liftListItem(editor.state.schema.nodes.listItem!.name),
-      canSink: editor
-        .can()
-        .sinkListItem(editor.state.schema.nodes.listItem!.name),
-    };
-  },
+  extendEditorInstance: (sendBridgeMessage) => ({
+    lift: () => sendBridgeMessage({ type: ListItemEditorActionType.Lift }),
+    sink: () => sendBridgeMessage({ type: ListItemEditorActionType.Sink }),
+  }),
+  extendEditorState: (editor) => ({
+    canLift: editor.can().liftListItem(ListItem.name),
+    canSink: editor.can().sinkListItem(ListItem.name),
+  }),
 });

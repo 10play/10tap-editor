@@ -1,14 +1,13 @@
 import Underline from '@tiptap/extension-underline';
-import BridgeExtension from './base';
+import {
+  createToggleBridge,
+  type ToggleInstance,
+  type ToggleState,
+} from './factories';
 
-type UnderlineEditorState = {
-  isUnderlineActive: boolean;
-  canToggleUnderline: boolean;
-};
+type UnderlineEditorState = ToggleState<'Underline'>;
 
-type UnderlineEditorInstance = {
-  toggleUnderline: () => void;
-};
+type UnderlineEditorInstance = ToggleInstance<'Underline'>;
 
 declare module '../types/EditorBridge' {
   interface BridgeState extends UnderlineEditorState {}
@@ -19,34 +18,10 @@ export enum UnderlineEditorActionType {
   ToggleUnderline = 'toggle-underline',
 }
 
-type UnderlineMessage = {
-  type: UnderlineEditorActionType.ToggleUnderline;
-  payload?: undefined;
-};
-
-export const UnderlineBridge = new BridgeExtension<
-  UnderlineEditorState,
-  UnderlineEditorInstance,
-  UnderlineMessage
->({
+export const UnderlineBridge = createToggleBridge({
+  label: 'Underline',
+  type: UnderlineEditorActionType.ToggleUnderline,
   tiptapExtension: Underline,
-  onBridgeMessage: (editor, message) => {
-    if (message.type === UnderlineEditorActionType.ToggleUnderline) {
-      editor.chain().focus().toggleUnderline().run();
-    }
-
-    return false;
-  },
-  extendEditorInstance: (sendBridgeMessage) => {
-    return {
-      toggleUnderline: () =>
-        sendBridgeMessage({ type: UnderlineEditorActionType.ToggleUnderline }),
-    };
-  },
-  extendEditorState: (editor) => {
-    return {
-      canToggleUnderline: editor.can().toggleUnderline(),
-      isUnderlineActive: editor.isActive('underline'),
-    };
-  },
+  activeName: 'underline',
+  toggle: (chain) => chain.toggleUnderline(),
 });

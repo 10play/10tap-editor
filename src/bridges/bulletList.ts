@@ -1,14 +1,13 @@
 import { BulletList, ListItem } from '@tiptap/extension-list';
-import BridgeExtension from './base';
+import {
+  createToggleBridge,
+  type ToggleInstance,
+  type ToggleState,
+} from './factories';
 
-type BulletListEditorState = {
-  isBulletListActive: boolean;
-  canToggleBulletList: boolean;
-};
+type BulletListEditorState = ToggleState<'BulletList'>;
 
-type BulletListEditorInstance = {
-  toggleBulletList: () => void;
-};
+type BulletListEditorInstance = ToggleInstance<'BulletList'>;
 
 declare module '../types/EditorBridge' {
   interface BridgeState extends BulletListEditorState {}
@@ -19,37 +18,11 @@ export enum BulletListEditorActionType {
   ToggleBulletList = 'toggle-bulletList',
 }
 
-type BulletListMessage = {
-  type: BulletListEditorActionType.ToggleBulletList;
-  payload?: undefined;
-};
-
-export const BulletListBridge = new BridgeExtension<
-  BulletListEditorState,
-  BulletListEditorInstance,
-  BulletListMessage
->({
+export const BulletListBridge = createToggleBridge({
+  label: 'BulletList',
+  type: BulletListEditorActionType.ToggleBulletList,
   tiptapExtension: BulletList,
   tiptapExtensionDeps: [ListItem],
-  onBridgeMessage: (editor, message) => {
-    if (message.type === BulletListEditorActionType.ToggleBulletList) {
-      editor.chain().focus().toggleBulletList().run();
-    }
-
-    return false;
-  },
-  extendEditorInstance: (sendBridgeMessage) => {
-    return {
-      toggleBulletList: () =>
-        sendBridgeMessage({
-          type: BulletListEditorActionType.ToggleBulletList,
-        }),
-    };
-  },
-  extendEditorState: (editor) => {
-    return {
-      canToggleBulletList: editor.can().toggleBulletList(),
-      isBulletListActive: editor.isActive('bulletList'),
-    };
-  },
+  activeName: 'bulletList',
+  toggle: (chain) => chain.toggleBulletList(),
 });
