@@ -806,9 +806,11 @@ describe('RichText utils', () => {
       platform: 'ios',
       dynamicHeight: false,
     });
-    expect(window.whiteListBridgeExtensions).toEqual(
-      result.current.bridgeExtensions?.map(({ name }) => name)
-    );
+    // Plus the `history` alias that 0.7.x bundles filter HistoryBridge by.
+    expect(window.whiteListBridgeExtensions).toEqual([
+      ...(result.current.bridgeExtensions ?? []).map(({ name }) => name),
+      'history',
+    ]);
     expect(
       JSON.parse(window.bridgeExtensionConfigMap as string)
     ).toHaveProperty('history');

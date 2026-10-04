@@ -127,27 +127,21 @@ describe.each(LEGACY_VERSIONS)('legacy %s bundle', (version) => {
     expect(await getHTML(page)).toBe('<p><strong>Hello TenTap</strong></p>');
   });
 
-  // Pending (WP-B): the 0.7.x default bundle filters its bridges by
-  // `whiteListBridgeExtensions`, which lists `undoRedo` but not the `history`
-  // alias, so undo/redo is dropped. Enable for every version at the WP-L gate.
-  it.skipIf(version === '0.7.5-alpha.0')(
-    'finds the history bridge config under its legacy or current name',
-    async () => {
-      const page = open(version);
-      await page.waitForMessage(isType('editor-ready'));
+  it('finds the history bridge config under its legacy or current name', async () => {
+    const page = open(version);
+    await page.waitForMessage(isType('editor-ready'));
 
-      send(page, {
-        type: 'set-content',
-        payload: { content: '<p>Edited</p>' },
-      });
-      const update = await page.waitForMessage(
-        (message) =>
-          message.type === 'stateUpdate' &&
-          'canUndo' in (message.payload as object)
-      );
-      expect(update.payload).toMatchObject({ canUndo: expect.any(Boolean) });
-    }
-  );
+    send(page, {
+      type: 'set-content',
+      payload: { content: '<p>Edited</p>' },
+    });
+    const update = await page.waitForMessage(
+      (message) =>
+        message.type === 'stateUpdate' &&
+        'canUndo' in (message.payload as object)
+    );
+    expect(update.payload).toMatchObject({ canUndo: expect.any(Boolean) });
+  });
 
   // The 1.0.1 bundle measures `.ProseMirror` before it is mounted and throws
   // in dynamic height mode (#342); native cannot repair that bundle.

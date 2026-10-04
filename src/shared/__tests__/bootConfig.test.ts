@@ -126,6 +126,21 @@ describe('history alias', () => {
     expect(config.whitelist).not.toContain('history');
   });
 
+  it('is added to the legacy whitelist that 0.7.x bundles filter by', () => {
+    expect(
+      legacyGlobalsFromBootConfig(config).whiteListBridgeExtensions
+    ).toEqual(['bold', 'undoRedo', 'link', 'placeholder', 'history']);
+    expect(
+      legacyGlobalsFromBootConfig(
+        buildBootConfig({
+          editorId: 'tt1',
+          bridges: [{ name: 'history' }, { name: 'undoRedo' }],
+          platform: 'ios',
+        })
+      ).whiteListBridgeExtensions
+    ).toEqual(['history', 'undoRedo']);
+  });
+
   it('resolves either name on the web side', () => {
     const legacyOnly = { history: { optionsConfig: { depth: 1 } } };
     const modernOnly = { undoRedo: { optionsConfig: { depth: 2 } } };
@@ -173,6 +188,7 @@ describe('legacy globals', () => {
     expect(bootConfigFromLegacyGlobals(globals, 'tt1')).toEqual({
       ...config,
       protocol: 1,
+      whitelist: [...config.whitelist, 'history'],
     });
   });
 

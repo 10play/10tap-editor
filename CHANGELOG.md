@@ -46,7 +46,7 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 - The heading toolbar kept the main toolbar's scroll offset (#298).
 - Bridge configs containing an apostrophe broke the editor.
 - Injected CSS was lost when the WebView reloaded.
-- Custom editor bundles built with 0.7.x didn't receive the `HistoryBridge` config, which TipTap v3 renamed to `undoRedo`; it is now also sent under `history`.
+- Custom editor bundles built with 0.7.x dropped `HistoryBridge` (undo/redo), which TipTap v3 renamed to `undoRedo`; its config and whitelist entry are now also sent under `history`.
 
 ### Changed
 

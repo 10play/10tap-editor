@@ -140,10 +140,22 @@ export function buildBootConfig(input: BootConfigInput): BootConfig {
   return config;
 }
 
+/**
+ * The whitelist for legacy bundles. 0.7.x bundles filter their bridges by
+ * this list and name `HistoryBridge` `history`, so it gets the same alias as
+ * the configs.
+ */
+function legacyWhitelist(whitelist: readonly string[]): string[] {
+  return whitelist.includes(HISTORY_BRIDGE_NAME) &&
+    !whitelist.includes(LEGACY_HISTORY_BRIDGE_NAME)
+    ? [...whitelist, LEGACY_HISTORY_BRIDGE_NAME]
+    : [...whitelist];
+}
+
 export function legacyGlobalsFromBootConfig(config: BootConfig): LegacyGlobals {
   return {
     bridgeExtensionConfigMap: JSON.stringify(config.bridgeConfigs),
-    whiteListBridgeExtensions: [...config.whitelist],
+    whiteListBridgeExtensions: legacyWhitelist(config.whitelist),
     ...(config.initialContent ? { initialContent: config.initialContent } : {}),
     editable: config.editable,
     disableColorHighlight: config.disableColorHighlight,

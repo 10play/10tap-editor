@@ -101,7 +101,7 @@ describe('boot', () => {
     expect(runtime.config).toMatchObject({
       protocol: 1,
       editable: false,
-      whitelist: ['bold', 'undoRedo'],
+      whitelist: ['bold', 'undoRedo', 'history'],
       initialContent: '<p>Hi</p>',
     });
     expect(runtime.config?.bridgeConfigs.history).toEqual({
