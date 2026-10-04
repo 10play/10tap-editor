@@ -17,11 +17,6 @@ import v101Root from '../../test/fixtures/api/v1.0.1-root.json';
 import v074Keyboard from '../../test/fixtures/api/v0.7.4-keyboard.json';
 import packageJson from '../../package.json';
 
-// TODO(WP-F): drop once the focus tracker no longer touches the DOM at import time (#339).
-jest.mock('../webEditorUtils/focusListener', () => ({
-  focusListener: { isFocused: false },
-}));
-
 /**
  * The root entry ('.') must stay a superset of 1.0.1 and, once the keyboard
  * is restored, of the 0.7.x keyboard API (test/fixtures/api, generated from

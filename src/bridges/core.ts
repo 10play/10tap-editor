@@ -13,6 +13,7 @@ import type { SerializableParseOptions } from '../shared/bootConfig';
 import { CAPABILITIES } from '../shared/capabilities';
 import { getEditorController } from '../shared/contracts';
 import type { BridgeState as EditorState, EditorTheme } from '../types';
+import { getFocusTracker } from '../web/focus';
 
 export type EditorContentType = 'html' | 'text' | 'json';
 
@@ -163,25 +164,6 @@ export type CoreMessages =
       type: CoreEditorActionType.SetEditable;
       payload: boolean;
     };
-
-/**
- * Whether anything in the editor's document has focus. Tracked with capture
- * listeners installed on first use, inside the WebView only, so importing
- * this module never touches the DOM (#339).
- */
-const focusTrackers = new WeakMap<Document, { focused: boolean }>();
-const isEditorDocumentFocused = (editor: Editor): boolean => {
-  const doc = editor.view.dom.ownerDocument;
-  let tracker = focusTrackers.get(doc);
-  if (!tracker) {
-    const state = { focused: editor.isFocused };
-    doc.addEventListener('focus', () => (state.focused = true), true);
-    doc.addEventListener('blur', () => (state.focused = false), true);
-    focusTrackers.set(doc, state);
-    tracker = state;
-  }
-  return tracker.focused;
-};
 
 const clampRange = (editor: Editor, range: SelectionRange | undefined) => {
   const { from, to } = range ?? editor.state.selection;
@@ -399,7 +381,7 @@ export const CoreBridge = new BridgeExtension<
     };
   },
   extendEditorState: (editor) => ({
-    isFocused: isEditorDocumentFocused(editor),
+    isFocused: getFocusTracker().isFocused,
     isReady: true,
     selection: {
       from: editor.state.selection.from,

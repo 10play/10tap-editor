@@ -15,11 +15,6 @@ import {
 } from '../EditorController';
 import { initialState, type TestState } from './helpers';
 
-// TODO(WP-F): drop once the focus tracker no longer touches the DOM at import time (#339).
-jest.mock('../../webEditorUtils/focusListener', () => ({
-  focusListener: { isFocused: false },
-}));
-
 /**
  * The controller driving the real 1.0.1 and 0.7.x web bundles in jsdom, with
  * both directions delivered asynchronously like react-native-webview does.

@@ -23,16 +23,17 @@ export function selectActiveBridges(
   );
 }
 
-// TODO(WP-G): delegate to `configureTiptapExtensionsOnRunTime` once it no
-// longer mutates the bridge.
 function configureBridge(
   bridge: BridgeExtension,
   entry: BridgeConfigEntry | undefined
 ): { main?: AnyExtension; deps: AnyExtension[] } {
-  let main = bridge.tiptapExtension;
-  if (main && entry?.optionsConfig) main = main.configure(entry.optionsConfig);
-  if (main && entry?.extendConfig) main = main.extend(entry.extendConfig);
-  return { main, deps: bridge.tiptapExtensionDeps ?? [] };
+  const extensions = bridge.configureTiptapExtensionsOnRunTime(
+    entry?.optionsConfig,
+    entry?.extendConfig
+  );
+  if (!bridge.tiptapExtension) return { deps: extensions };
+  const [main, ...deps] = extensions;
+  return { main, deps };
 }
 
 /**

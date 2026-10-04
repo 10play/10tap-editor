@@ -8,11 +8,6 @@ import {
   type LegacyVersion,
 } from './legacyBundle';
 
-// TODO(WP-F): drop once the focus tracker no longer touches the DOM at import time (#339).
-jest.mock('../../webEditorUtils/focusListener', () => ({
-  focusListener: { isFocused: false },
-}));
-
 /**
  * 1.1 native talking to the real 1.0.1 / 0.7.x web bundles through the public
  * API only: apps that ship a custom bundle built from those templates must
