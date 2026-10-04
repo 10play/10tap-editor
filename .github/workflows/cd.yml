@@ -6,31 +6,49 @@ on:
       - 'src/**'
       - 'ios/**'
       - 'android/**'
+      - 'package.json'
+      - 'tentap.podspec'
     branches:
       - main
 
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
 jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
   release:
+    needs: ci
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v5
         with:
           token: ${{ secrets.GH_PAT }}
           fetch-depth: 0
-      - name: git config
+
+      - name: Configure git
         run: |
           git config user.name "${GITHUB_ACTOR}"
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+
       - name: Setup
         uses: ./.github/actions/setup
-      - name: Build simple editor bundle
-        run: yarn editor:build
-      - name: Build web utils
-        run: yarn editor:build-web-utils
-      - name: Build package
-        run: yarn prepare
-      - run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
-      - run: yarn release
+
+      - name: Authenticate with npm
+        run: npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # npm publish runs prepack, which builds the editor, web utils and lib.
+      - name: Release
+        run: yarn release --ci
+        env:
+          NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}

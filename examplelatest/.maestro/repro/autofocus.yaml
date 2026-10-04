@@ -1,0 +1,26 @@
+# #321: `autofocus: true` focuses the editor and brings up the soft keyboard
+# (Android used to show a caret with no keyboard).
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'com.examplelatest'}
+name: 'Repro: autofocus shows the keyboard'
+tags:
+  - repro
+---
+- launchApp:
+    clearState: true
+- scrollUntilVisible:
+    element: 'Repro: Autofocus'
+    timeout: 60000
+- tapOn: 'Repro: Autofocus'
+- extendedWaitUntil:
+    visible:
+      id: editor-status
+      text: 'ready:true .*keyboard:up'
+    timeout: 15000
+- inputText: ' typed'
+- tapOn:
+    id: read-editor-state
+- assertVisible:
+    id: editor-html
+    text: '.*Autofocus typed.*'

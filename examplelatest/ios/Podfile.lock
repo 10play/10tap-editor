@@ -2553,7 +2553,7 @@ PODS:
     - SocketRocket
     - Yoga
   - SocketRocket (0.7.1)
-  - tentap (0.7.4):
+  - tentap (1.0.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -2906,9 +2906,9 @@ SPEC CHECKSUMS:
   RNScreens: 3693ec4bbc0065151b843269e50e9807644e9918
   RNSVG: 16667e18ce40770c8c41a87f3133004c5cf4e09a
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  tentap: ac22de76311d0e127c5e9c1a0ee6393bcdba40d7
+  tentap: a345bf66d1ee65c149976c689c6cde513d44b248
   Yoga: 8e01cef9947ca77f0477a098f0b32848a8e448c6
 
-PODFILE CHECKSUM: d3a7135426a25b124617fb18fc531c3de0f5fbc9
+PODFILE CHECKSUM: 82d8030a1ec2247b7772c9188288b3fdf96d5759
 
 COCOAPODS: 1.16.2

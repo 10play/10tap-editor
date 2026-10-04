@@ -10,6 +10,13 @@
     "editor:post-build": "node ../scripts/buildEditor.js ./src/Examples/Advanced/editor-web/build/index.html",
     "ios": "react-native run-ios",
     "start": "react-native start",
+    "build:android": "cd android && ./gradlew assembleDebug --console=plain",
+    "build:android:release": "cd android && ./gradlew assembleRelease --console=plain",
+    "build:ios": "cd ios && xcodebuild -workspace examplelatest.xcworkspace -scheme examplelatest -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO -quiet build",
+    "build:ios:release": "cd ios && xcodebuild -workspace examplelatest.xcworkspace -scheme examplelatest -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build CODE_SIGNING_ALLOWED=NO -quiet build",
+    "pods": "cd ios && bundle exec pod install",
+    "typecheck": "tsc --noEmit",
+    "e2e": "maestro test .maestro",
     "lint": "eslint .",
     "test": "jest"
   },
