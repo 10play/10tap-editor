@@ -21,7 +21,7 @@ import {
 import { CoreEditorActionType } from '../../bridges/core';
 import { handshake, webMessage } from '../../native/__tests__/helpers';
 import { CAPABILITIES } from '../../shared/capabilities';
-import { getEditorController } from '../../shared/contracts';
+import { EDITOR_CONTROLLER, getEditorController } from '../../shared/contracts';
 import { PROTOCOL_TYPES, type ActionEnvelope } from '../../shared/protocol';
 import type { EditorBridge, EditorBridgeOptions } from '../../types';
 import * as misc from '../../utils/misc';
@@ -763,12 +763,31 @@ describe('RichText lifecycle', () => {
     expect(onContentProcessDidTerminate).toHaveBeenCalledTimes(1);
   });
 
+  it('accepts a spread copy of the editor, as 1.0 did', () => {
+    const { result } = createEditor();
+    const copy: EditorBridge = { ...result.current };
+    render(<RichText editor={copy} />);
+    const webView = mockWebViews.latest();
+    load(webView);
+    ready(webView, result.current);
+
+    expect(result.current.getEditorState().isReady).toBe(true);
+    expect(copy.webviewRef.current).toBe(result.current.webviewRef.current);
+    act(() => copy.setContent('<p>from the copy</p>'));
+    expect(posted(webView)).toContainEqual(
+      expect.objectContaining({ type: CoreEditorActionType.SetContent })
+    );
+  });
+
   it('throws a clear error for an editor without a controller', () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
     const { result } = createEditor();
-    const copy = { ...result.current };
+    const detached = { ...result.current };
+    Reflect.deleteProperty(detached, EDITOR_CONTROLLER);
 
-    expect(() => render(<RichText editor={copy} />)).toThrow(/useEditorBridge/);
+    expect(() => render(<RichText editor={detached} />)).toThrow(
+      /useEditorBridge/
+    );
   });
 });
 

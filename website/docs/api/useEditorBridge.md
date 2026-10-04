@@ -6,7 +6,7 @@ sidebar_position: 1
 
 a react hook that will return [EditorBridge](./EditorBridge.md)
 
-The returned `editor` keeps the same reference for the lifetime of the component, so it is safe to use in dependency arrays. Pass that object itself to [RichText](./Components.md#richtext): a copy such as `{ ...editor }` is not connected to the WebView, and `RichText` throws when it gets one.
+The returned `editor` keeps the same reference for the lifetime of the component, so it is safe to use in dependency arrays. Pass that object to [RichText](./Components.md#richtext). A spread copy such as `{ ...editor }` also works, but its option fields are a snapshot taken when it was made.
 
 #### bridgeExtensions
 

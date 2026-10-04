@@ -232,7 +232,10 @@ export const EDITOR_CONTROLLER: unique symbol = Symbol.for(
   '@10play/tentap-editor/controller'
 );
 
-/** Non-enumerable, so it never shows up when users spread the editor. */
+/**
+ * Enumerable, so a spread copy (`{ ...editor }`) keeps its controller as in
+ * 1.0. Symbol keys stay out of `Object.keys`, `for...in` and JSON.
+ */
 export function attachEditorController(
   editor: object,
   controller: EditorController<object>
@@ -240,7 +243,7 @@ export function attachEditorController(
   Object.defineProperty(editor, EDITOR_CONTROLLER, {
     value: controller,
     configurable: true,
-    enumerable: false,
+    enumerable: true,
     writable: false,
   });
 }

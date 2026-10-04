@@ -54,7 +54,7 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 ### Changed
 
 - With `dynamicHeight`, `RichText` applies the content height after your `containerStyle`, so it can no longer be overridden. `style` and `containerStyle` otherwise still replace the defaults unless `mergeStyles` is set.
-- `RichText` throws when it gets an object that wasn't returned by `useEditorBridge`, such as a `{ ...editor }` copy.
+- `RichText` throws a clear error when `editor` doesn't come from `useEditorBridge`. Spread copies (`{ ...editor }`) keep working as in 1.0.
 - `useEditorBridge` reads `bridgeExtensions` once and warns in development when the list changes after mount.
 - `setImage` adds an empty paragraph after an image that ends the document.
 - `setLink` adds `https://` to URLs without a scheme.

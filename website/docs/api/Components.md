@@ -15,7 +15,7 @@ props:
 | editor                        | `EditorBridge` |         | The bridge instance that created with [useEditorBridge](./EditorBridge.md)                                                                                      |
 | exclusivelyUseCustomOnMessage | `boolean`      | true    | When true, if you pass an `onMessage` prop (webview) this will override tentap's own `onMessage` property. You probably want to disable this, it's here for compatibility. |
 
-`editor` must be the object returned by `useEditorBridge`. A copy such as `{ ...editor }` is not connected to the WebView, so `RichText` throws an error for it.
+`editor` must come from `useEditorBridge`; `RichText` throws an error for anything else. A spread copy such as `{ ...editor }` is still connected to the same WebView, but prefer passing `editor` itself.
 
 you can also override any of the regular [WebView props](https://github.com/react-native-webview/react-native-webview/blob/HEAD/docs/Reference.md) <i>although this is not recommended</i>
 

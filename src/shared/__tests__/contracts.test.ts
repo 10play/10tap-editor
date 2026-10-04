@@ -9,12 +9,14 @@ import { TentapRpcTimeoutError, TentapUnsupportedError } from '../errors';
 const fakeController = { editorId: 'tt1' } as EditorController;
 
 describe('editor controller accessor', () => {
-  it('exposes the controller without making it enumerable', () => {
+  it('exposes the controller under a symbol that spread copies keep', () => {
     const editor = { focus: () => undefined };
     attachEditorController(editor, fakeController);
     expect(getEditorController(editor)).toBe(fakeController);
     expect(Object.keys(editor)).toEqual(['focus']);
-    expect({ ...editor }).not.toHaveProperty([EDITOR_CONTROLLER]);
+    expect(JSON.stringify(editor)).toBe('{}');
+    expect(getEditorController({ ...editor })).toBe(fakeController);
+    expect(getEditorController(Object.assign({}, editor))).toBe(fakeController);
   });
 
   it('uses a registry symbol so duplicated bundles agree', () => {
