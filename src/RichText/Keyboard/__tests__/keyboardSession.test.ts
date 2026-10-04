@@ -594,6 +594,20 @@ describe('close triggers', () => {
     expect(t.view().phase).toBe('closing');
   });
 
+  it('dismiss() during an unfocused open blurs before dropping the latch', async () => {
+    const t = setup({ platform: 'android', focused: false, systemKeyboard: 0 });
+    t.session.open('kb');
+    expect(t.editor.focus).toHaveBeenCalledTimes(1);
+    t.session.dismiss();
+    expect(t.editor.blur).toHaveBeenCalledTimes(1);
+    await flush();
+    expect(t.controller.injected.at(-1)).toBe(INPUT_MODE_RESTORE_SCRIPT);
+    t.setFocused(true);
+    await flush();
+    expect(t.native!.setSystemKeyboardSuppressed).not.toHaveBeenCalled();
+    expect(t.view().phase).toBe('closing');
+  });
+
   it('close(false) is a dismiss', async () => {
     const t = setup();
     await openFully(t);

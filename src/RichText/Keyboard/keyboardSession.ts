@@ -483,10 +483,13 @@ export function createKeyboardSession(
     notifyParent(undefined);
     schedule(SLOT_ANIMATION_MS, finishClose);
     if (!wasSuppressed && !latchApplied) return;
+    // The editor would show the system keyboard again if it kept focus: on
+    // iOS whenever the suppression ends, and on both platforms while the
+    // keyboard's own focus call of an unfocused open is still in flight.
+    const blurFirst =
+      !blurred && (!wasSuppressed || (isIOS && channel.isFocused()));
     void (async () => {
-      // On iOS the editor would show the system keyboard again if it kept
-      // first responder, so give it up before ending the suppression.
-      if (isIOS && !blurred && channel.isFocused()) {
+      if (blurFirst) {
         channel.blur();
         await waitForFocus(false);
         if (token !== epoch) return;
