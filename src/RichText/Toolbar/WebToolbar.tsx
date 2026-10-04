@@ -1,15 +1,20 @@
 import React from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import type { EditorBridge } from '../../types';
-import type { ToolbarItem } from './actions';
+import type { ArgsToolbarCB, ToolbarItem } from './actions';
 import { ToolbarItemComp } from './ToolbarItemComp';
 
 interface WebToolbarProps {
   editor: EditorBridge;
-  args: Parameters<ToolbarItem['onPress']>[0];
+  args: ArgsToolbarCB;
   items: ToolbarItem[];
   hidden?: boolean;
 }
+
+const styles = StyleSheet.create({
+  row: { flexDirection: 'row' },
+});
+
 export const WebToolbar = ({
   args,
   editor,
@@ -19,8 +24,8 @@ export const WebToolbar = ({
   if (hidden) return null;
 
   return (
-    <View style={{ flexDirection: 'row' }}>
-      {items?.map((item, i) => (
+    <View style={styles.row}>
+      {items.map((item, i) => (
         <ToolbarItemComp {...item} args={args} editor={editor} key={i} />
       ))}
     </View>
