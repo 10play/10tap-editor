@@ -20,7 +20,7 @@ import type { EditorView } from '@tiptap/pm/view';
  * height instead.
  */
 
-/** Reports this recent still count as "native is catching up". */
+/** How long native may take to apply a reported height. */
 const FOLLOW_GRACE_MS = 500;
 const TOLERANCE_PX = 1;
 
@@ -127,8 +127,9 @@ export class DynamicHeight {
 
   /**
    * Whether native keeps the WebView smaller than `contentHeight` (by default
-   * the current content height). Reports native has not caught up with yet
-   * do not count as clamping.
+   * the current content height). Native follows when the WebView matches a
+   * report and every later report is recent enough for native to still be
+   * catching up with it.
    */
   isClamped(contentHeight: number | null = this.currentHeight()): boolean {
     if (contentHeight === null) return false;
@@ -137,12 +138,11 @@ export class DynamicHeight {
       return false;
     }
     const since = this.now() - FOLLOW_GRACE_MS;
-    const following = this.reports.some(
-      (report) =>
-        report.at >= since &&
-        Math.abs(report.height - container) <= TOLERANCE_PX
-    );
-    return !following;
+    for (const report of [...this.reports].reverse()) {
+      if (Math.abs(report.height - container) <= TOLERANCE_PX) return false;
+      if (report.at < since) return true;
+    }
+    return true;
   }
 
   /** `handleScrollToSelection` prop: true suppresses ProseMirror's scroll. */

@@ -133,6 +133,37 @@ describe('DynamicHeight scroll policy', () => {
     expect(editor.wrapper.scrollTop).toBe(0);
   });
 
+  it('suppresses selection scrolling for the first new line after a pause', () => {
+    const editor = createEditor();
+    const dynamicHeight = create();
+    dynamicHeight.observe(editor.view);
+    dynamicHeight.setContainerHeight(100);
+    now += 5000;
+
+    editor.setContentSilently(120);
+    expect(dynamicHeight.handleScrollToSelection()).toBe(true);
+
+    editor.wrapper.scrollTop = 20;
+    editor.setContent(120);
+    expect(editor.wrapper.scrollTop).toBe(0);
+    expect(dynamicHeight.isClamped()).toBe(false);
+  });
+
+  it('detects the clamp when native stops short of the latest report', () => {
+    const editor = createEditor();
+    const dynamicHeight = create();
+    dynamicHeight.observe(editor.view);
+    dynamicHeight.setContainerHeight(100);
+    now += 5000;
+    editor.setContent(120);
+
+    now += 16;
+    dynamicHeight.setContainerHeight(110);
+
+    expect(dynamicHeight.isClamped()).toBe(true);
+    expect(editor.dispatch).toHaveBeenCalledWith('scroll-tr');
+  });
+
   it('keeps following while native lags a few reports behind', () => {
     const editor = createEditor();
     const dynamicHeight = create();
