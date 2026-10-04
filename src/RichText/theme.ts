@@ -1,8 +1,15 @@
-import type { EditorTheme, ToolbarTheme } from '../types';
+import cloneDeep from 'lodash/cloneDeep';
+import type { EditorTheme } from '../types';
+import { mergeThemes } from '../utils/mergeThemes';
+import {
+  darkColorKeyboardTheme,
+  defaultColorKeyboardTheme,
+} from './Keyboard/keyboardTheme';
 import { darkToolbarTheme, defaultToolbarTheme } from './Toolbar/toolbarTheme';
 
 export const defaultEditorTheme: EditorTheme = {
   toolbar: defaultToolbarTheme,
+  colorKeyboard: defaultColorKeyboardTheme,
   webview: {
     backgroundColor: 'white',
   },
@@ -10,13 +17,18 @@ export const defaultEditorTheme: EditorTheme = {
 };
 
 const DARK_EDITOR_BACKGROUND_COLOR = '#1C1C1E';
-export const darkEditorTheme: EditorTheme = {
-  toolbar: darkToolbarTheme as ToolbarTheme,
-  webview: {
-    backgroundColor: DARK_EDITOR_BACKGROUND_COLOR,
-  },
-  webviewContainer: {},
-};
+// The dark toolbar and keyboard themes only hold overrides, so complete them
+// here to keep every key of `darkEditorTheme` defined when used on its own.
+export const darkEditorTheme: EditorTheme = mergeThemes(
+  cloneDeep(defaultEditorTheme),
+  {
+    toolbar: darkToolbarTheme,
+    colorKeyboard: darkColorKeyboardTheme,
+    webview: {
+      backgroundColor: DARK_EDITOR_BACKGROUND_COLOR,
+    },
+  }
+);
 
 export const darkEditorCss = `
   * {

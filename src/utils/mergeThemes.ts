@@ -1,8 +1,16 @@
 import merge from 'lodash/merge';
 import type { EditorTheme } from '../types';
-import type { RecursivePartial } from '../RichText';
+import type { RecursivePartial } from '../RichText/useEditorBridge';
+import { replaceColorSelections } from '../RichText/Keyboard/keyboardTheme';
 
+/** Deep-merges `theme2` into `theme1` (mutating it) and returns the result. */
 export const mergeThemes = (
   theme1: EditorTheme,
   theme2: RecursivePartial<EditorTheme> | undefined
-) => merge(theme1, theme2);
+): EditorTheme => {
+  const merged = merge(theme1, theme2);
+  if (merged.colorKeyboard) {
+    replaceColorSelections(merged.colorKeyboard, theme2?.colorKeyboard);
+  }
+  return merged;
+};
