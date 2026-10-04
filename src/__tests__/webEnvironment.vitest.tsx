@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TenTapStartKit, useTenTap } from '../webEditorUtils';
 
 declare global {
-  var IS_REACT_ACT_ENVIRONMENT: boolean;
+  var IS_REACT_ACT_ENVIRONMENT: boolean | undefined;
 }
 
 const Editor = () => {
