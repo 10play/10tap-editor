@@ -5,11 +5,6 @@ import { RichText, useEditorBridge } from '../index';
 import { editorHtml } from '../__mocks__/editorHtml';
 import { mockWebViews } from '../__mocks__/react-native-webview';
 
-// TODO(WP-F): drop once the focus tracker no longer touches the DOM at import time (#339).
-jest.mock('../webEditorUtils/focusListener', () => ({
-  focusListener: { isFocused: false },
-}));
-
 const renderEditor = (options?: Parameters<typeof useEditorBridge>[0]) => {
   const { result } = renderHook(() => useEditorBridge(options));
   const editor = result.current;

@@ -1,0 +1,10 @@
+{
+  "maxGrowth": 0.05,
+  "bundles": {
+    "editorHtml": {
+      "file": "src/simpleWebEditor/build/index.html",
+      "bytes": 579574,
+      "baseline": "default editor built at 729cbd9 (React 19.1, vite 6, es2015)"
+    }
+  }
+}

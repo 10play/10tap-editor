@@ -1,0 +1,33 @@
+/**
+ * Upserts `<style data-tag="{tag}">` in the document head. Same element the
+ * native `injectCSS(css, tag)` snippet targets, so either path can update a
+ * stylesheet the other created.
+ */
+export function applyStyleSheet(
+  tag: string,
+  css: string,
+  doc: Document = document
+): HTMLStyleElement {
+  const existing = Array.from(doc.querySelectorAll('style[data-tag]')).find(
+    (element): element is HTMLStyleElement =>
+      element.getAttribute('data-tag') === tag
+  );
+  const style = existing ?? doc.createElement('style');
+  style.textContent = css;
+  if (!existing) {
+    style.setAttribute('data-tag', tag);
+    (doc.head ?? doc.documentElement).appendChild(style);
+  }
+  return style;
+}
+
+/**
+ * Corrected dynamic-height layout, applied at runtime so custom bundles whose
+ * `index.html` was copied from older docs get it too (#336, #342). The
+ * `.ProseMirror` element must size to its content, never to the viewport,
+ * otherwise the reported height feeds back into the WebView height.
+ */
+export const DYNAMIC_HEIGHT_STYLE_TAG = 'tentap-dynamic-height';
+
+export const DYNAMIC_HEIGHT_CSS =
+  '.dynamic-height .ProseMirror{height:auto!important;min-height:0!important;}';
