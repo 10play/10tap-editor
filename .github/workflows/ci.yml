@@ -6,13 +6,21 @@ on:
   pull_request:
     branches:
       - main
+  workflow_call:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Setup
         uses: ./.github/actions/setup
@@ -26,17 +34,31 @@ jobs:
       - name: Typecheck files
         run: yarn typecheck
 
-      - name: Check codegen spec
+      - name: Check codegen spec and the old-architecture Java spec
         run: yarn check:codegen
+
+      - name: Check the editor bundle size
+        run: node scripts/size-budget.js
+
+      - name: Lint workflows
+        uses: docker://rhysd/actionlint:1.7.7
+        with:
+          args: -color
+
+      - name: Check that the Maestro flows target existing elements
+        run: node .github/scripts/check-maestro-flows.mjs
 
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Setup
         uses: ./.github/actions/setup
+
+      - name: Build editor
+        run: yarn editor:build
 
       - name: Run unit tests
         run: yarn test --maxWorkers=2 --coverage
@@ -48,7 +70,46 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Build package
+        run: yarn prepack
+
+      - name: Check the packed files
+        run: npm pack --dry-run
+
+      - name: Bundle the packed library with Metro (no react-dom)
+        run: yarn check:bundle
+
+  typecheck-examples:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Build the editor and web utils
+        run: yarn editor:build && yarn editor:build-web-utils
+
+      - name: Build the advanced example's editor
+        run: yarn examplelatest editor:build
+
+      - name: Typecheck examplelatest
+        run: yarn examplelatest typecheck
+
+      - name: Typecheck the web E2E app
+        run: yarn workspace tentap-e2e-web typecheck
+
+  e2e-web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
 
       - name: Setup
         uses: ./.github/actions/setup
@@ -56,5 +117,122 @@ jobs:
       - name: Build editor
         run: yarn editor:build
 
-      - name: Build package
-        run: yarn prepare
+      - name: Install Chromium
+        run: yarn workspace tentap-e2e-web playwright install --with-deps chromium
+
+      - name: Run Playwright
+        run: yarn e2e:web
+        env:
+          CI: true
+
+      - name: Upload the Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-web-results
+          path: e2e-web/test-results
+          retention-days: 7
+
+  build-android:
+    name: build-android (${{ matrix.app }}, newArch=${{ matrix.new-arch }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: examplelatest
+            new-arch: true
+          - app: exampleoldarch
+            new-arch: false
+          - app: exampleoldarch
+            new-arch: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Setup Android toolchain
+        uses: ./.github/actions/setup-android
+
+      - name: Build the editor
+        run: yarn editor:build
+
+      - name: Build ${{ matrix.app }}
+        run: >
+          yarn ${{ matrix.app }} build:android
+          -PreactNativeArchitectures=x86_64
+          -PnewArchEnabled=${{ matrix.new-arch }}
+
+      - name: Check that the library is autolinked
+        run: .github/scripts/check-autolinking.sh ${{ matrix.app }}/android
+
+  e2e-android:
+    name: e2e-android (${{ matrix.app }}, newArch=${{ matrix.new-arch }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: examplelatest
+            app-id: com.examplelatest
+            new-arch: true
+          - app: exampleoldarch
+            app-id: com.exampleoldarch
+            new-arch: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Setup Android toolchain
+        uses: ./.github/actions/setup-android
+
+      - name: Build the editor and web utils
+        run: yarn editor:build && yarn editor:build-web-utils
+
+      - name: Build the advanced example's editor
+        if: matrix.app == 'examplelatest'
+        run: yarn examplelatest editor:build
+
+      - name: Build a release APK with the JS bundle
+        run: >
+          yarn ${{ matrix.app }} build:android:release
+          -PreactNativeArchitectures=x86_64
+          -PnewArchEnabled=${{ matrix.new-arch }}
+
+      - name: Install Maestro
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run the Maestro flows on API 34
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          script: |
+            adb install -r ${{ matrix.app }}/android/app/build/outputs/apk/release/app-release.apk
+            maestro test --format junit --output maestro-report.xml -e APP_ID=${{ matrix.app-id }} examplelatest/.maestro
+
+      - name: Upload the Maestro results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-android-${{ matrix.app }}
+          path: |
+            maestro-report.xml
+            ~/.maestro/tests
+          retention-days: 7
