@@ -747,6 +747,21 @@ describe('lifecycle', () => {
     expect(getLastAttachedController()).not.toBe(controller);
     return Promise.resolve().then(() => expect(settled).not.toHaveBeenCalled());
   });
+
+  it('drops scripts after dispose without warning', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const { controller, webView } = setup();
+    controller.handleWebViewMessage(handshake());
+    const injected = webView.scripts.length;
+    controller.dispose();
+
+    controller.injectJS('teardown();');
+    controller.registerPersistentScript('keyboard', null);
+
+    expect(webView.scripts).toHaveLength(injected);
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
 });
 
 describe('createBridgeContext', () => {

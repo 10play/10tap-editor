@@ -255,8 +255,11 @@ export class NativeEditorController<
     return promise;
   }
 
+  // Scripts sent after dispose come from teardown code that runs after the
+  // editor unmounted (the keyboard restoring inputmode); there is no page left
+  // to script, so they are dropped without a warning.
   injectJS(js: string): void {
-    if (this.isDisposed('injectJS')) return;
+    if (this.disposed) return;
     if (this.isReady()) this.transport.inject(js);
     else this.outbox.push({ kind: 'script', js });
   }
@@ -268,7 +271,7 @@ export class NativeEditorController<
   }
 
   registerPersistentScript(key: string, js: string | null): void {
-    if (this.isDisposed('registerPersistentScript')) return;
+    if (this.disposed) return;
     this.injector.setScript(key, js);
     if (js !== null && this.isReady()) this.transport.inject(js);
   }
