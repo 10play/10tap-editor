@@ -200,6 +200,13 @@ describe('CoreBridge (web)', () => {
       expect(reply?.payload).toMatchObject({ content: 'Hello\nworld' });
     });
 
+    it('renders hard breaks as newlines, as getText does', () => {
+      const reply = selectedText('<p>Hello<br>world</p>', {
+        range: { from: 1, to: 12 },
+      });
+      expect(reply?.payload).toMatchObject({ content: 'Hello\nworld' });
+    });
+
     it('clamps and orders the range', () => {
       const reply = selectedText('<p>Hello</p>', {
         range: { from: 500, to: -3 },

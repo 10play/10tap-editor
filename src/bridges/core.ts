@@ -1,4 +1,9 @@
-import type { Content, Editor } from '@tiptap/core';
+import {
+  getTextBetween,
+  getTextSerializersFromSchema,
+  type Content,
+  type Editor,
+} from '@tiptap/core';
 import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
@@ -248,7 +253,14 @@ export const CoreBridge = new BridgeExtension<
         sendMessageBack({
           type: CoreEditorActionType.SendSelectedTextToNative,
           payload: {
-            content: editor.state.doc.textBetween(from, to, '\n'),
+            content: getTextBetween(
+              editor.state.doc,
+              { from, to },
+              {
+                blockSeparator: '\n',
+                textSerializers: getTextSerializersFromSchema(editor.schema),
+              }
+            ),
             messageId: message.payload.messageId,
           },
         });
