@@ -36,6 +36,8 @@ export type LinkBarTheme = {
   addLinkContainer: StyleProp<ViewStyle>;
   linkInput: StyleProp<TextStyle>;
   placeholderTextColor?: ColorValue;
+  /** Placeholder shown in the empty link input. */
+  hintText?: string;
   doneButton: StyleProp<ViewStyle>;
   doneButtonText: StyleProp<TextStyle>;
   linkToolbarButton: StyleProp<ViewStyle>;

@@ -1,7 +1,7 @@
-// Placeholder for WP-T's keyboardTheme.ts so WP-M compiles on its own branch.
-// Integration: take WP-T's version of this file; it exports the same
-// `defaultColorKeyboardTheme` and `resolveColorKeyboardTheme`.
-import type { ColorKeyboardTheme, EditorTheme } from '../../types';
+import cloneDeep from 'lodash/cloneDeep';
+import merge from 'lodash/merge';
+import type { Color, ColorKeyboardTheme, EditorTheme } from '../../types';
+import type { RecursivePartial } from '../useEditorBridge';
 
 export const defaultColorKeyboardTheme: ColorKeyboardTheme = {
   keyboardRootColor: '#F5F5F5',
@@ -153,13 +153,152 @@ export const defaultColorKeyboardTheme: ColorKeyboardTheme = {
   ],
 };
 
+export const darkColorKeyboardTheme: Partial<ColorKeyboardTheme> = {
+  keyboardRootColor: '#313132',
+  scrollViewContainer: {
+    backgroundColor: '#313132',
+  },
+  colorButton: {
+    borderColor: '#4B4B4C',
+    backgroundColor: '#4B4B4C',
+  },
+  activeButton: {
+    borderColor: 'white',
+  },
+  iconContainer: {
+    backgroundColor: '#8C8C8D',
+    shadowColor: '#898989',
+  },
+  colorText: {
+    color: 'white',
+  },
+  sectionTitle: {
+    color: '#CACACA',
+  },
+  colorSelection: [
+    {
+      name: 'Default',
+      displayColor: 'white',
+      value: undefined,
+    },
+    {
+      name: 'Red',
+      value: '#E5112B',
+    },
+    {
+      name: 'Yellow',
+      value: '#FFEE32',
+    },
+    {
+      name: 'Orange',
+      value: '#F18200',
+    },
+    {
+      name: 'Blue',
+      value: '#006ED3',
+    },
+    {
+      name: 'Green',
+      value: '#07CE61',
+    },
+    {
+      name: 'Purple',
+      value: '#9D4EDD',
+    },
+    {
+      name: 'Pink',
+      value: '#FF77A1',
+    },
+    {
+      name: 'Black',
+      value: '#000000',
+    },
+  ],
+  highlightSelection: [
+    {
+      name: 'Default',
+      displayColor: '#E5E5E580',
+      value: undefined,
+    },
+    {
+      name: 'Red',
+      value: '#E5112B4D',
+    },
+    {
+      name: 'Yellow',
+      value: '#FFEE324D',
+    },
+    {
+      name: 'Orange',
+      value: '#F182004D',
+    },
+    {
+      name: 'Blue',
+      value: '#006ED34D',
+    },
+    {
+      name: 'Green',
+      value: '#07CE614D',
+    },
+    {
+      name: 'Purple',
+      value: '#9D4EDD4D',
+    },
+    {
+      name: 'Pink',
+      value: '#FF77A14D',
+    },
+    {
+      name: 'Black',
+      value: '#0000004D',
+    },
+  ],
+};
+
+const copyColors = (
+  colors: readonly (RecursivePartial<Color> | undefined)[]
+): Color[] =>
+  colors
+    .filter((color) => color !== undefined)
+    // A partial theme may omit `name`; it is only used as a label.
+    .map((color) => ({ ...color }) as Color);
+
+/**
+ * Overriding `colorSelection`/`highlightSelection` replaces the whole list
+ * instead of merging it into the defaults by index.
+ */
+export const replaceColorSelections = (
+  target: ColorKeyboardTheme,
+  overrides: RecursivePartial<ColorKeyboardTheme> | undefined
+): ColorKeyboardTheme => {
+  if (overrides?.colorSelection) {
+    target.colorSelection = copyColors(overrides.colorSelection);
+  }
+  if (overrides?.highlightSelection) {
+    target.highlightSelection = copyColors(overrides.highlightSelection);
+  }
+  return target;
+};
+
+const completed = new WeakMap<ColorKeyboardTheme, ColorKeyboardTheme>();
+
 /**
  * The color keyboard theme to render with: `theme.colorKeyboard` completed
  * with `defaultColorKeyboardTheme`, or the default when it is missing.
  */
 export const resolveColorKeyboardTheme = (
   theme: Pick<EditorTheme, 'colorKeyboard'> | null | undefined
-): ColorKeyboardTheme => ({
-  ...defaultColorKeyboardTheme,
-  ...theme?.colorKeyboard,
-});
+): ColorKeyboardTheme => {
+  const colorKeyboard = theme?.colorKeyboard;
+  if (!colorKeyboard) return defaultColorKeyboardTheme;
+
+  let resolved = completed.get(colorKeyboard);
+  if (!resolved) {
+    resolved = replaceColorSelections(
+      merge(cloneDeep(defaultColorKeyboardTheme), colorKeyboard),
+      colorKeyboard
+    );
+    completed.set(colorKeyboard, resolved);
+  }
+  return resolved;
+};
