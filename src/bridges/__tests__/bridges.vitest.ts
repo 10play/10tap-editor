@@ -308,8 +308,8 @@ describe('LinkBridge (web)', () => {
 });
 
 describe('ImageBridge (web)', () => {
-  const setImage = (content: string, position: number, bridges?: never) => {
-    const { editor, dispatch } = createEditor(content, { bridges });
+  const setImage = (content: string, position: number) => {
+    const { editor, dispatch } = createEditor(content);
     editor.commands.setTextSelection(position);
     dispatch(getWireFixture('image.set').message);
     return editor;
