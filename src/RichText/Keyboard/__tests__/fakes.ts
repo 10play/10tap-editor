@@ -209,17 +209,25 @@ export type FakeNativeModule = NativeKeyboardModule & {
 export const createFakeNativeModule = ({
   suppressResult = true,
   overlayResult = true,
+  restoreResult = true,
   navigationBarInset = 0,
+  systemKeyboardVisible = true,
 }: {
   suppressResult?: boolean;
   overlayResult?: boolean;
+  /** What restoring resolves; false means no focused WebView was found. */
+  restoreResult?: boolean;
   navigationBarInset?: number;
+  /** What the platform reports when asked whether the system keyboard is up. */
+  systemKeyboardVisible?: boolean;
 } = {}): FakeNativeModule => ({
   setSystemKeyboardSuppressed: jest.fn((suppressed: boolean) =>
-    Promise.resolve(suppressed ? suppressResult : true)
+    Promise.resolve(suppressed ? suppressResult : restoreResult)
   ),
   showSystemKeyboard: jest.fn(() => Promise.resolve(true)),
-  isSystemKeyboardVisible: jest.fn(() => Promise.resolve(false)),
+  isSystemKeyboardVisible: jest.fn(() =>
+    Promise.resolve(systemKeyboardVisible)
+  ),
   setWindowOverlayMode: jest.fn((_enabled: boolean) =>
     Promise.resolve(overlayResult)
   ),

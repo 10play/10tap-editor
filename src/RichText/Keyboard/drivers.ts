@@ -32,6 +32,16 @@ export interface KeyboardDriver {
   setWindowOverlayMode(enabled: boolean): Promise<boolean>;
   /** Bottom navigation bar inset in dp on edge-to-edge Android, else 0. */
   getNavigationBarInset(): Promise<number>;
+  /**
+   * Whether the system keyboard is up, as the platform reports it. Drivers
+   * without one leave it out and the keyboard events are used instead.
+   */
+  isSystemKeyboardVisible?(): Promise<boolean>;
+  /**
+   * Shows the system keyboard for the focused editor WebView. Used when
+   * `restore()` found no focused WebView (Android). False when none has focus.
+   */
+  showSystemKeyboard?(): Promise<boolean>;
 }
 
 export interface HiddenInputHandle {
@@ -48,10 +58,13 @@ export interface DriverContext {
 /** Persistent script key of the fallback driver's `inputmode` latch. */
 export const INPUT_MODE_SCRIPT_KEY = 'tentap.keyboard.inputMode';
 
-/** Delay between focusing the hidden input and handing focus back to the editor. */
-export const FALLBACK_REFOCUS_DELAY_MS = 50;
+/** Delay between moving focus and showing the IME for the newly focused view. */
+export const REFOCUS_DELAY_MS = 50;
 
 const resolved = <T>(value: T) => Promise.resolve(value);
+
+const delay = (ms: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 export const hasSystemKeyboard = (platform: string) =>
   platform === 'ios' || platform === 'android';
@@ -77,6 +90,9 @@ export const createNativeDriver = (
       : resolved(false),
   getNavigationBarInset: () =>
     platform === 'android' ? module.getNavigationBarInset() : resolved(0),
+  isSystemKeyboardVisible: () => module.isSystemKeyboardVisible(),
+  showSystemKeyboard:
+    platform === 'android' ? () => module.showSystemKeyboard() : undefined,
 });
 
 export const createFallbackDriver = ({
@@ -105,12 +121,10 @@ export const createFallbackDriver = ({
       const hiddenInput = getHiddenInput();
       if (!hiddenInput) return resolved(false);
       hiddenInput.focus();
-      return new Promise((resolve) =>
-        setTimeout(() => {
-          channel.focus();
-          resolve(true);
-        }, FALLBACK_REFOCUS_DELAY_MS)
-      );
+      return delay(REFOCUS_DELAY_MS).then(() => {
+        channel.focus();
+        return true;
+      });
     },
     release() {
       unlatch();
