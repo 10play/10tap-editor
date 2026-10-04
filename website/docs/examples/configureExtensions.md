@@ -36,3 +36,19 @@ CoreBridge.extendExtension({ content: 'heading block+' });
 ```
 
 Now the Document extension will be configured to have a heading node first followed by one or many "blocks"
+
+## Inline Images
+
+Images are block nodes by default, so an `<img>` inside a `<p>` in your `initialContent` is moved out of the paragraph, leaving an empty `<p></p>` behind. To keep images inside paragraphs, configure the ImageBridge:
+
+```tsx
+const editor = useEditorBridge({
+  bridgeExtensions: [
+    ...TenTapStartKit,
+    ImageBridge.configureExtension({ inline: true }),
+  ],
+  initialContent: '<p>Some text <img src="https://example.com/cat.png" /> more text</p>',
+});
+```
+
+Because extensions are deduplicated by name and the last one wins, the configured ImageBridge replaces the one from `TenTapStartKit`. Attributes like `style` or `width` on `<img>` are dropped unless you add them with `ImageBridge.extendExtension`.

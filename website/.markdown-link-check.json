@@ -1,0 +1,8 @@
+{
+  "ignorePatterns": [
+    { "pattern": "^/10tap-editor/img/" },
+    { "pattern": "^https://www\\.npmjs\\.com/" }
+  ],
+  "retryOn429": true,
+  "timeout": "20s"
+}

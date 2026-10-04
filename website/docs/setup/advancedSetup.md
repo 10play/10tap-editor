@@ -87,7 +87,8 @@ Add the following files
       overflow: visible;
     }
     #root div.dynamic-height .ProseMirror {
-      height: unset;
+      height: auto;
+      min-height: 0;
     }
     .ProseMirror:focus {
       outline: none;
@@ -105,8 +106,7 @@ Add the following files
 
 ```tsx title="AdvancedEditor.tsx"
 import React from 'react';
-import { EditorContent } from '@tiptap/react';
-import { useTenTap, TenTapStartKit } from '@10play/tentap-editor';
+import { EditorContent, useTenTap, TenTapStartKit } from '@10play/tentap-editor';
 import { CounterBridge } from '../CounterBridge';
 import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
@@ -212,6 +212,29 @@ export default defineConfig({
 
 > <strong>It's important to have the `alias` configuration so vite will not load react-native code</strong>
 
+#### Keeping a single copy of tiptap
+
+`@10play/tentap-editor/web` comes with its own copy of tiptap and ProseMirror. If your editor-web also pulls in a second copy, for example through `@tiptap/react` or extra extensions installed at a different version, the two copies don't recognize each other's state. This shows up as subtle bugs, such as bold or italic not applying to the next typed characters on an empty selection.
+
+- Import `EditorContent` (and `useEditor` if you need it) from `@10play/tentap-editor`, not from `@tiptap/react`.
+- Install extra `@tiptap/*` extensions at the same version that `@10play/tentap-editor` uses (`npm ls @tiptap/core` shows it).
+- Add `resolve.dedupe` to your vite config so a single copy is bundled:
+
+```ts title="vite.config.ts"
+resolve: {
+  alias: [/* ...as above */],
+  dedupe: [
+    '@tiptap/core',
+    '@tiptap/react',
+    '@tiptap/pm',
+    'prosemirror-model',
+    'prosemirror-state',
+    'prosemirror-view',
+    'prosemirror-transform',
+  ],
+},
+```
+
 ### Step 6 - adding build scripts
 
 Add scripts on package.json so it will be easy to run/build editor-web:
@@ -251,6 +274,31 @@ const editor = useEditorBridge({
 `yarn add -D @types/react-dom`
 
 You basically done with the advance setup now you have full control of the editor-web you can write your own bridgeExtensions add additional tiptapExtensions
+
+## useTenTap
+
+`useTenTap` creates the TipTap editor inside the WebView and connects it to React Native.
+
+```ts
+const editor = useTenTap({
+  bridges: [...TenTapStartKit, CounterBridge],
+  tiptapOptions: { extensions: [Document, Paragraph, Text] },
+});
+```
+
+- `bridges`: the bridges the editor-web knows about. A bridge is enabled when the native side's `bridgeExtensions` contains a bridge with the same name. Bridges and extensions are resolved once, when the editor is created.
+- `tiptapOptions`: options passed to TipTap's `useEditor`. The event handlers `onCreate`, `onUpdate`, `onSelectionUpdate` and `onTransaction` run **in addition** to tentap's own handlers, so they no longer break the connection to React Native. `content`, `editable`, `parseOptions` and `shouldRerenderOnTransaction` can still be overridden.
+
+## Upgrading your editor-web
+
+Rebuild your editor bundle (`yarn editor:build`) whenever you upgrade `@10play/tentap-editor`. Bundles built with an older version keep working, but miss the newer web-side features: `insertContent`, `getSelectedText`, `parseOptions`, and the dynamic height and readiness fixes. `getSelectedText` rejects with `TentapUnsupportedError` on such a bundle.
+
+When upgrading from 1.0, also:
+
+- change `#root div.dynamic-height .ProseMirror` in your `index.html` to `height: auto; min-height: 0;` as shown above, so dynamic height can shrink and doesn't loop on iOS (the 1.1 runtime also applies this rule itself);
+- import `EditorContent` from `@10play/tentap-editor` and follow [Keeping a single copy of tiptap](#keeping-a-single-copy-of-tiptap).
+
+The `contentInjected` polling in `index.tsx` still works. In 1.1 the configuration is written into the `customSource` HTML before your script runs, so the first check already passes.
 
 ## Alternative Setup
 
