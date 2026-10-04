@@ -1,0 +1,32 @@
+# An editor inside a Modal. On Android the Modal is its own window, so the
+# keyboard runs on the fallback driver there; the flow is the same.
+appId: ${APP_ID}
+env:
+  APP_ID: com.examplelatest
+name: Custom keyboard inside a Modal
+---
+- launchApp:
+    clearState: true
+- tapOn: 'Keyboard: Modal'
+- tapOn:
+    id: open-editor-modal
+- tapOn:
+    id: keyboard-example-editor
+- waitForAnimationToEnd
+- tapOn:
+    id: toggle-color-keyboard
+- assertVisible: Highlight
+- tapOn:
+    text: Red
+    index: 0
+- waitForAnimationToEnd
+- assertNotVisible: Highlight
+- inputText: ' modal'
+- tapOn:
+    id: read-editor-state
+- assertVisible:
+    id: editor-html
+    text: '.*color.*modal.*'
+- assertNotVisible: '.*driver failed.*'
+- tapOn:
+    id: close-editor-modal

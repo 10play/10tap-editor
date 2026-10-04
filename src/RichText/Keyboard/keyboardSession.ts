@@ -9,6 +9,7 @@ import {
 } from '../../native/keyboardStore';
 import type { Unsubscribe } from '../../shared/contracts';
 import {
+  REFOCUS_DELAY_MS,
   createFallbackDriver,
   createInlineDriver,
   createNativeDriver,
@@ -351,10 +352,25 @@ export function createKeyboardSession(
     });
   };
 
-  const verify = (token: number) => {
-    if (token !== epoch || hideSeen || !systemKeyboardUp()) return;
-    if (phase !== 'opening' && phase !== 'open') return;
+  /**
+   * The suppression did not take: no hide event arrived and the system
+   * keyboard is still up. The keyboard events are confirmed with the
+   * platform when the driver can ask it, since a missed event must not
+   * count as a failure.
+   */
+  const suppressionFailed = async (token: number, driver: KeyboardDriver) => {
+    const pending = () =>
+      token === epoch && !hideSeen && (phase === 'opening' || phase === 'open');
+    if (!pending() || !systemKeyboardUp()) return false;
+    const visible = driver.isSystemKeyboardVisible
+      ? await driver.isSystemKeyboardVisible().catch(() => true)
+      : true;
+    return visible && pending();
+  };
+
+  const verify = async (token: number) => {
     const failed = currentDriver();
+    if (!(await suppressionFailed(token, failed))) return;
     reportError({ reason: 'verify-timeout', driver: failed.kind });
     if (failed.kind === 'native') {
       useFallback = true;
@@ -362,7 +378,7 @@ export function createKeyboardSession(
       void failed.release().then(() => {
         if (token !== epoch) return;
         void getFallbackDriver().suppress();
-        schedule(VERIFY_TIMEOUT_MS, () => verify(token));
+        schedule(VERIFY_TIMEOUT_MS, () => void verify(token));
       });
       return;
     }
@@ -385,7 +401,7 @@ export function createKeyboardSession(
     suppressed = true;
     if (systemWasUp) {
       schedule(EVENT_TIMEOUT_MS, () => settleOpen(null));
-      schedule(VERIFY_TIMEOUT_MS, () => verify(token));
+      schedule(VERIFY_TIMEOUT_MS, () => void verify(token));
     }
     await suppressWith(driver);
     if (token !== epoch) return;
@@ -505,7 +521,7 @@ export function createKeyboardSession(
       dismiss();
       return;
     }
-    epoch++;
+    const token = ++epoch;
     clearTimers();
     phase = 'closing';
     closingToSystem = true;
@@ -530,8 +546,26 @@ export function createKeyboardSession(
     });
     schedule(SHOW_CONFIRM_TIMEOUT_MS, finishClose);
     unlatch();
-    void driver.restore().catch((error: unknown) => {
-      reportError({ reason: 'native-error', driver: driver.kind, error });
+    void driver
+      .restore()
+      .then((restored) => {
+        if (!restored && token === epoch) showSystemKeyboard(driver);
+      })
+      .catch((error: unknown) => {
+        reportError({ reason: 'native-error', driver: driver.kind, error });
+      });
+  };
+
+  /**
+   * `restore()` found no focused WebView (Android), so the IME did not come
+   * back: focus the editor again and show the IME for it.
+   */
+  const showSystemKeyboard = (driver: KeyboardDriver) => {
+    const show = driver.showSystemKeyboard;
+    if (!show) return;
+    channel.focus();
+    schedule(REFOCUS_DELAY_MS, () => {
+      void show().catch(() => false);
     });
   };
 

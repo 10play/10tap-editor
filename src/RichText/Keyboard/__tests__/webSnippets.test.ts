@@ -4,52 +4,7 @@ import {
   PRESS_LISTENER_GLOBAL,
   pressListenerScript,
 } from '../webSnippets';
-
-type Handler = () => void;
-
-/** Just enough of a WebView page to run the snippets in strict mode. */
-const createPage = ({ runtime = false, editorId = 'tt-1' } = {}) => {
-  const attributes = new Map<string, string>();
-  const handlers = new Map<string, Handler[]>();
-  const editorElement = {
-    setAttribute: (name: string, value: string) => attributes.set(name, value),
-    removeAttribute: (name: string) => attributes.delete(name),
-  };
-  const document = {
-    querySelector: (selector: string) =>
-      selector === '.ProseMirror' ? editorElement : null,
-    addEventListener: (type: string, handler: Handler, capture: boolean) => {
-      expect(capture).toBe(true);
-      handlers.set(type, [...(handlers.get(type) ?? []), handler]);
-    },
-  };
-  const postMessage = jest.fn();
-  const setInputMode = jest.fn();
-  const window: Record<string, unknown> = {
-    ReactNativeWebView: { postMessage },
-  };
-  if (runtime) window.__tentap = { editorId, setInputMode };
-  const run = (script: string) =>
-    new Function('window', 'document', `"use strict";${script}`)(
-      window,
-      document
-    );
-  const fire = (type: string) => handlers.get(type)?.forEach((h) => h());
-  const tap = (moved = false) => {
-    fire('touchstart');
-    if (moved) fire('touchmove');
-    fire('touchend');
-  };
-  return {
-    run,
-    tap,
-    window,
-    attributes,
-    handlers,
-    postMessage,
-    setInputMode,
-  };
-};
+import { createFakePage as createPage } from './fakes';
 
 describe('inputmode scripts', () => {
   it('toggle the attribute on legacy bundles', () => {
@@ -96,7 +51,7 @@ describe('press listener script', () => {
     const page = createPage({ runtime: true, editorId: 'tt-42' });
     page.run(pressListenerScript(true));
     page.tap();
-    expect(JSON.parse(page.postMessage.mock.calls[0][0])).toEqual({
+    expect(JSON.parse(page.postMessage.mock.calls[0]![0])).toEqual({
       type: 'tentap-editor-press',
       editorId: 'tt-42',
       v: 2,

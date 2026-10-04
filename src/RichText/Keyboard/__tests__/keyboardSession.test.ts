@@ -1,6 +1,10 @@
 import { createKeyboardStore } from '../../../native/keyboardStore';
 import { PROTOCOL_TYPES } from '../../../shared/protocol';
-import { INPUT_MODE_SCRIPT_KEY, type NativeKeyboardModule } from '../drivers';
+import {
+  INPUT_MODE_SCRIPT_KEY,
+  REFOCUS_DELAY_MS,
+  type NativeKeyboardModule,
+} from '../drivers';
 import { createEditorChannel } from '../editorChannel';
 import {
   EVENT_TIMEOUT_MS,
@@ -331,6 +335,27 @@ describe('verification and driver selection', () => {
     expect(t.options.onKeyboardError).not.toHaveBeenCalled();
   });
 
+  it('keeps the native driver when the platform reports the keyboard hidden', async () => {
+    const t = setup({
+      native: createFakeNativeModule({ systemKeyboardVisible: false }),
+    });
+    t.session.open('kb');
+    await flush();
+    jest.advanceTimersByTime(VERIFY_TIMEOUT_MS);
+    await flush();
+    expect(t.native!.isSystemKeyboardVisible).toHaveBeenCalledTimes(1);
+    expect(t.options.onKeyboardError).not.toHaveBeenCalled();
+    expect(t.view()).toMatchObject({ phase: 'open', driver: 'native' });
+  });
+
+  it('does not ask the platform once the hide event arrived', async () => {
+    const t = setup();
+    await openFully(t);
+    jest.advanceTimersByTime(VERIFY_TIMEOUT_MS);
+    await flush();
+    expect(t.native!.isSystemKeyboardVisible).not.toHaveBeenCalled();
+  });
+
   it('uses the fallback right away when the native call resolves false', async () => {
     const t = setup({
       native: createFakeNativeModule({ suppressResult: false }),
@@ -464,6 +489,52 @@ describe('closing to the system keyboard', () => {
       slotHeight: 0,
       renderedKeyboardID: undefined,
     });
+    jest.advanceTimersByTime(REFOCUS_DELAY_MS);
+    expect(t.native!.showSystemKeyboard).not.toHaveBeenCalled();
+  });
+
+  it('Android: shows the IME again when no focused WebView was restored', async () => {
+    const t = setup({
+      platform: 'android',
+      systemKeyboard: 280,
+      native: createFakeNativeModule({ restoreResult: false }),
+    });
+    await openFully(t);
+    t.session.close();
+    await flush();
+    const focusCommand = t.controller.commands.at(-1)!;
+    expect(focusCommand.message.type).toBe('focus');
+    expect(focusCommand.meta.internal).toBeDefined();
+    expect(t.native!.showSystemKeyboard).not.toHaveBeenCalled();
+
+    jest.advanceTimersByTime(REFOCUS_DELAY_MS);
+    expect(t.native!.showSystemKeyboard).toHaveBeenCalledTimes(1);
+    expect(t.view().phase).toBe('closing');
+  });
+
+  it('Android: does not show the IME for a restore that was superseded', async () => {
+    const t = setup({
+      platform: 'android',
+      systemKeyboard: 280,
+      native: createFakeNativeModule({ restoreResult: false }),
+    });
+    await openFully(t);
+    t.session.close();
+    t.session.open('kb');
+    await flush();
+    jest.advanceTimersByTime(REFOCUS_DELAY_MS);
+    expect(t.native!.showSystemKeyboard).not.toHaveBeenCalled();
+  });
+
+  it('iOS: never forces the system keyboard after a restore', async () => {
+    const t = setup({
+      native: createFakeNativeModule({ restoreResult: false }),
+    });
+    await openFully(t);
+    t.session.close();
+    await flush();
+    jest.advanceTimersByTime(REFOCUS_DELAY_MS);
+    expect(t.native!.showSystemKeyboard).not.toHaveBeenCalled();
   });
 
   it('Android fallback: restores the IME through the hidden TextInput', async () => {
@@ -475,7 +546,8 @@ describe('closing to the system keyboard', () => {
     expect(t.hiddenInput.focus).toHaveBeenCalledTimes(1);
     expect(t.editor.focus).not.toHaveBeenCalled();
 
-    jest.advanceTimersByTime(50);
+    jest.advanceTimersByTime(REFOCUS_DELAY_MS);
+    await flush();
     expect(t.editor.focus).toHaveBeenCalledTimes(1);
     const focusCommand = t.controller.commands.at(-1)!;
     expect(focusCommand.message.type).toBe('focus');
