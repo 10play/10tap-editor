@@ -129,6 +129,35 @@ export default tseslint.config(
     },
   },
   {
+    // Shared protocol code runs on both sides: no runtime dependencies at all.
+    files: ['src/shared/**/*.ts'],
+    ignores: ['src/shared/**/__tests__/**'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                'react',
+                'react/*',
+                'react-dom',
+                'react-dom/*',
+                'react-native',
+                'react-native/*',
+                'react-native-webview',
+                '@tiptap/*',
+                '../*',
+              ],
+              message:
+                'src/shared must stay dependency-free: import only from src/shared.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     // TODO(WP-G): HighlightSelection moves to @tiptap/core; drop this override.
     files: ['src/bridges/HighlightSelection.ts'],
     rules: { '@typescript-eslint/no-restricted-imports': 'off' },

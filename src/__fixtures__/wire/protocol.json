@@ -1,0 +1,107 @@
+{
+  "description": "Protocol-level messages (PROTOCOL_TYPES) and envelopes. Protocol 2 fields (editorId, v, envelope id) are optional; legacy peers omit them.",
+  "fixtures": [
+    {
+      "id": "protocol.editor-ready",
+      "direction": "web-to-native",
+      "protocolType": "EditorReady",
+      "message": {
+        "type": "editor-ready",
+        "payload": {
+          "protocol": 2,
+          "capabilities": [
+            "styles",
+            "insertContent",
+            "selectedText",
+            "parseOptions",
+            "containerHeight",
+            "inputMode"
+          ],
+          "editorId": "tt-fixture"
+        },
+        "editorId": "tt-fixture",
+        "v": 2
+      }
+    },
+    {
+      "id": "protocol.state-update",
+      "direction": "web-to-native",
+      "protocolType": "StateUpdate",
+      "message": {
+        "type": "stateUpdate",
+        "payload": {
+          "isFocused": true,
+          "isReady": true,
+          "selection": { "from": 3, "to": 3 },
+          "editable": true,
+          "empty": false,
+          "isBoldActive": false,
+          "canToggleBold": true
+        },
+        "editorId": "tt-fixture",
+        "v": 2
+      }
+    },
+    {
+      "id": "protocol.document-height",
+      "direction": "web-to-native",
+      "protocolType": "DocumentHeight",
+      "message": {
+        "type": "document-height",
+        "payload": 320,
+        "editorId": "tt-fixture",
+        "v": 2
+      }
+    },
+    {
+      "id": "protocol.container-height",
+      "direction": "native-to-web",
+      "protocolType": "ContainerHeight",
+      "capability": "containerHeight",
+      "message": { "type": "container-height", "payload": 480 }
+    },
+    {
+      "id": "protocol.boot-error",
+      "direction": "web-to-native",
+      "protocolType": "BootError",
+      "message": {
+        "type": "boot-error",
+        "payload": {
+          "reason": "config-missing",
+          "elapsedMs": 5000,
+          "legacyGlobals": false
+        }
+      }
+    },
+    {
+      "id": "protocol.editor-press",
+      "direction": "web-to-native",
+      "protocolType": "EditorPress",
+      "message": { "type": "tentap-editor-press" }
+    },
+    {
+      "id": "envelope.legacy",
+      "kind": "envelope",
+      "direction": "native-to-web",
+      "enum": "EditorMessageType",
+      "member": "Action",
+      "message": { "type": "action", "payload": { "type": "toggle-bold" } }
+    },
+    {
+      "id": "envelope.v2",
+      "kind": "envelope",
+      "direction": "native-to-web",
+      "enum": "EditorMessageType",
+      "member": "Action",
+      "message": {
+        "type": "action",
+        "payload": {
+          "type": "set-content",
+          "payload": { "content": "<p>Hello</p>" }
+        },
+        "id": "tt-fixture.1",
+        "editorId": "tt-fixture"
+      }
+    }
+  ]
+}
