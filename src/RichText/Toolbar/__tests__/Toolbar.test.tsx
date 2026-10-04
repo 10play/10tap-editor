@@ -15,7 +15,7 @@ import {
 } from '@testing-library/react-native';
 import { Images } from '../../../assets';
 import { darkEditorTheme, defaultEditorTheme } from '../../theme';
-import { useKeyboard } from '../../../utils/useKeyboard';
+import { useKeyboard, type KeyboardState } from '../../../utils/useKeyboard';
 import {
   DEFAULT_TOOLBAR_ITEMS,
   HEADING_ITEMS,
@@ -30,6 +30,20 @@ jest.mock('../../../utils/useKeyboard', () => ({
 }));
 
 const mockedUseKeyboard = jest.mocked(useKeyboard);
+
+const systemKeyboard = (height: number): KeyboardState => ({
+  systemVisible: height > 0,
+  systemHeight: height,
+  customOpen: false,
+  effectiveHeight: height,
+  windowOverlaysKeyboard: false,
+  isKeyboardUp: height > 0,
+  keyboardHeight: height,
+  isCustomKeyboardOpen: false,
+  activeCustomKeyboardID: undefined,
+  systemKeyboardHeight: height,
+  lastKeyboardHeight: height,
+});
 
 const icons = () =>
   screen.UNSAFE_getAllByType(Image).map((image) => image.props.source);
@@ -66,10 +80,7 @@ const openLinkBar = (editor: MockEditor) => {
 
 afterEach(() => {
   jest.useRealTimers();
-  mockedUseKeyboard.mockImplementation(() => ({
-    isKeyboardUp: true,
-    keyboardHeight: 300,
-  }));
+  mockedUseKeyboard.mockImplementation(() => systemKeyboard(300));
 });
 
 describe('toolbar items', () => {
@@ -266,10 +277,7 @@ describe('<Toolbar />', () => {
       result.UNSAFE_getByType(FlatList).props.style;
 
     it('hides while the keyboard is down', () => {
-      mockedUseKeyboard.mockReturnValue({
-        isKeyboardUp: false,
-        keyboardHeight: 0,
-      });
+      mockedUseKeyboard.mockReturnValue(systemKeyboard(0));
       const editor = createMockEditor();
       const result = render(<Toolbar editor={editor} />);
 
@@ -293,10 +301,7 @@ describe('<Toolbar />', () => {
     });
 
     it('lets the hidden prop override the automatic behaviour', () => {
-      mockedUseKeyboard.mockReturnValue({
-        isKeyboardUp: false,
-        keyboardHeight: 0,
-      });
+      mockedUseKeyboard.mockReturnValue(systemKeyboard(0));
       const editor = createMockEditor({ isFocused: false });
       const result = render(<Toolbar editor={editor} hidden={false} />);
 

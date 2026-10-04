@@ -27,7 +27,7 @@ import { DYNAMIC_HEIGHT_STYLE_TAG } from '../styles';
 import { useTenTap, type UseTenTapArgs } from '../useTenTap';
 
 declare global {
-  var IS_REACT_ACT_ENVIRONMENT: boolean;
+  var IS_REACT_ACT_ENVIRONMENT: boolean | undefined;
 }
 
 const EDITOR_ID = 'tt-hook';
