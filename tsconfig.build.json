@@ -1,12 +1,19 @@
 {
   "extends": "./tsconfig",
   "exclude": [
+    "./lib",
+    "./lib-web",
     "./src/simpleWebEditor",
-    "./website",
-    "./examplelatest/src/Examples/Advanced/editor-web",
     "./src/webEditorUtils",
-    "examplelatest",
-    "example76",
-    "./src/webEditorUtils/vite.config.ts"
+    "./website",
+    "./examplelatest",
+    "./scripts",
+    "./test",
+    "./src/**/__tests__",
+    "./src/**/__mocks__",
+    "./src/**/__fixtures__",
+    "./*.config.ts",
+    "./*.config.js",
+    "./jest.setup.ts"
   ]
 }

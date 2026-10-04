@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, type RefObject } from 'react';
 import WebView from 'react-native-webview';
 import cloneDeep from 'lodash/cloneDeep';
 import {
@@ -37,7 +37,8 @@ export const useEditorBridge = (options?: {
   DEV_SERVER_URL?: string;
   theme?: RecursivePartial<EditorTheme>;
 }): EditorBridge => {
-  const webviewRef = useRef<WebView>(null);
+  // The public type is RefObject<WebView>; current is null until the WebView mounts.
+  const webviewRef = useRef<WebView>(null) as RefObject<WebView>;
   // Till we will implement default per bridgeExtension
   const editorStateRef = useRef<BridgeState | {}>({});
   const editorStateSubsRef = useRef<((state: BridgeState) => void)[]>([]);

@@ -1,27 +1,24 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
-// This config is used to build the web editor into a single file
-
+// Builds the web editor utils (`@10play/tentap-editor/web`) as ESM + UMD.
 export default defineConfig({
   build: {
+    outDir: 'lib-web',
     lib: {
-      // Could also be a dictionary or array of multiple entry points
       entry: resolve(__dirname, './index.ts'),
       name: 'tentapWebutils',
-      // the proper extensions will be added
-      fileName: 'index',
+      formats: ['es', 'umd'],
+      // The UMD build uses .cjs so `require` works regardless of the consumer's package type
+      fileName: (format) => (format === 'es' ? 'index.mjs' : 'index.umd.cjs'),
     },
     rollupOptions: {
-      // make sure to externalize deps that shouldn't be bundled
-      // into your library
       external: ['react', 'react/jsx-runtime', 'react-dom'],
       output: {
-        dir: 'lib-web',
-        // Provide global variables to use in the UMD build
-        // for externalized deps
         globals: {
-          react: 'React',
+          'react': 'React',
+          'react/jsx-runtime': 'ReactJSXRuntime',
+          'react-dom': 'ReactDOM',
         },
       },
     },

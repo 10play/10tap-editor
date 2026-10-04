@@ -1,34 +1,36 @@
 const fs = require('fs');
 const path = require('path');
 
-// This script takes the editor html file and places it into a ts variable
-// so that it can be imported without the babel-plugin-inline-import plugin
-const htmlPath = process.argv[2];
-const htmlDir = path.join(htmlPath, '../');
-const editorTsPath = process.argv[3] || path.join(htmlDir, 'editorHtml.js');
+// Wraps the built editor html in a JS module so it can be imported without
+// the babel-plugin-inline-import plugin.
+// Usage: node buildEditor.js <path/to/index.html> [path/to/output.js]
 
-const createContent = (html) => {
-  return (
-    '// @ts-nocheck\n' +
-    '/* eslint-disable */\n' +
-    `export const editorHtml = ${JSON.stringify(html)};\n`
-  );
-};
+const createModule = (html) =>
+  '// @ts-nocheck\n' +
+  '/* eslint-disable */\n' +
+  `export const editorHtml = ${JSON.stringify(html)};\n`;
 
-const build = async () => {
-  try {
-    const editorHtml = fs.readFileSync(htmlPath, 'utf8');
-    const editorTs = createContent(editorHtml);
-    fs.writeFileSync(editorTsPath, editorTs);
+const declaration = 'export declare const editorHtml: string;\n';
 
-    // Create type declaration file
-    const dtsPath = editorTsPath.replace('.js', '.d.ts');
-    fs.writeFileSync(dtsPath, 'export declare const editorHtml: string;\n');
-
-    console.log('Built Editor!');
-  } catch (error) {
-    console.error('Error building editor', error);
+const build = () => {
+  const htmlPath = process.argv[2];
+  if (!htmlPath) {
+    throw new Error('Missing path to the built editor html');
   }
+  const outputPath =
+    process.argv[3] || path.join(path.dirname(htmlPath), 'editorHtml.js');
+  const { dir, name } = path.parse(outputPath);
+  const declarationPath = path.format({ dir, name, ext: '.d.ts' });
+
+  const html = fs.readFileSync(htmlPath, 'utf8');
+  fs.writeFileSync(outputPath, createModule(html));
+  fs.writeFileSync(declarationPath, declaration);
+  console.log(`Built editor: ${outputPath}`);
 };
 
-build();
+try {
+  build();
+} catch (error) {
+  console.error('Error building editor:', error.message);
+  process.exitCode = 1;
+}
