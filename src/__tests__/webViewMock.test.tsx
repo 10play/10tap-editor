@@ -18,7 +18,11 @@ describe('react-native-webview mock', () => {
 
     expect(webView.mounted).toBe(true);
     expect(webView.sources).toHaveLength(1);
-    expect(webView.sources[0]).toMatchObject({ html: editorHtml });
+    // RichText inlines its boot script into the editor HTML.
+    const { html } = webView.sources[0] as { html: string };
+    expect(html.replace(/<script>\(function\(\)\{.*?<\/script>/, '')).toBe(
+      editorHtml
+    );
   });
 
   it('exposes the imperative handle through the editor webviewRef', () => {
