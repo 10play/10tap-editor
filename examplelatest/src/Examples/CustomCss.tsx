@@ -1,10 +1,6 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
-import {
-  KeyboardAvoidingView,
-  StyleSheet,
-  Button,
-} from 'react-native';
+import { KeyboardAvoidingView, StyleSheet, Button } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   CodeBridge,
@@ -37,7 +33,7 @@ code {
 }
 `;
 
-export const CustomCss = ({}: NativeStackScreenProps<any, any, any>) => {
+export const CustomCss = (_props: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditorBridge({
     autofocus: true,
     avoidIosKeyboard: true,

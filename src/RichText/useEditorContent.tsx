@@ -25,19 +25,22 @@ export function useEditorContent<T extends EditorContentType>(
   useEffect(() => {
     const updateContent = debounce(async () => {
       switch (type) {
-        case 'json':
+        case 'json': {
           const json = await editor.getJSON();
           setContent(json as ContentType<T>);
           break;
-        case 'text':
+        }
+        case 'text': {
           const text = await editor.getText();
           setContent(text as ContentType<T>);
           break;
+        }
         case 'html':
-        default:
+        default: {
           const html = await editor.getHTML();
           setContent(html as ContentType<T>);
           break;
+        }
       }
     }, debounceInterval);
 

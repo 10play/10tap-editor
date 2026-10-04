@@ -14,8 +14,7 @@ declare global {
  * To overcome this we will check if the content is injected before rendering the editor
  */
 const contentInjected = () => window.contentInjected;
-let interval: NodeJS.Timeout;
-interval = setInterval(() => {
+const interval = setInterval(() => {
   if (!contentInjected()) return;
   // Once content is injected into the webview, we can render the editor
   const container = document.getElementById('root');

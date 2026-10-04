@@ -3,7 +3,7 @@ import { EditorContent } from '@tiptap/react';
 import { useTenTap } from '../webEditorUtils';
 import { TenTapStartKit } from '../bridges/StarterKit';
 
-let tenTapExtensions = TenTapStartKit.filter(
+const tenTapExtensions = TenTapStartKit.filter(
   (e) =>
     !window.whiteListBridgeExtensions ||
     window.whiteListBridgeExtensions.includes(e.name)

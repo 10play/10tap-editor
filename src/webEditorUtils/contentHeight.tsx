@@ -12,7 +12,7 @@ class ContentHeightListener {
     cb(this.currentHeight);
 
     this.resizeObserver = new ResizeObserver((entries) => {
-      for (let entry of entries) {
+      for (const entry of entries) {
         const newHeight = entry.target.getBoundingClientRect().height;
         if (this.currentHeight !== newHeight) {
           this.currentHeight = newHeight;

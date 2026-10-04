@@ -38,7 +38,7 @@ export const PlaceholderBridge = new BridgeExtension<
   `,
   onBridgeMessage: (editor, message) => {
     switch (message.type) {
-      case PlaceholderEditorActionType.setPlaceholder:
+      case PlaceholderEditorActionType.setPlaceholder: {
         const currentExtensions = editor.extensionManager.extensions;
         currentExtensions.forEach((extension) => {
           if (extension.name === 'placeholder') {
@@ -49,6 +49,7 @@ export const PlaceholderBridge = new BridgeExtension<
         // TODO: find better way to update the editor
         editor.setOptions();
         break;
+      }
     }
 
     return false;

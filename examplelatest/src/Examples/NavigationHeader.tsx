@@ -6,7 +6,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const HEADER_HEIGHT = 38; // IOS Only
 
-export const NavigationHeader = ({}: NativeStackScreenProps<any, any, any>) => {
+export const NavigationHeader = (
+  _props: NativeStackScreenProps<any, any, any>
+) => {
   const editor = useEditorBridge({
     autofocus: true,
     avoidIosKeyboard: true,

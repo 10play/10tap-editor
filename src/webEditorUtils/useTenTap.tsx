@@ -66,7 +66,7 @@ export const useTenTap = (options?: useTenTapArgs) => {
   };
 
   const sendStateUpdate = debounce((editor: Editor) => {
-    let payload = {};
+    const payload = {};
 
     const state = bridges.reduce((acc, e) => {
       if (!e.extendEditorState) return acc;

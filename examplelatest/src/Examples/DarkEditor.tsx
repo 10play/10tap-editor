@@ -1,10 +1,6 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
-import {
-  View,
-  KeyboardAvoidingView,
-  StyleSheet,
-} from 'react-native';
+import { View, KeyboardAvoidingView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   RichText,
@@ -22,7 +18,7 @@ import {
 
 const EDITOR_BACKGROUND_COLOR = '#1C1C1E';
 
-export const DarkEditor = ({}: NativeStackScreenProps<any, any, any>) => {
+export const DarkEditor = (_props: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditorBridge({
     autofocus: true,
     avoidIosKeyboard: true,

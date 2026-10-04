@@ -45,11 +45,9 @@ const exampleStyles = StyleSheet.create({
 
 const defaultMessages = [{ text: 'Hello World!', date: Date.now() }];
 
-export const EditorStickToKeyboardExample = ({}: NativeStackScreenProps<
-  any,
-  any,
-  any
->) => {
+export const EditorStickToKeyboardExample = (
+  _props: NativeStackScreenProps<any, any, any>
+) => {
   const editor = useEditorBridge({
     autofocus: true,
     initialContent: '<p>Initial lovely message...</p>',
@@ -78,7 +76,7 @@ export const EditorStickToKeyboardExample = ({}: NativeStackScreenProps<
         contentContainerStyle={{ paddingBottom: 120 }}
       >
         {messages.map((message) => (
-          <View style={exampleStyles.messageBox}>
+          <View key={message.date} style={exampleStyles.messageBox}>
             <WebView
               source={{
                 html: `<html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>${message.text}</body></html>`,

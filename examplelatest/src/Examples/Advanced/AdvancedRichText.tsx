@@ -35,7 +35,7 @@ const Counter = ({ editor }: { editor: EditorBridge }) => {
   );
 };
 
-export const Advanced = ({}: NativeStackScreenProps<any, any, any>) => {
+export const Advanced = (_props: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditorBridge({
     customSource: editorHtml,
     bridgeExtensions: [...TenTapStartKit, CounterBridge],

@@ -23,8 +23,7 @@ export enum ListItemEditorActionType {
 
 // Actions with no payload
 type ToggleActionTypes =
-  | ListItemEditorActionType.Lift
-  | ListItemEditorActionType.Sink;
+  ListItemEditorActionType.Lift | ListItemEditorActionType.Sink;
 
 export interface ListItemMessage {
   type: ToggleActionTypes;
