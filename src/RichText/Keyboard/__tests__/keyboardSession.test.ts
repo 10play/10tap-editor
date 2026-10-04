@@ -1,0 +1,785 @@
+import { createKeyboardStore } from '../../../native/keyboardStore';
+import { PROTOCOL_TYPES } from '../../../shared/protocol';
+import { INPUT_MODE_SCRIPT_KEY, type NativeKeyboardModule } from '../drivers';
+import { createEditorChannel } from '../editorChannel';
+import {
+  EVENT_TIMEOUT_MS,
+  PRESS_LISTENER_SCRIPT_KEY,
+  SHOW_CONFIRM_TIMEOUT_MS,
+  SLOT_ANIMATION_MS,
+  VERIFY_TIMEOUT_MS,
+  createKeyboardSession,
+  type KeyboardSessionOptions,
+} from '../keyboardSession';
+import {
+  INPUT_MODE_RESTORE_SCRIPT,
+  INPUT_MODE_SUPPRESS_SCRIPT,
+  pressListenerScript,
+} from '../webSnippets';
+import {
+  IOS_ANIMATION,
+  createFakeBackHandler,
+  createFakeEditor,
+  createFakeKeyboard,
+  createFakeLayoutAnimation,
+  createFakeNativeModule,
+  flush,
+  type FakeNativeModule,
+} from './fakes';
+
+const WINDOW = { width: 390, height: 844 };
+
+interface SetupOptions {
+  platform?: 'ios' | 'android' | 'web';
+  native?: FakeNativeModule | null;
+  /** Height of the system keyboard already up when the test starts; 0 for none. */
+  systemKeyboard?: number;
+  focused?: boolean;
+  forceFallback?: boolean;
+  withController?: boolean;
+  /** Whether the editor finished loading before the keyboard mounted. */
+  ready?: boolean;
+  options?: Partial<KeyboardSessionOptions>;
+}
+
+const setup = ({
+  platform = 'ios',
+  native = createFakeNativeModule(),
+  systemKeyboard = 300,
+  focused = true,
+  forceFallback = false,
+  withController = true,
+  ready = true,
+  options = {},
+}: SetupOptions = {}) => {
+  const keyboard = createFakeKeyboard();
+  const store = createKeyboardStore({
+    keyboard,
+    getWindowSize: () => WINDOW,
+    platform,
+  });
+  const fake = createFakeEditor({ focused, withController });
+  fake.controller.ready = ready;
+  const { layoutAnimation, configureNext } = createFakeLayoutAnimation();
+  const back = createFakeBackHandler();
+  const hiddenInput = { focus: jest.fn() };
+  const sessionOptions: KeyboardSessionOptions = {
+    closeOnEditorPress: true,
+    androidKeyboardMode: 'system',
+    heightOf: () => undefined,
+    onActiveKeyboardChange: jest.fn(),
+    onOpen: jest.fn(),
+    onClose: jest.fn(),
+    onKeyboardError: jest.fn(),
+    onSystemKeyboardReturn: jest.fn(),
+    ...options,
+  };
+  const session = createKeyboardSession({
+    platform,
+    editor: fake.editor,
+    channel: createEditorChannel(fake.editor),
+    store,
+    nativeModule: native as NativeKeyboardModule | null,
+    forceFallback,
+    getHiddenInput: () => hiddenInput,
+    layoutAnimation,
+    backHandler: back.backHandler,
+    getOptions: () => sessionOptions,
+  });
+  session.attach();
+
+  const showEvent = platform === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+  const showSystemKeyboard = (height: number) => {
+    keyboard.emit(
+      showEvent,
+      height,
+      platform === 'ios' ? IOS_ANIMATION : undefined
+    );
+    if (platform === 'ios') keyboard.emit('keyboardDidShow', height);
+  };
+  if (systemKeyboard) showSystemKeyboard(systemKeyboard);
+  configureNext.mockClear();
+
+  return {
+    ...fake,
+    platform,
+    keyboard,
+    store,
+    session,
+    native,
+    configureNext,
+    back,
+    hiddenInput,
+    options: sessionOptions,
+    view: () => session.getView(),
+    snapshot: () => store.getSnapshot(),
+  };
+};
+
+type Harness = ReturnType<typeof setup>;
+
+/** Opens `id` and completes the platform's hide transition. */
+const openFully = async (t: Harness, id = 'kb') => {
+  t.session.open(id);
+  await flush();
+  if (t.snapshot().systemVisible) {
+    if (t.platform === 'ios') {
+      t.keyboard.emit('keyboardWillHide', 300, IOS_ANIMATION);
+    } else {
+      t.keyboard.emit('keyboardDidHide', 0);
+    }
+  }
+  await flush();
+  expect(t.view().phase).toBe('open');
+  t.configureNext.mockClear();
+  t.native?.setSystemKeyboardSuppressed.mockClear();
+};
+
+beforeEach(() => {
+  jest.useFakeTimers();
+  jest.spyOn(console, 'warn').mockImplementation(() => {});
+});
+
+afterEach(() => {
+  jest.useRealTimers();
+  jest.restoreAllMocks();
+});
+
+describe('opening on iOS', () => {
+  it('suppresses natively and fills the slot in the hide event batch', async () => {
+    const t = setup();
+    t.session.open('kb');
+
+    expect(t.view()).toMatchObject({
+      phase: 'opening',
+      renderedKeyboardID: 'kb',
+      slotHeight: 0,
+      keyboardHeight: 300,
+      driver: 'native',
+    });
+    expect(t.options.onActiveKeyboardChange).toHaveBeenCalledWith('kb');
+    await flush();
+    expect(t.native!.setSystemKeyboardSuppressed).toHaveBeenCalledWith(true);
+
+    t.keyboard.emit('keyboardWillHide', 300, IOS_ANIMATION);
+    // The slot follows in a microtask, the same batch as the KAV padding.
+    expect(t.view().slotHeight).toBe(0);
+    await flush();
+    expect(t.view()).toMatchObject({ phase: 'open', slotHeight: 300 });
+    expect(t.configureNext).toHaveBeenCalledTimes(1);
+    expect(t.configureNext).toHaveBeenCalledWith({
+      duration: 250,
+      update: { duration: 250, type: 'keyboard' },
+    });
+    expect(t.options.onOpen).toHaveBeenCalledWith('kb');
+  });
+
+  it('treats a near-zero keyboardWillShow as the hide event', async () => {
+    const t = setup();
+    t.session.open('kb');
+    await flush();
+    t.keyboard.emit('keyboardWillChangeFrame', 0, IOS_ANIMATION);
+    await flush();
+    expect(t.view()).toMatchObject({ phase: 'open', slotHeight: 300 });
+  });
+
+  it('keeps useKeyboard at the keyboard height through the swap', async () => {
+    const t = setup();
+    expect(t.snapshot()).toMatchObject({
+      isKeyboardUp: true,
+      keyboardHeight: 300,
+    });
+    t.session.open('kb');
+    expect(t.snapshot()).toMatchObject({
+      isKeyboardUp: true,
+      keyboardHeight: 300,
+      isCustomKeyboardOpen: true,
+      activeCustomKeyboardID: 'kb',
+    });
+    await flush();
+    t.keyboard.emit('keyboardWillHide', 300, IOS_ANIMATION);
+    expect(t.snapshot()).toMatchObject({
+      systemVisible: false,
+      isKeyboardUp: true,
+      keyboardHeight: 300,
+      effectiveHeight: 300,
+    });
+    t.keyboard.emit('keyboardDidHide', 300);
+    await flush();
+    expect(t.snapshot().keyboardHeight).toBe(300);
+
+    t.session.close();
+    await flush();
+    expect(t.snapshot()).toMatchObject({
+      isKeyboardUp: true,
+      keyboardHeight: 300,
+    });
+    t.keyboard.emit('keyboardWillShow', 300, IOS_ANIMATION);
+    expect(t.snapshot()).toMatchObject({
+      isKeyboardUp: true,
+      keyboardHeight: 300,
+      isCustomKeyboardOpen: false,
+      systemVisible: true,
+    });
+  });
+});
+
+describe('opening on Android', () => {
+  it('fills the slot on keyboardDidHide without an animation', async () => {
+    const t = setup({ platform: 'android', systemKeyboard: 280 });
+    t.session.open('kb');
+    await flush();
+    expect(t.native!.setSystemKeyboardSuppressed).toHaveBeenCalledWith(true);
+    t.keyboard.emit('keyboardDidHide', 0);
+    expect(t.view().slotHeight).toBe(0);
+    await flush();
+    expect(t.view()).toMatchObject({ phase: 'open', slotHeight: 280 });
+    expect(t.configureNext).not.toHaveBeenCalled();
+  });
+});
+
+describe('opening without a system keyboard event', () => {
+  it('animates the slot itself when no keyboard is up (hardware keyboard)', async () => {
+    const t = setup({ systemKeyboard: 0, options: { defaultHeight: 260 } });
+    t.session.open('kb');
+    expect(t.view().keyboardHeight).toBe(260);
+    await flush();
+    expect(t.view()).toMatchObject({ phase: 'open', slotHeight: 260 });
+    expect(t.configureNext).toHaveBeenCalledWith({
+      duration: SLOT_ANIMATION_MS,
+      update: { duration: SLOT_ANIMATION_MS, type: 'keyboard' },
+    });
+  });
+
+  it('ignores the iPad shortcut bar', async () => {
+    const t = setup({ systemKeyboard: 55 });
+    t.session.open('kb');
+    await flush();
+    expect(t.view().phase).toBe('open');
+  });
+
+  it('falls back to a share of the window height before any keyboard was seen', () => {
+    const t = setup({ systemKeyboard: 0 });
+    t.session.open('kb');
+    expect(t.view().keyboardHeight).toBe(Math.round(0.38 * WINDOW.height));
+  });
+
+  it('prefers the extension height', () => {
+    const t = setup({ options: { heightOf: () => 200 } });
+    t.session.open('kb');
+    expect(t.view().keyboardHeight).toBe(200);
+  });
+
+  it('animates the slot after the event timeout when the keyboard stays silent', async () => {
+    const t = setup();
+    t.session.open('kb');
+    await flush();
+    jest.advanceTimersByTime(EVENT_TIMEOUT_MS);
+    await flush();
+    expect(t.view()).toMatchObject({ phase: 'open', slotHeight: 300 });
+    expect(t.configureNext).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('verification and driver selection', () => {
+  it('switches to the fallback driver when the keyboard is still up after 600 ms', async () => {
+    const t = setup();
+    t.session.open('kb');
+    await flush();
+    jest.advanceTimersByTime(VERIFY_TIMEOUT_MS);
+    await flush();
+
+    expect(t.options.onKeyboardError).toHaveBeenCalledWith({
+      reason: 'verify-timeout',
+      driver: 'native',
+    });
+    expect(t.native!.setSystemKeyboardSuppressed).toHaveBeenLastCalledWith(
+      false
+    );
+    expect(t.view().driver).toBe('fallback');
+    expect(t.controller.persistent.get(INPUT_MODE_SCRIPT_KEY)).toBe(
+      INPUT_MODE_SUPPRESS_SCRIPT
+    );
+    expect(console.warn).toHaveBeenCalledTimes(1);
+  });
+
+  it('gives up and hands the area back when the fallback fails too', async () => {
+    const t = setup();
+    t.session.open('kb');
+    await flush();
+    jest.advanceTimersByTime(VERIFY_TIMEOUT_MS);
+    await flush();
+    jest.advanceTimersByTime(VERIFY_TIMEOUT_MS);
+    await flush();
+    expect(t.options.onKeyboardError).toHaveBeenLastCalledWith({
+      reason: 'verify-timeout',
+      driver: 'fallback',
+    });
+    expect(t.view().phase).toBe('closing');
+    expect(t.options.onActiveKeyboardChange).toHaveBeenLastCalledWith(
+      undefined
+    );
+    jest.advanceTimersByTime(SHOW_CONFIRM_TIMEOUT_MS);
+    await flush();
+    expect(t.view()).toMatchObject({ phase: 'closed', slotHeight: 0 });
+  });
+
+  it('does not fail verification once the hide event arrived', async () => {
+    const t = setup();
+    await openFully(t);
+    jest.advanceTimersByTime(VERIFY_TIMEOUT_MS * 2);
+    expect(t.options.onKeyboardError).not.toHaveBeenCalled();
+  });
+
+  it('uses the fallback right away when the native call resolves false', async () => {
+    const t = setup({
+      native: createFakeNativeModule({ suppressResult: false }),
+    });
+    t.session.open('kb');
+    await flush();
+    expect(t.view().driver).toBe('fallback');
+    expect(t.controller.persistent.get(INPUT_MODE_SCRIPT_KEY)).toBe(
+      INPUT_MODE_SUPPRESS_SCRIPT
+    );
+    expect(t.options.onKeyboardError).not.toHaveBeenCalled();
+  });
+
+  it('reports a rejected native call and falls back', async () => {
+    const native = createFakeNativeModule();
+    native.setSystemKeyboardSuppressed.mockRejectedValueOnce(new Error('boom'));
+    const t = setup({ native });
+    t.session.open('kb');
+    await flush();
+    expect(t.options.onKeyboardError).toHaveBeenCalledWith(
+      expect.objectContaining({ reason: 'native-error', driver: 'native' })
+    );
+    expect(t.view().driver).toBe('fallback');
+  });
+
+  it('selects the fallback driver without the native module', async () => {
+    const t = setup({ native: null });
+    expect(t.view().driver).toBe('fallback');
+    t.session.open('kb');
+    await flush();
+    expect(t.controller.persistent.get(INPUT_MODE_SCRIPT_KEY)).toBe(
+      INPUT_MODE_SUPPRESS_SCRIPT
+    );
+  });
+
+  it('honours forceFallback', () => {
+    const t = setup({ forceFallback: true });
+    expect(t.view().driver).toBe('fallback');
+  });
+
+  it('renders inline without suppression on web', async () => {
+    const t = setup({ platform: 'web', systemKeyboard: 0 });
+    expect(t.view().driver).toBe('inline');
+    t.session.open('kb');
+    await flush();
+    expect(t.view().phase).toBe('open');
+    expect(t.native!.setSystemKeyboardSuppressed).not.toHaveBeenCalled();
+    t.session.close();
+    await flush();
+    expect(t.view().phase).toBe('closed');
+  });
+});
+
+describe('closing to the system keyboard', () => {
+  it('iOS: restores, empties the slot with the show event and keeps the body until didShow', async () => {
+    const t = setup();
+    await openFully(t);
+
+    t.session.close();
+    expect(t.options.onActiveKeyboardChange).toHaveBeenLastCalledWith(
+      undefined
+    );
+    await flush();
+    expect(t.native!.setSystemKeyboardSuppressed).toHaveBeenCalledWith(false);
+    expect(t.view()).toMatchObject({
+      phase: 'closing',
+      activeKeyboardID: undefined,
+      renderedKeyboardID: 'kb',
+      slotHeight: 300,
+    });
+
+    t.keyboard.emit('keyboardWillShow', 300, IOS_ANIMATION);
+    await flush();
+    expect(t.view()).toMatchObject({
+      phase: 'closing',
+      slotHeight: 0,
+      renderedKeyboardID: 'kb',
+    });
+    expect(t.configureNext).toHaveBeenCalledWith({
+      duration: 250,
+      update: { duration: 250, type: 'keyboard' },
+    });
+    expect(t.options.onSystemKeyboardReturn).toHaveBeenCalledTimes(1);
+
+    t.keyboard.emit('keyboardDidShow', 300);
+    await flush();
+    expect(t.view()).toMatchObject({
+      phase: 'closed',
+      renderedKeyboardID: undefined,
+    });
+    expect(t.options.onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('unmounts the body after the ceiling when didShow never arrives', async () => {
+    const t = setup();
+    await openFully(t);
+    t.session.close();
+    t.keyboard.emit('keyboardWillShow', 300, IOS_ANIMATION);
+    await flush();
+    jest.advanceTimersByTime(SHOW_CONFIRM_TIMEOUT_MS - 1);
+    await flush();
+    expect(t.view().renderedKeyboardID).toBe('kb');
+    jest.advanceTimersByTime(1);
+    await flush();
+    expect(t.view().phase).toBe('closed');
+  });
+
+  it('animates the slot itself without a show event (hardware keyboard)', async () => {
+    const t = setup();
+    await openFully(t);
+    t.session.close();
+    jest.advanceTimersByTime(EVENT_TIMEOUT_MS);
+    await flush();
+    expect(t.view().slotHeight).toBe(0);
+    expect(t.configureNext).toHaveBeenCalledWith(
+      expect.objectContaining({ duration: SLOT_ANIMATION_MS })
+    );
+  });
+
+  it('Android: finishes on keyboardDidShow in one batch', async () => {
+    const t = setup({ platform: 'android', systemKeyboard: 280 });
+    await openFully(t);
+    t.session.close();
+    await flush();
+    expect(t.native!.setSystemKeyboardSuppressed).toHaveBeenCalledWith(false);
+    t.keyboard.emit('keyboardDidShow', 280);
+    expect(t.view().slotHeight).toBe(280);
+    await flush();
+    expect(t.view()).toMatchObject({
+      phase: 'closed',
+      slotHeight: 0,
+      renderedKeyboardID: undefined,
+    });
+  });
+
+  it('Android fallback: restores the IME through the hidden TextInput', async () => {
+    const t = setup({ platform: 'android', native: null, systemKeyboard: 280 });
+    await openFully(t);
+    t.session.close();
+    expect(t.controller.persistent.has(INPUT_MODE_SCRIPT_KEY)).toBe(false);
+    expect(t.controller.injected).toContain(INPUT_MODE_RESTORE_SCRIPT);
+    expect(t.hiddenInput.focus).toHaveBeenCalledTimes(1);
+    expect(t.editor.focus).not.toHaveBeenCalled();
+
+    jest.advanceTimersByTime(50);
+    expect(t.editor.focus).toHaveBeenCalledTimes(1);
+    const focusCommand = t.controller.commands.at(-1)!;
+    expect(focusCommand.message.type).toBe('focus');
+    expect(focusCommand.meta.internal).toBeDefined();
+    expect(t.view().phase).toBe('closing');
+  });
+});
+
+describe('switching keyboards', () => {
+  it('swaps only the body: no driver calls and no animation', async () => {
+    const t = setup();
+    await openFully(t, 'a');
+    t.session.open('b');
+    await flush();
+    expect(t.view()).toMatchObject({
+      phase: 'open',
+      activeKeyboardID: 'b',
+      renderedKeyboardID: 'b',
+      slotHeight: 300,
+    });
+    expect(t.native!.setSystemKeyboardSuppressed).not.toHaveBeenCalled();
+    expect(t.configureNext).not.toHaveBeenCalled();
+    expect(t.options.onActiveKeyboardChange).toHaveBeenLastCalledWith('b');
+    expect(t.snapshot().activeCustomKeyboardID).toBe('b');
+  });
+});
+
+describe('close triggers', () => {
+  it('a tap in the editor closes to the system keyboard', async () => {
+    const t = setup();
+    await openFully(t);
+    t.controller.receive(PROTOCOL_TYPES.EditorPress);
+    expect(t.view().phase).toBe('closing');
+    await flush();
+    expect(t.native!.setSystemKeyboardSuppressed).toHaveBeenCalledWith(false);
+  });
+
+  it('ignores taps when closeOnEditorPress is false', async () => {
+    const t = setup({ options: { closeOnEditorPress: false } });
+    await openFully(t);
+    t.controller.receive(PROTOCOL_TYPES.EditorPress);
+    expect(t.view().phase).toBe('open');
+  });
+
+  it("the app's editor.focus() closes to the system keyboard", async () => {
+    const t = setup();
+    await openFully(t);
+    t.editor.focus();
+    expect(t.view().phase).toBe('closing');
+  });
+
+  it("the keyboard's own focus call does not close it", async () => {
+    const t = setup({ focused: false, systemKeyboard: 0 });
+    t.session.open('kb');
+    expect(t.controller.injected).toContain(INPUT_MODE_SUPPRESS_SCRIPT);
+    expect(t.editor.focus).toHaveBeenCalledTimes(1);
+    expect(t.controller.commands[0]!.meta.internal).toBeDefined();
+    expect(t.view().phase).toBe('opening');
+    expect(t.native!.setSystemKeyboardSuppressed).not.toHaveBeenCalled();
+
+    t.setFocused(true);
+    await flush();
+    expect(t.native!.setSystemKeyboardSuppressed).toHaveBeenCalledWith(true);
+    expect(t.view().phase).toBe('open');
+
+    // The latch comes off before the system keyboard is restored.
+    t.session.close();
+    expect(t.controller.injected.at(-1)).toBe(INPUT_MODE_RESTORE_SCRIPT);
+  });
+
+  it('suppresses after the focus timeout when no focus update arrives', async () => {
+    const t = setup({ focused: false, systemKeyboard: 0 });
+    t.session.open('kb');
+    jest.advanceTimersByTime(300);
+    await flush();
+    expect(t.native!.setSystemKeyboardSuppressed).toHaveBeenCalledWith(true);
+  });
+
+  it('an editor blur dismisses without showing the system keyboard', async () => {
+    const t = setup();
+    await openFully(t);
+    t.setFocused(false);
+    expect(t.view()).toMatchObject({
+      phase: 'closing',
+      activeKeyboardID: undefined,
+    });
+    expect(t.options.onActiveKeyboardChange).toHaveBeenLastCalledWith(
+      undefined
+    );
+    await flush();
+    expect(t.editor.blur).not.toHaveBeenCalled();
+    expect(t.native!.setSystemKeyboardSuppressed).toHaveBeenCalledWith(false);
+    expect(t.view().slotHeight).toBe(0);
+    expect(t.configureNext).toHaveBeenCalledWith(
+      expect.objectContaining({ duration: SLOT_ANIMATION_MS })
+    );
+    jest.advanceTimersByTime(SLOT_ANIMATION_MS);
+    await flush();
+    expect(t.view()).toMatchObject({
+      phase: 'closed',
+      renderedKeyboardID: undefined,
+    });
+  });
+
+  it('dismiss() on iOS blurs the editor before ending the suppression', async () => {
+    const t = setup();
+    await openFully(t);
+    t.session.dismiss();
+    expect(t.editor.blur).toHaveBeenCalledTimes(1);
+    await flush();
+    expect(t.native!.setSystemKeyboardSuppressed).not.toHaveBeenCalled();
+    t.setFocused(false);
+    await flush();
+    expect(t.native!.setSystemKeyboardSuppressed).toHaveBeenCalledWith(false);
+    // The keyboard's own blur is not an app focus call.
+    expect(t.view().phase).toBe('closing');
+  });
+
+  it('close(false) is a dismiss', async () => {
+    const t = setup();
+    await openFully(t);
+    t.session.close(false);
+    expect(t.editor.blur).toHaveBeenCalled();
+  });
+
+  it('another input bringing up the system keyboard hands the area over', async () => {
+    const t = setup();
+    await openFully(t);
+    t.keyboard.emit('keyboardWillShow', 300, IOS_ANIMATION);
+    expect(t.view().phase).toBe('closing');
+    expect(t.options.onSystemKeyboardReturn).toHaveBeenCalledTimes(1);
+    expect(t.options.onActiveKeyboardChange).toHaveBeenLastCalledWith(
+      undefined
+    );
+    await flush();
+    expect(t.view().slotHeight).toBe(0);
+    expect(t.native!.setSystemKeyboardSuppressed).toHaveBeenCalledWith(false);
+    t.keyboard.emit('keyboardDidShow', 300);
+    await flush();
+    expect(t.view().phase).toBe('closed');
+  });
+
+  it('Android back dismisses and is consumed only while open', async () => {
+    const t = setup({ platform: 'android', systemKeyboard: 280 });
+    expect(t.back.press()).toBe(false);
+    await openFully(t);
+    expect(t.back.press()).toBe(true);
+    expect(t.view().phase).toBe('closing');
+    await flush();
+    // Only the latch comes off: no native restore, which would show the IME.
+    expect(t.native!.setSystemKeyboardSuppressed).not.toHaveBeenCalled();
+    expect(t.controller.injected.at(-1)).toBe(INPUT_MODE_RESTORE_SCRIPT);
+    expect(t.editor.blur).not.toHaveBeenCalled();
+  });
+
+  it('a WebView reload closes and resets', async () => {
+    const t = setup({ native: null });
+    await openFully(t);
+    t.controller.reload();
+    expect(t.view()).toMatchObject({
+      phase: 'closed',
+      slotHeight: 0,
+      renderedKeyboardID: undefined,
+    });
+    expect(t.controller.persistent.has(INPUT_MODE_SCRIPT_KEY)).toBe(false);
+    expect(t.controller.injected.at(-1)).toBe(INPUT_MODE_RESTORE_SCRIPT);
+    expect(t.options.onClose).toHaveBeenCalledTimes(1);
+    expect(t.options.onActiveKeyboardChange).toHaveBeenLastCalledWith(
+      undefined
+    );
+  });
+
+  it('the first ready is not a reload', () => {
+    const t = setup({ ready: false });
+    t.session.open('kb');
+    t.controller.setReady(true);
+    expect(t.view().phase).toBe('opening');
+  });
+
+  it('activeKeyboardID set to undefined closes to the system keyboard', async () => {
+    const t = setup();
+    t.session.sync('kb');
+    expect(t.options.onActiveKeyboardChange).not.toHaveBeenCalled();
+    await flush();
+    t.keyboard.emit('keyboardWillHide', 300, IOS_ANIMATION);
+    await flush();
+    t.session.sync(undefined);
+    expect(t.view().phase).toBe('closing');
+    expect(t.options.onActiveKeyboardChange).not.toHaveBeenCalled();
+    await flush();
+    expect(t.native!.setSystemKeyboardSuppressed).toHaveBeenLastCalledWith(
+      false
+    );
+  });
+
+  it('reopening while closing suppresses again', async () => {
+    const t = setup();
+    await openFully(t);
+    t.session.close();
+    t.session.open('kb');
+    expect(t.view().phase).toBe('opening');
+    await flush();
+    expect(t.native!.setSystemKeyboardSuppressed).toHaveBeenLastCalledWith(
+      true
+    );
+  });
+});
+
+describe('teardown', () => {
+  it('releases everything once, however often it runs', async () => {
+    const t = setup();
+    await openFully(t);
+    t.session.detach();
+    await flush();
+
+    expect(t.native!.setSystemKeyboardSuppressed).toHaveBeenCalledTimes(1);
+    expect(t.native!.setSystemKeyboardSuppressed).toHaveBeenCalledWith(false);
+    expect(t.controller.persistent.has(PRESS_LISTENER_SCRIPT_KEY)).toBe(false);
+    expect(t.controller.injected.at(-1)).toBe(pressListenerScript(false));
+    expect(t.keyboard.listenerCount()).toBe(0);
+    expect(t.back.count()).toBe(0);
+    expect(t.view()).toMatchObject({ phase: 'closed', slotHeight: 0 });
+    expect(t.snapshot().isCustomKeyboardOpen).toBe(false);
+    expect(t.store.getHost()).toBeUndefined();
+    // Unmounting never writes back into the parent's state.
+    expect(t.options.onActiveKeyboardChange).toHaveBeenCalledTimes(1);
+
+    t.session.detach();
+    await flush();
+    expect(t.native!.setSystemKeyboardSuppressed).toHaveBeenCalledTimes(1);
+  });
+
+  it('resets the fallback latch', async () => {
+    const t = setup({ native: null });
+    await openFully(t);
+    t.session.detach();
+    expect(t.controller.persistent.size).toBe(0);
+    expect(t.controller.injected).toContain(INPUT_MODE_RESTORE_SCRIPT);
+  });
+
+  it("restores the window mode in Android 'stable' mode", async () => {
+    const t = setup({
+      platform: 'android',
+      systemKeyboard: 280,
+      options: { androidKeyboardMode: 'stable' },
+    });
+    await flush();
+    expect(t.native!.setWindowOverlayMode).toHaveBeenCalledWith(true);
+    expect(t.snapshot().windowOverlaysKeyboard).toBe(true);
+    t.session.detach();
+    expect(t.native!.setWindowOverlayMode).toHaveBeenLastCalledWith(false);
+    expect(t.snapshot().windowOverlaysKeyboard).toBe(false);
+  });
+
+  it("never touches the window mode in 'system' mode", async () => {
+    const t = setup({ platform: 'android', systemKeyboard: 280 });
+    await flush();
+    t.session.detach();
+    expect(t.native!.setWindowOverlayMode).not.toHaveBeenCalled();
+  });
+
+  it('restores a window mode applied after unmount', async () => {
+    const t = setup({
+      platform: 'android',
+      options: { androidKeyboardMode: 'stable' },
+    });
+    t.session.detach();
+    await flush();
+    expect(t.native!.setWindowOverlayMode.mock.calls).toEqual([
+      [true],
+      [false],
+    ]);
+  });
+
+  it('reattaches after a StrictMode detach', async () => {
+    const t = setup();
+    t.session.detach();
+    t.session.attach();
+    expect(t.controller.persistent.get(PRESS_LISTENER_SCRIPT_KEY)).toBe(
+      pressListenerScript(true)
+    );
+    await openFully(t);
+    expect(t.view().phase).toBe('open');
+  });
+
+  it('pads the body by the edge-to-edge navigation bar inset', async () => {
+    const t = setup({
+      platform: 'android',
+      native: createFakeNativeModule({ navigationBarInset: 24 }),
+    });
+    await flush();
+    expect(t.view().navigationBarInset).toBe(24);
+    expect(t.snapshot().windowOverlaysKeyboard).toBe(true);
+  });
+});
+
+describe('editors without a controller', () => {
+  it('injects through the WebView ref and still opens', async () => {
+    const t = setup({ withController: false, native: null, systemKeyboard: 0 });
+    const injectJavaScript = jest.fn();
+    Object.assign(t.editor.webviewRef, { current: { injectJavaScript } });
+    t.session.open('kb');
+    await flush();
+    expect(injectJavaScript).toHaveBeenCalledWith(INPUT_MODE_SUPPRESS_SCRIPT);
+    expect(t.view().phase).toBe('open');
+  });
+});
