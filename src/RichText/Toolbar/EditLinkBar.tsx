@@ -1,15 +1,21 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, Image } from 'react-native';
 import { Images } from '../../assets';
-import type { EditorTheme } from '../../types';
+import type { EditorTheme, LinkBarTheme } from '../../types';
+
+const DEFAULT_HINT_TEXT = 'Type your URL here...';
 
 interface EditLinkBarProps {
   theme: EditorTheme;
-  onBlur: () => void;
+  onBlur?: () => void;
   onEditLink: (newLink: string) => void;
   onLinkIconClick: () => void;
   initialLink: string | undefined;
 }
+
+// `hintText` (PR #239) is read optionally so themes typed before it still apply.
+const getHintText = (linkBarTheme: LinkBarTheme & { hintText?: string }) =>
+  linkBarTheme.hintText ?? DEFAULT_HINT_TEXT;
 
 export const EditLinkBar = ({
   theme,
@@ -18,15 +24,20 @@ export const EditLinkBar = ({
   onLinkIconClick,
   onBlur,
 }: EditLinkBarProps) => {
-  const [link, setLink] = React.useState(initialLink || '');
+  const [link, setLink] = useState(initialLink || '');
+  const { linkBarTheme } = theme.toolbar;
+
+  useEffect(() => {
+    setLink(initialLink || '');
+  }, [initialLink]);
+
+  const submit = () => onEditLink(link);
+
   return (
-    <View style={theme.toolbar.linkBarTheme.addLinkContainer}>
+    <View style={linkBarTheme.addLinkContainer}>
       <TouchableOpacity
         onPress={onLinkIconClick}
-        style={[
-          theme.toolbar.toolbarButton,
-          theme.toolbar.linkBarTheme.linkToolbarButton,
-        ]}
+        style={[theme.toolbar.toolbarButton, linkBarTheme.linkToolbarButton]}
       >
         <View
           style={[theme.toolbar.iconWrapper, theme.toolbar.iconWrapperActive]}
@@ -42,19 +53,18 @@ export const EditLinkBar = ({
         value={link}
         onBlur={onBlur}
         onChangeText={setLink}
-        placeholder="Type your URL here..."
-        placeholderTextColor={theme.toolbar.linkBarTheme.placeholderTextColor}
+        onSubmitEditing={submit}
+        placeholder={getHintText(linkBarTheme)}
+        placeholderTextColor={linkBarTheme.placeholderTextColor}
         autoFocus
-        style={theme.toolbar.linkBarTheme.linkInput}
+        style={linkBarTheme.linkInput}
         autoCapitalize="none"
+        autoCorrect={false}
+        keyboardType="url"
+        returnKeyType="done"
       />
-      <TouchableOpacity
-        style={theme.toolbar.linkBarTheme.doneButton}
-        onPress={() => {
-          onEditLink(link);
-        }}
-      >
-        <Text style={theme.toolbar.linkBarTheme.doneButtonText}>Insert</Text>
+      <TouchableOpacity style={linkBarTheme.doneButton} onPress={submit}>
+        <Text style={linkBarTheme.doneButtonText}>Insert</Text>
       </TouchableOpacity>
     </View>
   );
