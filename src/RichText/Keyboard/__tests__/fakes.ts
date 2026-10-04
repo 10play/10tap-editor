@@ -262,3 +262,68 @@ export const createFakeBackHandler = () => {
 export const flush = async (rounds = 10) => {
   for (let i = 0; i < rounds; i++) await Promise.resolve();
 };
+
+type PageHandler = () => void;
+
+/**
+ * Just enough of a WebView page to run the injected snippets in strict mode.
+ * `runtime` installs a 1.1 `window.__tentap`; `onPost` receives what the page
+ * posts to React Native.
+ */
+export const createFakePage = ({
+  runtime = false,
+  editorId = 'tt-1',
+  onPost,
+}: {
+  runtime?: boolean;
+  editorId?: string;
+  onPost?: (data: string) => void;
+} = {}) => {
+  const attributes = new Map<string, string>();
+  const handlers = new Map<string, PageHandler[]>();
+  const editorElement = {
+    setAttribute: (name: string, value: string) => attributes.set(name, value),
+    removeAttribute: (name: string) => attributes.delete(name),
+  };
+  const document = {
+    querySelector: (selector: string) =>
+      selector === '.ProseMirror' ? editorElement : null,
+    addEventListener: (
+      type: string,
+      handler: PageHandler,
+      capture: boolean
+    ) => {
+      expect(capture).toBe(true);
+      handlers.set(type, [...(handlers.get(type) ?? []), handler]);
+    },
+  };
+  const postMessage = jest.fn((data: string) => onPost?.(data));
+  const setInputMode = jest.fn((_mode: string | null) => {});
+  const window: Record<string, unknown> = {
+    ReactNativeWebView: { postMessage },
+  };
+  if (runtime) window.__tentap = { editorId, setInputMode };
+  const run = (script: string): unknown =>
+    new Function('window', 'document', `"use strict";${script}`)(
+      window,
+      document
+    );
+  const fire = (type: string) =>
+    handlers.get(type)?.forEach((handler) => handler());
+  const tap = (moved = false) => {
+    fire('touchstart');
+    if (moved) fire('touchmove');
+    fire('touchend');
+  };
+  return {
+    run,
+    tap,
+    window,
+    attributes,
+    handlers,
+    postMessage,
+    setInputMode,
+  };
+};
+
+export type FakePage = ReturnType<typeof createFakePage>;
