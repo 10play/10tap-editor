@@ -4,29 +4,54 @@ sidebar_position: 1
 
 # useEditorBridge
 
-a react hook that will return [EditorBridge](./EditorBridge)
+a react hook that will return [EditorBridge](./EditorBridge.md)
+
+The returned `editor` keeps the same reference for the lifetime of the component, so it is safe to use in dependency arrays.
 
 #### bridgeExtensions
 
 `BridgeExtension[]`  
-<u>default</u>: `undefined`<br />
-A list of BridgeExtensions that will be added to the editor on the native side
+<u>default</u>: `TenTapStartKit`<br />
+A list of BridgeExtensions that will be added to the editor on the native side. Extensions with the same name are deduplicated and the last one wins, so spread `TenTapStartKit` first and put your configured bridges after it.
+
+Bridges are read when the editor is created. Adding a bridge to the list after mount has no effect (a warning is logged in development); remount the editor instead.
 
 #### initialContent
 
-`string | json`  
+`string | object`  
 <u>default</u>: `undefined`<br />
-initial content that will be loaded first on the editor
+initial content that will be loaded first on the editor. A string is parsed as HTML, an object as TipTap JSON.
+
+#### parseOptions
+
+`{ preserveWhitespace?: boolean | 'full' }`  
+<u>default</u>: `undefined`<br />
+ProseMirror [parse options](https://prosemirror.net/docs/ref/#model.ParseOptions) used when HTML is parsed: for `initialContent` and for every [setContent](./EditorBridge.md#setcontent) call that doesn't pass its own.
+
+By default ProseMirror collapses runs of whitespace in HTML to a single space. Use `preserveWhitespace: 'full'` to keep them:
+
+```tsx
+const editor = useEditorBridge({
+  initialContent: "<a href='hello'>hello</a>  <a href='world'>world</a>",
+  parseOptions: { preserveWhitespace: 'full' },
+});
+```
+
+With `'full'`, newlines and indentation between tags in pretty-printed HTML also become content. If you round-trip content saved from the editor, storing it with `getJSON()` keeps whitespace exactly with no parse options.
+
+:::note
+`parseOptions` needs the 1.1 web editor. If you use a [custom editor bundle](../setup/advancedSetup.md), rebuild it after upgrading.
+:::
 
 #### autofocus
 
 `boolean`  
 <u>default</u>: `false`<br />
-when true the editor will auto focus
+when true the editor will focus when it becomes ready. It runs once per load, so it also refocuses after the WebView reloads.
 
 #### avoidIosKeyboard
 
-`boolean`
+`boolean`  
 <u>default</u>: `false`<br />
 This helps keep the cursor visible above the keyboard when the editor is full-screen and the virtual keyboard hides the bottom portion of the editor.
 
@@ -35,13 +60,42 @@ When enabled, the editor automatically:
 - Adjusts ProseMirror's scroll threshold and margin so the cursor stays visible
 - Removes the padding when the keyboard is dismissed
 
+The padding follows the keyboard height reported by [useKeyboard](./CustomKeyboardUtils.md#usekeyboard), so it also covers an open custom keyboard. It is skipped when `dynamicHeight` is on, because the WebView is already only as tall as its content.
+
 **Note:** This option works on both iOS and Android, despite the name. On Android, it uses a fixed toolbar height for calculations.
+
+#### avoidKeyboard
+
+`boolean`  
+<u>default</u>: `false`<br />
+An alias of `avoidIosKeyboard` with a name that matches what it does. `avoidIosKeyboard` keeps working.
+
+#### scrollBottomOffset
+
+`number`  
+<u>default</u>: `0`<br />
+Extra space in px kept between the cursor and the bottom of the editor. It is added to the scroll threshold and to the bottom padding, so new lines scroll into view before they reach something drawn over the editor, such as a floating toolbar:
+
+```tsx
+const editor = useEditorBridge({
+  avoidIosKeyboard: true,
+  scrollBottomOffset: 60, // e.g. the height of your floating toolbar
+});
+```
+
+Unlike calling [updateScrollThresholdAndMargin](./EditorBridge.md#updatescrollthresholdandmargin) yourself, this value is kept when the keyboard opens and closes.
 
 #### dynamicHeight
 
 `boolean`  
 <u>default</u>: `false`<br />
-when true the editor's webview will keep the same height as the content height
+when true the editor's webview keeps the same height as its content. It grows and shrinks with the content in any parent, not only inside a `ScrollView`.
+
+- A height cap such as `maxHeight` on the container is respected. Once the cap is reached the editor scrolls internally and keeps its scroll position.
+- Keyboard padding (`avoidIosKeyboard`) is not applied in this mode.
+- The content height in px is also sent as a `document-height` message. To read it yourself, pass `onMessage` to [RichText](./Components.md#richtext) together with `exclusivelyUseCustomOnMessage={false}`.
+
+To scroll a long document together with other content, put the editor inside your own `ScrollView`. See [Editor inside a ScrollView](../examples/scrollView.md).
 
 #### disableColorHighlight
 
@@ -58,9 +112,53 @@ this prop can be used to customize default styles, see [theme example](../exampl
 
 #### editable
 
-`boolean`
+`boolean`  
 <u>default</u>: `true`<br />
-When set to false the editor will be `readonly`
+When set to false the editor will be `readonly`. Changing it after mount calls `editor.setEditable`.
+
+#### onChange
+
+`() => void`  
+A callback that is called each time the editor's content has changed. The content itself is not passed, so that every keystroke doesn't send the whole document from the WebView to React Native.
+
+To keep the content in state, use [useEditorContent](./useEditorContent.md), which is debounced and handles this for you:
+
+```tsx
+const editor = useEditorBridge({ initialContent });
+const content = useEditorContent(editor, { type: 'html' });
+
+useEffect(() => {
+  if (content !== undefined) save(content);
+}, [content]);
+```
+
+If you prefer `onChange`, fetch the content inside it with `editor.getHTML`, `editor.getJSON` or `editor.getText`, ideally debounced. The latest `onChange` is always the one called, so it can close over fresh state. See [Working with content](../examples/workingWithContent.md).
+
+#### mergeStyles
+
+`boolean`  
+<u>default</u>: `false`<br />
+By default a `style` prop passed to [RichText](./Components.md#richtext) replaces the editor's own WebView styles, as in 1.0. When `true`, your `style` is merged on top of them instead. `containerStyle` is always merged.
+
+#### rpcTimeoutMs
+
+`number`  
+<u>default</u>: `undefined` (no timeout)<br />
+How long the async methods (`getHTML`, `getText`, `getJSON`, `getSelectedText`) wait for the WebView before rejecting with a `TentapRpcTimeoutError`. Without it they wait indefinitely, as in 1.0.
+
+```tsx
+import { TentapRpcTimeoutError } from '@10play/tentap-editor';
+
+const editor = useEditorBridge({ rpcTimeoutMs: 5000 });
+
+try {
+  const html = await editor.getHTML();
+} catch (e) {
+  if (e instanceof TentapRpcTimeoutError) {
+    // the WebView didn't answer in time
+  }
+}
+```
 
 #### customSource
 
@@ -68,13 +166,11 @@ When set to false the editor will be `readonly`
 <u>default</u>: `SimpleEditorBundleString`<br />
 used in advance setup, an HTML string that will replace the default simple editor
 
-#### onChange
+#### webviewBaseURL
 
-`() => void`
-you can assign a callback that will be called each time the editors content has changed. Inside this function you can call
-`editor.getHTML`, `editor.getJSON` or `editor.getText` to get the content. The content is not directly provided as to not
-create allot of traffic between the webview and native. It is recommended to request the content in some debounced function
-and not each change.
+`string`  
+<u>default</u>: `undefined`<br />
+The `baseUrl` of the WebView's HTML source. Relative URLs in your content and CSS (images, fonts) resolve against it. On iOS, point it at a `file://` directory to let the WebView read local files, for example [fonts loaded from a file](../examples/customCss.md#loading-fonts-from-a-file).
 
 #### DEV
 

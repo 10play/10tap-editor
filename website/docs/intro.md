@@ -21,11 +21,12 @@ TenTap is a typed, easy to use, customizable, and extendable Rich Text editor fo
 - ➕ Extendable
 - ⚙️ Support dynamic scheme
 - 🛠️ Native toolbar
+- 🎹 Custom keyboards
 - 💅 Customizable styles
 - 🌒 Darkmode and custom theme support
-- 🏗️ supports new architecture\*
+- 🏗️ Supports the new architecture (including bridgeless) and the old architecture
 
-\* new arch supported on react-native version 0.73.5 and above
+See [Installation](./setup/installation.md#requirements) for the supported React Native versions.
 
 ## Why?
 
@@ -45,10 +46,12 @@ After years of developing rich text editors for mobile, we realized that there i
 ### Expo
 
 `npx expo install @10play/tentap-editor react-native-webview`  
-Only basic usage is supported by Expo Go (see [basic example](./examples/basic.md)).  
-Otherwise you will need to setup [Expo Dev Client](https://docs.expo.dev/develop/development-builds/introduction/).
+The editor works in Expo Go. Custom keyboards also work in Expo Go, using a JavaScript-only fallback (see [Expo Go and the fallback driver](./examples/customKeyboard.md#expo-go-and-the-fallback-driver)).  
+For the native keyboard driver and the [advanced setup](./setup/advancedSetup.md) you need an [Expo Dev Client](https://docs.expo.dev/develop/development-builds/introduction/).
 
 Now you ready to add tentap to your app!
+
+Upgrading from an older version? See the [1.1 migration guide](./migrations/v1.1.md).
 
 ## Usage
 

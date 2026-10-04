@@ -10,6 +10,8 @@ Some additional steps are necessary for supporting expo web - see working exampl
 
 `npx expo install @10play/react-native-web-webview expo-crypto`
 
+Use `@10play/react-native-web-webview` **0.0.4 or newer** if you render more than one editor on a page. Older versions deliver every editor's messages to every WebView on the page, so editors overwrite each other's state and height. 1.1 also tags its messages with an editor id and ignores messages meant for another editor; together with the 0.0.4 shim this keeps editors fully independent.
+
 ### Step 2 - Configuring your bundler
 
 import Tabs from '@theme/Tabs';
@@ -95,3 +97,8 @@ module.exports = async function (env, argv) {
 ### Step 3 - Restart Metro
 
 Restart metro for changes to take effect and the editor should load
+
+## Notes
+
+- `dynamicHeight` works on web: the height is applied to the iframe's `style`, which is the only style the shim reads.
+- [Custom keyboards](../examples/customKeyboard.md) render under the toolbar, but the browser's own keyboard isn't hidden on web.
