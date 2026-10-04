@@ -147,6 +147,27 @@ const useController = (editor: EditorBridge): EditorController => {
   return controller;
 };
 
+/**
+ * react-native-web-webview replaces its imperative handle on every render
+ * (`null`, then a new object around the same iframe). The controller would
+ * read that as a new page and drop back to `loading`, so on web it gets one
+ * handle per WebView instance that forwards to the latest one.
+ */
+const createForwardingWebView = () => {
+  let target: WebView | null = null;
+  const handle = new Proxy({} as WebView, {
+    get: (_, key) => {
+      const value: unknown =
+        target === null ? undefined : Reflect.get(target, key);
+      return typeof value === 'function' ? value.bind(target) : value;
+    },
+  });
+  const setTarget = (next: WebView | null) => {
+    if (next !== null) target = next;
+  };
+  return { handle, setTarget };
+};
+
 let warnedAboutExclusiveOnMessage = false;
 
 export const RichText = ({
@@ -180,6 +201,18 @@ export const RichText = ({
     remountPending ? 'first' : 'main',
     rendererLosses,
   ].join(':');
+
+  const forwardingWebView = useMemo(
+    () => (Platform.OS === 'web' ? createForwardingWebView() : null),
+    // One per WebView instance.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [webViewKey]
+  );
+  useLayoutEffect(() => {
+    if (!forwardingWebView) return;
+    controller.setWebView(forwardingWebView.handle);
+    return () => controller.setWebView(null);
+  }, [controller, forwardingWebView]);
 
   useLayoutEffect(() => {
     if (!remountPending) return;
@@ -333,7 +366,7 @@ export const RichText = ({
       )}
       <WebView
         key={webViewKey}
-        ref={editor.webviewRef}
+        ref={forwardingWebView?.setTarget ?? editor.webviewRef}
         scrollEnabled={false}
         source={page.source}
         injectedJavaScript={bridgeStyleSheets}

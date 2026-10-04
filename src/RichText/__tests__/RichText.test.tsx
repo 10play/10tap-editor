@@ -651,6 +651,25 @@ describe('RichText keyboard insets', () => {
 });
 
 describe('RichText lifecycle', () => {
+  it('stays ready on web while react-native-web-webview replaces its handle', () => {
+    setPlatform('web');
+    mockWebViews.newHandleEveryRender = true;
+    const { result } = createEditor();
+    const editor = result.current;
+    const { rerender } = render(<RichText editor={editor} />);
+    const webView = mockWebViews.latest();
+    load(webView);
+    ready(webView, editor);
+
+    rerender(<RichText editor={editor} testID="rerendered" />);
+    editor.setContent('<p>after</p>');
+    editor.webviewRef.current?.injectJavaScript('true;');
+
+    expect(editor.getEditorState().isReady).toBe(true);
+    expect(postedTypes(webView)).toContain(CoreEditorActionType.SetContent);
+    expect(webView.injectedJavaScript).toContain('true;');
+  });
+
   it('remounts the first WebView on affected iOS versions', () => {
     jest.spyOn(utils, 'shouldRemountOnFirstLoad').mockReturnValue(true);
     const { result } = createEditor();

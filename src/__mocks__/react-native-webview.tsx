@@ -51,6 +51,7 @@ export interface MockWebView {
 
 const instances: MockWebView[] = [];
 let nextId = 1;
+let newHandleEveryRender = false;
 
 export const mockWebViews = {
   get instances(): readonly MockWebView[] {
@@ -64,9 +65,17 @@ export const mockWebViews = {
     }
     return last;
   },
+  /**
+   * Hands out a new imperative handle on every render, as
+   * react-native-web-webview does.
+   */
+  set newHandleEveryRender(value: boolean) {
+    newHandleEveryRender = value;
+  },
   reset() {
     instances.length = 0;
     nextId = 1;
+    newHandleEveryRender = false;
   },
 };
 
@@ -202,7 +211,9 @@ const MockWebViewComponent = forwardRef<WebViewHandle, WebViewProps>(
         clearCache: () => {},
         clearHistory: () => {},
       }),
-      [webView]
+      // No dependency list, like react-native-web-webview.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      newHandleEveryRender ? undefined : [webView]
     );
 
     return (
