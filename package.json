@@ -1,6 +1,6 @@
 {
   "name": "@10play/tentap-editor",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "React Native Rich Text Editor",
   "main": "lib/commonjs/index.js",
   "module": "lib/module/index.js",
@@ -25,12 +25,13 @@
     "src",
     "lib",
     "lib-web",
-    "scripts",
+    "scripts/buildEditor.js",
     "android",
     "ios",
     "*.podspec",
     "!ios/build",
     "!android/build",
+    "!android/src/test",
     "!android/gradle",
     "!android/gradlew",
     "!android/gradlew.bat",
@@ -113,6 +114,7 @@
     "pod-install": "^0.1.0",
     "prettier": "^3.6.2",
     "react": "19.1.1",
+    "react-dom": "19.1.1",
     "react-native": "0.82.1",
     "react-native-builder-bob": "^0.40.13",
     "react-native-webview": "13.16.0",
@@ -129,13 +131,18 @@
     "prosemirror-model": "1.25.4",
     "prosemirror-state": "1.4.3",
     "prosemirror-view": "1.41.3",
-    "prosemirror-transform": "1.10.5",
-    "@10play/tentap-editor/react-dom": "19.1.1"
+    "prosemirror-transform": "1.10.5"
   },
   "peerDependencies": {
     "react": "*",
+    "react-dom": "*",
     "react-native": "*",
     "react-native-webview": "*"
+  },
+  "peerDependenciesMeta": {
+    "react-dom": {
+      "optional": true
+    }
   },
   "workspaces": [
     "examplelatest",
@@ -205,8 +212,7 @@
     "@tiptap/extensions": "^3.11.0",
     "@tiptap/pm": "^3.11.0",
     "@tiptap/react": "^3.11.0",
-    "lodash": "^4.17.21",
-    "react-dom": "^18.2.0"
+    "lodash": "^4.17.21"
   },
   "codegenConfig": {
     "name": "RNTenTapSpec",
