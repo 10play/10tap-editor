@@ -66,8 +66,9 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
  *   a prior handshake, or `LEGACY_READY_TIMEOUT_MS` after the page loaded.
  * - `ready`: stylesheets and persistent scripts are applied, the outbox is
  *   flushed in order, then `isReady` flips and `onReady` runs.
- * - A reload (new load, new WebView, crashed renderer, iOS remount, or a
- *   second handshake) goes back to `loading` and re-queues the last content,
+ * - A reload (new load, new WebView, crashed renderer, iOS remount, a second
+ *   handshake, or a handshake after the timeout fallback) goes back to
+ *   `loading` and re-queues the last content,
  *   the latest coalesced commands and every pending RPC.
  */
 export class NativeEditorController<
@@ -386,11 +387,13 @@ export class NativeEditorController<
     if (this.remountPending) return;
     const capabilities = capabilitiesFromEditorReady(payload);
     if (this.isReady()) {
-      if (this.readySource === 'handshake') {
-        // A second handshake in the same load: the page restarted.
+      if (this.readySource !== 'state') {
+        // A second handshake means the page restarted. One after the timeout
+        // fallback means the editor only now exists: what the fallback
+        // flushed reached no listener.
         this.reset();
       } else {
-        // Became ready through a legacy trigger; the handshake upgrades it.
+        // A bundle that already sent state; the handshake upgrades it.
         this.capabilities = capabilities;
         this.readySource = 'handshake';
         this.injector

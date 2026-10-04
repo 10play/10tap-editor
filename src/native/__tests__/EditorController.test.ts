@@ -133,12 +133,10 @@ describe('readiness', () => {
     expect(controller.isReady()).toBe(true);
   });
 
-  it('upgrades capabilities when the handshake arrives after the fallback', () => {
-    jest.useFakeTimers();
+  it('upgrades capabilities when the handshake follows a stateUpdate', () => {
     const { controller, webView } = setup();
     controller.injectCSS('p{}');
-    controller.onLoadEnd();
-    jest.advanceTimersByTime(LEGACY_READY_TIMEOUT_MS);
+    controller.handleWebViewMessage(webMessage('stateUpdate', {}));
     expect(controller.supports(CAPABILITIES.Styles)).toBe(false);
     const readyListener = jest.fn();
     controller.subscribeReady(readyListener);
@@ -149,6 +147,32 @@ describe('readiness', () => {
     expect(controller.isReady()).toBe(true);
     expect(readyListener).not.toHaveBeenCalled();
     expect(webView.scripts).toHaveLength(2);
+  });
+
+  it('replays what the fallback flushed when the handshake arrives late', async () => {
+    jest.useFakeTimers();
+    const { controller, webView } = setup();
+    controller.send(setContent('<p>a</p>'));
+    const html = controller.rpc<string>(getHTML);
+    controller.onLoadEnd();
+    jest.advanceTimersByTime(LEGACY_READY_TIMEOUT_MS);
+    expect(webView.types).toEqual(['set-content', 'get-html']);
+
+    controller.handleWebViewMessage(handshake());
+
+    expect(controller.isReady()).toBe(true);
+    expect(controller.supports(CAPABILITIES.Styles)).toBe(true);
+    expect(webView.types).toEqual([
+      'set-content',
+      'get-html',
+      'set-content',
+      'get-html',
+    ]);
+    const { messageId } = webView.messages[3]!.payload as {
+      messageId: string;
+    };
+    controller.handleWebViewMessage(reply(messageId, '<p>a</p>'));
+    await expect(html).resolves.toBe('<p>a</p>');
   });
 
   it('owns isReady in the state store', () => {
