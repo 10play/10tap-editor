@@ -70,6 +70,7 @@ const createWebView = () => ({
 const createContext = (platform: BridgeContext['platform'] = 'ios') => {
   const sent: Sent[] = [];
   const webView = createWebView();
+  const injected: string[] = [];
   let state = { isFocused: false } as BridgeState;
   const context: BridgeContext<BridgeState> = {
     platform,
@@ -87,11 +88,19 @@ const createContext = (platform: BridgeContext['platform'] = 'ios') => {
     supports: () => true,
     getCapabilities: () => LEGACY_CAPABILITIES,
     subscribeMessage: () => () => {},
+    injectJS: (js) => injected.push(js),
     getWebView: () => webView,
   };
   /** What a 1.1 host passes as the positional `sendBridgeMessage`. */
   const sendBridgeMessage = (message: BridgeMessage) => context.send(message);
-  return { context, sendBridgeMessage, sent, webView, getState: () => state };
+  return {
+    context,
+    sendBridgeMessage,
+    sent,
+    injected,
+    webView,
+    getState: () => state,
+  };
 };
 
 type Instance = Record<string, (...args: unknown[]) => unknown>;
@@ -220,13 +229,14 @@ describe('native halves of the bridges', () => {
     }
   });
 
-  it('injectJS goes to the WebView', () => {
-    const { context, webView } = createContext();
+  it('injectJS goes through the context, which queues it until ready', () => {
+    const { context, injected, webView } = createContext();
     const instance = extendAll([CoreBridge], jest.fn(), context);
 
     instance.injectJS!('true;');
 
-    expect(webView.injectJavaScript).toHaveBeenCalledWith('true;');
+    expect(injected).toEqual(['true;']);
+    expect(webView.injectJavaScript).not.toHaveBeenCalled();
   });
 });
 

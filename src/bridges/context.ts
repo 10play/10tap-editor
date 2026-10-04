@@ -66,6 +66,7 @@ export function resolveBridgeContext<M>(
     supports: () => false,
     getCapabilities: () => LEGACY_CAPABILITIES,
     subscribeMessage: () => () => {},
+    injectJS: (js) => webviewRef?.current?.injectJavaScript(js),
     getWebView: () => webviewRef?.current ?? null,
   };
 }

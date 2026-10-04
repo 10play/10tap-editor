@@ -558,6 +558,7 @@ export function createBridgeContext<S extends object>(
     getCapabilities: () => controller.getCapabilities(),
     subscribeMessage: (type, listener) =>
       controller.subscribeMessage(type, listener),
+    injectJS: (js) => controller.injectJS(js),
     getWebView: () => controller.getWebView(),
   };
 }

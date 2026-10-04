@@ -190,6 +190,8 @@ export interface BridgeContext<S extends object = object> {
     type: string,
     listener: MessageListener<P>
   ): Unsubscribe;
+  /** Raw `injectJavaScript`, queued until ready. */
+  injectJS(js: string): void;
   getWebView(): WebViewHandle | null;
 }
 

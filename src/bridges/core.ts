@@ -287,7 +287,10 @@ export const CoreBridge = new BridgeExtension<
         }
         return false;
       case CoreEditorActionType.StateUpdate:
-        editorBridge._updateEditorState(message.payload);
+        // An attached EditorController has already applied it.
+        if (!getEditorController(editorBridge)) {
+          editorBridge._updateEditorState(message.payload);
+        }
         return false;
       case CoreEditorActionType.ContentUpdate:
         editorBridge._onContentUpdate();
@@ -372,7 +375,7 @@ export const CoreBridge = new BridgeExtension<
         send({ type: CoreEditorActionType.Focus, payload: pos });
       },
       blur: () => send({ type: CoreEditorActionType.Blur, payload: undefined }),
-      injectJS: (js) => context.getWebView()?.injectJavaScript(js),
+      injectJS: (js) => context.injectJS(js),
       setEditable: (editable) =>
         send(
           { type: CoreEditorActionType.SetEditable, payload: editable },

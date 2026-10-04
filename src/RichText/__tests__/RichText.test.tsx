@@ -326,6 +326,29 @@ describe('RichText visibility and readiness', () => {
 });
 
 describe('RichText onMessage', () => {
+  it('applies each state update once', () => {
+    const { result } = createEditor();
+    const editor = result.current;
+    render(<RichText editor={editor} />);
+    const webView = mockWebViews.latest();
+    load(webView);
+    ready(webView, editor);
+    const listener = jest.fn();
+    editor._subscribeToEditorStateUpdate(listener);
+
+    act(() =>
+      webView.simulateMessage(
+        webMessage(CoreEditorActionType.StateUpdate, {
+          isBoldActive: true,
+          selection: { from: 1, to: 1 },
+        })
+      )
+    );
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(editor.getEditorState().isBoldActive).toBe(true);
+  });
+
   it('is visible at onLoad and ready with a custom onMessage', () => {
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
     const onMessage = jest.fn();
