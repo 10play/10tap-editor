@@ -19,14 +19,17 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 - `parseOptions` option, and `setContent(content, { parseOptions, emitUpdate })` (#327).
 - `scrollBottomOffset` option (#308).
 - `avoidKeyboard` option, an alias of `avoidIosKeyboard`.
-- `mergeStyles` option to merge the `RichText` `style` prop instead of replacing the defaults (#205).
+- `mergeStyles` option to merge the `RichText` `style` and `containerStyle` props over the defaults instead of replacing them (#205).
 - `rpcTimeoutMs` option and the `TentapRpcTimeoutError` / `TentapUnsupportedError` errors.
 - `Toolbar` `headingItems` prop; `HEADING_ITEMS` and `ToolbarContext` are exported (#295).
-- Custom keyboard additions: `layout="inline" | "overlay"`, `defaultHeight`, `closeOnEditorPress`, `androidKeyboardMode="system" | "stable"`, `forceFallback`, `onOpen`, `onClose`, `onKeyboardError`; keyboard components receive `editor`, `close` and `keyboardHeight`; `useCustomKeyboard`, `useCustomKeyboardHeight`, `CustomKeyboardHeightContext` and `EditorKeyboardAvoidingView`.
-- `useKeyboard()` also returns `isCustomKeyboardOpen`, `activeCustomKeyboardID`, `systemKeyboardHeight` and `lastKeyboardHeight`, and keeps `keyboardHeight` while switching keyboards.
+- `Toolbar` `ListComponent` prop to render the toolbar with another list, such as a bottom-sheet `FlatList` (PR #173).
+- `linkBarTheme.hintText` theme key for the link input placeholder (PR #239).
+- Custom keyboard additions: `layout="inline" | "overlay"`, `defaultHeight`, `closeOnEditorPress`, `androidKeyboardMode="system" | "stable"`, `forceFallback`, `onOpen`, `onClose`, `onKeyboardError`; keyboard components receive `editor`, `close` and `keyboardHeight`; `CustomKeyboardExtension` takes an `options.height`; `useCustomKeyboard`, `useCustomKeyboardHeight` and `EditorKeyboardAvoidingView`; `defaultColorKeyboardTheme` and `darkColorKeyboardTheme` are exported.
+- `useKeyboard()` also returns `isCustomKeyboardOpen`, `activeCustomKeyboardID`, `systemKeyboardHeight`, `lastKeyboardHeight` and `windowOverlaysKeyboard`, and keeps `keyboardHeight` while switching keyboards. Its return type is exported as `KeyboardState`.
 - `useRemoteEditorBridge` is exported and re-renders when the editor changes (#51).
 - `EditorContent` and `useEditor` are exported from `@10play/tentap-editor/web` (#309).
-- Bridges receive an optional sixth `BridgeContext` argument in `extendEditorInstance`, with a queued `send`, `rpc` and `supports(capability)`.
+- `useTenTap` `stateUpdateDebounceMs` option.
+- Bridges receive an optional sixth `BridgeContext` argument in `extendEditorInstance`, with a queued `send`, `rpc` and `supports(capability)`. The `BridgeContext`, `RpcOptions`, `SendOptions`, `Capabilities` and `CapabilityName` types are exported.
 
 ### Fixed
 
@@ -50,13 +53,17 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 
 ### Changed
 
-- `RichText` merges your `containerStyle` with its own instead of replacing it; `style` still replaces unless `mergeStyles` is set.
+- With `dynamicHeight`, `RichText` applies the content height after your `containerStyle`, so it can no longer be overridden. `style` and `containerStyle` otherwise still replace the defaults unless `mergeStyles` is set.
+- `RichText` throws when it gets an object that wasn't returned by `useEditorBridge`, such as a `{ ...editor }` copy.
+- `useEditorBridge` reads `bridgeExtensions` once and warns in development when the list changes after mount.
 - `setImage` adds an empty paragraph after an image that ends the document.
 - `setLink` adds `https://` to URLs without a scheme.
 - `shouldHideDisabledToolbarItems` also applies to heading items.
 - The link bar no longer closes on blur; the keyboard's Done key inserts the link.
 - `useTenTap` composes `tiptapOptions.onCreate`, `onUpdate`, `onSelectionUpdate` and `onTransaction` with its own handlers instead of letting them replace them.
-- The web editor sends an initial `stateUpdate` on creation, and `editor-ready` now carries a payload. Messages may carry `editorId` and `v` fields.
+- The web editor sends `editor-ready` followed by a full `stateUpdate` on creation, and `editor-ready` now carries a payload. Messages may carry `editorId` and `v` fields, and there are new message types (`boot-error`, `tentap-editor-press`).
+- Commands called before the editor is ready are queued instead of dropped with an "Editor isn't ready yet" warning.
+- `RichText` logs a development warning when `onMessage` is passed without `exclusivelyUseCustomOnMessage`.
 - `useEditorContent` fetches content on content changes only, ignores out-of-order replies and stops after unmount.
 - On iOS the WebView is remounted after its first load only with react-native-webview 13.12.3 and 13.12.4.
 - The WebView reloads and restores the editor when its content process is killed.
@@ -65,15 +72,16 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 
 ### Deprecated
 
-- `CustomKeyboard` `rootRef` (ignored) and `TenTapView` (renders nothing).
+- `CustomKeyboard` `rootRef` (ignored), `CustomKeyboard` `onKeyboardHideAndroid` (use `onClose`) and `TenTapView` (renders nothing).
 
 ### Native and tooling
 
-- New `TenTapKeyboard` native module (iOS Objective-C++, Android Java) with a `codegenConfig` (`RNTenTapSpec`). Android no longer applies the Kotlin plugin, which also makes the library build with AGP 9.
-- The native module needs React Native 0.74+ (Expo SDK 51+). `peerDependencies` stay `*`.
+- New `TenTapKeyboard` native module (iOS Objective-C++, Android Java) with a `codegenConfig` (`RNTenTapSpec`). Android no longer applies the Kotlin Gradle plugin, which AGP 9's built-in Kotlin support conflicts with.
+- **Native floor: React Native 0.74+ (Expo SDK 51+).** The Android module is built on `BaseReactPackage`, so on React Native 0.73 and older the Android build fails; stay on 1.0.x there. `peerDependencies` stay `*`, and the JavaScript part does not require the native module: without it (Expo Go, web, an unlinked build) custom keyboards use a JavaScript fallback.
 - iOS deployment target follows `min_ios_version_supported` (15.1 by default).
-- Removed the unused `@tiptap/starter-kit`, `@tiptap/extension-code-block` and `@tiptap/extension-horizontal-rule` dependencies and added `@tiptap/extension-paragraph` and `@tiptap/extension-text`. `react-dom` is no longer a runtime dependency (#67).
+- Removed the unused `@tiptap/starter-kit`, `@tiptap/extension-code-block` and `@tiptap/extension-horizontal-rule` dependencies and added `@tiptap/extension-paragraph` and `@tiptap/extension-text`. `react-dom` is no longer a runtime dependency; it is an optional peer dependency (#67).
 - `@10play/tentap-editor/web` can be loaded with `require`.
+- The package ships only `scripts/buildEditor.js` from `scripts/`.
 
 ### Credits
 
