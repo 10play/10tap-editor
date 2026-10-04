@@ -2,7 +2,7 @@
 # unmounts it (#51), and typing afterwards still reaches the editor.
 appId: ${APP_ID}
 env:
-  APP_ID: com.examplelatest
+  APP_ID: ${APP_ID || 'com.examplelatest'}
 name: Toggle the custom keyboard 20 times
 ---
 - launchApp:

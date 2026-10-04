@@ -3,7 +3,7 @@
 # iOS: maestro test -e APP_ID=org.reactjs.native.example.examplelatest ...
 appId: ${APP_ID}
 env:
-  APP_ID: com.examplelatest
+  APP_ID: ${APP_ID || 'com.examplelatest'}
 name: Color keyboard
 ---
 - launchApp:

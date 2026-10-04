@@ -2,7 +2,7 @@
 # keyboard back (closeOnEditorPress).
 appId: ${APP_ID}
 env:
-  APP_ID: com.examplelatest
+  APP_ID: ${APP_ID || 'com.examplelatest'}
 name: Editor tap closes the custom keyboard
 ---
 - launchApp:

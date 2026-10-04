@@ -2,7 +2,7 @@
 # keyboard runs on the fallback driver there; the flow is the same.
 appId: ${APP_ID}
 env:
-  APP_ID: com.examplelatest
+  APP_ID: ${APP_ID || 'com.examplelatest'}
 name: Custom keyboard inside a Modal
 ---
 - launchApp:

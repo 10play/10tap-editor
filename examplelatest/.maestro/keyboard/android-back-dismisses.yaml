@@ -3,7 +3,7 @@
 # types normally again.
 appId: ${APP_ID}
 env:
-  APP_ID: com.examplelatest
+  APP_ID: ${APP_ID || 'com.examplelatest'}
 name: Android back dismisses the custom keyboard
 ---
 - launchApp:

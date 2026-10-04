@@ -3,7 +3,7 @@
 # reachable, and typing works after it closes back to the system keyboard.
 appId: ${APP_ID}
 env:
-  APP_ID: com.examplelatest
+  APP_ID: ${APP_ID || 'com.examplelatest'}
 name: Overlay custom keyboard
 ---
 - launchApp:

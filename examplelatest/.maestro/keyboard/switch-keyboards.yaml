@@ -2,7 +2,7 @@
 # closing afterwards still brings the system keyboard back to the editor.
 appId: ${APP_ID}
 env:
-  APP_ID: com.examplelatest
+  APP_ID: ${APP_ID || 'com.examplelatest'}
 name: Switch between custom keyboards
 ---
 - launchApp:
