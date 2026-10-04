@@ -27,7 +27,6 @@ import type {
   CustomKeyboardComponentProps,
 } from './CustomKeyboardExtension';
 import { createEditorChannel } from './editorChannel';
-import { getNativeKeyboardModule } from './drivers';
 import {
   SLOT_ANIMATION_MS,
   createKeyboardSession,
@@ -36,6 +35,7 @@ import {
   type KeyboardSessionOptions,
 } from './keyboardSession';
 import { resolveColorKeyboardTheme } from './keyboardTheme';
+import { getNativeKeyboardModule } from './nativeModule';
 
 export interface CustomKeyboardProps {
   editor: EditorBridge;

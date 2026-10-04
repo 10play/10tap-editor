@@ -24,10 +24,11 @@ import {
   type CustomKeyboardComponentProps,
 } from '../CustomKeyboardExtension';
 import { useCustomKeyboard, useCustomKeyboardHeight } from '../context';
-import { getNativeKeyboardModule, INPUT_MODE_SCRIPT_KEY } from '../drivers';
+import { INPUT_MODE_SCRIPT_KEY } from '../drivers';
 import { EditorKeyboardAvoidingView } from '../EditorKeyboardAvoidingView';
 import { defaultColorKeyboardTheme } from '../keyboardTheme';
 import { SLOT_ANIMATION_MS } from '../keyboardSession';
+import { getNativeKeyboardModule } from '../nativeModule';
 import { TenTapView } from '../TenTapView';
 import { createFakeEditor, flush } from './fakes';
 

@@ -1,6 +1,4 @@
-import NativeTenTapKeyboard, {
-  type Spec as NativeKeyboardModule,
-} from '../../specs/NativeTenTapKeyboard';
+import type { Spec as NativeKeyboardModule } from '../../specs/NativeTenTapKeyboard';
 import type { EditorChannel } from './editorChannel';
 import {
   INPUT_MODE_RESTORE_SCRIPT,
@@ -57,10 +55,6 @@ const resolved = <T>(value: T) => Promise.resolve(value);
 
 export const hasSystemKeyboard = (platform: string) =>
   platform === 'ios' || platform === 'android';
-
-/** The linked native module, or null (Expo Go, web, not rebuilt). */
-export const getNativeKeyboardModule = (): NativeKeyboardModule | null =>
-  NativeTenTapKeyboard;
 
 export const createNativeDriver = (
   module: NativeKeyboardModule,
