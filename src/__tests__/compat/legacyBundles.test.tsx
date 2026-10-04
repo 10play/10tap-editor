@@ -97,16 +97,14 @@ describe('native with the legacy 0.7.5-alpha.0 bundle', () => {
   defineLegacySuite('0.7.5-alpha.0');
 });
 
-// Pending: the 1.0.1 bundle never sends an initial stateUpdate, so the old
-// native side never becomes ready (#343). Legacy detection (WP-C) and the
-// RichText boot (WP-E) fix it; enable at the WP-L gate.
-describe.skip('native with the legacy 1.0.1 bundle', () => {
+// The 1.0.1 bundle never sends an initial stateUpdate (#343); native falls
+// back to legacy readiness after onLoadEnd.
+describe('native with the legacy 1.0.1 bundle', () => {
   defineLegacySuite('1.0.1');
 });
 
-// Pending: commands sent before ready are dropped (#299, #227) until the
-// WP-C outbox lands; enable at the WP-L gate.
-describe.skip.each(LEGACY_VERSIONS)(
+// Commands sent before ready are queued, not dropped (#299, #227).
+describe.each(LEGACY_VERSIONS)(
   'native queueing for the legacy %s bundle',
   (version) => {
     it('delivers commands issued before the bundle is ready', async () => {

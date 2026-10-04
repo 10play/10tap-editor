@@ -92,9 +92,8 @@ describe('root entry compatibility with 1.0.1', () => {
   });
 });
 
-// Pending: the keyboard exports land with WP-Z. Enable at the WP-L gate.
 describe('root entry compatibility with the 0.7.x keyboard API', () => {
-  it.skip('exports the keyboard components again', () => {
+  it('exports the keyboard components again', () => {
     const current = currentRuntime();
 
     expect(
@@ -125,7 +124,7 @@ describe('root entry compatibility with the 0.7.x keyboard API', () => {
     ).toEqual([]);
   });
 
-  it.skip(
+  it(
     'restores every 0.7.x type export',
     () => {
       expect(

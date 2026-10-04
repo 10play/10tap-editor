@@ -49,10 +49,7 @@ describe('type compat fixtures', () => {
     TIMEOUT
   );
 
-  // Pending: CustomKeyboard, ColorKeyboard, CustomKeyboardExtension, TenTapView
-  // and the keyboard theme types come back with WP-M/WP-T/WP-Z. Enable at the
-  // WP-L gate.
-  it.skip(
+  it(
     'keyboard-07x-compat: the 0.7.x WithKeyboard / custom keyboard call sites',
     () => {
       expect(compileFixture('keyboard-07x-compat')).toEqual([]);
