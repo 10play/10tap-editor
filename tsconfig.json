@@ -30,6 +30,7 @@
     "./lib-web",
     "./src/simpleWebEditor",
     "./src/webEditorUtils",
+    "./test",
     "./website",
     "./examplelatest"
   ]
