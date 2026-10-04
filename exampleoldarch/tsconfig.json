@@ -1,0 +1,9 @@
+{
+  "extends": "@react-native/typescript-config/tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@10play/tentap-editor": ["../src/index"]
+    }
+  },
+  "include": ["*.tsx", "*.ts"]
+}
