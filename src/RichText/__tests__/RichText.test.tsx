@@ -327,7 +327,7 @@ describe('RichText visibility and readiness', () => {
 
 describe('RichText onMessage', () => {
   it('is visible at onLoad and ready with a custom onMessage', () => {
-    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
     const onMessage = jest.fn();
     const onChange = jest.fn();
     const { result } = createEditor({ onChange });
@@ -345,6 +345,8 @@ describe('RichText onMessage', () => {
     expect(result.current.getEditorState().isReady).toBe(true);
     // Bridges are skipped, as in 1.0.
     expect(onChange).not.toHaveBeenCalled();
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0]?.[0]).toContain('exclusivelyUseCustomOnMessage');
   });
 
   it('dispatches to bridges when exclusivelyUseCustomOnMessage is false', () => {
@@ -609,6 +611,26 @@ describe('RichText keyboard insets', () => {
     view.unmount();
     act(() => jest.runAllTimers());
     expect(thresholds(webView)).toEqual([utils.TOOLBAR_HEIGHT]);
+  });
+
+  it('clears insets left by an unmounted RichText of the same editor', () => {
+    const hook = createEditor({ avoidIosKeyboard: true });
+    mockKeyboard = keyboardUp(300, true);
+    const first = render(<RichText editor={hook.result.current} />);
+    load(mockWebViews.latest());
+    ready(mockWebViews.latest(), hook.result.current);
+    first.unmount();
+
+    mockKeyboard = keyboardDown;
+    render(<RichText editor={hook.result.current} />);
+    const webView = mockWebViews.latest();
+    load(webView);
+    ready(webView, hook.result.current);
+
+    expect(paddingScripts(webView).at(-1)).toBe(
+      utils.buildBottomPaddingScript(0)
+    );
+    expect(thresholds(webView).at(-1)).toBe(0);
   });
 
   it('re-applies the padding after a reload', () => {

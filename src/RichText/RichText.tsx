@@ -31,6 +31,7 @@ import {
   getKeyboardInsets,
   getWebViewStyles,
   shouldRemountOnFirstLoad,
+  type KeyboardInsets,
 } from './utils';
 
 interface RichTextProps extends WebViewProps {
@@ -81,6 +82,13 @@ interface Page extends PageInputs {
 }
 
 let nextPageId = 1;
+
+const NO_INSETS: KeyboardInsets = { padding: 0, scrollThreshold: 0 };
+/**
+ * Insets last sent through each controller. They outlive RichText, because
+ * the controller keeps re-applying them to every page it loads.
+ */
+const appliedInsets = new WeakMap<EditorController, KeyboardInsets>();
 
 const getPageInputs = (
   editor: EditorBridge,
@@ -252,18 +260,9 @@ export const RichText = ({
   });
   const padding = insets?.padding;
   const scrollThreshold = insets?.scrollThreshold;
-  const appliedInsets = useRef<{
-    controller: EditorController;
-    padding: number;
-    scrollThreshold: number;
-  }>(undefined);
   useEffect(() => {
     if (padding === undefined || scrollThreshold === undefined) return;
-    const last = appliedInsets.current;
-    const previous =
-      last?.controller === controller
-        ? last
-        : { padding: 0, scrollThreshold: 0 };
+    const previous = appliedInsets.get(controller) ?? NO_INSETS;
     if (
       previous.padding === padding &&
       previous.scrollThreshold === scrollThreshold
@@ -271,7 +270,7 @@ export const RichText = ({
       return;
     }
     const apply = () => {
-      appliedInsets.current = { controller, padding, scrollThreshold };
+      appliedInsets.set(controller, { padding, scrollThreshold });
       if (previous.padding !== padding) {
         controller.registerPersistentScript(
           KEYBOARD_PADDING_SCRIPT,
