@@ -1,14 +1,13 @@
 import Bold from '@tiptap/extension-bold';
-import BridgeExtension from './base';
+import {
+  createToggleBridge,
+  type ToggleInstance,
+  type ToggleState,
+} from './factories';
 
-type BoldEditorState = {
-  isBoldActive: boolean;
-  canToggleBold: boolean;
-};
+type BoldEditorState = ToggleState<'Bold'>;
 
-type BoldEditorInstance = {
-  toggleBold: () => void;
-};
+type BoldEditorInstance = ToggleInstance<'Bold'>;
 
 declare module '../types/EditorBridge' {
   interface BridgeState extends BoldEditorState {}
@@ -19,34 +18,10 @@ export enum BoldEditorActionType {
   ToggleBold = 'toggle-bold',
 }
 
-type BoldMessage = {
-  type: BoldEditorActionType.ToggleBold;
-  payload?: undefined;
-};
-
-export const BoldBridge = new BridgeExtension<
-  BoldEditorState,
-  BoldEditorInstance,
-  BoldMessage
->({
+export const BoldBridge = createToggleBridge({
+  label: 'Bold',
+  type: BoldEditorActionType.ToggleBold,
   tiptapExtension: Bold,
-  onBridgeMessage: (editor, message) => {
-    if (message.type === BoldEditorActionType.ToggleBold) {
-      editor.chain().focus().toggleBold().run();
-    }
-
-    return false;
-  },
-  extendEditorInstance: (sendBridgeMessage) => {
-    return {
-      toggleBold: () =>
-        sendBridgeMessage({ type: BoldEditorActionType.ToggleBold }),
-    };
-  },
-  extendEditorState: (editor) => {
-    return {
-      canToggleBold: editor.can().toggleBold(),
-      isBoldActive: editor.isActive('bold'),
-    };
-  },
+  activeName: 'bold',
+  toggle: (chain) => chain.toggleBold(),
 });

@@ -1,14 +1,13 @@
 import Code from '@tiptap/extension-code';
-import BridgeExtension from './base';
+import {
+  createToggleBridge,
+  type ToggleInstance,
+  type ToggleState,
+} from './factories';
 
-type CodeEditorState = {
-  isCodeActive: boolean;
-  canToggleCode: boolean;
-};
+type CodeEditorState = ToggleState<'Code'>;
 
-type CodeEditorInstance = {
-  toggleCode: () => void;
-};
+type CodeEditorInstance = ToggleInstance<'Code'>;
 
 declare module '../types/EditorBridge' {
   interface BridgeState extends CodeEditorState {}
@@ -19,37 +18,12 @@ export enum CodeEditorActionType {
   ToggleCode = 'toggle-code',
 }
 
-type CodeMessage = {
-  type: CodeEditorActionType.ToggleCode;
-  payload?: undefined;
-};
-
-export const CodeBridge = new BridgeExtension<
-  CodeEditorState,
-  CodeEditorInstance,
-  CodeMessage
->({
+export const CodeBridge = createToggleBridge({
+  label: 'Code',
+  type: CodeEditorActionType.ToggleCode,
   tiptapExtension: Code,
-  //   tiptapExtensionDeps: [CodeBlock],
-  onBridgeMessage: (editor, message) => {
-    if (message.type === CodeEditorActionType.ToggleCode) {
-      editor.chain().focus().toggleCode().run();
-    }
-
-    return false;
-  },
-  extendEditorInstance: (sendBridgeMessage) => {
-    return {
-      toggleCode: () =>
-        sendBridgeMessage({ type: CodeEditorActionType.ToggleCode }),
-    };
-  },
-  extendEditorState: (editor) => {
-    return {
-      canToggleCode: editor.can().toggleCode(),
-      isCodeActive: editor.isActive('code'),
-    };
-  },
+  activeName: 'code',
+  toggle: (chain) => chain.toggleCode(),
   extendCSS: `
     code {
         background-color: #6161611a;
