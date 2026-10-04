@@ -255,9 +255,6 @@ export const darkColorKeyboardTheme: Partial<ColorKeyboardTheme> = {
   ],
 };
 
-type ColorKeyboardOverrides =
-  RecursivePartial<ColorKeyboardTheme> | Partial<ColorKeyboardTheme>;
-
 const copyColors = (
   colors: readonly (RecursivePartial<Color> | undefined)[]
 ): Color[] =>
@@ -272,7 +269,7 @@ const copyColors = (
  */
 export const replaceColorSelections = (
   target: ColorKeyboardTheme,
-  overrides: ColorKeyboardOverrides | undefined
+  overrides: RecursivePartial<ColorKeyboardTheme> | undefined
 ): ColorKeyboardTheme => {
   if (overrides?.colorSelection) {
     target.colorSelection = copyColors(overrides.colorSelection);
@@ -283,7 +280,7 @@ export const replaceColorSelections = (
   return target;
 };
 
-const completed = new WeakMap<object, ColorKeyboardTheme>();
+const completed = new WeakMap<ColorKeyboardTheme, ColorKeyboardTheme>();
 
 /**
  * The color keyboard theme to render with: `theme.colorKeyboard` completed
