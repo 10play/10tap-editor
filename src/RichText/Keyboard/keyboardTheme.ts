@@ -1,7 +1,7 @@
 import cloneDeep from 'lodash/cloneDeep';
 import merge from 'lodash/merge';
 import type { Color, ColorKeyboardTheme, EditorTheme } from '../../types';
-import type { RecursivePartial } from '../useEditorBridge';
+import type { RecursivePartial } from '../../types/utility';
 
 export const defaultColorKeyboardTheme: ColorKeyboardTheme = {
   keyboardRootColor: '#F5F5F5',
