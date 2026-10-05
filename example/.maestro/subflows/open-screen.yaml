@@ -1,0 +1,16 @@
+# Opens the example screen named ${SCREEN} from a fresh launch and checks
+# that it rendered without a render error.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+---
+- launchApp:
+    stopApp: true
+- scrollUntilVisible:
+    element: ${SCREEN}
+    timeout: 60000
+- tapOn: ${SCREEN}
+- waitForAnimationToEnd
+- assertNotVisible: 'Render Error'
+- assertNotVisible: '.*isn.t ready yet.*'
+- takeScreenshot: ${SCREEN}
