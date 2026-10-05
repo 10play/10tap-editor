@@ -1,8 +1,10 @@
 import React from 'react';
 import { KeyboardAvoidingView, StyleSheet, View } from 'react-native';
 import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
+import { useKeyboardVerticalOffset } from '../screenOffset';
 
 export const Basic = () => {
+  const keyboardVerticalOffset = useKeyboardVerticalOffset();
   const editor = useEditorBridge({
     autofocus: true,
     avoidIosKeyboard: true,
@@ -13,6 +15,7 @@ export const Basic = () => {
     <View style={styles.fullScreen}>
       <RichText editor={editor} />
       <KeyboardAvoidingView
+        keyboardVerticalOffset={keyboardVerticalOffset}
         behavior="padding"
         style={styles.keyboardAvoidingView}
       >

@@ -6,12 +6,14 @@ import {
   useBridgeState,
   useEditorBridge,
 } from '@10play/tentap-editor';
+import { useKeyboardVerticalOffset } from '../screenOffset';
 
 /**
  * Two independent editors on one screen. The toolbar follows whichever editor
  * has focus.
  */
 export const TwoEditors = () => {
+  const keyboardVerticalOffset = useKeyboardVerticalOffset();
   const first = useEditorBridge({
     initialContent: '<p>First editor</p>',
   });
@@ -32,6 +34,7 @@ export const TwoEditors = () => {
         <RichText editor={second} />
       </View>
       <KeyboardAvoidingView
+        keyboardVerticalOffset={keyboardVerticalOffset}
         behavior="padding"
         style={styles.keyboardAvoidingView}
       >
