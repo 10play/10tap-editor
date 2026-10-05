@@ -25024,6 +25024,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-dom@npm:19.1.4":
+  version: 19.1.4
+  resolution: "react-dom@npm:19.1.4"
+  dependencies:
+    scheduler: ^0.26.0
+  peerDependencies:
+    react: ^19.1.4
+  checksum: 7b2c9d0bbea29cafc30f29c8061f90609fbc085cb17ddfcbec8e50cbf71bb80d4012d48b934ac622c884678545eb5bace37917f58c52bc50b228133ed6d0ea28
+  languageName: node
+  linkType: hard
+
 "react-dom@npm:19.2.3":
   version: 19.2.3
   resolution: "react-dom@npm:19.2.3"
@@ -28186,6 +28197,7 @@ __metadata:
     jest: ^29.6.3
     prettier: 2.8.8
     react: 19.1.4
+    react-dom: 19.1.4
     react-native: 0.81.6
     react-native-safe-area-context: ^5.6.2
     react-native-screens: ~4.18.0
