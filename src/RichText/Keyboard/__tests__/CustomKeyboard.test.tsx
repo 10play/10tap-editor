@@ -135,6 +135,25 @@ describe('CustomKeyboard', () => {
     expect(screen.getByTestId('active-id').props.children).toBe('none');
   });
 
+  it('keeps an overlay keyboard inside its host for accessibility', async () => {
+    const { editor } = createFakeEditor();
+    render(<Host editor={editor} initialId="test.fixed" layout="overlay" />);
+    await settle();
+
+    const body = screen.getByTestId(BODY);
+    let host = body.parent;
+    while (host && typeof host.type !== 'string') host = host.parent;
+    expect(StyleSheet.flatten(host!.props.style)).toMatchObject({
+      position: 'absolute',
+      bottom: 0,
+      height: 300,
+    });
+    expect(StyleSheet.flatten(body.props.style)).toMatchObject({
+      top: 0,
+      height: 300,
+    });
+  });
+
   it('renders keyboard components written for 0.7.x', async () => {
     const { editor } = createFakeEditor();
     render(<Host editor={editor} initialId="test.legacy" />);

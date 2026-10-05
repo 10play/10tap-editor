@@ -50,7 +50,8 @@ export interface CustomKeyboardProps {
    *   Place it at the bottom of the `KeyboardAvoidingView`, under the toolbar.
    * - `overlay`: the keyboard is drawn over the bottom of the window and
    *   takes no space; reserve it with `EditorKeyboardAvoidingView` or
-   *   `useKeyboard().keyboardHeight`.
+   *   `useKeyboard().keyboardHeight`. Render it in a container that reaches
+   *   the bottom of the window.
    */
   layout?: 'inline' | 'overlay';
   /** Height before any system keyboard was seen. Defaults to 38% of the window. */
@@ -140,9 +141,11 @@ export const CustomKeyboard = (props: CustomKeyboardProps) => {
   const close = useCallback(() => session.close(true), [session]);
 
   const { height: windowHeight } = useWindowDimensions();
-  const [hostY, setHostY] = useState<number>();
+  const [hostBottom, setHostBottom] = useState<number>();
   const measureHost = useCallback(() => {
-    hostRef.current?.measureInWindow((_x, y) => setHostY(y));
+    hostRef.current?.measureInWindow((_x, y, _width, height) =>
+      setHostBottom(y + height)
+    );
   }, []);
 
   usePlacementCheck(
@@ -157,10 +160,16 @@ export const CustomKeyboard = (props: CustomKeyboardProps) => {
   // Every keyboard component accepts these props, even if it ignores them.
   const Body = keyboard?.comp as
     ComponentType<CustomKeyboardComponentProps> | undefined;
-  const slotHeight = layout === 'inline' ? view.slotHeight : 0;
+  // An overlay host covers the bottom of its parent, so the body, pinned to
+  // the bottom of the window, stays inside it: accessibility services skip
+  // views outside their parent's bounds.
+  const hostStyle =
+    layout === 'overlay'
+      ? [styles.overlayHost, { height: Body ? view.keyboardHeight : 0 }]
+      : { height: view.slotHeight };
   const bodyTop =
-    layout === 'overlay' && hostY !== undefined
-      ? windowHeight - hostY - view.keyboardHeight
+    layout === 'overlay' && hostBottom !== undefined
+      ? windowHeight - hostBottom
       : 0;
 
   return (
@@ -169,7 +178,7 @@ export const CustomKeyboard = (props: CustomKeyboardProps) => {
         ref={hostRef}
         collapsable={false}
         onLayout={layout === 'overlay' ? measureHost : undefined}
-        style={{ height: slotHeight }}
+        style={hostStyle}
       >
         {Body && (
           <View
@@ -238,6 +247,13 @@ const usePlacementCheck = (
 };
 
 const styles = StyleSheet.create({
+  overlayHost: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    pointerEvents: 'box-none',
+  },
   body: {
     position: 'absolute',
     left: 0,
