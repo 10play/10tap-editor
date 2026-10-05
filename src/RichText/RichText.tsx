@@ -24,7 +24,9 @@ import type { EditorBridge } from '../types';
 import type { EditorMessage } from '../types/Messaging';
 import { isFabric } from '../utils/misc';
 import { useKeyboard } from '../utils/useKeyboard';
+import { REFOCUS_DELAY_MS } from './Keyboard/drivers';
 import {
+  AUTOFOCUS_KEYBOARD_CHECK_MS,
   buildBottomPaddingScript,
   getBootConfig,
   getInjectedJS,
@@ -168,6 +170,48 @@ const createForwardingWebView = () => {
   return { handle, setTarget };
 };
 
+/**
+ * Android autofocus shows the IME through a hidden autoFocus TextInput. That
+ * request is lost when its window has no focus yet (a Modal) or when the
+ * previous screen's editor hides the IME while unmounting, so once the
+ * editor autofocused, an IME that is still down is shown again the same way.
+ */
+const useAndroidAutofocusKeyboard = (
+  editor: EditorBridge,
+  controller: EditorController,
+  hiddenInput: React.RefObject<TextInput | null>,
+  isKeyboardUp: boolean
+) => {
+  const enabled = Platform.OS === 'android' && editor.autofocus;
+  const keyboardUp = useRef(isKeyboardUp);
+  useLayoutEffect(() => {
+    keyboardUp.current = isKeyboardUp;
+  });
+  useEffect(() => {
+    if (!enabled) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const showKeyboard = () => {
+      const focusedInput = TextInput.State.currentlyFocusedInput();
+      if (
+        keyboardUp.current ||
+        (focusedInput !== null && focusedInput !== hiddenInput.current)
+      ) {
+        return;
+      }
+      hiddenInput.current?.focus();
+      timer = setTimeout(() => editor.focus?.(), REFOCUS_DELAY_MS);
+    };
+    const unsubscribe = controller.subscribeReady((ready) => {
+      clearTimeout(timer);
+      if (ready) timer = setTimeout(showKeyboard, AUTOFOCUS_KEYBOARD_CHECK_MS);
+    });
+    return () => {
+      unsubscribe();
+      clearTimeout(timer);
+    };
+  }, [controller, editor, enabled, hiddenInput]);
+};
+
 let warnedAboutExclusiveOnMessage = false;
 
 export const RichText = ({
@@ -181,6 +225,7 @@ export const RichText = ({
   const controller = useController(editor);
   const page = usePage(editor, controller);
   const fabric = isFabric();
+  const autofocusInput = useRef<TextInput>(null);
 
   // The WebView stays hidden until it loads (not until the editor is ready),
   // except on Fabric.
@@ -282,6 +327,7 @@ export const RichText = ({
 
   const { isKeyboardUp, keyboardHeight, windowOverlaysKeyboard } =
     useKeyboard();
+  useAndroidAutofocusKeyboard(editor, controller, autofocusInput, isKeyboardUp);
   const insets = getKeyboardInsets({
     platform: Platform.OS,
     avoidKeyboard: !!editor.avoidIosKeyboard,
@@ -357,6 +403,7 @@ export const RichText = ({
     <>
       {editor.autofocus && Platform.OS === 'android' && (
         <TextInput
+          ref={autofocusInput}
           autoFocus
           caretHidden
           accessibilityElementsHidden

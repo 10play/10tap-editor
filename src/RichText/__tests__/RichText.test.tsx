@@ -547,6 +547,46 @@ describe('RichText styles', () => {
     });
   });
 
+  describe('Android autofocus keyboard (#321)', () => {
+    const autofocused = () => {
+      setPlatform('android');
+      jest.useFakeTimers();
+      const { result } = createEditor({ autofocus: true });
+      render(<RichText editor={result.current} />);
+      const input = screen.UNSAFE_getByType(TextInput);
+      const focusInput = jest
+        .spyOn(input.instance as TextInput, 'focus')
+        .mockClear();
+      const webView = mockWebViews.latest();
+      load(webView);
+      ready(webView, result.current);
+      const focusCount = () =>
+        postedTypes(webView).filter(
+          (type) => type === CoreEditorActionType.Focus
+        ).length;
+      expect(focusCount()).toBe(1);
+      return { focusInput, focusCount };
+    };
+
+    it('shows the IME again when it did not come up', () => {
+      const { focusInput, focusCount } = autofocused();
+
+      act(() => jest.advanceTimersByTime(utils.AUTOFOCUS_KEYBOARD_CHECK_MS));
+      expect(focusInput).toHaveBeenCalledTimes(1);
+      act(() => jest.advanceTimersByTime(50));
+      expect(focusCount()).toBe(2);
+    });
+
+    it('leaves a keyboard that came up alone', () => {
+      mockKeyboard = keyboardUp(300, false);
+      const { focusInput, focusCount } = autofocused();
+
+      act(() => jest.runAllTimers());
+      expect(focusInput).not.toHaveBeenCalled();
+      expect(focusCount()).toBe(1);
+    });
+  });
+
   it('renders no hidden input on iOS', () => {
     const { result } = createEditor({ autofocus: true });
     render(<RichText editor={result.current} />);

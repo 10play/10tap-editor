@@ -100,6 +100,9 @@ export const getWebViewVersion = (): string | undefined => {
 export const shouldRemountOnFirstLoad = (): boolean =>
   Platform.OS === 'ios' && requiresIosRemount(getWebViewVersion());
 
+/** How long Android autofocus may take to bring up the IME before it is retried. */
+export const AUTOFOCUS_KEYBOARD_CHECK_MS = 1000;
+
 /** 1.0 bottom padding while the keyboard is up and the window resizes for it. */
 export const TOOLBAR_HEIGHT = 44;
 /** Space between the caret and an overlaying keyboard (1.0 iOS behaviour). */
