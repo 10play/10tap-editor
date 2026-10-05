@@ -23,8 +23,8 @@ export const CounterBridge = new BridgeExtension<
   }),
   extendEditorState: (editor) => {
     return {
-      wordCount: editor.storage.characterCount.characters(),
-      characterCount: editor.storage.characterCount.words(),
+      wordCount: editor.storage.characterCount.words(),
+      characterCount: editor.storage.characterCount.characters(),
     };
   },
 });
