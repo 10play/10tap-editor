@@ -15,23 +15,10 @@ tags:
 - repeat:
     times: 20
     commands:
-      - tapOn:
-          point: 5%,62%
+      - tapOn: Color keyboard
       - assertVisible: Highlight
       - waitForAnimationToEnd
-      # Android: the toolbar sits lower over ColorKeyboard than over the IME.
-      - runFlow:
-          when:
-            platform: Android
-          commands:
-            - tapOn:
-                point: 5%,65%
-      - runFlow:
-          when:
-            platform: iOS
-          commands:
-            - tapOn:
-                point: 5%,62%
+      - tapOn: Color keyboard
       - assertNotVisible: Highlight
       - waitForAnimationToEnd
 - waitForAnimationToEnd
