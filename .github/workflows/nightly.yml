@@ -13,22 +13,17 @@ permissions:
 
 jobs:
   ios:
-    name: ios (${{ matrix.app }}, newArch=${{ matrix.new-arch }})
+    name: ios (newArch=${{ matrix.new-arch }})
     runs-on: macos-15
     timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
         include:
-          - app: examplelatest
-            app-id: org.reactjs.native.example.examplelatest
-            new-arch: 1
-          - app: exampleoldarch
-            app-id: org.reactjs.native.example.exampleoldarch
-            new-arch: 0
-          - app: exampleoldarch
-            app-id: org.reactjs.native.example.exampleoldarch
-            new-arch: 1
+          - new-arch: true
+            pods: pods
+          - new-arch: false
+            pods: pods:oldarch
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -41,27 +36,17 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.4'
-          bundler-cache: true
-          working-directory: ${{ matrix.app }}
-
       - name: Build the editor and web utils
         run: yarn editor:build && yarn editor:build-web-utils
 
       - name: Build the advanced example's editor
-        if: matrix.app == 'examplelatest'
-        run: yarn examplelatest editor:build
+        run: yarn example editor:build
 
       - name: Install pods
-        run: yarn ${{ matrix.app }} pods
-        env:
-          RCT_NEW_ARCH_ENABLED: ${{ matrix.new-arch }}
+        run: yarn example ${{ matrix.pods }}
 
       - name: Build a release simulator app with the JS bundle
-        run: yarn ${{ matrix.app }} build:ios:release
+        run: yarn example build:ios:release
 
       - name: Install Maestro
         run: |
@@ -69,18 +54,16 @@ jobs:
           echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
 
       - name: Boot a simulator and install the app
-        run: .github/scripts/boot-ios-simulator.sh ${{ matrix.app }}/ios/build/Build/Products/Release-iphonesimulator/${{ matrix.app }}.app
+        run: .github/scripts/boot-ios-simulator.sh example/ios/build/Build/Products/Release-iphonesimulator/TenTapExample.app
 
       - name: Run the Maestro flows
-        run: >
-          maestro test --format junit --output maestro-report.xml
-          -e APP_ID=${{ matrix.app-id }} examplelatest/.maestro
+        run: maestro test --format junit --output maestro-report.xml example/.maestro
 
       - name: Upload the Maestro results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: maestro-ios-${{ matrix.app }}-${{ matrix.new-arch }}
+          name: maestro-ios-newarch-${{ matrix.new-arch }}
           path: |
             maestro-report.xml
             ~/.maestro/tests

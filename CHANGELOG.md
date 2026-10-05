@@ -82,6 +82,7 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 - Removed the unused `@tiptap/starter-kit`, `@tiptap/extension-code-block` and `@tiptap/extension-horizontal-rule` dependencies and added `@tiptap/extension-paragraph` and `@tiptap/extension-text`. `react-dom` is no longer a runtime dependency; it is an optional peer dependency (#67).
 - `@10play/tentap-editor/web` can be loaded with `require`.
 - The package ships only `scripts/buildEditor.js` from `scripts/`.
+- The repository's example apps are now `example/` (bare React Native 0.81, built and tested on both architectures) and `example-expo/` (Expo SDK 57 with a development build). They replace `examplelatest/` and `exampleoldarch/`.
 
 ### Credits
 

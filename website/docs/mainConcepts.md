@@ -38,4 +38,4 @@ In this case we provide utils/components/hooks that can help you customize the e
 
 See the [advanced setup](./setup/advancedSetup.md)
 
-You can also see an example in `./examplelatest/src/Examples/Advanced`
+You can also see an example in `./example/src/Examples/Advanced`

@@ -12,7 +12,7 @@ if [[ -z "$package_list" ]]; then
   echo "No PackageList.java under $android_dir/app/build/generated; build the app first." >&2
   exit 1
 fi
-if ! grep -q 'new TenTapViewPackage()' "$package_list"; then
+if ! grep -Eq 'new ([A-Za-z0-9_]+\.)*TenTapViewPackage\(\)' "$package_list"; then
   echo "TenTapViewPackage is not autolinked in $package_list" >&2
   exit 1
 fi

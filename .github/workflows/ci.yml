@@ -95,13 +95,13 @@ jobs:
         run: yarn editor:build && yarn editor:build-web-utils
 
       - name: Build the advanced example's editor
-        run: yarn examplelatest editor:build
+        run: yarn example editor:build
 
-      - name: Typecheck examplelatest
-        run: yarn examplelatest typecheck
+      - name: Typecheck the bare example
+        run: yarn example typecheck
 
-      - name: Typecheck exampleoldarch
-        run: yarn exampleoldarch typecheck
+      - name: Typecheck the Expo example
+        run: yarn example:expo typecheck
 
       - name: Typecheck the web E2E app
         run: yarn workspace tentap-e2e-web typecheck
@@ -135,18 +135,12 @@ jobs:
           retention-days: 7
 
   build-android:
-    name: build-android (${{ matrix.app }}, newArch=${{ matrix.new-arch }})
+    name: build-android (newArch=${{ matrix.new-arch }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - app: examplelatest
-            new-arch: true
-          - app: exampleoldarch
-            new-arch: false
-          - app: exampleoldarch
-            new-arch: true
+        new-arch: [true, false]
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -160,29 +154,117 @@ jobs:
       - name: Build the editor
         run: yarn editor:build
 
-      - name: Build ${{ matrix.app }}
+      - name: Build the example
         run: >
-          yarn ${{ matrix.app }} build:android
+          yarn example build:android
           -PreactNativeArchitectures=x86_64
           -PnewArchEnabled=${{ matrix.new-arch }}
 
       - name: Check that the library is autolinked
-        run: .github/scripts/check-autolinking.sh ${{ matrix.app }}/android
+        run: .github/scripts/check-autolinking.sh example/android
+
+  build-ios:
+    name: build-ios (newArch=${{ matrix.new-arch }})
+    runs-on: macos-15
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - new-arch: true
+            pods: pods
+          - new-arch: false
+            pods: pods:oldarch
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Build the editor
+        run: yarn editor:build
+
+      - name: Install pods
+        run: yarn example ${{ matrix.pods }}
+
+      - name: Check that the tentap pod is autolinked
+        run: grep -q '^  - tentap ' example/ios/Podfile.lock
+
+      - name: Build the example
+        run: yarn example build:ios
+
+  build-expo:
+    name: build-expo (${{ matrix.platform }})
+    runs-on: ${{ matrix.platform == 'ios' && 'macos-15' || 'ubuntu-latest' }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [android, ios]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Setup Android toolchain
+        if: matrix.platform == 'android'
+        uses: ./.github/actions/setup-android
+
+      - name: Select Xcode
+        if: matrix.platform == 'ios'
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Build the editor
+        run: yarn editor:build
+
+      - name: Prebuild the Expo example
+        run: yarn example:expo prebuild --platform ${{ matrix.platform }} --no-install
+
+      - name: Build the Android app
+        if: matrix.platform == 'android'
+        working-directory: example-expo/android
+        run: ./gradlew assembleDebug --console=plain -PreactNativeArchitectures=x86_64
+
+      - name: Check that the library is autolinked on Android
+        if: matrix.platform == 'android'
+        run: .github/scripts/check-autolinking.sh example-expo/android
+
+      - name: Install pods
+        if: matrix.platform == 'ios'
+        working-directory: example-expo/ios
+        run: pod install
+
+      - name: Check that the tentap pod is autolinked
+        if: matrix.platform == 'ios'
+        run: grep -q '^  - tentap ' example-expo/ios/Podfile.lock
+
+      - name: Build the iOS app
+        if: matrix.platform == 'ios'
+        working-directory: example-expo/ios
+        run: >
+          xcodebuild -workspace TenTapExpoExample.xcworkspace
+          -scheme TenTapExpoExample -configuration Debug
+          -sdk iphonesimulator -destination 'generic/platform=iOS Simulator'
+          CODE_SIGNING_ALLOWED=NO -quiet build
 
   e2e-android:
-    name: e2e-android (${{ matrix.app }}, newArch=${{ matrix.new-arch }})
+    name: e2e-android (newArch=${{ matrix.new-arch }})
     runs-on: ubuntu-latest
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - app: examplelatest
-            app-id: com.examplelatest
-            new-arch: true
-          - app: exampleoldarch
-            app-id: com.exampleoldarch
-            new-arch: false
+        new-arch: [true, false]
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -197,12 +279,11 @@ jobs:
         run: yarn editor:build && yarn editor:build-web-utils
 
       - name: Build the advanced example's editor
-        if: matrix.app == 'examplelatest'
-        run: yarn examplelatest editor:build
+        run: yarn example editor:build
 
       - name: Build a release APK with the JS bundle
         run: >
-          yarn ${{ matrix.app }} build:android:release
+          yarn example build:android:release
           -PreactNativeArchitectures=x86_64
           -PnewArchEnabled=${{ matrix.new-arch }}
 
@@ -225,14 +306,14 @@ jobs:
           target: google_apis
           disable-animations: true
           script: |
-            adb install -r ${{ matrix.app }}/android/app/build/outputs/apk/release/app-release.apk
-            maestro test --format junit --output maestro-report.xml -e APP_ID=${{ matrix.app-id }} examplelatest/.maestro
+            adb install -r example/android/app/build/outputs/apk/release/app-release.apk
+            maestro test --format junit --output maestro-report.xml example/.maestro
 
       - name: Upload the Maestro results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: maestro-android-${{ matrix.app }}
+          name: maestro-android-newarch-${{ matrix.new-arch }}
           path: |
             maestro-report.xml
             ~/.maestro/tests

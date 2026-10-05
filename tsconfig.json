@@ -34,8 +34,6 @@
     "./website",
     "./example",
     "./example-expo",
-    "./examplelatest",
-    "./exampleoldarch",
     "./e2e-web"
   ]
 }

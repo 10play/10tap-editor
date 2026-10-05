@@ -13,7 +13,6 @@ module.exports = {
   modulePathIgnorePatterns: [
     '<rootDir>/example/',
     '<rootDir>/example-expo/',
-    '<rootDir>/examplelatest',
     '<rootDir>/website',
     '<rootDir>/lib/',
     '<rootDir>/lib-web/',

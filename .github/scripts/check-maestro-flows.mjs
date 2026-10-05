@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Checks that every Maestro flow under examplelatest/.maestro targets elements
+ * Checks that every Maestro flow under example/.maestro targets elements
  * that exist: each `id:` must be a testID in the example or library sources,
  * and each text that is tapped or scrolled to (screen names, buttons) must
  * appear in them. Catches flows that break when a screen or testID is renamed.
@@ -12,8 +12,8 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 const root = new URL('../..', import.meta.url).pathname;
-const flowsDir = join(root, 'examplelatest/.maestro');
-const sourceDirs = ['examplelatest/src', 'exampleoldarch/App.tsx', 'src'];
+const flowsDir = join(root, 'example/.maestro');
+const sourceDirs = ['example/src', 'example/App.tsx', 'src'];
 
 const walk = (path) =>
   statSync(path).isDirectory()
