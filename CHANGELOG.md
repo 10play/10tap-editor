@@ -51,6 +51,7 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 - Bridge configs containing an apostrophe broke the editor.
 - Injected CSS was lost when the WebView reloaded.
 - Custom editor bundles built with 0.7.x dropped `HistoryBridge` (undo/redo), which TipTap v3 renamed to `undoRedo`; its config and whitelist entry are now also sent under `history`.
+- On the old Android architecture, TalkBack and UI test tools could see the editor's text at zero size until it was focused. The WebView is now hidden with opacity, not `display: none`, while it loads.
 
 ### Changed
 

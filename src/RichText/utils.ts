@@ -216,9 +216,11 @@ export const getWebViewStyles = ({
     : platform === 'web'
       ? { height, flexGrow: 0, flexShrink: 1, flexBasis: height }
       : { height, flex: 0, flexShrink: 1 };
+  // Hidden with opacity, not `display: none`: a WebView first laid out at
+  // 0x0 keeps a zero-height root in its Android accessibility tree.
   const defaults: StyleProp<ViewStyle> = [
     { flex: 1 },
-    { display: visible ? 'flex' : 'none' },
+    { opacity: visible ? 1 : 0 },
     theme.webview,
   ];
   const keepDefaults = (own: StyleProp<ViewStyle>) =>

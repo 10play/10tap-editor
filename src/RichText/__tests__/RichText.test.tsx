@@ -267,14 +267,17 @@ describe('RichText editor prop', () => {
 });
 
 describe('RichText visibility and readiness', () => {
-  it('hides the WebView until it loads', () => {
+  it('hides the WebView until it loads, keeping it laid out', () => {
     const { result } = createEditor();
     render(<RichText editor={result.current} />);
     const webView = mockWebViews.latest();
 
-    expect(flatStyle(webView.props.style).display).toBe('none');
+    // A WebView first laid out at 0x0 keeps zero-size accessibility nodes on
+    // Android until it is focused.
+    expect(flatStyle(webView.props.style).display).toBeUndefined();
+    expect(flatStyle(webView.props.style).opacity).toBe(0);
     load(webView);
-    expect(flatStyle(webView.props.style).display).toBe('flex');
+    expect(flatStyle(webView.props.style).opacity).toBe(1);
   });
 
   it('shows the WebView at once on Fabric', () => {
@@ -283,7 +286,7 @@ describe('RichText visibility and readiness', () => {
     render(<RichText editor={result.current} />);
     const webView = mockWebViews.latest();
 
-    expect(flatStyle(webView.props.style).display).toBe('flex');
+    expect(flatStyle(webView.props.style).opacity).toBe(1);
     ready(webView, result.current);
     expect(result.current.getEditorState().isReady).toBe(true);
   });
@@ -298,7 +301,7 @@ describe('RichText visibility and readiness', () => {
     expect(postedTypes(webView)).not.toContain(CoreEditorActionType.Focus);
 
     load(webView);
-    expect(flatStyle(webView.props.style).display).toBe('flex');
+    expect(flatStyle(webView.props.style).opacity).toBe(1);
     expect(result.current.getEditorState().isReady).toBe(true);
     expect(postedTypes(webView)).toContain(CoreEditorActionType.Focus);
   });
@@ -358,7 +361,7 @@ describe('RichText onMessage', () => {
     const webView = mockWebViews.latest();
 
     load(webView);
-    expect(flatStyle(webView.props.style).display).toBe('flex');
+    expect(flatStyle(webView.props.style).opacity).toBe(1);
     ready(webView, result.current);
     act(() =>
       webView.simulateMessage(webMessage(CoreEditorActionType.ContentUpdate))
@@ -526,7 +529,7 @@ describe('RichText styles', () => {
 
     expect(flatStyle(props.style)).toMatchObject({
       flex: 1,
-      display: 'none',
+      opacity: 0,
       backgroundColor: 'red',
     });
     expect(flatStyle(props.containerStyle)).toEqual({ margin: 4 });
@@ -783,7 +786,7 @@ describe('RichText lifecycle', () => {
     const second = mockWebViews.latest();
     expect(second).not.toBe(first);
     expect(second.props.source).toBe(first.props.source);
-    expect(flatStyle(second.props.style).display).toBe('flex');
+    expect(flatStyle(second.props.style).opacity).toBe(1);
 
     load(second);
     ready(second, editor);
