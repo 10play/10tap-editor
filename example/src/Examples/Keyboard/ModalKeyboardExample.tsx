@@ -8,7 +8,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import {
   ColorKeyboard,
   CustomKeyboard,
@@ -39,7 +39,10 @@ export const ModalKeyboardExample = () => {
         animationType="slide"
         onRequestClose={() => setVisible(false)}
       >
-        <ModalEditor onClose={() => setVisible(false)} />
+        {/* A Modal is its own root view and needs its own insets provider. */}
+        <SafeAreaProvider>
+          <ModalEditor onClose={() => setVisible(false)} />
+        </SafeAreaProvider>
       </Modal>
     </SafeAreaView>
   );
