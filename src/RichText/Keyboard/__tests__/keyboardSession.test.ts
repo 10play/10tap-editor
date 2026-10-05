@@ -876,6 +876,22 @@ describe('teardown', () => {
     expect(t.view().navigationBarInset).toBe(24);
     expect(t.snapshot().windowOverlaysKeyboard).toBe(true);
   });
+
+  it('covers the navigation bar like the system keyboard does', async () => {
+    // RN reports an edge-to-edge IME's height without the navigation bar
+    // it also covers.
+    const t = setup({
+      platform: 'android',
+      native: createFakeNativeModule({ navigationBarInset: 24 }),
+      systemKeyboard: 280,
+    });
+    await flush();
+    await openFully(t);
+    await flush();
+
+    expect(t.view()).toMatchObject({ keyboardHeight: 280, slotHeight: 304 });
+    expect(t.snapshot().keyboardHeight).toBe(280);
+  });
 });
 
 describe('editors without a controller', () => {

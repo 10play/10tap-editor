@@ -163,9 +163,10 @@ export const CustomKeyboard = (props: CustomKeyboardProps) => {
   // An overlay host covers the bottom of its parent, so the body, pinned to
   // the bottom of the window, stays inside it: accessibility services skip
   // views outside their parent's bounds.
+  const bodyHeight = view.keyboardHeight + view.navigationBarInset;
   const hostStyle =
     layout === 'overlay'
-      ? [styles.overlayHost, { height: Body ? view.keyboardHeight : 0 }]
+      ? [styles.overlayHost, { height: Body ? bodyHeight : 0 }]
       : { height: view.slotHeight };
   const bodyTop =
     layout === 'overlay' && hostBottom !== undefined
@@ -187,7 +188,7 @@ export const CustomKeyboard = (props: CustomKeyboardProps) => {
               styles.body,
               {
                 top: bodyTop,
-                height: view.keyboardHeight,
+                height: bodyHeight,
                 paddingBottom: view.navigationBarInset,
                 backgroundColor:
                   rootBackground ??

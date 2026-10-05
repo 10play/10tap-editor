@@ -98,10 +98,15 @@ export interface KeyboardSessionView {
   activeKeyboardID: string | undefined;
   /** Keyboard whose body is mounted; outlives `activeKeyboardID` while closing. */
   renderedKeyboardID: string | undefined;
-  /** Height of the in-flow slot. */
+  /** Height of the in-flow slot: the keyboard plus the navigation bar inset. */
   slotHeight: number;
-  /** Height of the keyboard body. */
+  /** Height of the keyboard content, as the system keyboard reports its own. */
   keyboardHeight: number;
+  /**
+   * Navigation bar inset on edge-to-edge Android. The system keyboard covers
+   * it too without counting it in its height, so the body adds it below the
+   * content.
+   */
   navigationBarInset: number;
   driver: KeyboardDriverKind;
 }
@@ -267,6 +272,8 @@ export function createKeyboardSession(
     });
   };
 
+  const areaHeight = () => keyboardHeight + navigationBarInset;
+
   const commitSlot = (height: number, event: SystemKeyboardEvent | null) => {
     const token = epoch;
     microtask(() => {
@@ -334,7 +341,7 @@ export function createKeyboardSession(
   const settleOpen = (event: SystemKeyboardEvent | null) => {
     if (phase !== 'opening') return;
     phase = 'open';
-    commitSlot(keyboardHeight, event);
+    commitSlot(areaHeight(), event);
     emit();
     if (activeId !== undefined) options().onOpen?.(activeId);
   };
@@ -469,7 +476,7 @@ export function createKeyboardSession(
       activeId = id;
       renderedId = id;
       keyboardHeight = options().heightOf(id) ?? keyboardHeight;
-      if (phase === 'open') slotHeight = keyboardHeight;
+      if (phase === 'open') slotHeight = areaHeight();
       emit();
       notifyParent(id);
       return;
@@ -627,6 +634,7 @@ export function createKeyboardSession(
         if (!attached) return;
         navigationBarInset = inset;
         store.setEdgeToEdge(inset > 0);
+        if (phase === 'open') slotHeight = areaHeight();
         emit();
       })
       .catch(() => {});
