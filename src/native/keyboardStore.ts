@@ -255,13 +255,15 @@ export function createKeyboardStore({
     subscriptions = KEYBOARD_EVENTS.map((name) =>
       keyboard.addListener(name, (event) => onKeyboardEvent(name, event))
     );
-    if (keyboard.isVisible?.()) {
-      const height = keyboard.metrics?.()?.height ?? 0;
-      systemVisible = height > 0;
-      systemHeight = height;
-      recordHeight(height);
-      emitChange();
-    }
+    // Events were missed while nobody listened: start from the keyboard's
+    // current state, not the last one seen.
+    const height = keyboard.isVisible?.()
+      ? (keyboard.metrics?.()?.height ?? 0)
+      : 0;
+    systemVisible = height > 0;
+    systemHeight = height;
+    recordHeight(height);
+    emitChange();
   };
 
   const detachIfUnused = () => {

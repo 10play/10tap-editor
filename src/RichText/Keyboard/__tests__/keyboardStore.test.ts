@@ -182,6 +182,33 @@ describe('keyboardStore', () => {
     });
   });
 
+  it('drops a keyboard that hid while nobody listened', () => {
+    let visible = true;
+    const keyboard = Object.assign(createFakeKeyboard(), {
+      isVisible: () => visible,
+      metrics: () => (visible ? { height: 320 } : undefined),
+    });
+    const store = createKeyboardStore({
+      keyboard,
+      getWindowSize: () => ({ width: 390, height: 844 }),
+      platform: 'ios',
+    });
+    const unsubscribe = store.subscribe(() => {});
+    expect(store.getSnapshot().isKeyboardUp).toBe(true);
+    unsubscribe();
+
+    visible = false;
+    const listener = jest.fn();
+    store.subscribe(listener);
+
+    expect(store.getSnapshot()).toMatchObject({
+      isKeyboardUp: false,
+      keyboardHeight: 0,
+      lastKeyboardHeight: 320,
+    });
+    expect(listener).toHaveBeenCalled();
+  });
+
   it('delivers events after the snapshot was updated', () => {
     const { store, keyboard } = setup();
     const seen: boolean[] = [];
