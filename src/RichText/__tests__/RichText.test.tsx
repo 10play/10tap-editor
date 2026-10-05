@@ -558,9 +558,9 @@ describe('RichText styles', () => {
       const { result } = createEditor({ autofocus: true });
       render(<RichText editor={result.current} />);
       const input = screen.UNSAFE_getByType(TextInput);
-      const focusInput = jest
-        .spyOn(input.instance as TextInput, 'focus')
-        .mockClear();
+      const instance = input.instance as TextInput;
+      const focusInput = jest.spyOn(instance, 'focus').mockClear();
+      const blurInput = jest.spyOn(instance, 'blur').mockClear();
       const webView = mockWebViews.latest();
       load(webView);
       ready(webView, result.current);
@@ -569,7 +569,7 @@ describe('RichText styles', () => {
           (type) => type === CoreEditorActionType.Focus
         ).length;
       expect(focusCount()).toBe(1);
-      return { focusInput, focusCount };
+      return { instance, focusInput, blurInput, focusCount };
     };
 
     it('shows the IME again when it did not come up', () => {
@@ -579,6 +579,33 @@ describe('RichText styles', () => {
       expect(focusInput).toHaveBeenCalledTimes(1);
       act(() => jest.advanceTimersByTime(50));
       expect(focusCount()).toBe(2);
+    });
+
+    it('refocuses the hidden input when it kept focus without the IME', () => {
+      const { instance, focusInput, blurInput, focusCount } = autofocused();
+      jest
+        .spyOn(TextInput.State, 'currentlyFocusedInput')
+        .mockReturnValue(instance as never);
+
+      act(() => jest.advanceTimersByTime(utils.AUTOFOCUS_KEYBOARD_CHECK_MS));
+      expect(blurInput).toHaveBeenCalledTimes(1);
+      expect(focusInput).toHaveBeenCalledTimes(1);
+      expect(blurInput.mock.invocationCallOrder[0]).toBeLessThan(
+        focusInput.mock.invocationCallOrder[0]!
+      );
+      act(() => jest.advanceTimersByTime(50));
+      expect(focusCount()).toBe(2);
+    });
+
+    it('leaves the IME to another focused input', () => {
+      const { focusInput, focusCount } = autofocused();
+      jest
+        .spyOn(TextInput.State, 'currentlyFocusedInput')
+        .mockReturnValue({} as never);
+
+      act(() => jest.runAllTimers());
+      expect(focusInput).not.toHaveBeenCalled();
+      expect(focusCount()).toBe(1);
     });
 
     it('leaves a keyboard that came up alone', () => {

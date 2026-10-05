@@ -191,14 +191,18 @@ const useAndroidAutofocusKeyboard = (
     if (!enabled) return;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const showKeyboard = () => {
+      const input = hiddenInput.current;
       const focusedInput = TextInput.State.currentlyFocusedInput();
       if (
+        !input ||
         keyboardUp.current ||
-        (focusedInput !== null && focusedInput !== hiddenInput.current)
+        (focusedInput !== null && focusedInput !== input)
       ) {
         return;
       }
-      hiddenInput.current?.focus();
+      // Focusing an input that already has focus does not show the IME.
+      if (focusedInput === input) input.blur();
+      input.focus();
       timer = setTimeout(() => editor.focus?.(), REFOCUS_DELAY_MS);
     };
     const unsubscribe = controller.subscribeReady((ready) => {
