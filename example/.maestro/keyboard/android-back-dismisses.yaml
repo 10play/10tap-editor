@@ -12,6 +12,9 @@ name: Android back dismisses the custom keyboard
     when:
       platform: Android
     commands:
+      - extendedWaitUntil:
+          visible: 'Keyboard: Custom'
+          timeout: 60000
       - tapOn: 'Keyboard: Custom'
       - tapOn:
           id: keyboard-example-editor

@@ -8,6 +8,9 @@ name: Overlay custom keyboard
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: 'Keyboard: Overlay'
+    timeout: 60000
 - tapOn: 'Keyboard: Overlay'
 - tapOn:
     id: keyboard-example-editor

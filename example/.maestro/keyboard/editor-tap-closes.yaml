@@ -7,6 +7,9 @@ name: Editor tap closes the custom keyboard
 ---
 - launchApp:
     clearState: true
+- extendedWaitUntil:
+    visible: 'Keyboard: Custom'
+    timeout: 60000
 - tapOn: 'Keyboard: Custom'
 - tapOn:
     id: keyboard-example-editor
