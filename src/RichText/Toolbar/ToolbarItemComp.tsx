@@ -8,6 +8,7 @@ export const ToolbarItemComp = ({
   disabled,
   active,
   image,
+  label,
   editor,
   args,
 }: ToolbarItem & {
@@ -23,6 +24,9 @@ export const ToolbarItemComp = ({
       onPress={onPress(args)}
       disabled={isDisabled}
       style={[toolbar.toolbarButton]}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ selected: isActive, disabled: isDisabled }}
     >
       <View
         style={[

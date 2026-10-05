@@ -38,6 +38,8 @@ export const EditLinkBar = ({
       <TouchableOpacity
         onPress={onLinkIconClick}
         style={[theme.toolbar.toolbarButton, linkBarTheme.linkToolbarButton]}
+        accessibilityRole="button"
+        accessibilityLabel="Close link"
       >
         <View
           style={[theme.toolbar.iconWrapper, theme.toolbar.iconWrapperActive]}
@@ -63,7 +65,11 @@ export const EditLinkBar = ({
         keyboardType="url"
         returnKeyType="done"
       />
-      <TouchableOpacity style={linkBarTheme.doneButton} onPress={submit}>
+      <TouchableOpacity
+        style={linkBarTheme.doneButton}
+        onPress={submit}
+        accessibilityRole="button"
+      >
         <Text style={linkBarTheme.doneButtonText}>Insert</Text>
       </TouchableOpacity>
     </View>

@@ -24,6 +24,7 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 - `Toolbar` `headingItems` prop; `HEADING_ITEMS` and `ToolbarContext` are exported (#295).
 - `Toolbar` `ListComponent` prop to render the toolbar with another list, such as a bottom-sheet `FlatList` (PR #173).
 - `linkBarTheme.hintText` theme key for the link input placeholder (PR #239).
+- Toolbar buttons have accessibility labels, the button role and a selected/disabled state; `ToolbarItem` takes an optional `label`.
 - Custom keyboard additions: `layout="inline" | "overlay"`, `defaultHeight`, `closeOnEditorPress`, `androidKeyboardMode="system" | "stable"`, `forceFallback`, `onOpen`, `onClose`, `onKeyboardError`; keyboard components receive `editor`, `close` and `keyboardHeight`; `CustomKeyboardExtension` takes an `options.height`; `useCustomKeyboard`, `useCustomKeyboardHeight` and `EditorKeyboardAvoidingView`; `defaultColorKeyboardTheme` and `darkColorKeyboardTheme` are exported.
 - `useKeyboard()` also returns `isCustomKeyboardOpen`, `activeCustomKeyboardID`, `systemKeyboardHeight`, `lastKeyboardHeight` and `windowOverlaysKeyboard`, and keeps `keyboardHeight` while switching keyboards. Its return type is exported as `KeyboardState`.
 - `useRemoteEditorBridge` is exported and re-renders when the editor changes (#51).

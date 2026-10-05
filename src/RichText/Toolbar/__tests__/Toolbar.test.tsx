@@ -207,6 +207,29 @@ describe('<Toolbar />', () => {
     expect(editor.toggleBold).toHaveBeenCalledTimes(1);
   });
 
+  it('exposes the items to accessibility services', () => {
+    const editor = createMockEditor({ isBoldActive: true, canRedo: false });
+    render(<Toolbar editor={editor} />);
+
+    expect(
+      screen.getByRole('button', { name: 'Bold', selected: true })
+    ).toBeTruthy();
+    expect(
+      screen.getByRole('button', { name: 'Italic', selected: false })
+    ).toBeTruthy();
+    fireEvent.press(screen.getByRole('button', { name: 'Bold' }));
+    expect(editor.toggleBold).toHaveBeenCalledTimes(1);
+  });
+
+  it('labels every default item', () => {
+    const labels = [...DEFAULT_TOOLBAR_ITEMS, ...HEADING_ITEMS].map(
+      (item) => item.label
+    );
+    expect(labels.every(Boolean)).toBe(true);
+    expect(new Set(labels).size).toBe(labels.length);
+    expect(DEFAULT_TOOLBAR_ITEMS.at(-1)).toMatchObject({ label: 'Redo' });
+  });
+
   it('remounts the list at offset 0 when the context changes (#298)', () => {
     const editor = createMockEditor();
     render(<Toolbar editor={editor} />);

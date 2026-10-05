@@ -121,6 +121,8 @@ export interface ToolbarItem {
   active: ({ editor, editorState }: ArgsToolbarCB) => boolean;
   disabled: ({ editor, editorState }: ArgsToolbarCB) => boolean;
   image: ({ editor, editorState }: ArgsToolbarCB) => any;
+  // Accessibility label, read by screen readers and UI test tools
+  label?: string;
 }
 
 type ArgsToolbarCB = {
