@@ -1,0 +1,114 @@
+# The default Toolbar on iOS, driven by the buttons' accessibility labels:
+# link without a protocol (#255), italic, heading on and off (#298), bullet
+# list and toolbar undo/redo. The probe row comes first and has its own
+# "Undo" button, so the toolbar's is the second match.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+name: Toolbar actions (iOS)
+tags:
+  - smoke
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - scrollUntilVisible:
+          element: 'E2E: Smoke'
+          timeout: 60000
+      - tapOn: 'E2E: Smoke'
+      - extendedWaitUntil:
+          visible:
+            id: editor-status
+            text: 'ready:true editable:true.*'
+          timeout: 15000
+      - tapOn:
+          id: smoke-editor
+      - extendedWaitUntil:
+          visible: 'Italic'
+          timeout: 15000
+      - waitForAnimationToEnd
+
+      # Link on the selected word "Smoke"; the https:// protocol is added (#255)
+      - doubleTapOn: 'Smoke test'
+      - waitForAnimationToEnd
+      - runFlow:
+          when:
+            visible: '^Select$'
+          commands:
+            - tapOn: '^Select$'
+      - tapOn: 'Link'
+      - inputText: 'example.com'
+      - tapOn: 'Insert'
+      - tapOn:
+          id: read-editor-state
+      - assertVisible:
+          id: editor-html
+          text: '.*<a [^>]*href="https://example\.com"[^>]*>(Smoke|test)</a>.*'
+
+      # Italic at the end of the document (the empty editor area)
+      - tapOn:
+          id: smoke-editor
+      - tapOn: 'Italic'
+      - inputText: ' ital'
+      - tapOn: 'Italic'
+      - tapOn:
+          id: read-editor-state
+      - assertVisible:
+          id: editor-html
+          text: '.*<em>.*ital</em>.*'
+
+      # Heading sub-toolbar: Heading, Heading 1, close; then toggle it off
+      - tapOn: 'Heading'
+      - tapOn: 'Heading 1'
+      - tapOn: 'Close headings'
+      - tapOn:
+          id: read-editor-state
+      - assertVisible:
+          id: editor-html
+          text: '<h1>.*ital</em></h1>'
+      - tapOn: 'Heading'
+      - tapOn: 'Heading 1'
+      - tapOn: 'Close headings'
+      - tapOn:
+          id: read-editor-state
+      - assertVisible:
+          id: editor-html
+          text: '<p>.*ital</em></p>'
+
+      # Bullet list, then toolbar undo and redo
+      - swipe:
+          from: 'Link'
+          direction: LEFT
+      - waitForAnimationToEnd
+      - tapOn: 'Bullet list'
+      - tapOn:
+          id: read-editor-state
+      - assertVisible:
+          id: editor-html
+          text: '<ul><li>.*</li></ul>'
+      - repeat:
+          while:
+            notVisible: 'Redo'
+          times: 3
+          commands:
+            - swipe:
+                from: 'Quote|Ordered list|Bullet list|Indent|Outdent'
+                direction: LEFT
+            - waitForAnimationToEnd
+      - tapOn:
+          text: 'Undo'
+          index: 1
+      - tapOn:
+          id: read-editor-state
+      - assertVisible:
+          id: editor-html
+          text: '<p>.*ital</em></p>'
+      - tapOn: 'Redo'
+      - tapOn:
+          id: read-editor-state
+      - assertVisible:
+          id: editor-html
+          text: '<ul><li>.*</li></ul>'
