@@ -13,6 +13,11 @@ test('a dynamicHeight editor resizes its iframe to the content', async ({
   const iframe = page.getByTestId('dynamic-frame').locator('iframe');
   await expect.poll(() => iframeHeight(iframe)).toBeGreaterThan(0);
   await expect.poll(() => iframeHeight(iframe)).toBeLessThan(120);
+  const wrapper = iframe.contentFrame().locator('.dynamic-height');
+  // The paragraph margins count too: nothing is left to scroll to.
+  await expect
+    .poll(() => wrapper.evaluate((el) => el.scrollHeight - el.clientHeight))
+    .toBe(0);
   const before = await iframeHeight(iframe);
 
   await page.getByTestId('grow').click();
@@ -22,4 +27,7 @@ test('a dynamicHeight editor resizes its iframe to the content', async ({
   await expect(content).toContainText('Line 15');
   const contentHeight = (await content.boundingBox())?.height ?? 0;
   expect(await iframeHeight(iframe)).toBeGreaterThanOrEqual(contentHeight);
+  await expect
+    .poll(() => wrapper.evaluate((el) => el.scrollHeight - el.clientHeight))
+    .toBe(0);
 });

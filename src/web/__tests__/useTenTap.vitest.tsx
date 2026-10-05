@@ -380,6 +380,14 @@ describe('dynamic height', () => {
         `style[data-tag="${DYNAMIC_HEIGHT_STYLE_TAG}"]`
       )
     ).not.toBeNull();
+    // A flow root keeps the first and last block margins inside the measured box.
+    const wrapper = document.body.appendChild(document.createElement('div'));
+    wrapper.className = 'dynamic-height';
+    wrapper.innerHTML = '<div class="ProseMirror"></div>';
+    expect(getComputedStyle(wrapper.firstElementChild!).display).toBe(
+      'flow-root'
+    );
+    wrapper.remove();
   });
 
   it('routes container-height to the scroll policy', async () => {

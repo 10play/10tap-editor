@@ -89,6 +89,7 @@ Add the following files
     #root div.dynamic-height .ProseMirror {
       height: auto;
       min-height: 0;
+      display: flow-root;
     }
     .ProseMirror:focus {
       outline: none;
@@ -298,7 +299,7 @@ Rebuild your editor bundle (`yarn editor:build`) whenever you upgrade `@10play/t
 
 When upgrading from 1.0, also:
 
-- change `#root div.dynamic-height .ProseMirror` in your `index.html` to `height: auto; min-height: 0;` as shown above, so dynamic height can shrink and doesn't loop on iOS (the 1.1 runtime also applies this rule itself);
+- change `#root div.dynamic-height .ProseMirror` in your `index.html` to `height: auto; min-height: 0; display: flow-root;` as shown above, so dynamic height can shrink, doesn't loop on iOS and includes the first and last paragraph margins (the 1.1 runtime also applies this rule itself);
 - import `EditorContent` from `@10play/tentap-editor` and follow [Keeping a single copy of tiptap](#keeping-a-single-copy-of-tiptap).
 
 The `contentInjected` polling in `index.tsx` still works. In 1.1 the configuration is written into the `customSource` HTML before your script runs, so the first check already passes.

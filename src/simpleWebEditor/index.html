@@ -27,14 +27,16 @@
         overflow: visible;
       }
       /* Dynamic height: the editor sizes to its content, never to the
-         viewport, so the reported height can shrink (#336, #342). The
-         wrapper stays a scroll container for clamped WebViews (#323). */
+         viewport, so the reported height can shrink (#336, #342). As a
+         flow root it keeps its children's margins inside the measured box.
+         The wrapper stays a scroll container for clamped WebViews (#323). */
       #root > div.dynamic-height {
         height: unset;
       }
       #root div.dynamic-height .ProseMirror {
         height: auto;
         min-height: 0;
+        display: flow-root;
       }
       .ProseMirror:focus {
         outline: none;

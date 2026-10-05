@@ -25,9 +25,11 @@ export function applyStyleSheet(
  * Corrected dynamic-height layout, applied at runtime so custom bundles whose
  * `index.html` was copied from older docs get it too (#336, #342). The
  * `.ProseMirror` element must size to its content, never to the viewport,
- * otherwise the reported height feeds back into the WebView height.
+ * otherwise the reported height feeds back into the WebView height. It is
+ * also a block formatting context, so the margins of its first and last
+ * blocks stay inside the measured box instead of collapsing through it.
  */
 export const DYNAMIC_HEIGHT_STYLE_TAG = 'tentap-dynamic-height';
 
 export const DYNAMIC_HEIGHT_CSS =
-  '.dynamic-height .ProseMirror{height:auto!important;min-height:0!important;}';
+  '.dynamic-height .ProseMirror{height:auto!important;min-height:0!important;display:flow-root;}';
