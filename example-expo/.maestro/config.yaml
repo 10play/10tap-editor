@@ -1,0 +1,8 @@
+# maestro test example-expo/.maestro runs every flow below against an
+# installed development build. Pass -e METRO_URL=http://localhost:<port> when
+# Metro does not run on 8081 (Android emulators reach the host through
+# `adb reverse tcp:<port> tcp:<port>`).
+flows:
+  - smoke/*
+  - keyboard/*
+  - repro/*

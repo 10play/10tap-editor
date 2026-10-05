@@ -1,0 +1,39 @@
+# 20 custom/system keyboard swaps leave the editor typing at the caret.
+appId: dev.tenplay.tentapexampleexpo
+name: Toggle the custom keyboard 20 times
+tags:
+  - keyboard
+---
+- runFlow:
+    file: ../common/open-example.yaml
+    env:
+      EXAMPLE: Custom Keyboard
+- extendedWaitUntil:
+    visible: '.*open ColorKeyboard\.'
+    timeout: 20000
+- waitForAnimationToEnd
+- repeat:
+    times: 20
+    commands:
+      - tapOn:
+          point: 5%,62%
+      - assertVisible: Highlight
+      - waitForAnimationToEnd
+      # Android: the toolbar sits lower over ColorKeyboard than over the IME.
+      - runFlow:
+          when:
+            platform: Android
+          commands:
+            - tapOn:
+                point: 5%,65%
+      - runFlow:
+          when:
+            platform: iOS
+          commands:
+            - tapOn:
+                point: 5%,62%
+      - assertNotVisible: Highlight
+      - waitForAnimationToEnd
+- waitForAnimationToEnd
+- inputText: ' after'
+- assertVisible: '.*ColorKeyboard\. after'

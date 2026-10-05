@@ -1,0 +1,28 @@
+# The palette item swaps the system keyboard for ColorKeyboard, a color pick
+# closes it and typing goes on at the caret in that color.
+# The toolbar sits at the same height on both reference devices (iPhone 17
+# Pro Max, Medium Phone API 34); the palette is its first item.
+appId: dev.tenplay.tentapexampleexpo
+name: Color keyboard
+tags:
+  - keyboard
+---
+- runFlow:
+    file: ../common/open-example.yaml
+    env:
+      EXAMPLE: Custom Keyboard
+- extendedWaitUntil:
+    visible: '.*open ColorKeyboard\.'
+    timeout: 20000
+- waitForAnimationToEnd
+- tapOn:
+    point: 5%,62%
+- assertVisible: Highlight
+- takeScreenshot: color-keyboard-open
+- tapOn:
+    text: Red
+    index: 0
+- waitForAnimationToEnd
+- assertNotVisible: Highlight
+- inputText: ' typed'
+- assertVisible: '.*ColorKeyboard\. typed'

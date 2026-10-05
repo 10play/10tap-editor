@@ -16,6 +16,10 @@ yarn example:expo start      # Metro for an installed dev build
 yarn example:expo typecheck
 ```
 
+Maestro flows live in `.maestro` (`maestro test example-expo/.maestro`); they
+open the installed development build on `METRO_URL` (default
+`http://localhost:8081`).
+
 Screens: a basic editor with the toolbar, dynamic height, a custom keyboard
 (ColorKeyboard) and two editors on one screen.
 
