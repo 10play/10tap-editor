@@ -41,8 +41,9 @@ export type AndroidKeyboardMode = 'system' | 'stable';
 
 export interface KeyboardErrorEvent {
   /**
-   * - `verify-timeout`: the system keyboard was still up 600 ms after
-   *   suppressing it. The host switches to the fallback driver.
+   * - `verify-timeout`: the system keyboard was still up after suppressing
+   *   it (600 ms, or 2 s when only keyboard events can tell). The host
+   *   switches to the fallback driver.
    * - `native-error`: the native module rejected.
    */
   reason: 'verify-timeout' | 'native-error';
@@ -124,6 +125,12 @@ export interface KeyboardSession extends CustomKeyboardControls {
 
 /** Ceiling for the expected system keyboard transition after suppressing. */
 export const VERIFY_TIMEOUT_MS = 600;
+/**
+ * Ceiling when the driver cannot ask the platform and only a hide event
+ * proves the suppression: an IME in a Modal window can take over a second
+ * to hide on a loaded Android device.
+ */
+export const EVENT_VERIFY_TIMEOUT_MS = 2000;
 /** No keyboard event this long (hardware keyboard): animate the slot ourselves. */
 export const EVENT_TIMEOUT_MS = 500;
 /** Ceiling for keeping the body mounted under the incoming system keyboard. */
@@ -375,9 +382,16 @@ export function createKeyboardSession(
     return visible && pending();
   };
 
-  const verify = async (token: number) => {
+  const verify = async (token: number, waited = VERIFY_TIMEOUT_MS) => {
     const failed = currentDriver();
     if (!(await suppressionFailed(token, failed))) return;
+    if (!failed.isSystemKeyboardVisible && waited < EVENT_VERIFY_TIMEOUT_MS) {
+      // Only the hide event can confirm the suppression: give it longer.
+      schedule(EVENT_VERIFY_TIMEOUT_MS - waited, () => {
+        void verify(token, EVENT_VERIFY_TIMEOUT_MS);
+      });
+      return;
+    }
     reportError({ reason: 'verify-timeout', driver: failed.kind });
     if (failed.kind === 'native') {
       useFallback = true;

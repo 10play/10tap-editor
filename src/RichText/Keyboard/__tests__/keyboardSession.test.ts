@@ -8,6 +8,7 @@ import {
 import { createEditorChannel } from '../editorChannel';
 import {
   EVENT_TIMEOUT_MS,
+  EVENT_VERIFY_TIMEOUT_MS,
   PRESS_LISTENER_SCRIPT_KEY,
   SHOW_CONFIRM_TIMEOUT_MS,
   SLOT_ANIMATION_MS,
@@ -315,6 +316,9 @@ describe('verification and driver selection', () => {
     await flush();
     jest.advanceTimersByTime(VERIFY_TIMEOUT_MS);
     await flush();
+    expect(t.options.onKeyboardError).toHaveBeenCalledTimes(1);
+    jest.advanceTimersByTime(EVENT_VERIFY_TIMEOUT_MS - VERIFY_TIMEOUT_MS);
+    await flush();
     expect(t.options.onKeyboardError).toHaveBeenLastCalledWith({
       reason: 'verify-timeout',
       driver: 'fallback',
@@ -334,6 +338,8 @@ describe('verification and driver selection', () => {
     await flush();
     jest.advanceTimersByTime(VERIFY_TIMEOUT_MS);
     await flush();
+    jest.advanceTimersByTime(EVENT_VERIFY_TIMEOUT_MS - VERIFY_TIMEOUT_MS);
+    await flush();
     expect(t.options.onKeyboardError).toHaveBeenCalledWith({
       reason: 'verify-timeout',
       driver: 'fallback',
@@ -346,6 +352,38 @@ describe('verification and driver selection', () => {
     jest.advanceTimersByTime(REFOCUS_DELAY_MS);
     await flush();
     expect(t.editor.focus).toHaveBeenCalled();
+  });
+
+  it('Android fallback: waits for an IME that takes over a second to hide', async () => {
+    const t = setup({ platform: 'android', native: null, systemKeyboard: 280 });
+    t.session.open('kb');
+    await flush();
+    jest.advanceTimersByTime(1300);
+    await flush();
+    t.keyboard.emit('keyboardDidHide', 0);
+    jest.advanceTimersByTime(EVENT_VERIFY_TIMEOUT_MS);
+    await flush();
+    expect(t.options.onKeyboardError).not.toHaveBeenCalled();
+    expect(t.view()).toMatchObject({ phase: 'open', driver: 'fallback' });
+    expect(t.hiddenInput.focus).not.toHaveBeenCalled();
+  });
+
+  it('Android Modal: waits for the hide when the native driver could not suppress', async () => {
+    const t = setup({
+      platform: 'android',
+      native: createFakeNativeModule({ suppressResult: false }),
+      systemKeyboard: 280,
+    });
+    t.session.open('kb');
+    await flush();
+    expect(t.view().driver).toBe('fallback');
+    jest.advanceTimersByTime(VERIFY_TIMEOUT_MS + 500);
+    await flush();
+    t.keyboard.emit('keyboardDidHide', 0);
+    jest.advanceTimersByTime(EVENT_VERIFY_TIMEOUT_MS);
+    await flush();
+    expect(t.options.onKeyboardError).not.toHaveBeenCalled();
+    expect(t.view()).toMatchObject({ phase: 'open', activeKeyboardID: 'kb' });
   });
 
   it('does not fail verification once the hide event arrived', async () => {
