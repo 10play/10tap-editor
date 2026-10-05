@@ -427,22 +427,23 @@ describe('RichText dynamic height', () => {
     return { editor: result.current, webView };
   };
 
-  it('sizes the container through its flex basis, last (#342)', () => {
+  it('sizes the container by its height, resetting flex, last (#342)', () => {
     const { webView } = render100(
       { theme: { webviewContainer: { flex: 1 } } },
       { containerStyle: { flex: 1, maxHeight: 300 } }
     );
 
-    // With `flex: 1` and an auto basis Yoga starts from 0 and the editor
-    // collapses inside a constrained parent (#289, #323).
-    expect(flatStyle(webView.props.containerStyle)).toMatchObject({
-      flex: 1,
+    // A `flex: 1` left in place starts Yoga from a basis of 0, and on Fabric
+    // the editor stays collapsed inside a capped parent (#289, #323).
+    const containerStyle = flatStyle(webView.props.containerStyle);
+    expect(containerStyle).toMatchObject({
+      flex: 0,
+      flexShrink: 1,
       maxHeight: 300,
       height: 100,
-      flexBasis: 100,
-      flexGrow: 0,
-      flexShrink: 1,
     });
+    expect(containerStyle).not.toHaveProperty('flexBasis');
+    expect(containerStyle).not.toHaveProperty('flexGrow');
   });
 
   it('keeps the height across RichText remounts', () => {
@@ -458,11 +459,14 @@ describe('RichText dynamic height', () => {
     setPlatform('web');
     const { webView } = render100({});
 
+    // CSS `flex: 0` would mean a 0% basis, so web keeps the longhands.
     expect(flatStyle(webView.props.style)).toMatchObject({
       height: 100,
       flexBasis: 100,
       flexGrow: 0,
+      flexShrink: 1,
     });
+    expect(flatStyle(webView.props.containerStyle)).not.toHaveProperty('flex');
   });
 
   it('reports the container height to the web (#323)', () => {
