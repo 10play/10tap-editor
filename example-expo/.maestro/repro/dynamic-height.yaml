@@ -12,5 +12,6 @@ tags:
 - extendedWaitUntil:
     visible: 'Type here: the editor grows with its content.'
     timeout: 20000
-- assertVisible: Line 1
+# Android WebView exposes the capped editor's paragraphs as one node.
+- assertVisible: 'Line 1(\s[\s\S]*)?'
 - takeScreenshot: dynamic-height
