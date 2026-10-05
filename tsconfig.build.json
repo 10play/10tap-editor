@@ -6,6 +6,7 @@
     "./src/simpleWebEditor",
     "./src/webEditorUtils",
     "./website",
+    "./example",
     "./examplelatest",
     "./exampleoldarch",
     "./e2e-web",

@@ -1,0 +1,32 @@
+# 20 custom/system swaps: every open mounts the keyboard and every close
+# unmounts it (#51), and typing afterwards still reaches the editor.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+name: Toggle the custom keyboard 20 times
+---
+- launchApp:
+    clearState: true
+- tapOn: 'Keyboard: Custom'
+- tapOn:
+    id: keyboard-example-editor
+- waitForAnimationToEnd
+- repeat:
+    times: 20
+    commands:
+      - tapOn:
+          id: toggle-sticker-keyboard
+      - assertVisible:
+          id: sticker-0
+      - tapOn:
+          id: toggle-sticker-keyboard
+      - waitForAnimationToEnd
+      - assertNotVisible:
+          id: sticker-0
+- inputText: 'after swaps'
+- tapOn:
+    id: read-editor-state
+- assertVisible: 'mounts:20 unmounts:20'
+- assertVisible:
+    id: editor-html
+    text: '.*after swaps.*'

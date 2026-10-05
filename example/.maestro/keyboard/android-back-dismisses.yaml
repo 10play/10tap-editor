@@ -1,0 +1,37 @@
+# Android back closes an open custom keyboard without showing the system
+# keyboard and is consumed, so the screen stays. Tapping the editor then
+# types normally again.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+name: Android back dismisses the custom keyboard
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - tapOn: 'Keyboard: Custom'
+      - tapOn:
+          id: keyboard-example-editor
+      - waitForAnimationToEnd
+      - tapOn:
+          id: toggle-sticker-keyboard
+      - assertVisible:
+          id: sticker-0
+      - back
+      - waitForAnimationToEnd
+      - assertNotVisible:
+          id: sticker-0
+      - assertVisible:
+          id: keyboard-example-editor
+      - tapOn:
+          id: keyboard-example-editor
+      - waitForAnimationToEnd
+      - inputText: 'after back'
+      - tapOn:
+          id: read-editor-state
+      - assertVisible:
+          id: editor-html
+          text: '.*after back.*'

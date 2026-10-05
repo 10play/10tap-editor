@@ -1,0 +1,27 @@
+# ColorKeyboard applies a color, closes back to the system keyboard and the
+# caret stays where it was (G-ALL-1).
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+name: Color keyboard
+---
+- launchApp:
+    clearState: true
+- tapOn: 'Keyboard: Custom'
+- tapOn:
+    id: keyboard-example-editor
+- waitForAnimationToEnd
+- tapOn:
+    id: toggle-color-keyboard
+- assertVisible: Highlight
+- tapOn:
+    text: Red
+    index: 0
+- waitForAnimationToEnd
+- assertNotVisible: Highlight
+- inputText: ' typed'
+- tapOn:
+    id: read-editor-state
+- assertVisible:
+    id: editor-html
+    text: '.*color.*typed.*'

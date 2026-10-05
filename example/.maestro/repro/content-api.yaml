@@ -1,0 +1,61 @@
+# Content and selection APIs:
+# #338 getSelectedText, #255 links without a protocol, #62 insertContent,
+# #273 typing after an inserted image, #327 whitespace-preserving parse options.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+name: 'Repro: content and selection APIs'
+tags:
+  - repro
+---
+- launchApp:
+    clearState: true
+- scrollUntilVisible:
+    element: 'Repro: Content API'
+    timeout: 60000
+- tapOn: 'Repro: Content API'
+- extendedWaitUntil:
+    visible:
+      id: editor-status
+      text: 'ready:true.*'
+    timeout: 15000
+
+- tapOn:
+    id: get-selected-text
+- assertVisible:
+    id: selected-text
+    text: 'selected:Hello'
+
+- tapOn:
+    id: set-link
+- tapOn:
+    id: read-editor-state
+- assertVisible:
+    id: editor-html
+    text: '.*href="https://www\.example\.com".*Hello</a> world.*'
+
+- tapOn:
+    id: insert-content
+- tapOn:
+    id: read-editor-state
+- assertVisible:
+    id: editor-html
+    text: '.*<strong>inserted</strong>.*'
+
+- tapOn:
+    id: set-image
+- waitForAnimationToEnd
+- inputText: 'after'
+- tapOn:
+    id: read-editor-state
+- assertVisible:
+    id: editor-html
+    text: '.*<img[^>]*>.*<p>after</p>.*'
+
+- tapOn:
+    id: set-whitespace-content
+- tapOn:
+    id: read-editor-state
+- assertVisible:
+    id: editor-html
+    text: '<p>a   b</p>'

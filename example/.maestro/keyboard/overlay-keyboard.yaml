@@ -1,0 +1,30 @@
+# layout="overlay" with EditorKeyboardAvoidingView (and 'stable' mode on
+# Android): the keyboard opens over the window, the switcher above it stays
+# reachable, and typing works after it closes back to the system keyboard.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+name: Overlay custom keyboard
+---
+- launchApp:
+    clearState: true
+- tapOn: 'Keyboard: Overlay'
+- tapOn:
+    id: keyboard-example-editor
+- waitForAnimationToEnd
+- tapOn:
+    id: toggle-color-keyboard
+- assertVisible: Highlight
+- assertVisible:
+    id: toggle-color-keyboard
+- tapOn:
+    text: Blue
+    index: 0
+- waitForAnimationToEnd
+- assertNotVisible: Highlight
+- inputText: ' overlay'
+- tapOn:
+    id: read-editor-state
+- assertVisible:
+    id: editor-html
+    text: '.*color.*overlay.*'

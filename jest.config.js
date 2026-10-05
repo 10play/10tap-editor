@@ -11,6 +11,7 @@ module.exports = {
       '<rootDir>/src/__mocks__/editorHtml.ts',
   },
   modulePathIgnorePatterns: [
+    '<rootDir>/example/',
     '<rootDir>/examplelatest',
     '<rootDir>/website',
     '<rootDir>/lib/',

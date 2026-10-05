@@ -45,6 +45,7 @@
     "editor:dev": "vite",
     "editor:build": "vite build && node ./scripts/buildEditor.js ./src/simpleWebEditor/build/index.html",
     "editor:build-web-utils": "rimraf lib-web && vite build --config ./src/webEditorUtils/vite.config.ts && tsc --project ./src/webEditorUtils",
+    "example": "yarn workspace tentap-example",
     "examplelatest": "yarn workspace tentap-example-latest",
     "exampleoldarch": "yarn workspace tentap-example-oldarch",
     "e2e:web": "yarn workspace tentap-e2e-web test",
@@ -54,7 +55,7 @@
     "lint": "eslint .",
     "check:codegen": "node ./scripts/check-codegen.js",
     "check:bundle": "node ./scripts/check-isolated-bundle.js",
-    "clean": "del-cli android/build examplelatest/android/build examplelatest/android/app/build examplelatest/ios/build exampleoldarch/android/build exampleoldarch/android/app/build exampleoldarch/ios/build lib lib-web",
+    "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build examplelatest/android/build examplelatest/android/app/build examplelatest/ios/build exampleoldarch/android/build exampleoldarch/android/app/build exampleoldarch/ios/build lib lib-web",
     "prepare": "bob build",
     "prepack": "yarn editor:build && yarn editor:build-web-utils && bob build",
     "release": "release-it"
@@ -145,6 +146,7 @@
     }
   },
   "workspaces": [
+    "example",
     "examplelatest",
     "exampleoldarch",
     "e2e-web",

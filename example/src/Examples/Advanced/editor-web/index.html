@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <title>RichTextEditor</title>
+  </head>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    #root > div:nth-of-type(1) {
+      overflow: auto;
+      height: 100%;
+      position: absolute;
+      width: 100%;
+      top: 0;
+      bottom: 0;
+    }
+    #root div .ProseMirror {
+      height: 100%;
+      overflow: auto;
+    }
+    .ProseMirror:focus {
+      outline: none;
+    }
+  </style>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

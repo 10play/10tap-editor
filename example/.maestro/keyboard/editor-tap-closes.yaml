@@ -1,0 +1,28 @@
+# Tapping the editor while a custom keyboard is open brings the system
+# keyboard back (closeOnEditorPress).
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+name: Editor tap closes the custom keyboard
+---
+- launchApp:
+    clearState: true
+- tapOn: 'Keyboard: Custom'
+- tapOn:
+    id: keyboard-example-editor
+- waitForAnimationToEnd
+- tapOn:
+    id: toggle-sticker-keyboard
+- assertVisible:
+    id: sticker-0
+- tapOn:
+    id: keyboard-example-editor
+- waitForAnimationToEnd
+- assertNotVisible:
+    id: sticker-0
+- inputText: 'x'
+- tapOn:
+    id: read-editor-state
+- assertVisible:
+    id: editor-html
+    text: '.*x.*'
