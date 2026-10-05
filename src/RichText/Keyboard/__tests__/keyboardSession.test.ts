@@ -328,6 +328,26 @@ describe('verification and driver selection', () => {
     expect(t.view()).toMatchObject({ phase: 'closed', slotHeight: 0 });
   });
 
+  it('Android fallback: shows the IME again after a late hide', async () => {
+    const t = setup({ platform: 'android', native: null, systemKeyboard: 280 });
+    t.session.open('kb');
+    await flush();
+    jest.advanceTimersByTime(VERIFY_TIMEOUT_MS);
+    await flush();
+    expect(t.options.onKeyboardError).toHaveBeenCalledWith({
+      reason: 'verify-timeout',
+      driver: 'fallback',
+    });
+    expect(t.controller.persistent.has(INPUT_MODE_SCRIPT_KEY)).toBe(false);
+
+    // The suppression's hide lands only now, on a loaded device.
+    t.keyboard.emit('keyboardDidHide', 0);
+    expect(t.hiddenInput.focus).toHaveBeenCalledTimes(1);
+    jest.advanceTimersByTime(REFOCUS_DELAY_MS);
+    await flush();
+    expect(t.editor.focus).toHaveBeenCalled();
+  });
+
   it('does not fail verification once the hide event arrived', async () => {
     const t = setup();
     await openFully(t);

@@ -382,7 +382,8 @@ export function createKeyboardSession(
       });
       return;
     }
-    // Neither driver could hide the system keyboard: give the area back to it.
+    // Neither driver could hide the system keyboard: give the area back to
+    // it. A slow device may still be hiding it, so it is shown again.
     handOver(null);
   };
 
@@ -408,9 +409,13 @@ export function createKeyboardSession(
     if (!systemWasUp) settleOpen(null);
   };
 
-  /** Ends the custom keyboard after a system keyboard took the area. */
+  /**
+   * Ends the custom keyboard after a system keyboard took the area: the
+   * keyboard of `event`, or with no event the one a failed suppression left
+   * up, which is restored in case its hide was only late.
+   */
   const handOver = (event: SystemKeyboardEvent | null) => {
-    epoch++;
+    const token = ++epoch;
     clearTimers();
     phase = 'closing';
     closingToSystem = true;
@@ -418,7 +423,8 @@ export function createKeyboardSession(
     activeId = undefined;
     suppressed = false;
     unlatch();
-    void currentDriver().release();
+    if (event) void currentDriver().release();
+    else restoreSystemKeyboard(currentDriver(), token);
     commitSlot(0, event);
     emit();
     notifyParent(undefined);
@@ -546,6 +552,10 @@ export function createKeyboardSession(
     });
     schedule(SHOW_CONFIRM_TIMEOUT_MS, finishClose);
     unlatch();
+    restoreSystemKeyboard(driver, token);
+  };
+
+  const restoreSystemKeyboard = (driver: KeyboardDriver, token: number) => {
     void driver
       .restore()
       .then((restored) => {
