@@ -35,7 +35,11 @@ export const OverlayKeyboardExample = () => {
           <RichText editor={editor} testID="keyboard-example-editor" />
         </View>
         <KeyboardSwitcher editor={editor} entries={[colorKeyboardEntry]} />
-        <Toolbar editor={editor} />
+        {/* The toolbar's default flex: 1 would share the column with the
+            editor; in a row it only fills the width. */}
+        <View style={styles.toolbarRow}>
+          <Toolbar editor={editor} />
+        </View>
       </EditorKeyboardAvoidingView>
       <CustomKeyboard
         editor={editor}
@@ -53,5 +57,8 @@ const styles = StyleSheet.create({
   fullScreen: {
     flex: 1,
     backgroundColor: 'white',
+  },
+  toolbarRow: {
+    flexDirection: 'row',
   },
 });
