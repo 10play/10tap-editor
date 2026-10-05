@@ -427,19 +427,21 @@ describe('RichText dynamic height', () => {
     return { editor: result.current, webView };
   };
 
-  it('sizes the container with flex turned off last (#342)', () => {
+  it('sizes the container through its flex basis, last (#342)', () => {
     const { webView } = render100(
       { theme: { webviewContainer: { flex: 1 } } },
       { containerStyle: { flex: 1, maxHeight: 300 } }
     );
 
+    // With `flex: 1` and an auto basis Yoga starts from 0 and the editor
+    // collapses inside a constrained parent (#289, #323).
     expect(flatStyle(webView.props.containerStyle)).toMatchObject({
       flex: 1,
       maxHeight: 300,
       height: 100,
+      flexBasis: 100,
       flexGrow: 0,
-      flexShrink: 0,
-      flexBasis: 'auto',
+      flexShrink: 1,
     });
   });
 
@@ -458,6 +460,7 @@ describe('RichText dynamic height', () => {
 
     expect(flatStyle(webView.props.style)).toMatchObject({
       height: 100,
+      flexBasis: 100,
       flexGrow: 0,
     });
   });

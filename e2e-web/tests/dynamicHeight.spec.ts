@@ -31,3 +31,23 @@ test('a dynamicHeight editor resizes its iframe to the content', async ({
     .poll(() => wrapper.evaluate((el) => el.scrollHeight - el.clientHeight))
     .toBe(0);
 });
+
+// #289/#323: a maxHeight parent clamps the editor, which then scrolls.
+test('a dynamicHeight editor shrinks to a maxHeight parent', async ({
+  page,
+}) => {
+  await page.goto('/?scenario=capped-dynamic-height');
+  await expect(page.getByTestId('capped-state')).toContainText('ready:true');
+
+  const frame = page.getByTestId('capped-frame');
+  const iframe = frame.locator('iframe');
+  await expect.poll(() => iframeHeight(iframe)).toBeGreaterThan(100);
+  const frameHeight = (await frame.boundingBox())?.height ?? 0;
+  expect(frameHeight).toBeLessThanOrEqual(150);
+  expect(await iframeHeight(iframe)).toBeLessThanOrEqual(frameHeight);
+
+  const wrapper = iframe.contentFrame().locator('.dynamic-height');
+  await expect
+    .poll(() => wrapper.evaluate((el) => el.scrollHeight > el.clientHeight))
+    .toBe(true);
+});

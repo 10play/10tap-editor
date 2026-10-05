@@ -90,9 +90,26 @@ const DynamicHeight = () => {
   );
 };
 
+/** Capped by its parent's `maxHeight`, the editor shrinks to it and scrolls (#289, #323). */
+const CappedDynamicHeight = () => {
+  const editor = useEditorBridge({
+    dynamicHeight: true,
+    initialContent: longContent,
+  });
+  return (
+    <View style={styles.panel}>
+      <EditorState editor={editor} testID="capped-state" />
+      <View testID="capped-frame" style={[styles.frame, styles.capped]}>
+        <RichText editor={editor} />
+      </View>
+    </View>
+  );
+};
+
 const scenarios = {
   'two-editors': TwoEditors,
   'dynamic-height': DynamicHeight,
+  'capped-dynamic-height': CappedDynamicHeight,
 };
 
 const isScenario = (name: string | null): name is keyof typeof scenarios =>
@@ -125,6 +142,9 @@ const styles = StyleSheet.create({
   frame: {
     borderWidth: 1,
     borderColor: '#c4c4c4',
+  },
+  capped: {
+    maxHeight: 150,
   },
   button: {
     alignSelf: 'flex-start',

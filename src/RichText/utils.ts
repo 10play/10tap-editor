@@ -184,10 +184,12 @@ export interface WebViewStylesInput {
  *
  * As in 1.0, an app `style` replaces the defaults and an app
  * `containerStyle` replaces the theme's, unless `mergeStyles` is set. The
- * dynamic height is always applied last and turns flex off, because a
- * `flex: 1` from react-native-webview, the theme or the app would make Yoga
- * ignore it (#342). On web the iframe shim reads only `style`, so it gets
- * the height too (#205).
+ * dynamic height is always applied last, as the flex basis: with `flex: 1`
+ * from react-native-webview, the theme or the app, Yoga would otherwise
+ * start from a basis of 0 and ignore the height (#342). The editor never
+ * grows past its content but shrinks to a parent's `maxHeight` or fixed
+ * height, and then scrolls (#289, #323). On web the iframe shim reads only
+ * `style`, so it gets the height too (#205).
  */
 export const getWebViewStyles = ({
   theme,
@@ -203,7 +205,7 @@ export const getWebViewStyles = ({
   containerStyle: StyleProp<ViewStyle>;
 } => {
   const sized: ViewStyle | undefined = dynamicHeight
-    ? { height, flexGrow: 0, flexShrink: 0, flexBasis: 'auto' }
+    ? { height, flexGrow: 0, flexShrink: 1, flexBasis: height }
     : undefined;
   const defaults: StyleProp<ViewStyle> = [
     { flex: 1 },
