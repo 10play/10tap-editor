@@ -413,6 +413,13 @@ describe('link bar (#252)', () => {
     expect(screen.queryByText('Insert')).toBeNull();
   });
 
+  it('leaves the live selection alone on iOS', () => {
+    const editor = createMockEditor();
+    openLinkBar(editor);
+    fireEvent.press(screen.getByText('Insert'));
+    expect(editor.setSelection).not.toHaveBeenCalled();
+  });
+
   it('closes from the link icon without setting a link', () => {
     const editor = createMockEditor();
     openLinkBar(editor);
@@ -472,6 +479,36 @@ describe('link bar (#252)', () => {
 
       act(() => jest.advanceTimersByTime(100));
       expect(screen.queryByText('Insert')).toBeNull();
+    });
+
+    it('applies the link to the selection held when the bar opened', () => {
+      const editor = createMockEditor({ selection: { from: 1, to: 6 } });
+      openLinkBar(editor);
+      act(() => jest.runOnlyPendingTimers());
+      // The link input's focus collapses the WebView selection.
+      act(() => editor.emitState({ selection: { from: 1, to: 1 } }));
+      editor.setSelection.mockClear();
+
+      fireEvent.changeText(linkInput(), 'example.com');
+      fireEvent.press(screen.getByText('Insert'));
+
+      expect(editor.setSelection).toHaveBeenCalledWith(1, 6);
+      expect(editor.setSelection.mock.invocationCallOrder[0]).toBeLessThan(
+        editor.setLink.mock.invocationCallOrder[0]!
+      );
+      expect(editor.setLink).toHaveBeenCalledWith('example.com');
+    });
+
+    it('takes the selection from the latest state before the bar opens', () => {
+      const editor = createMockEditor({ selection: { from: 1, to: 1 } });
+      render(<Toolbar editor={editor} />);
+      act(() => editor.emitState({ selection: { from: 2, to: 8 } }));
+      pressIcon(Images.link);
+      act(() => jest.runOnlyPendingTimers());
+      editor.setSelection.mockClear();
+
+      fireEvent.press(screen.getByText('Insert'));
+      expect(editor.setSelection).toHaveBeenCalledWith(2, 8);
     });
 
     it('cancels the pending close on unmount', () => {

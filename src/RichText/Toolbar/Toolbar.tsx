@@ -70,6 +70,15 @@ export function Toolbar({
 
   useEffect(() => () => clearTimeout(closeLinkTimer.current), []);
 
+  // Android can collapse the editor selection when the link input takes
+  // focus, so the link is applied to the selection held when the bar opened.
+  const linkSelection = useRef(editorState.selection);
+  useEffect(() => {
+    if (toolbarContext !== ToolbarContext.Link) {
+      linkSelection.current = editorState.selection;
+    }
+  }, [editorState.selection, toolbarContext]);
+
   const hideToolbar =
     hidden === undefined ? !isKeyboardUp || !editorState.isFocused : hidden;
 
@@ -109,18 +118,21 @@ export function Toolbar({
           editor.focus();
         }}
         onEditLink={(link) => {
+          if (Platform.OS !== 'android') {
+            editor.setLink(link);
+            editor.focus();
+            closeLinkBar();
+            return;
+          }
+          const { from, to } = linkSelection.current;
+          editor.setSelection(from, to);
           editor.setLink(link);
           editor.focus();
-
-          if (Platform.OS === 'android') {
-            clearTimeout(closeLinkTimer.current);
-            closeLinkTimer.current = setTimeout(
-              closeLinkBar,
-              ANDROID_LINK_CLOSE_DELAY_MS
-            );
-          } else {
-            closeLinkBar();
-          }
+          clearTimeout(closeLinkTimer.current);
+          closeLinkTimer.current = setTimeout(
+            closeLinkBar,
+            ANDROID_LINK_CLOSE_DELAY_MS
+          );
         }}
       />
     );
