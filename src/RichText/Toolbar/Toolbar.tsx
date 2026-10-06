@@ -49,6 +49,10 @@ export const toolbarStyles = StyleSheet.create({});
 // has taken focus back.
 const ANDROID_LINK_CLOSE_DELAY_MS = 100;
 
+// A tap on Insert can dismiss the keyboard just before it presses, so the
+// link bar closes only once the keyboard has stayed down a moment (#252).
+export const LINK_BAR_KEYBOARD_CLOSE_DELAY_MS = 300;
+
 const keyExtractor = (_item: ToolbarItem, index: number) => String(index);
 
 export function Toolbar({
@@ -82,6 +86,20 @@ export function Toolbar({
     }
   }, [selection, isFocused, toolbarContext]);
 
+  // Like the 1.0 blur close: dismissing the keyboard returns to the main
+  // toolbar and its hide rules.
+  const wasKeyboardUp = useRef(isKeyboardUp);
+  useEffect(() => {
+    const dismissed = wasKeyboardUp.current && !isKeyboardUp;
+    wasKeyboardUp.current = isKeyboardUp;
+    if (!dismissed || toolbarContext !== ToolbarContext.Link) return;
+    const timer = setTimeout(
+      () => setToolbarContext(ToolbarContext.Main),
+      LINK_BAR_KEYBOARD_CLOSE_DELAY_MS
+    );
+    return () => clearTimeout(timer);
+  }, [isKeyboardUp, toolbarContext]);
+
   const hideToolbar =
     hidden === undefined ? !isKeyboardUp || !editorState.isFocused : hidden;
 
@@ -111,7 +129,7 @@ export function Toolbar({
     setToolbarContext(ToolbarContext.Main);
   };
 
-  if (toolbarContext === ToolbarContext.Link) {
+  if (toolbarContext === ToolbarContext.Link && hidden !== true) {
     return (
       <EditLinkBar
         theme={theme}

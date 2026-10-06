@@ -23,6 +23,7 @@ import {
   ToolbarContext,
   type ToolbarItem,
 } from '..';
+import { LINK_BAR_KEYBOARD_CLOSE_DELAY_MS } from '../Toolbar';
 import { createMockEditor, type MockEditor } from './mockEditor';
 
 jest.mock('../../../utils/useKeyboard', () => ({
@@ -396,6 +397,47 @@ describe('link bar (#252)', () => {
     expect(editor.focus).toHaveBeenCalled();
     expect(screen.queryByText('Insert')).toBeNull();
     expect(list()).toBeTruthy();
+  });
+
+  it('closes once the keyboard is dismissed, like the 1.0 blur close', () => {
+    jest.useFakeTimers();
+    const editor = createMockEditor();
+    const { rerender } = render(<Toolbar editor={editor} />);
+    pressIcon(Images.link);
+
+    mockedUseKeyboard.mockImplementation(() => systemKeyboard(0));
+    rerender(<Toolbar editor={editor} />);
+    expect(screen.getByText('Insert')).toBeTruthy();
+    act(() => jest.advanceTimersByTime(LINK_BAR_KEYBOARD_CLOSE_DELAY_MS));
+
+    expect(screen.queryByText('Insert')).toBeNull();
+    expect(list().props.style).toContain(defaultEditorTheme.toolbar.hidden);
+  });
+
+  it('stays open when the keyboard comes back right away', () => {
+    jest.useFakeTimers();
+    const editor = createMockEditor();
+    const { rerender } = render(<Toolbar editor={editor} />);
+    pressIcon(Images.link);
+
+    mockedUseKeyboard.mockImplementation(() => systemKeyboard(0));
+    rerender(<Toolbar editor={editor} />);
+    mockedUseKeyboard.mockImplementation(() => systemKeyboard(300));
+    rerender(<Toolbar editor={editor} />);
+    act(() => jest.advanceTimersByTime(LINK_BAR_KEYBOARD_CLOSE_DELAY_MS));
+
+    expect(screen.getByText('Insert')).toBeTruthy();
+  });
+
+  it('is hidden by hidden={true}', () => {
+    const editor = createMockEditor();
+    const { rerender } = render(<Toolbar editor={editor} />);
+    pressIcon(Images.link);
+
+    rerender(<Toolbar editor={editor} hidden />);
+    expect(screen.queryByText('Insert')).toBeNull();
+    rerender(<Toolbar editor={editor} />);
+    expect(screen.getByText('Insert')).toBeTruthy();
   });
 
   it('inserts the link when the keyboard submits', () => {
