@@ -8,6 +8,10 @@ name: 'Caret: open screen'
 ---
 - launchApp:
     stopApp: true
+# Debug builds load the bundle from Metro, which can take a while.
+- extendedWaitUntil:
+    visible: '10Tap Rich Text Editor!'
+    timeout: 180000
 - scrollUntilVisible:
     element: ${SCREEN}
     timeout: 60000

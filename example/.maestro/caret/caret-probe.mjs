@@ -7,7 +7,9 @@
 // rect of the focused editor (WebView DevTools) with the top of everything
 // drawn over the editor: Toolbar, KeyboardSwitcher, CustomKeyboard (measured
 // through the app's Hermes inspector on Metro) and the IME window (dumpsys).
-// Results are appended to <out>/caret.jsonl; the reply carries `ok`.
+// It also checks that a keyboard (IME or custom) is on screen and that the
+// Toolbar sits fully above it. Results are appended to <out>/caret.jsonl; the
+// reply carries `ok`.
 import { execFileSync } from 'node:child_process';
 import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
@@ -121,16 +123,63 @@ const RN_MEASURE = `(() => {
       out.pending--;
     });
   };
-  const visit = (fiber) => {
+  // Pressable controls outside the custom keyboard, to catch any of them
+  // (custom toolbars included) reaching under the keyboard.
+  const isControl = (f) => {
+    const props = f.memoizedProps;
+    return (
+      f.type === 'RCTView' &&
+      props &&
+      (props.accessibilityRole === 'button' ||
+        typeof props.onResponderRelease === 'function')
+    );
+  };
+  const visit = (fiber, inKeyboard) => {
     for (let f = fiber; f; f = f.sibling) {
       const label = wanted(f);
       if (label) measure(label, f);
-      if (f.child) visit(f.child);
+      else if (!inKeyboard && isControl(f)) {
+        const props = f.memoizedProps;
+        let owner = f.return;
+        while (owner && typeof owner.type === 'string') owner = owner.return;
+        const ownerName =
+          owner && owner.type && (owner.type.displayName || owner.type.name);
+        measure(
+          'Control:' +
+            (props.accessibilityLabel || props.testID || ownerName || ''),
+          f
+        );
+      }
+      // The example list stays mounted under the open screen.
+      const name = f.type && (f.type.displayName || f.type.name);
+      if (f.child && name !== 'HomeScreen')
+        visit(f.child, inKeyboard || label === 'CustomKeyboard');
     }
   };
   hook.renderers.forEach((_r, id) =>
-    hook.getFiberRoots(id).forEach((root) => visit(root.current))
+    hook.getFiberRoots(id).forEach((root) => visit(root.current, false))
   );
+  // The library's own view of the keyboard: its store and the views
+  // registered as drawn on the keyboard (useKeyboardAccessory).
+  const modules = globalThis.__r && globalThis.__r.getModules && globalThis.__r.getModules();
+  const entries = modules ? (modules instanceof Map ? [...modules.values()] : Object.values(modules)) : [];
+  for (const m of entries) {
+    const exports = m && m.isInitialized && m.publicModule && m.publicModule.exports;
+    if (!exports) continue;
+    if (exports.keyboardStore && exports.keyboardStore.getSnapshot && !out.store) {
+      out.store = exports.keyboardStore.getSnapshot();
+    }
+    if (exports.keyboardAccessories && exports.keyboardAccessories.getViews && !out.accessories) {
+      out.accessories = true;
+      exports.keyboardAccessories.getViews().forEach((view) => {
+        out.pending++;
+        view.measureInWindow((x, y, width, height) => {
+          out.views.push({ label: 'Accessory', x, y, width, height });
+          out.pending--;
+        });
+      });
+    }
+  }
   return out.pending;
 })()`;
 
@@ -142,6 +191,7 @@ const metroTarget = async () => {
   return targets[targets.length - 1]?.webSocketDebuggerUrl;
 };
 
+let nativeStore = null;
 const measureNative = async () => {
   const url = await metroTarget();
   if (!url) throw new Error('no Hermes target on Metro');
@@ -149,7 +199,10 @@ const measureNative = async () => {
   for (let i = 0; i < 20; i++) {
     await sleep(100);
     const result = await evaluate(url, 'globalThis.__caretProbe');
-    if (result && result.pending === 0) return result.views;
+    if (result && result.pending === 0) {
+      nativeStore = result.store ?? null;
+      return result.views;
+    }
   }
   throw new Error('measureInWindow did not answer');
 };
@@ -189,12 +242,18 @@ const imeTop = () => {
   return Number(frame[2]) + Number(insets[1]);
 };
 
+const screenHeight = () =>
+  Number(adb('shell', 'wm', 'size').match(/(\d+)x(\d+)\s*$/)[2]);
+
 const measure = async (label) => {
   const [pages, views, ime] = [
     await webPages(),
     await measureNative(),
     imeTop(),
   ];
+  const imeShown = /mInputShown=true/.test(
+    adb('shell', 'dumpsys', 'input_method')
+  );
   const page =
     pages.find((p) => p.web.focused) ??
     pages.find((p) => p.web.hasSelection) ??
@@ -217,8 +276,16 @@ const measure = async (label) => {
   const windowOffset = anchor ? rect.screenY - anchor.y * dpr : 0;
   const toScreen = (dp) => windowOffset + dp * dpr;
   const covers = views
-    .filter((v) => v.label !== 'WebView' && v.height > 0 && v.width > 0)
-    .map((v) => ({ label: v.label, top: toScreen(v.y) }));
+    .filter(
+      (v) =>
+        !v.label.startsWith('Control:') &&
+        v.label !== 'WebView' &&
+        v.height > 0 &&
+        v.width > 0
+    )
+    .map((v) => ({ label: v.label, top: toScreen(v.y) }))
+    // A static toolbar above the editor does not cover it.
+    .filter((c) => c.top > rect.screenY);
   if (ime !== null) covers.push({ label: 'IME', top: ime });
   const visibleBottom = Math.min(
     rect.screenY + rect.height,
@@ -231,10 +298,73 @@ const measure = async (label) => {
   const caretTop = rect.screenY + web.caret.top * dpr;
   const caretBottom = rect.screenY + web.caret.bottom * dpr;
   const marginDp = (visibleBottom - caretBottom) / dpr;
-  const ok = marginDp >= 0 && caretTop >= rect.screenY - 1;
+  const caretOk = marginDp >= 0 && caretTop >= rect.screenY - 1;
+
+  // The toolbar must sit fully visible on top of whichever keyboard is up.
+  const height = screenHeight();
+  const toolbarView = views.find(
+    (v) => v.label === 'Toolbar' && v.height > 0 && v.width > 0
+  );
+  const toolbar = toolbarView && {
+    top: Math.round(toScreen(toolbarView.y)),
+    bottom: Math.round(toScreen(toolbarView.y + toolbarView.height)),
+  };
+  const customView = views.find(
+    (v) => v.label === 'CustomKeyboard' && v.height > 0
+  );
+  const customTop = customView && Math.round(toScreen(customView.y));
+  const keyboardTop =
+    customTop !== undefined && customTop < height
+      ? customTop
+      : (ime ?? undefined);
+  const keyboardShown = keyboardTop !== undefined;
+  // Every view on the keyboard (Toolbar, KeyboardSwitcher, custom toolbars
+  // registered with useKeyboardAccessory) and every control must end above
+  // the keyboard; a control straddling its top is half hidden.
+  const onKeyboard = views
+    .filter(
+      (v) =>
+        ['Toolbar', 'KeyboardSwitcher', 'Accessory'].includes(v.label) &&
+        v.height > 0 &&
+        v.width > 0
+    )
+    .map((v) => ({
+      label: v.label,
+      top: Math.round(toScreen(v.y)),
+      bottom: Math.round(toScreen(v.y + v.height)),
+    }));
+  const coveredControls = keyboardShown
+    ? views
+        .filter((v) => v.label.startsWith('Control:') && v.height > 0)
+        .map((v) => ({
+          label: v.label,
+          top: Math.round(toScreen(v.y)),
+          bottom: Math.round(toScreen(v.y + v.height)),
+        }))
+        .filter((v) => v.bottom > keyboardTop + 1 && v.top < keyboardTop)
+    : [];
+  const coveredAccessories = onKeyboard.filter(
+    (v) => v.top < 0 || !keyboardShown || v.bottom > keyboardTop + 1
+  );
+  const toolbarOk =
+    coveredAccessories.length === 0 && coveredControls.length === 0;
+  const ok = caretOk && keyboardShown && toolbarOk;
   return {
     label,
     ok,
+    caretOk,
+    keyboardShown,
+    toolbarOk,
+    toolbar,
+    keyboardTop,
+    customKeyboardTop: customTop,
+    toolbarGapPx:
+      toolbar && keyboardShown ? keyboardTop - toolbar.bottom : null,
+    imeShown,
+    onKeyboard,
+    coveredAccessories,
+    coveredControls,
+    store: nativeStore,
     comfortable: ok && marginDp >= COMFORT_DP,
     marginDp: Math.round(marginDp * 10) / 10,
     caretScreenPx: {
@@ -296,6 +426,7 @@ createServer(async (req, res) => {
   try {
     const png = execFileSync('adb', ['exec-out', 'screencap', '-p'], {
       timeout: 15000,
+      maxBuffer: 64 << 20,
     });
     writeFileSync(join(OUT, `${label.replace(/[^\w.-]+/g, '_')}.png`), png);
   } catch (error) {
@@ -303,7 +434,7 @@ createServer(async (req, res) => {
   }
   appendFileSync(join(OUT, 'caret.jsonl'), JSON.stringify(result) + '\n');
   console.log(
-    `${result.ok ? 'OK  ' : 'FAIL'} ${label} margin=${result.marginDp}dp cover=${result.nearestCover?.label ?? '-'} ${result.error ?? ''}`
+    `${result.ok ? 'OK  ' : 'FAIL'} ${label} margin=${result.marginDp}dp cover=${result.nearestCover?.label ?? '-'} kb=${result.keyboardShown ? result.keyboardTop : 'none'}${result.imeShown ? '(ime)' : ''} covered=${(result.coveredAccessories ?? []).length + (result.coveredControls ?? []).length} toolbar=${result.toolbar ? `${result.toolbar.top}-${result.toolbar.bottom}` : '-'} ${result.error ?? ''}`
   );
   res.writeHead(200, { 'content-type': 'application/json' });
   res.end(JSON.stringify(result));
