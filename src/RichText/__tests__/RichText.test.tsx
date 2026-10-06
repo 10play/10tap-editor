@@ -136,6 +136,17 @@ describe('RichText boot', () => {
     ).toBe(undefined);
   });
 
+  it('mounts the WebView as the editor webviewRef', () => {
+    const { result } = createEditor();
+    render(<RichText editor={result.current} />);
+
+    result.current.webviewRef.current?.injectJavaScript('window.injected = 1;');
+
+    expect(mockWebViews.latest().injectedJavaScript).toEqual([
+      'window.injected = 1;',
+    ]);
+  });
+
   it('keeps the same source while options change after mount', () => {
     const hook = createEditor({ initialContent: 'a', editable: true });
     const view = render(<RichText editor={hook.result.current} />);
