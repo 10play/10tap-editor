@@ -1,0 +1,23 @@
+# Opens ${SCREEN} from a fresh launch and focuses the editor. FOCUS_ID taps
+# an editor by testID first; otherwise the screen's autofocus is used.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+  FOCUS_ID: ${FOCUS_ID || ''}
+name: 'Caret: open screen'
+---
+- launchApp:
+    stopApp: true
+- scrollUntilVisible:
+    element: ${SCREEN}
+    timeout: 60000
+- tapOn: ${SCREEN}
+- waitForAnimationToEnd
+- assertNotVisible: 'Render Error'
+- runFlow:
+    when:
+      true: ${FOCUS_ID != ''}
+    commands:
+      - tapOn:
+          id: ${FOCUS_ID}
+- waitForAnimationToEnd

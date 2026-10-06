@@ -1,0 +1,19 @@
+# Taps the paragraph matching TEXT (scrolling the editor to it first) and
+# types "<TAG> mid ends" there.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+  TAG: ${TAG || 'Middle'}
+name: 'Caret: type in the middle'
+---
+- scrollUntilVisible:
+    element:
+      text: ${TEXT}
+    direction: UP
+    visibilityPercentage: 100
+    centerElement: true
+- tapOn:
+    text: ${TEXT}
+- waitForAnimationToEnd
+- inputText: ${' ' + TAG + ' mid ends'}
+- waitForAnimationToEnd
