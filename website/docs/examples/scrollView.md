@@ -11,8 +11,6 @@ By default the editor fills its container and scrolls its own content. To place 
 With [dynamicHeight](../api/useEditorBridge.md#dynamicheight) the WebView is always as tall as its content. It grows as you type and shrinks when you delete, in a `ScrollView` or in a plain `View`.
 
 ```tsx
-import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
-
 export const EditorInForm = () => {
   const editor = useEditorBridge({
     dynamicHeight: true,
@@ -20,16 +18,22 @@ export const EditorInForm = () => {
   });
 
   return (
-    <KeyboardAwareScrollView keyboardShouldPersistTaps="handled">
-      <TextInput placeholder="Title" />
-      <RichText editor={editor} />
-      <Button title="Save" onPress={save} />
-    </KeyboardAwareScrollView>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView keyboardShouldPersistTaps="handled">
+        <TextInput placeholder="Title" />
+        <RichText editor={editor} />
+        <Button title="Save" onPress={save} />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 ```
 
-- Leave `avoidIosKeyboard` off. In dynamic height mode the editor doesn't add keyboard padding; let the scroll view keep the cursor above the keyboard, for example with `KeyboardAwareScrollView` from `react-native-keyboard-controller`.
+- Leave `avoidIosKeyboard` off. In dynamic height mode the editor doesn't add keyboard padding, and the parent scroll view doesn't know where the cursor is: the editor is a WebView, not a native text input. Scroll views that follow the focused input, such as `KeyboardAwareScrollView` from `react-native-keyboard-controller`, track native text inputs, so they don't scroll to the cursor inside the editor either.
+- To keep the cursor visible while typing a long text, [cap the editor's height](#capping-the-height) so that it fits above the keyboard. Once it reaches the cap the editor scrolls itself and keeps the cursor in view.
 - `RichText` already passes `scrollEnabled={false}` to the WebView, so only your scroll view scrolls.
 - Set `keyboardShouldPersistTaps="handled"` on the scroll view, so taps on the toolbar and the link bar reach their buttons while the keyboard is open.
 
