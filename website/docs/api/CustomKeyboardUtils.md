@@ -237,7 +237,7 @@ const {
 | `lastKeyboardHeight` | the last usable system keyboard height, kept after it hides; `0` before the first one |
 | `windowOverlaysKeyboard` | `true` when the keyboard covers the window instead of resizing it: iOS, Android edge-to-edge or `'stable'` mode |
 
-The object also has `systemVisible`, `systemHeight`, `customOpen` and `effectiveHeight`, the same values under lower-level names. Its type is exported as `KeyboardState`.
+Its type is exported as `KeyboardState`.
 
 `isKeyboardUp` and `keyboardHeight` behave as in 1.0 when no custom keyboard is used. Heights are in dp.
 

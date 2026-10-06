@@ -200,24 +200,6 @@ export interface BridgeContext<S extends object = object> {
 }
 
 /**
- * Keyboard state `RichText` needs, read through `useKeyboard()`. Heights are
- * in dp.
- */
-export interface KeyboardSnapshot {
-  systemVisible: boolean;
-  systemHeight: number;
-  customOpen: boolean;
-  /** Height of whichever keyboard is up; held through custom/system swaps. */
-  effectiveHeight: number;
-  /**
-   * True when the keyboard covers the window instead of resizing it (iOS,
-   * Android `'stable'` mode, edge-to-edge). `RichText` then applies document
-   * padding and the scroll threshold.
-   */
-  windowOverlaysKeyboard: boolean;
-}
-
-/**
  * `window.__tentap`, installed by the web runtime. Injected snippets feature
  * detect it and fall back to plain DOM code for legacy bundles.
  */

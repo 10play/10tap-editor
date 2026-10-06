@@ -310,8 +310,7 @@ export function createKeyboardSession(
     event.height >= MIN_KEYBOARD_HEIGHT;
 
   const systemKeyboardUp = () => {
-    const { systemVisible, systemHeight } = store.getSnapshot();
-    return systemVisible && systemHeight >= MIN_KEYBOARD_HEIGHT;
+    return store.getSnapshot().systemKeyboardHeight >= MIN_KEYBOARD_HEIGHT;
   };
 
   const waitForFocus = (focused: boolean) =>

@@ -31,10 +31,6 @@ import { useEditorBridge } from '../useEditorBridge';
 import * as utils from '../utils';
 
 const keyboardDown: KeyboardState = {
-  systemVisible: false,
-  systemHeight: 0,
-  customOpen: false,
-  effectiveHeight: 0,
   windowOverlaysKeyboard: true,
   isKeyboardUp: false,
   keyboardHeight: 0,
@@ -52,9 +48,7 @@ jest.mock('../../utils/useKeyboard', () => ({
 
 const keyboardUp = (height: number, overlays: boolean): KeyboardState => ({
   ...keyboardDown,
-  systemVisible: true,
-  systemHeight: height,
-  effectiveHeight: height,
+  systemKeyboardHeight: height,
   keyboardHeight: height,
   isKeyboardUp: true,
   windowOverlaysKeyboard: overlays,

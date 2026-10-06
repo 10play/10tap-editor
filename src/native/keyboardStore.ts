@@ -5,11 +5,7 @@ import {
   type KeyboardEvent,
   type KeyboardEventName,
 } from 'react-native';
-import type {
-  KeyboardSnapshot,
-  Listener,
-  Unsubscribe,
-} from '../shared/contracts';
+import type { Listener, Unsubscribe } from '../shared/contracts';
 
 /**
  * Process-wide keyboard state: the system keyboard as reported by RN's
@@ -90,19 +86,27 @@ export interface CustomKeyboardHostHandle {
   unregister(): void;
 }
 
-/** What `useKeyboard()` returns: the 1.0 fields plus the `KeyboardSnapshot` contract. */
-export interface KeyboardState extends KeyboardSnapshot {
+/** What `useKeyboard()` returns. Heights are in dp. */
+export interface KeyboardState {
   /** System keyboard visible or a custom keyboard open. */
   isKeyboardUp: boolean;
-  /** Height of whichever keyboard is up (`effectiveHeight`), 0 when none is. */
+  /**
+   * Height of whichever keyboard is up, 0 when none is. Held through
+   * custom/system swaps.
+   */
   keyboardHeight: number;
-  /** Same as `customOpen`. */
   isCustomKeyboardOpen: boolean;
   activeCustomKeyboardID: string | undefined;
-  /** Same as `systemHeight`. */
+  /** Height of the system keyboard, 0 while it is hidden. */
   systemKeyboardHeight: number;
   /** Last usable system keyboard height, kept after it hides; 0 before the first one. */
   lastKeyboardHeight: number;
+  /**
+   * True when the keyboard covers the window instead of resizing it (iOS,
+   * Android `'stable'` mode, edge-to-edge). `RichText` then applies document
+   * padding and the scroll threshold.
+   */
+  windowOverlaysKeyboard: boolean;
 }
 
 export interface KeyboardStore {
@@ -169,23 +173,17 @@ export function createKeyboardStore({
       if (hosts[i]!.state.open) openHost = hosts[i];
     }
     const customOpen = openHost !== undefined;
-    const effectiveHeight = openHost ? openHost.state.height : systemHeight;
-    const windowOverlaysKeyboard =
-      platform === 'ios' ||
-      edgeToEdge ||
-      hosts.some((host) => host.state.overlaysWindow);
     return {
-      systemVisible,
-      systemHeight,
-      customOpen,
-      effectiveHeight,
-      windowOverlaysKeyboard,
       isKeyboardUp: systemVisible || customOpen,
-      keyboardHeight: effectiveHeight,
+      keyboardHeight: openHost ? openHost.state.height : systemHeight,
       isCustomKeyboardOpen: customOpen,
       activeCustomKeyboardID: openHost?.state.activeKeyboardID,
       systemKeyboardHeight: systemHeight,
       lastKeyboardHeight: lastHeight,
+      windowOverlaysKeyboard:
+        platform === 'ios' ||
+        edgeToEdge ||
+        hosts.some((host) => host.state.overlaysWindow),
     };
   };
 

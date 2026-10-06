@@ -127,7 +127,7 @@ type Harness = ReturnType<typeof setup>;
 const openFully = async (t: Harness, id = 'kb') => {
   t.session.open(id);
   await flush();
-  if (t.snapshot().systemVisible) {
+  if (t.snapshot().systemKeyboardHeight > 0) {
     if (t.platform === 'ios') {
       t.keyboard.emit('keyboardWillHide', 300, IOS_ANIMATION);
     } else {
@@ -204,10 +204,9 @@ describe('opening on iOS', () => {
     await flush();
     t.keyboard.emit('keyboardWillHide', 300, IOS_ANIMATION);
     expect(t.snapshot()).toMatchObject({
-      systemVisible: false,
+      systemKeyboardHeight: 0,
       isKeyboardUp: true,
       keyboardHeight: 300,
-      effectiveHeight: 300,
     });
     t.keyboard.emit('keyboardDidHide', 300);
     await flush();
@@ -224,7 +223,7 @@ describe('opening on iOS', () => {
       isKeyboardUp: true,
       keyboardHeight: 300,
       isCustomKeyboardOpen: false,
-      systemVisible: true,
+      systemKeyboardHeight: 300,
     });
   });
 });

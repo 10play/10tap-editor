@@ -46,10 +46,6 @@ describe('keyboardStore', () => {
   it('starts closed', () => {
     const { store } = setup();
     expect(store.getSnapshot()).toEqual({
-      systemVisible: false,
-      systemHeight: 0,
-      customOpen: false,
-      effectiveHeight: 0,
       windowOverlaysKeyboard: true,
       isKeyboardUp: false,
       keyboardHeight: 0,
@@ -66,7 +62,7 @@ describe('keyboardStore', () => {
     expect(store.getSnapshot()).toMatchObject({
       isKeyboardUp: true,
       keyboardHeight: 336,
-      systemVisible: true,
+      systemKeyboardHeight: 336,
     });
     keyboard.emit('keyboardWillHide', 336, IOS_ANIMATION);
     expect(store.getSnapshot()).toMatchObject({
@@ -119,14 +115,13 @@ describe('keyboardStore', () => {
     expect(store.getSnapshot()).toMatchObject({
       isKeyboardUp: true,
       keyboardHeight: 300,
-      effectiveHeight: 300,
-      customOpen: true,
+      isCustomKeyboardOpen: true,
       activeCustomKeyboardID: 'kb',
       systemKeyboardHeight: 336,
     });
     expect(store.getHost(editor)?.state.height).toBe(300);
     host.unregister();
-    expect(store.getSnapshot().customOpen).toBe(false);
+    expect(store.getSnapshot().isCustomKeyboardOpen).toBe(false);
     expect(store.getHost()).toBeUndefined();
   });
 
@@ -212,7 +207,9 @@ describe('keyboardStore', () => {
   it('delivers events after the snapshot was updated', () => {
     const { store, keyboard } = setup();
     const seen: boolean[] = [];
-    store.subscribeEvents(() => seen.push(store.getSnapshot().systemVisible));
+    store.subscribeEvents(() =>
+      seen.push(store.getSnapshot().systemKeyboardHeight > 0)
+    );
     keyboard.emit('keyboardWillShow', 336);
     expect(seen).toEqual([true]);
   });

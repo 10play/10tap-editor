@@ -32,10 +32,6 @@ jest.mock('../../../utils/useKeyboard', () => ({
 const mockedUseKeyboard = jest.mocked(useKeyboard);
 
 const systemKeyboard = (height: number): KeyboardState => ({
-  systemVisible: height > 0,
-  systemHeight: height,
-  customOpen: false,
-  effectiveHeight: height,
   windowOverlaysKeyboard: false,
   isKeyboardUp: height > 0,
   keyboardHeight: height,

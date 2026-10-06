@@ -25,8 +25,8 @@ export const EditorKeyboardAvoidingView = ({
     windowOverlaysKeyboard,
     isKeyboardUp,
     keyboardHeight,
-    customOpen,
-    systemVisible,
+    isCustomKeyboardOpen,
+    systemKeyboardHeight,
   } = useKeyboard();
   const covered = !enabled
     ? 0
@@ -34,7 +34,7 @@ export const EditorKeyboardAvoidingView = ({
       ? isKeyboardUp
         ? keyboardHeight
         : 0
-      : customOpen && !systemVisible
+      : isCustomKeyboardOpen && systemKeyboardHeight === 0
         ? keyboardHeight
         : 0;
   const paddingBottom = Math.max(0, covered - keyboardVerticalOffset);
