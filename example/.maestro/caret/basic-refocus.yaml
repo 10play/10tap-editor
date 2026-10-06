@@ -41,8 +41,10 @@ tags:
     file: subflows/checkpoint.yaml
     env:
       LABEL: ${RUN + '-02-middle-enter'}
-- hideKeyboard
-- waitForAnimationToEnd
+- runFlow:
+    file: subflows/dismiss.yaml
+    env:
+      LABEL: ${RUN + '-03-dismissed'}
 - swipe:
     start: 50%,30%
     end: 50%,70%
