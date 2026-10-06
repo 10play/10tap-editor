@@ -37,7 +37,9 @@ interface EditorSetup {
   config: BootConfig;
   bridges: BridgeExtension[];
   extensions: AnyExtension[];
-  dynamicHeight: DynamicHeight | null;
+  dynamicHeight: DynamicHeight;
+  /** Applies `set-dynamic-height`; set while the hook is mounted. */
+  setDynamicHeight?: (enabled: boolean) => void;
   publisher: StatePublisher;
   /** Editors that already sent `editor-ready`. */
   announced: WeakSet<Editor>;
@@ -51,15 +53,10 @@ function createEditorSetup(
   const runtime = boot();
   const config = runtime.requireConfig();
   const active = selectActiveBridges(bridges, config);
-  const dynamicHeight = config.dynamicHeight
-    ? new DynamicHeight({
-        onHeight: (height) =>
-          runtime.post({
-            type: PROTOCOL_TYPES.DocumentHeight,
-            payload: height,
-          }),
-      })
-    : null;
+  const dynamicHeight = new DynamicHeight({
+    onHeight: (height) =>
+      runtime.post({ type: PROTOCOL_TYPES.DocumentHeight, payload: height }),
+  });
   return {
     runtime,
     config,
@@ -67,7 +64,7 @@ function createEditorSetup(
     extensions: [
       ...(config.disableColorHighlight ? [] : [blueBackgroundPlugin]),
       ...resolveBridgeExtensions(active, config),
-      ...(dynamicHeight ? [createDynamicHeightExtension(dynamicHeight)] : []),
+      createDynamicHeightExtension(dynamicHeight),
     ],
     dynamicHeight,
     publisher: createStatePublisher(
@@ -87,8 +84,12 @@ function handleMessage(
   if (editor.isDestroyed) return;
   if (message.type === PROTOCOL_TYPES.ContainerHeight) {
     if (typeof message.payload === 'number') {
-      setup.dynamicHeight?.setContainerHeight(message.payload);
+      setup.dynamicHeight.setContainerHeight(message.payload);
     }
+    return;
+  }
+  if (message.type === PROTOCOL_TYPES.SetDynamicHeight) {
+    setup.setDynamicHeight?.(message.payload === true);
     return;
   }
   setup.bridges.forEach((bridge) => {
@@ -125,6 +126,14 @@ export const useTenTap = (options?: UseTenTapArgs): Editor | null => {
     createEditorSetup(bridges, stateUpdateDebounceMs)
   );
   const { runtime, config, publisher } = setup;
+  const [dynamicHeight, setDynamicHeight] = useState(config.dynamicHeight);
+  // Before the subscription below, which may deliver buffered messages.
+  useEffect(() => {
+    setup.setDynamicHeight = setDynamicHeight;
+    return () => {
+      setup.setDynamicHeight = undefined;
+    };
+  }, [setup]);
 
   const editor = useEditor({
     content: config.initialContent ?? '',
@@ -167,11 +176,16 @@ export const useTenTap = (options?: UseTenTapArgs): Editor | null => {
   }, [editor, runtime, setup]);
 
   useEffect(() => {
-    const { dynamicHeight } = setup;
-    if (!editor || editor.isDestroyed || !dynamicHeight) return;
+    if (!editor || editor.isDestroyed) return;
+    // The class the bundle's EditorContent renders from the boot config.
+    editor.view.dom.parentElement?.classList.toggle(
+      'dynamic-height',
+      dynamicHeight
+    );
+    if (!dynamicHeight) return;
     applyStyleSheet(DYNAMIC_HEIGHT_STYLE_TAG, DYNAMIC_HEIGHT_CSS);
-    return dynamicHeight.observe(editor.view);
-  }, [editor, setup]);
+    return setup.dynamicHeight.observe(editor.view);
+  }, [dynamicHeight, editor, setup]);
 
   useEffect(() => publisher.cancel, [publisher]);
 

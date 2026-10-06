@@ -14,6 +14,8 @@ export const CAPABILITIES = {
   ParseOptions: 'parseOptions',
   /** Decides dynamic-height scroll clamping from native `container-height`. */
   ContainerHeight: 'containerHeight',
+  /** Turns dynamic height on and off with `set-dynamic-height`, without a reload. */
+  SetDynamicHeight: 'setDynamicHeight',
   /** `window.__tentap.setInputMode(mode)` exists (custom keyboard). */
   InputMode: 'inputMode',
 } as const;

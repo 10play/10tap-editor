@@ -403,6 +403,19 @@ describe('dynamic height', () => {
     expect(setContainerHeight).toHaveBeenCalledWith(240);
   });
 
+  it('switches dynamic height on and off with set-dynamic-height', async () => {
+    configure();
+    const { editor } = await mount();
+    const wrapper = editor.view.dom.parentElement!;
+
+    await act(async () => send({ type: 'set-dynamic-height', payload: true }));
+    await waitForType('document-height');
+    expect(wrapper.classList.contains('dynamic-height')).toBe(true);
+
+    await act(async () => send({ type: 'set-dynamic-height', payload: false }));
+    expect(wrapper.classList.contains('dynamic-height')).toBe(false);
+  });
+
   it('does nothing extra without dynamic height', async () => {
     configure();
     await mount();

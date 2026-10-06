@@ -95,6 +95,7 @@ when true the editor's webview keeps the same height as its content. It grows an
 
 - A height cap such as `maxHeight` on the container is respected. Once the cap is reached the editor scrolls internally and keeps its scroll position.
 - Keyboard padding (`avoidIosKeyboard`) is not applied in this mode.
+- It can change after mount and the document is kept. With a custom editor bundle built with a version before 1.1, changing it reloads the WebView with `initialContent`, as in 1.0.
 - The content height in px is also sent as a `document-height` message. To read it yourself, pass `onMessage` to [RichText](./Components.md#richtext) together with `exclusivelyUseCustomOnMessage={false}`.
 
 To scroll a long document together with other content, put the editor inside your own `ScrollView`. See [Editor inside a ScrollView](../examples/scrollView.md).

@@ -155,6 +155,31 @@ describe('RichText boot', () => {
     expect(webView.sources).toHaveLength(1);
   });
 
+  it('switches dynamicHeight in a loaded bundle without a reload', () => {
+    const hook = createEditor();
+    const view = render(<RichText editor={hook.result.current} />);
+    const webView = mockWebViews.latest();
+    load(webView);
+    ready(webView, hook.result.current);
+    webView.postedMessages.length = 0;
+
+    hook.rerender({ dynamicHeight: true });
+    view.rerender(<RichText editor={hook.result.current} />);
+    act(() =>
+      webView.simulateMessage(webMessage(PROTOCOL_TYPES.DocumentHeight, 120))
+    );
+    expect(flatStyle(webView.props.containerStyle).height).toBe(120);
+    hook.rerender({ dynamicHeight: false });
+    view.rerender(<RichText editor={hook.result.current} />);
+
+    expect(mockWebViews.instances).toHaveLength(1);
+    expect(posted(webView)).toEqual([
+      { type: PROTOCOL_TYPES.SetDynamicHeight, payload: true },
+      { type: PROTOCOL_TYPES.SetDynamicHeight, payload: false },
+    ]);
+    expect(flatStyle(webView.props.containerStyle).height).toBeUndefined();
+  });
+
   it('loads a new page when dynamicHeight or customSource change', () => {
     const hook = createEditor();
     const view = render(<RichText editor={hook.result.current} />);

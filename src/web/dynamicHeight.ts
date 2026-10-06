@@ -118,6 +118,9 @@ export class DynamicHeight {
       if (this.element === element) {
         this.element = null;
         this.view = null;
+        this.reports = [];
+        this.containerHeight = null;
+        this.containerAt = -Infinity;
       }
     };
   }
@@ -157,7 +160,7 @@ export class DynamicHeight {
 
   /** `handleScrollToSelection` prop: true suppresses ProseMirror's scroll. */
   handleScrollToSelection(): boolean {
-    if (this.isClamped()) return false;
+    if (!this.element || this.isClamped()) return false;
     this.resetScroll();
     return true;
   }

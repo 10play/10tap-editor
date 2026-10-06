@@ -16,7 +16,12 @@ import {
 
 import { editorHtml } from '../simpleWebEditor/build/editorHtml';
 import { buildBootScript, injectBootIntoHtml } from '../shared/bootConfig';
-import { decodeWebMessage, isForEditor } from '../shared/protocol';
+import { CAPABILITIES } from '../shared/capabilities';
+import {
+  PROTOCOL_TYPES,
+  decodeWebMessage,
+  isForEditor,
+} from '../shared/protocol';
 import {
   getEditorController,
   type EditorController,
@@ -73,6 +78,7 @@ interface PageInputs {
   devServerUrl: string | undefined;
   customSource: string | undefined;
   baseUrl: string | undefined;
+  /** The `dynamicHeight` the page boots with. */
   dynamicHeight: boolean;
 }
 
@@ -105,9 +111,15 @@ const getPageInputs = (
   dynamicHeight: !!editor.dynamicHeight,
 });
 
+/** A loaded bundle that can switch dynamic height without a reload. */
+const canToggleDynamicHeight = (controller: EditorController) =>
+  controller.isReady() && controller.supports(CAPABILITIES.SetDynamicHeight);
+
 const isSamePage = (page: Page, inputs: PageInputs) =>
   (Object.keys(inputs) as (keyof PageInputs)[]).every(
-    (key) => page[key] === inputs[key]
+    (key) =>
+      page[key] === inputs[key] ||
+      (key === 'dynamicHeight' && canToggleDynamicHeight(inputs.controller))
   );
 
 const createPage = (editor: EditorBridge, inputs: PageInputs): Page => {
@@ -128,8 +140,9 @@ const createPage = (editor: EditorBridge, inputs: PageInputs): Page => {
 /**
  * The current page. It is built once per editor and only rebuilt when an
  * option that needs a new document changes (`DEV`, `customSource`,
- * `webviewBaseURL`, `dynamicHeight`), so later option changes never reload
- * the WebView with a stale boot config.
+ * `webviewBaseURL`, and `dynamicHeight` for bundles that cannot switch it at
+ * runtime), so later option changes never reload the WebView with a stale
+ * boot config.
  */
 const usePage = (editor: EditorBridge, controller: EditorController): Page => {
   const inputs = getPageInputs(editor, controller);
@@ -138,6 +151,32 @@ const usePage = (editor: EditorBridge, controller: EditorController): Page => {
   const next = createPage(editor, inputs);
   setPage(next);
   return next;
+};
+
+/**
+ * The editor's `dynamicHeight`. When it differs from what the page booted
+ * with, the page switches it at runtime; the message is coalesced, so it is
+ * replayed after a reload of the same page.
+ */
+const useDynamicHeight = (
+  editor: EditorBridge,
+  controller: EditorController,
+  page: Page
+): boolean => {
+  const dynamicHeight = !!editor.dynamicHeight;
+  const applied = useRef({ page: page.id, value: page.dynamicHeight });
+  useEffect(() => {
+    if (applied.current.page !== page.id) {
+      applied.current = { page: page.id, value: page.dynamicHeight };
+    }
+    if (applied.current.value === dynamicHeight) return;
+    applied.current.value = dynamicHeight;
+    controller.send(
+      { type: PROTOCOL_TYPES.SetDynamicHeight, payload: dynamicHeight },
+      { coalesceKey: PROTOCOL_TYPES.SetDynamicHeight }
+    );
+  }, [controller, dynamicHeight, page]);
+  return dynamicHeight;
 };
 
 const useController = (editor: EditorBridge): EditorController => {
@@ -229,6 +268,7 @@ export const RichText = ({
 }: RichTextProps) => {
   const controller = useController(editor);
   const page = usePage(editor, controller);
+  const dynamicHeight = useDynamicHeight(editor, controller, page);
   const fabric = isFabric();
   const autofocusInput = useRef<TextInput>(null);
 
@@ -336,7 +376,7 @@ export const RichText = ({
   const insets = getKeyboardInsets({
     platform: Platform.OS,
     avoidKeyboard: !!editor.avoidIosKeyboard,
-    dynamicHeight: page.dynamicHeight,
+    dynamicHeight,
     scrollBottomOffset: editor.scrollBottomOffset,
     isKeyboardUp,
     keyboardHeight,
@@ -383,7 +423,7 @@ export const RichText = ({
   const webViewStyles = getWebViewStyles({
     theme: editor.theme,
     visible,
-    dynamicHeight: page.dynamicHeight,
+    dynamicHeight,
     height: contentHeight,
     mergeStyles: !!editor.mergeStyles,
     style,
@@ -456,7 +496,7 @@ export const RichText = ({
           props.onLoadEnd?.(event);
         }}
         onLayout={(event) => {
-          if (page.dynamicHeight) {
+          if (dynamicHeight) {
             controller.reportContainerHeight(event.nativeEvent.layout.height);
           }
           props.onLayout?.(event);

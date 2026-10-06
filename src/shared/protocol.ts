@@ -33,6 +33,8 @@ export const PROTOCOL_TYPES = {
   DocumentHeight: 'document-height',
   /** native → web (inside an action envelope). WebView height from `onLayout`. */
   ContainerHeight: 'container-height',
+  /** native → web (inside an action envelope). Turns dynamic height on or off. */
+  SetDynamicHeight: 'set-dynamic-height',
   /** web → native. Diagnostics when the boot config never arrived. */
   BootError: 'boot-error',
   /** web → native. Posted by the injected press listener (custom keyboard). */
@@ -93,6 +95,7 @@ export interface ProtocolPayloads {
   [PROTOCOL_TYPES.StateUpdate]: Record<string, unknown>;
   [PROTOCOL_TYPES.DocumentHeight]: number;
   [PROTOCOL_TYPES.ContainerHeight]: number;
+  [PROTOCOL_TYPES.SetDynamicHeight]: boolean;
   [PROTOCOL_TYPES.BootError]: BootErrorPayload;
   [PROTOCOL_TYPES.EditorPress]: undefined;
 }

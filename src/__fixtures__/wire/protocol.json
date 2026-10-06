@@ -15,6 +15,7 @@
             "selectedText",
             "parseOptions",
             "containerHeight",
+            "setDynamicHeight",
             "inputMode"
           ],
           "editorId": "tt-fixture"
@@ -59,6 +60,13 @@
       "protocolType": "ContainerHeight",
       "capability": "containerHeight",
       "message": { "type": "container-height", "payload": 480 }
+    },
+    {
+      "id": "protocol.set-dynamic-height",
+      "direction": "native-to-web",
+      "protocolType": "SetDynamicHeight",
+      "capability": "setDynamicHeight",
+      "message": { "type": "set-dynamic-height", "payload": true }
     },
     {
       "id": "protocol.boot-error",
