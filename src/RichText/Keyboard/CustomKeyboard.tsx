@@ -21,6 +21,7 @@ import {
 } from 'react-native';
 import { keyboardStore } from '../../native/keyboardStore';
 import type { EditorBridge } from '../../types';
+import { HiddenFocusInput } from '../HiddenFocusInput';
 import { CustomKeyboardContext } from './context';
 import type {
   AnyCustomKeyboardExtension,
@@ -204,14 +205,10 @@ export const CustomKeyboard = (props: CustomKeyboardProps) => {
           </View>
         )}
         {Platform.OS === 'android' && (
-          <TextInput
+          <HiddenFocusInput
             ref={hiddenInputRef}
-            style={styles.hiddenInput}
-            caretHidden
             autoCorrect={false}
             contextMenuHidden
-            accessibilityElementsHidden
-            importantForAccessibility="no-hide-descendants"
           />
         )}
       </View>
@@ -260,14 +257,5 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     overflow: 'hidden',
-  },
-  hiddenInput: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: 1,
-    height: 1,
-    opacity: 0,
-    pointerEvents: 'none',
   },
 });

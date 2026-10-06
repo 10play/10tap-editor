@@ -7,7 +7,7 @@ import React, {
   useState,
   useSyncExternalStore,
 } from 'react';
-import { Platform, StyleSheet, TextInput } from 'react-native';
+import { Platform, TextInput } from 'react-native';
 import {
   WebView,
   type WebViewMessageEvent,
@@ -30,6 +30,7 @@ import type { EditorBridge } from '../types';
 import type { EditorMessage } from '../types/Messaging';
 import { isFabric } from '../utils/misc';
 import { useKeyboard } from '../utils/useKeyboard';
+import { HiddenFocusInput } from './HiddenFocusInput';
 import { REFOCUS_DELAY_MS } from './Keyboard/drivers';
 import {
   AUTOFOCUS_KEYBOARD_CHECK_MS,
@@ -50,20 +51,6 @@ interface RichTextProps extends WebViewProps {
    * */
   exclusivelyUseCustomOnMessage?: boolean;
 }
-
-const styles = StyleSheet.create({
-  // Focusable but invisible: Android never focuses a view that is
-  // `display: none` (#321).
-  hiddenInput: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: 1,
-    height: 1,
-    opacity: 0,
-    pointerEvents: 'none',
-  },
-});
 
 const DEV_SERVER_URL = 'http://localhost:3000';
 const KEYBOARD_PADDING_SCRIPT = 'tentap-keyboard-padding';
@@ -450,14 +437,7 @@ export const RichText = ({
   return (
     <>
       {editor.autofocus && Platform.OS === 'android' && (
-        <TextInput
-          ref={autofocusInput}
-          autoFocus
-          caretHidden
-          accessibilityElementsHidden
-          importantForAccessibility="no-hide-descendants"
-          style={styles.hiddenInput}
-        />
+        <HiddenFocusInput ref={autofocusInput} autoFocus />
       )}
       <WebView
         key={webViewKey}
