@@ -12,6 +12,7 @@ import {
   selectActiveBridges,
   selectHandlerBridges,
 } from './extensions';
+import { getFocusTracker } from './focus';
 import { revealSelectionOnImageLoad } from './revealSelection';
 import { boot, type WebRuntime } from './runtime';
 import { createStatePublisher, type StatePublisher } from './statePublisher';
@@ -203,7 +204,12 @@ export const useTenTap = (options?: UseTenTapArgs): Editor | null => {
     if (!editor || editor.isDestroyed) return;
     // `isFocused` changes without a transaction when the document loses or
     // regains focus while the editor keeps its selection.
-    const onFocusChange = () => publisher.schedule(editor);
+    let focused = getFocusTracker().isFocused;
+    const onFocusChange = () => {
+      if (getFocusTracker().isFocused === focused) return;
+      focused = getFocusTracker().isFocused;
+      publisher.schedule(editor);
+    };
     document.addEventListener('focus', onFocusChange, true);
     document.addEventListener('blur', onFocusChange, true);
     const stopRevealing = revealSelectionOnImageLoad(editor.view);
