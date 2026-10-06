@@ -405,6 +405,48 @@ describe('useBridgeState', () => {
     receive(editor, PROTOCOL_TYPES.StateUpdate, stateUpdate({ empty: false }));
     expect(state.current.empty).toBe(false);
   });
+
+  /** A hand-written editor, as apps write for tests or wrappers. */
+  const mockEditor = (getEditorState: () => BridgeState) => {
+    const listeners = new Set<(state: BridgeState) => void>();
+    const editor = {
+      getEditorState,
+      _subscribeToEditorStateUpdate: (
+        listener: (state: BridgeState) => void
+      ) => {
+        listeners.add(listener);
+        return () => listeners.delete(listener);
+      },
+    } as unknown as EditorBridge;
+    const publish = (state: Partial<BridgeState>) =>
+      act(() =>
+        listeners.forEach((listener) => listener(state as BridgeState))
+      );
+    return { editor, publish };
+  };
+
+  it('accepts a getEditorState that returns a new object on every call', () => {
+    const getEditorState = jest.fn(
+      () => ({ isBoldActive: true, canToggleBold: true }) as BridgeState
+    );
+    const { editor } = mockEditor(getEditorState);
+    let renders = 0;
+    const { result } = renderHook(() => {
+      renders++;
+      return useBridgeState(editor);
+    });
+    expect(result.current.isBoldActive).toBe(true);
+    expect(renders).toBeLessThan(5);
+  });
+
+  it('follows states delivered only through the subscription', () => {
+    const initial = { isBoldActive: false } as BridgeState;
+    const { editor, publish } = mockEditor(() => initial);
+    const { result } = renderHook(() => useBridgeState(editor));
+    expect(result.current.isBoldActive).toBe(false);
+    publish({ isBoldActive: true });
+    expect(result.current.isBoldActive).toBe(true);
+  });
 });
 
 describe('useEditorContent', () => {
