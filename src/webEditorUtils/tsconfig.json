@@ -4,6 +4,7 @@
   "compilerOptions": {
     "outDir": "../../lib-web/typescript",
     "declaration": true,
+    "emitDeclarationOnly": true,
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -20,5 +21,6 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true
-  }
+  },
+  "exclude": ["vite.config.ts"]
 }
