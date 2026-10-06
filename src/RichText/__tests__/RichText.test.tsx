@@ -856,8 +856,14 @@ describe('RichText lifecycle', () => {
     ready(first, editor);
     editor.setContent('<p>kept</p>');
 
-    act(() => first.simulateRenderProcessGone());
+    first.postedMessages.length = 0;
+    act(() => {
+      first.simulateRenderProcessGone();
+      // Sent before the replacement commits.
+      editor.toggleBold();
+    });
     const second = mockWebViews.latest();
+    expect(first.postedMessages).toEqual([]);
 
     expect(onRenderProcessGone).toHaveBeenCalledTimes(1);
     expect(second).not.toBe(first);
@@ -867,6 +873,7 @@ describe('RichText lifecycle', () => {
     expect(posted(second)).toContainEqual(
       expect.objectContaining({ type: CoreEditorActionType.SetContent })
     );
+    expect(postedTypes(second)).toContain('toggle-bold');
   });
 
   it('reloads the WebView when the iOS content process terminates', () => {

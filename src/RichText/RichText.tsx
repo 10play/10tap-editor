@@ -502,6 +502,9 @@ export const RichText = ({
           props.onLayout?.(event);
         }}
         onRenderProcessGone={(event) => {
+          // The dead WebView must not be scripted again; until the new one
+          // mounts, everything sent is queued.
+          controller.setWebView(null);
           setRendererLosses((count) => count + 1);
           props.onRenderProcessGone?.(event);
         }}
