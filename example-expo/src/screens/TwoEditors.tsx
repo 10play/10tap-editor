@@ -1,19 +1,19 @@
 import React from 'react';
-import { KeyboardAvoidingView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import {
+  EditorKeyboardAvoidingView,
   RichText,
   Toolbar,
   useBridgeState,
   useEditorBridge,
 } from '@10play/tentap-editor';
-import { useKeyboardVerticalOffset } from '../screenOffset';
 
 /**
  * Two independent editors on one screen. The toolbar follows whichever editor
- * has focus.
+ * has focus. `EditorKeyboardAvoidingView` shrinks the column above the
+ * keyboard, so the second editor stays on screen while it is edited.
  */
 export const TwoEditors = () => {
-  const keyboardVerticalOffset = useKeyboardVerticalOffset();
   const first = useEditorBridge({
     initialContent: '<p>First editor</p>',
   });
@@ -24,28 +24,29 @@ export const TwoEditors = () => {
   const active = secondFocused ? second : first;
 
   return (
-    <View style={styles.fullScreen}>
-      <Text style={styles.caption}>First</Text>
-      <View style={styles.editorFrame}>
-        <RichText editor={first} />
+    <EditorKeyboardAvoidingView style={styles.fullScreen}>
+      <View style={styles.editors}>
+        <Text style={styles.caption}>First</Text>
+        <View style={styles.editorFrame}>
+          <RichText editor={first} />
+        </View>
+        <Text style={styles.caption}>Second</Text>
+        <View style={styles.editorFrame}>
+          <RichText editor={second} />
+        </View>
       </View>
-      <Text style={styles.caption}>Second</Text>
-      <View style={styles.editorFrame}>
-        <RichText editor={second} />
-      </View>
-      <KeyboardAvoidingView
-        keyboardVerticalOffset={keyboardVerticalOffset}
-        behavior="padding"
-        style={styles.keyboardAvoidingView}
-      >
+      <View style={styles.toolbarRow}>
         <Toolbar editor={active} />
-      </KeyboardAvoidingView>
-    </View>
+      </View>
+    </EditorKeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   fullScreen: {
+    flex: 1,
+  },
+  editors: {
     flex: 1,
     padding: 8,
     gap: 8,
@@ -58,9 +59,7 @@ const styles = StyleSheet.create({
   caption: {
     color: '#666',
   },
-  keyboardAvoidingView: {
-    position: 'absolute',
-    width: '100%',
-    bottom: 0,
+  toolbarRow: {
+    flexDirection: 'row',
   },
 });

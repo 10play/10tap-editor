@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import {
   ColorKeyboard,
   useCustomKeyboard,
+  useKeyboardAccessory,
   type AnyCustomKeyboardExtension,
   type EditorBridge,
 } from '@10play/tentap-editor';
@@ -31,8 +32,10 @@ export const KeyboardSwitcher = ({
   entries: readonly SwitcherEntry[];
 }) => {
   const { activeKeyboardID, open, close } = useCustomKeyboard(editor);
+  // The editor keeps the caret above the switcher too.
+  const accessory = useKeyboardAccessory();
   return (
-    <View style={styles.switcher}>
+    <View style={styles.switcher} onLayout={accessory.onLayout}>
       {entries.map(({ keyboard, label, testID }) => {
         const active = activeKeyboardID === keyboard.id;
         return (

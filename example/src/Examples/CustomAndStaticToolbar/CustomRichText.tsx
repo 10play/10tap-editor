@@ -5,7 +5,11 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { RichText, useBridgeState } from '../../../../src/RichText';
+import {
+  RichText,
+  useBridgeState,
+  useKeyboardAccessory,
+} from '../../../../src/RichText';
 import type { EditorBridge } from '../../../../src/types';
 import { icons } from '../../assets';
 import { Icon } from '../Icon';
@@ -55,6 +59,8 @@ const ComposeToolbar = ({ editor, onSendClick }: ComposeToolbarProps) => {
   const [toolbarType, setToolbar] = useState<ToolbarType>(ToolbarType.Main);
 
   const hideToolbar = !isKeyboardUp || !editorState.isFocused;
+  // The editor keeps the caret above this toolbar while it is shown.
+  const accessory = useKeyboardAccessory(!hideToolbar);
 
   useEffect(() => {
     if (hideToolbar) {
@@ -91,6 +97,7 @@ const ComposeToolbar = ({ editor, onSendClick }: ComposeToolbarProps) => {
   if (toolbarType === ToolbarType.Main) {
     return (
       <View
+        onLayout={accessory.onLayout}
         style={[hideToolbar && composeStyles.hidden, composeStyles.mainToolbar]}
       >
         <TouchableOpacity onPress={() => setToolbar(ToolbarType.Formatting)}>
@@ -105,6 +112,7 @@ const ComposeToolbar = ({ editor, onSendClick }: ComposeToolbarProps) => {
 
   return (
     <View
+      onLayout={accessory.onLayout}
       style={[
         hideToolbar && composeStyles.hidden,
         composeStyles.formattingToolbar,

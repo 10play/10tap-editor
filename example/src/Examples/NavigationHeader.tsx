@@ -1,11 +1,18 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
-import { View, KeyboardAvoidingView, StyleSheet, Platform } from 'react-native';
-import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet, View } from 'react-native';
+import {
+  EditorKeyboardAvoidingView,
+  RichText,
+  Toolbar,
+  useEditorBridge,
+} from '@10play/tentap-editor';
 
-const HEADER_HEIGHT = 38; // IOS Only
-
+/**
+ * Below a navigation header, `EditorKeyboardAvoidingView` keeps the toolbar
+ * on the keyboard without a `keyboardVerticalOffset`: it only needs to end
+ * at the bottom of the window.
+ */
 export const NavigationHeader = (
   _props: NativeStackScreenProps<any, any, any>
 ) => {
@@ -14,37 +21,25 @@ export const NavigationHeader = (
     avoidIosKeyboard: true,
   });
 
-  // when we are using react-navigation header, we need to add keyboardVerticalOffset to KeyboardAvoidingView
-  // the value of this should be the height of the header + the top inset
-  const { top } = useSafeAreaInsets();
-  const keyboardVerticalOffset = HEADER_HEIGHT + top;
-
   return (
-    <>
-      <View style={exampleStyles.contentContainer}>
+    <EditorKeyboardAvoidingView style={exampleStyles.fullScreen}>
+      <View style={exampleStyles.fullScreen}>
         <RichText editor={editor} />
       </View>
-      <KeyboardAvoidingView
-        behavior={'padding'}
-        style={exampleStyles.keyboardAvoidingView}
-        keyboardVerticalOffset={
-          Platform.OS === 'ios' ? keyboardVerticalOffset : undefined
-        }
-      >
+      <View style={exampleStyles.toolbarRow}>
         <Toolbar editor={editor} />
-      </KeyboardAvoidingView>
-    </>
+      </View>
+    </EditorKeyboardAvoidingView>
   );
 };
 
 const exampleStyles = StyleSheet.create({
-  contentContainer: {
+  fullScreen: {
     flex: 1,
-    paddingBottom: Platform.OS === 'ios' ? HEADER_HEIGHT : 0,
   },
-  keyboardAvoidingView: {
-    position: 'absolute',
-    width: '100%',
-    bottom: 0,
+  // The toolbar's default flex: 1 would share the column with the editor;
+  // in a row it only fills the width.
+  toolbarRow: {
+    flexDirection: 'row',
   },
 });
