@@ -447,6 +447,19 @@ describe('rpc', () => {
     expect(controller['rpcs'].size).toBe(0);
   });
 
+  it('times out requests of an editor that unmounted', async () => {
+    jest.useFakeTimers();
+    const { controller } = setup({ rpcTimeoutMs: 100 });
+    controller.handleWebViewMessage(handshake());
+    const html = controller.rpc(getHTML);
+
+    controller.detach();
+    controller.setWebView(null);
+    jest.advanceTimersByTime(100);
+
+    await expect(html).rejects.toBeInstanceOf(TentapRpcTimeoutError);
+  });
+
   it('has no timeout by default', () => {
     jest.useFakeTimers();
     const { controller } = setup();
@@ -800,7 +813,6 @@ describe('lifecycle', () => {
     jest.useFakeTimers();
     const html = controller.rpc<string>(getHTML);
     controller.detach();
-    jest.advanceTimersByTime(5000);
     controller.attach();
 
     expect(getLastAttachedController()).toBe(controller);

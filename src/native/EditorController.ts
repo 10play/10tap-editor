@@ -137,11 +137,11 @@ export class NativeEditorController<
       return;
     }
     registerAttached(this);
-    this.rpcs.resumeTimers();
   }
 
+  // RPC timeouts keep running, so `rpcTimeoutMs` settles requests that were
+  // pending when the editor unmounted.
   detach(): void {
-    this.rpcs.pauseTimers();
     unregisterAttached(this);
   }
 

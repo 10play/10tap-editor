@@ -19,7 +19,6 @@ interface PendingRpc {
  */
 export class RpcRegistry {
   private readonly pending = new Map<string, PendingRpc>();
-  private timersRunning = true;
 
   get size(): number {
     return this.pending.size;
@@ -39,7 +38,7 @@ export class RpcRegistry {
         reject,
       };
       this.pending.set(messageId, entry);
-      if (this.timersRunning) this.startTimer(messageId, entry);
+      this.startTimer(messageId, entry);
     });
   }
 
@@ -63,23 +62,6 @@ export class RpcRegistry {
     const entry = this.take(messageId);
     entry?.reject(error);
     return entry !== undefined;
-  }
-
-  /** Timers stop while the controller is detached and restart in full. */
-  pauseTimers(): void {
-    this.timersRunning = false;
-    this.pending.forEach((entry) => {
-      clearTimeout(entry.timer);
-      entry.timer = undefined;
-    });
-  }
-
-  resumeTimers(): void {
-    if (this.timersRunning) return;
-    this.timersRunning = true;
-    this.pending.forEach((entry, messageId) =>
-      this.startTimer(messageId, entry)
-    );
   }
 
   clear(): void {

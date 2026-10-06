@@ -51,34 +51,6 @@ describe('RpcRegistry', () => {
     expect(registry.size).toBe(0);
   });
 
-  it('restarts timers in full after a pause', async () => {
-    jest.useFakeTimers();
-    const registry = new RpcRegistry();
-    const html = registry.create(
-      'id.1',
-      { type: 'get-html' },
-      { timeoutMs: 50 }
-    );
-    jest.advanceTimersByTime(40);
-
-    registry.pauseTimers();
-    const text = registry.create(
-      'id.2',
-      { type: 'get-text' },
-      { timeoutMs: 50 }
-    );
-    jest.advanceTimersByTime(1000);
-    expect(registry.size).toBe(2);
-
-    registry.resumeTimers();
-    jest.advanceTimersByTime(49);
-    expect(registry.size).toBe(2);
-    jest.advanceTimersByTime(1);
-    expect(registry.size).toBe(0);
-    await expect(html).rejects.toBeInstanceOf(TentapRpcTimeoutError);
-    await expect(text).rejects.toBeInstanceOf(TentapRpcTimeoutError);
-  });
-
   it('drops pending entries on clear without settling them', async () => {
     jest.useFakeTimers();
     const registry = new RpcRegistry();

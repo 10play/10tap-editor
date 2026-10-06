@@ -149,7 +149,7 @@ By default the `style` and `containerStyle` props of [RichText](./Components.md#
 <u>default</u>: `undefined` (no timeout)<br />
 How long the async methods (`getHTML`, `getText`, `getJSON`, `getSelectedText`, and requests sent by custom bridges through `context.rpc`) wait for the WebView before rejecting with a `TentapRpcTimeoutError`. Without it they wait indefinitely, as in 1.0.
 
-The time counts from the call, including any wait for the editor to load. The option is read when the editor is created.
+The time counts from the call, including any wait for the editor to load and time after the editor unmounted, so requests pending at unmount still reject. The option is read when the editor is created.
 
 ```tsx
 import { TentapRpcTimeoutError } from '@10play/tentap-editor';
