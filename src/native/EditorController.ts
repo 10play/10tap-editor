@@ -1,3 +1,4 @@
+import type { CoreEditorActionType } from '../bridges/core';
 import type { RuntimePlatform } from '../shared/bootConfig';
 import {
   CAPABILITIES,
@@ -43,11 +44,9 @@ import {
 } from './stores';
 import { OUTBOX_LIMIT, Outbox, Transport, type OutboxEntry } from './transport';
 
-/**
- * `CoreEditorActionType.SetContent`. The controller replays the last content
- * after a reload; the value is locked by `src/__fixtures__/wire/core.json`.
- */
-export const SET_CONTENT_TYPE = 'set-content';
+/** The controller replays the last content after a reload. */
+export const SET_CONTENT_TYPE: `${CoreEditorActionType.SetContent}` =
+  'set-content';
 
 /** Longer than the web side's minimum delay for an answer to a report. */
 const CONTAINER_ECHO_DELAY_MS = 300;
