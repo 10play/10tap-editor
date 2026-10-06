@@ -56,4 +56,12 @@ describe('type compat fixtures', () => {
     },
     TIMEOUT
   );
+
+  it(
+    'node10-deep-import: deep imports of src/ under node10 resolution (#290)',
+    () => {
+      expect(compileFixture('node10-deep-import')).toEqual([]);
+    },
+    TIMEOUT
+  );
 });
