@@ -936,6 +936,20 @@ describe('teardown', () => {
     ]);
   });
 
+  it("counts a 'stable' host once across a StrictMode re-attach", async () => {
+    const t = setup({
+      platform: 'android',
+      options: { androidKeyboardMode: 'stable' },
+    });
+    t.session.detach();
+    t.session.attach();
+    await flush();
+    expect(t.native!.setWindowOverlayMode.mock.calls).toEqual([[true]]);
+
+    t.session.detach();
+    expect(t.native!.setWindowOverlayMode).toHaveBeenLastCalledWith(false);
+  });
+
   it('reattaches after a StrictMode detach', async () => {
     const t = setup();
     t.session.detach();

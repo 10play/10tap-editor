@@ -147,6 +147,8 @@ export const PRESS_LISTENER_SCRIPT_KEY = 'tentap.keyboard.pressListener';
  * soft input mode, so only the last of them to detach restores it.
  */
 let overlayHosts = 0;
+/** `setWindowOverlayMode(true)` calls in flight, across hosts. */
+let overlayRequests = 0;
 
 const microtask = (fn: () => void) => {
   Promise.resolve().then(fn);
@@ -187,6 +189,7 @@ export function createKeyboardSession(
   let keyboardHeight = 0;
   let navigationBarInset = 0;
   let overlayApplied = false;
+  let overlayRequested = false;
   // The system keyboard took over the keyboard area while closing.
   let handedOver = false;
   let closingToSystem = false;
@@ -634,28 +637,38 @@ export function createKeyboardSession(
     dismiss: () => dismiss(),
   };
 
-  const attachNative = (driver: KeyboardDriver) => {
-    if (platform === 'android' && options().androidKeyboardMode === 'stable') {
-      void driver
-        .setWindowOverlayMode(true)
-        .then((applied) => {
-          if (!applied) return;
-          if (!attached) {
-            if (overlayHosts === 0) void driver.setWindowOverlayMode(false);
-            return;
-          }
-          overlayApplied = true;
-          overlayHosts++;
-          emit();
-        })
-        .catch(() => {});
+  /** Applies Android's `'stable'` window mode once per host. */
+  const requestOverlayMode = (driver: KeyboardDriver) => {
+    if (platform !== 'android' || options().androidKeyboardMode !== 'stable') {
+      return;
     }
+    if (overlayApplied || overlayRequested) return;
+    overlayRequested = true;
+    overlayRequests++;
+    const settle = (applied: boolean) => {
+      overlayRequested = false;
+      overlayRequests--;
+      if (!applied) return;
+      if (attached) {
+        overlayApplied = true;
+        overlayHosts++;
+        emit();
+      } else if (overlayHosts === 0 && overlayRequests === 0) {
+        // Detached while in flight, and no other host holds the mode.
+        void driver.setWindowOverlayMode(false).catch(() => false);
+      }
+    };
+    void driver.setWindowOverlayMode(true).then(settle, () => settle(false));
+  };
+
+  const refreshNavigationBarInset = (driver: KeyboardDriver) => {
     void driver
       .getNavigationBarInset()
       .then((inset) => {
         if (!attached) return;
-        navigationBarInset = inset;
         store.setEdgeToEdge(inset > 0);
+        if (inset === navigationBarInset) return;
+        navigationBarInset = inset;
         if (phase === 'open') slotHeight = areaHeight();
         emit();
       })
@@ -718,7 +731,10 @@ export function createKeyboardSession(
         PRESS_LISTENER_SCRIPT_KEY,
         pressListenerScript(true)
       );
-      if (nativeDriver && !deps.forceFallback) attachNative(nativeDriver);
+      if (nativeDriver && !deps.forceFallback) {
+        requestOverlayMode(nativeDriver);
+        refreshNavigationBarInset(nativeDriver);
+      }
     },
     detach() {
       if (!attached) return;
@@ -737,7 +753,7 @@ export function createKeyboardSession(
       if (overlayApplied && nativeDriver) {
         overlayApplied = false;
         overlayHosts--;
-        if (overlayHosts === 0) {
+        if (overlayHosts === 0 && overlayRequests === 0) {
           void nativeDriver.setWindowOverlayMode(false).catch(() => false);
         }
       }
