@@ -31,7 +31,7 @@ export interface EditorFacade {
 
 type CoreState = Pick<
   BridgeState,
-  'selection' | 'isFocused' | 'isReady' | 'editable' | 'empty'
+  'selection' | 'isFocused' | 'isReady' | 'editable'
 >;
 
 const resolveBridges = (options: EditorBridgeOptions) =>
@@ -56,9 +56,9 @@ const initialState = (editable: boolean): BridgeState => {
     isFocused: false,
     isReady: false,
     editable,
-    empty: true,
   };
-  // Bridge-specific keys are absent until the WebView reports them, as in 1.0.
+  // `empty` (initialContent may fill the editor) and bridge-specific keys
+  // are absent until the WebView reports them, as in 1.0.
   return core as BridgeState;
 };
 

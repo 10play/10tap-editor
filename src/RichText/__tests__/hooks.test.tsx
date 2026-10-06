@@ -158,16 +158,19 @@ describe('useEditorBridge', () => {
     expect(editor.theme.toolbar).toBeDefined();
   });
 
-  it('starts from a fully populated core state', () => {
-    const { result } = renderEditor({ editable: false });
+  it('starts from the core state, leaving empty unknown until the page reports it', () => {
+    const { result } = renderEditor({
+      editable: false,
+      initialContent: '<p>Draft</p>',
+    });
 
     expect(result.current.getEditorState()).toEqual({
       selection: { from: 0, to: 0 },
       isFocused: false,
       isReady: false,
       editable: false,
-      empty: true,
     });
+    expect(result.current.getEditorState().empty).toBeUndefined();
   });
 
   it('exposes state fields and the WebView as live getters, as 1.0 did', () => {
