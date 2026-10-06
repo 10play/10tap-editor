@@ -1,8 +1,10 @@
 // The host app provides the Android Gradle Plugin; this library adds no
 // buildscript classpath and no Kotlin plugin, so it works with AGP 8 and 9.
 
+// React Native 0.82+ sets newArchEnabled on each library project, not on the
+// root; older versions inherit it from gradle.properties or -P.
 def isNewArchitectureEnabled() {
-  return rootProject.hasProperty("newArchEnabled") && rootProject.getProperty("newArchEnabled") == "true"
+  return project.findProperty("newArchEnabled")?.toString() == "true"
 }
 
 def safeExtGet(name, fallback) {
