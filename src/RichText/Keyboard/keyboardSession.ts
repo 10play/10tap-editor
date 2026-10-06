@@ -176,10 +176,14 @@ export function createKeyboardSession(
     ? undefined
     : createInlineDriver();
   let useFallback = deps.forceFallback;
+  // The native driver found no focused WebView for this transition only.
+  let transitionFallback = false;
 
   const currentDriver = (): KeyboardDriver =>
     inlineDriver ??
-    (nativeDriver && !useFallback ? nativeDriver : getFallbackDriver());
+    (nativeDriver && !useFallback && !transitionFallback
+      ? nativeDriver
+      : getFallbackDriver());
 
   let attached = false;
   let phase: KeyboardPhase = 'closed';
@@ -349,8 +353,11 @@ export function createKeyboardSession(
     // A close or detach while the native call was in flight already ended
     // this transition; latching the fallback now would outlive it.
     if (driver.kind !== 'native' || token !== epoch || !attached) return;
-    // No focused WebView (e.g. a Modal window on Android): fall back for good.
-    useFallback = true;
+    // No focused WebView. With the editor focused that lasts (e.g. a Modal
+    // window on Android), so fall back for good; otherwise the editor was
+    // not ready or the window briefly lost focus, so retry on the next open.
+    if (channel.isFocused()) useFallback = true;
+    else transitionFallback = true;
     emit();
     await getFallbackDriver().suppress();
   };
@@ -513,6 +520,7 @@ export function createKeyboardSession(
     hideSeen = false;
     handedOver = false;
     closingToSystem = false;
+    transitionFallback = false;
     if (nativeDriver && !deps.forceFallback) {
       // A mode the window lacked focus for at mount, and the inset of the
       // current orientation and navigation mode.

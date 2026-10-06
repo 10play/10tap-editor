@@ -9,6 +9,7 @@ import { createEditorChannel } from '../editorChannel';
 import {
   EVENT_TIMEOUT_MS,
   EVENT_VERIFY_TIMEOUT_MS,
+  FOCUS_TIMEOUT_MS,
   PRESS_LISTENER_SCRIPT_KEY,
   SHOW_CONFIRM_TIMEOUT_MS,
   SLOT_ANIMATION_MS,
@@ -449,6 +450,27 @@ describe('verification and driver selection', () => {
       expect(t.view().driver).toBe('native');
     }
   );
+
+  it('retries the native driver after it failed for an unfocused editor', async () => {
+    const native = createFakeNativeModule();
+    native.setSystemKeyboardSuppressed.mockResolvedValueOnce(false);
+    const t = setup({ native, focused: false, systemKeyboard: 0 });
+    t.session.open('kb');
+    jest.advanceTimersByTime(FOCUS_TIMEOUT_MS);
+    await flush();
+    expect(t.view().driver).toBe('fallback');
+
+    t.session.close(false);
+    jest.advanceTimersByTime(SLOT_ANIMATION_MS);
+    await flush();
+    t.setFocused(true);
+    native.setSystemKeyboardSuppressed.mockClear();
+    t.session.open('kb');
+    await flush();
+
+    expect(native.setSystemKeyboardSuppressed).toHaveBeenCalledWith(true);
+    expect(t.view().driver).toBe('native');
+  });
 
   it('reports a rejected native call and falls back', async () => {
     const native = createFakeNativeModule();
