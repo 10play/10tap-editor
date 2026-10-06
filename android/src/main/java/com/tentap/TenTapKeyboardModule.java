@@ -228,7 +228,8 @@ public class TenTapKeyboardModule extends TenTapKeyboardSpec implements Lifecycl
 
   /**
    * Switches the activity window to ADJUST_NOTHING so the IME overlays the
-   * content. Applied once per host mount, never during a keyboard switch.
+   * content. Applied when a host mounts, or on its next open when the window
+   * lacked focus at mount.
    */
   private boolean applyOverlayMode() {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {

@@ -950,6 +950,25 @@ describe('teardown', () => {
     expect(t.native!.setWindowOverlayMode).toHaveBeenLastCalledWith(false);
   });
 
+  it("applies 'stable' mode on the next open when the window lacked focus", async () => {
+    const native = createFakeNativeModule();
+    native.setWindowOverlayMode.mockResolvedValueOnce(false);
+    const t = setup({
+      platform: 'android',
+      native,
+      systemKeyboard: 280,
+      options: { androidKeyboardMode: 'stable' },
+    });
+    await flush();
+    expect(t.snapshot().windowOverlaysKeyboard).toBe(false);
+
+    await openFully(t);
+    expect(native.setWindowOverlayMode.mock.calls).toEqual([[true], [true]]);
+    expect(t.snapshot().windowOverlaysKeyboard).toBe(true);
+    t.session.detach();
+    expect(native.setWindowOverlayMode).toHaveBeenLastCalledWith(false);
+  });
+
   it('reattaches after a StrictMode detach', async () => {
     const t = setup();
     t.session.detach();
