@@ -16,8 +16,13 @@ export interface CustomKeyboardExtensionOptions {
   height?: number;
 }
 
+/**
+ * A keyboard for `CustomKeyboard`. `P` is inferred from the component; the
+ * bare `CustomKeyboardExtension` accepts any component, as in 0.7.x.
+ */
 export class CustomKeyboardExtension<
-  P extends object = CustomKeyboardComponentProps,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  P extends object = any,
 > {
   constructor(
     public id: string,

@@ -86,6 +86,9 @@ export const extensionFields = () => {
   };
 };
 
+// 0.7.x annotated keyboard lists with the bare, then non-generic, class.
+export const keyboardList: CustomKeyboardExtension[] = [ColorKeyboard];
+
 export const RootBackground = ({
   editor,
   rootRef,
