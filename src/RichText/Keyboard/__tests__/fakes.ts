@@ -197,10 +197,8 @@ export const createFakeEditor = ({
   };
 };
 
-type NativeMethod = Exclude<keyof NativeKeyboardModule, 'getConstants'>;
-
 export type FakeNativeModule = NativeKeyboardModule & {
-  [K in NativeMethod]: jest.Mock<
+  [K in keyof NativeKeyboardModule]: jest.Mock<
     ReturnType<NativeKeyboardModule[K]>,
     Parameters<NativeKeyboardModule[K]>
   >;

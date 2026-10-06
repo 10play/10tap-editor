@@ -1,11 +1,21 @@
-import type { Spec as NativeKeyboardModule } from '../../specs/NativeTenTapKeyboard';
 import type { EditorChannel } from './editorChannel';
 import {
   INPUT_MODE_RESTORE_SCRIPT,
   INPUT_MODE_SUPPRESS_SCRIPT,
 } from './webSnippets';
 
-export type { NativeKeyboardModule };
+/**
+ * The `TenTapKeyboard` native module (see `specs/NativeTenTapKeyboard.ts`).
+ * Declared here so the public typings do not import React Native's codegen
+ * types, which the strict TypeScript API does not expose.
+ */
+export interface NativeKeyboardModule {
+  setSystemKeyboardSuppressed(suppressed: boolean): Promise<boolean>;
+  showSystemKeyboard(): Promise<boolean>;
+  isSystemKeyboardVisible(): Promise<boolean>;
+  setWindowOverlayMode(enabled: boolean): Promise<boolean>;
+  getNavigationBarInset(): Promise<number>;
+}
 
 /**
  * - `native`: the `TenTapKeyboard` module suppresses the system keyboard while
