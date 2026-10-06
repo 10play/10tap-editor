@@ -120,7 +120,6 @@ export interface KeyboardStore {
    * current orientation, else `defaultHeight`, else a share of the window.
    */
   getKeyboardHeight(defaultHeight?: number): number;
-  getWindowHeight(): number;
   registerHost(
     editor: object,
     controls: CustomKeyboardControls,
@@ -295,7 +294,6 @@ export function createKeyboardStore({
       if (defaultHeight !== undefined) return defaultHeight;
       return Math.round(DEFAULT_KEYBOARD_HEIGHT_RATIO * getWindowSize().height);
     },
-    getWindowHeight: () => getWindowSize().height,
     registerHost(editor, controls, state) {
       const host: MutableHost = { editor, controls, state: { ...state } };
       hosts = [...hosts, host];
