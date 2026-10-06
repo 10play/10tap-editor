@@ -71,13 +71,16 @@ export function Toolbar({
   useEffect(() => () => clearTimeout(closeLinkTimer.current), []);
 
   // Android can collapse the editor selection when the link input takes
-  // focus, so the link is applied to the selection held when the bar opened.
+  // focus, so the link is applied to the last range selected in the editor,
+  // which the user may change while the bar stays open.
   const linkSelection = useRef(editorState.selection);
+  const { selection, isFocused } = editorState;
   useEffect(() => {
-    if (toolbarContext !== ToolbarContext.Link) {
-      linkSelection.current = editorState.selection;
+    const reselected = isFocused && selection.from !== selection.to;
+    if (toolbarContext !== ToolbarContext.Link || reselected) {
+      linkSelection.current = selection;
     }
-  }, [editorState.selection, toolbarContext]);
+  }, [selection, isFocused, toolbarContext]);
 
   const hideToolbar =
     hidden === undefined ? !isKeyboardUp || !editorState.isFocused : hidden;

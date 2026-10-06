@@ -495,6 +495,25 @@ describe('link bar (#252)', () => {
       expect(editor.setLink).toHaveBeenCalledWith('example.com');
     });
 
+    it('follows a range selected in the editor while the bar is open', () => {
+      const editor = createMockEditor({ selection: { from: 1, to: 6 } });
+      openLinkBar(editor);
+      act(() => jest.runOnlyPendingTimers());
+      act(() =>
+        editor.emitState({ isFocused: true, selection: { from: 7, to: 12 } })
+      );
+      // Focusing the link input again collapses the selection.
+      act(() =>
+        editor.emitState({ isFocused: false, selection: { from: 7, to: 7 } })
+      );
+      editor.setSelection.mockClear();
+
+      fireEvent.changeText(linkInput(), 'example.com');
+      fireEvent.press(screen.getByText('Insert'));
+
+      expect(editor.setSelection).toHaveBeenCalledWith(7, 12);
+    });
+
     it('takes the selection from the latest state before the bar opens', () => {
       const editor = createMockEditor({ selection: { from: 1, to: 1 } });
       render(<Toolbar editor={editor} />);
