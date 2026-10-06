@@ -8,7 +8,8 @@ describe('normalizeHref (#255)', () => {
     ['//cdn.example.com/a.png', 'https://cdn.example.com/a.png'],
     ['example.com:8080/path', 'https://example.com:8080/path'],
     ['localhost:3000', 'https://localhost:3000'],
-    ['user@example.com', 'https://user@example.com'],
+    ['user@example.com', 'mailto:user@example.com'],
+    [' support@acme.co.uk ', 'mailto:support@acme.co.uk'],
   ])('adds a protocol to %j', (href, expected) => {
     expect(normalizeHref(href)).toBe(expected);
   });

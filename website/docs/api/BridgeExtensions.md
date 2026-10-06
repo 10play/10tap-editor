@@ -100,7 +100,7 @@ Attributes the image schema doesn't know, like `style` or `width`, are dropped w
 uses `@tiptap/extension-link`, pre-configured with `{ openOnClick: false, autolink: true }`
 relevant configuration: https://tiptap.dev/docs/editor/api/marks/link#settings
 
-When a link is set from the toolbar or with `setLink`, a URL without a scheme gets `https://` added, so `www.google.com` becomes `https://www.google.com` instead of a relative link. URLs that already have a scheme (`http:`, `https:`, `mailto:`, `tel:`, app schemes) and relative or anchor links (`/path`, `#section`, `?query`) are kept as they are. To use another default, configure `defaultProtocol`:
+When a link is set from the toolbar or with `setLink`, a URL without a scheme gets `https://` added, so `www.google.com` becomes `https://www.google.com` instead of a relative link. A plain email address such as `support@acme.com` becomes a `mailto:` link. URLs that already have a scheme (`http:`, `https:`, `mailto:`, `tel:`, app schemes) and relative or anchor links (`/path`, `#section`, `?query`) are kept as they are. To use another default, configure `defaultProtocol`:
 
 ```tsx
 LinkBridge.configureExtension({ openOnClick: false, autolink: true, defaultProtocol: 'http' });

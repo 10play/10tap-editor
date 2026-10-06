@@ -58,7 +58,7 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 - `RichText` throws a clear error when `editor` doesn't come from `useEditorBridge`. Spread copies (`{ ...editor }`) keep working as in 1.0.
 - `useEditorBridge` reads `bridgeExtensions` once and warns in development when the list changes after mount.
 - `setImage` adds an empty paragraph after an image that ends the document.
-- `setLink` adds `https://` to URLs without a scheme, and `LinkBridge` sets the TipTap Link `defaultProtocol` to `https`, which autolinks use too. A `defaultProtocol` passed to `LinkBridge.configureExtension` applies to both.
+- `setLink` adds `https://` to URLs without a scheme and `mailto:` to plain email addresses, and `LinkBridge` sets the TipTap Link `defaultProtocol` to `https`, which autolinks use too. A `defaultProtocol` passed to `LinkBridge.configureExtension` applies to both.
 - `shouldHideDisabledToolbarItems` also applies to heading items.
 - The link bar no longer closes on blur; the keyboard's Done key inserts the link.
 - `useTenTap` composes `tiptapOptions.onCreate`, `onUpdate`, `onSelectionUpdate` and `onTransaction` with its own handlers instead of letting them replace them.
