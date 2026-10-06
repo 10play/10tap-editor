@@ -294,6 +294,10 @@ export function createKeyboardSession(
 
   const areaHeight = () => keyboardHeight + navigationBarInset;
 
+  /** The keyboard's own height, else the system keyboard's in this orientation. */
+  const heightFor = (id: string) =>
+    options().heightOf(id) ?? store.getKeyboardHeight(options().defaultHeight);
+
   const commitSlot = (height: number, event: SystemKeyboardEvent | null) => {
     const token = epoch;
     microtask(() => {
@@ -506,7 +510,7 @@ export function createKeyboardSession(
       // Switching keyboards swaps the body only: no driver calls, no animation.
       activeId = id;
       renderedId = id;
-      keyboardHeight = options().heightOf(id) ?? keyboardHeight;
+      keyboardHeight = heightFor(id);
       if (phase === 'open') slotHeight = areaHeight();
       emit();
       notifyParent(id);
@@ -527,9 +531,7 @@ export function createKeyboardSession(
       requestOverlayMode(nativeDriver);
       refreshNavigationBarInset(nativeDriver);
     }
-    keyboardHeight =
-      options().heightOf(id) ??
-      store.getKeyboardHeight(options().defaultHeight);
+    keyboardHeight = heightFor(id);
     emit();
     notifyParent(id);
     void beginSuppression(token);

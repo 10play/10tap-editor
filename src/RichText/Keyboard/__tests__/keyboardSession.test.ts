@@ -676,6 +676,17 @@ describe('switching keyboards', () => {
     expect(t.options.onActiveKeyboardChange).toHaveBeenLastCalledWith('b');
     expect(t.snapshot().activeCustomKeyboardID).toBe('b');
   });
+
+  it('gives a keyboard without a height the system height, not the previous one', async () => {
+    const t = setup({
+      options: { heightOf: (id) => (id === 'a' ? 200 : undefined) },
+    });
+    await openFully(t, 'a');
+    expect(t.view().slotHeight).toBe(200);
+    t.session.open('b');
+    expect(t.view()).toMatchObject({ keyboardHeight: 300, slotHeight: 300 });
+    expect(t.snapshot().keyboardHeight).toBe(300);
+  });
 });
 
 describe('close triggers', () => {
