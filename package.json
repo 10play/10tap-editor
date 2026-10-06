@@ -186,6 +186,7 @@
   "react-native-builder-bob": {
     "source": "src",
     "output": "lib",
+    "exclude": "{**/{__tests__,__fixtures__,__mocks__}/**,webEditorUtils/**,simpleWebEditor/*.*,simpleWebEditor/build/index.html}",
     "targets": [
       "commonjs",
       "module",
