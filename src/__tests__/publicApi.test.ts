@@ -90,6 +90,45 @@ describe('root entry compatibility with 1.0.1', () => {
 
     expect(current).toMatchObject(v101Root.manifest);
   });
+
+  it('still installs every 1.0.1 dependency and adds no peer dependency', () => {
+    const v101Dependencies = [
+      '@tiptap/core',
+      '@tiptap/extension-blockquote',
+      '@tiptap/extension-bold',
+      '@tiptap/extension-code',
+      '@tiptap/extension-code-block',
+      '@tiptap/extension-color',
+      '@tiptap/extension-document',
+      '@tiptap/extension-hard-break',
+      '@tiptap/extension-heading',
+      '@tiptap/extension-highlight',
+      '@tiptap/extension-horizontal-rule',
+      '@tiptap/extension-image',
+      '@tiptap/extension-italic',
+      '@tiptap/extension-link',
+      '@tiptap/extension-list',
+      '@tiptap/extension-strike',
+      '@tiptap/extension-text-style',
+      '@tiptap/extension-underline',
+      '@tiptap/extensions',
+      '@tiptap/pm',
+      '@tiptap/react',
+      '@tiptap/starter-kit',
+      'lodash',
+      'react-dom',
+    ];
+
+    expect(Object.keys(packageJson.dependencies)).toEqual(
+      expect.arrayContaining(v101Dependencies)
+    );
+    expect(packageJson.peerDependencies).toEqual({
+      'react': '*',
+      'react-native': '*',
+      'react-native-webview': '*',
+    });
+    expect(packageJson).not.toHaveProperty('peerDependenciesMeta');
+  });
 });
 
 describe('root entry compatibility with the 0.7.x keyboard API', () => {

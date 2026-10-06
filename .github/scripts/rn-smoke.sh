@@ -27,16 +27,9 @@ rm -rf RNSmoke
 npx --yes @react-native-community/cli@latest init RNSmoke \
   --version "$version" --skip-install --skip-git-init --install-pods false
 
-install_flags=(--no-audit --no-fund)
-if [[ "$version" == nightly || "$version" == *-* ]]; then
-  # A prerelease never satisfies the library's `>=0.74` peer range, which
-  # npm treats as a hard conflict.
-  install_flags+=(--legacy-peer-deps)
-fi
-
 cd RNSmoke
-npm install "${install_flags[@]}"
-npm install "${install_flags[@]}" "$tarball" "$webview"
+npm install --no-audit --no-fund
+npm install --no-audit --no-fund "$tarball" "$webview"
 cp "$scripts_dir/smoke-app/App.tsx" App.tsx
 
 (cd android && ./gradlew assembleRelease --console=plain -PreactNativeArchitectures=x86_64 "$@")

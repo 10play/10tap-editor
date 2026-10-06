@@ -79,7 +79,7 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 ### Native and tooling
 
 - New `TenTapKeyboard` native module (iOS Objective-C++, Android Java) with a `codegenConfig` (`RNTenTapSpec`). Android no longer applies the Kotlin Gradle plugin, which AGP 9's built-in Kotlin support conflicts with.
-- **Native floor: React Native 0.74+ (Expo SDK 51+).** The Android module is built on `BaseReactPackage`, which React Native 0.73 and older lack, so the `react-native` peer dependency is now `>=0.74`; stay on 1.0.x there. The JavaScript part does not require the native module: without it (Expo Go, web, an unlinked build) custom keyboards use a JavaScript fallback.
+- **Native floor: React Native 0.74+ (Expo SDK 51+).** The Android module is built on `BaseReactPackage`, which React Native 0.73 and older lack, so the Android build fails there; stay on 1.0.x. The `react-native` peer dependency stays `*`, as in 1.0. The JavaScript part does not require the native module: without it (Expo Go, web, an unlinked build) custom keyboards use a JavaScript fallback.
 - iOS deployment target follows `min_ios_version_supported` (15.1 by default).
 - Added the `@tiptap/extension-paragraph` and `@tiptap/extension-text` dependencies. All 1.0 dependencies are still installed, including `@tiptap/react` and `react-dom`, so a 1.0 advanced setup that imports `EditorContent` from `@tiptap/react` still builds. `react-dom` now accepts React 18 or 19 (`^18.2.0 || ^19.0.0`), so an app that already has a matching `react-dom` no longer gets a second copy (#67). Apps that target the web, or build a custom editor bundle, should pin a `react-dom` that matches their `react`.
 - `@10play/tentap-editor/web` can be loaded with `require`.

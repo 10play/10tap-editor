@@ -137,7 +137,7 @@
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": ">=0.74",
+    "react-native": "*",
     "react-native-webview": "*"
   },
   "workspaces": [

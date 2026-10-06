@@ -88,7 +88,7 @@ __metadata:
     vitest: ^3.2.4
   peerDependencies:
     react: "*"
-    react-native: ">=0.74"
+    react-native: "*"
     react-native-webview: "*"
   languageName: unknown
   linkType: soft
