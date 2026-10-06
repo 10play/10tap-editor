@@ -3,7 +3,7 @@
  * Bundles the packed library with Metro, the way a React Native app would, and
  * fails if anything in the native bundle requires react-dom.
  *
- * The library is packed (running prepack), extracted into a temporary project
+ * The library is packed with npm (running prepack and prepare), extracted into a temporary project
  * outside the repo, and bundled with the repo's react-native and dependencies.
  *
  * Usage: node scripts/check-isolated-bundle.js [--tarball <file>] [--platform ios|android] [--keep]
@@ -37,13 +37,15 @@ const parseArgs = (argv) => {
 };
 
 const pack = (workDir) => {
-  const tarball = path.join(workDir, 'package.tgz');
-  console.log('Packing the library (runs prepack)...');
-  execFileSync('yarn', ['pack', '--out', tarball], {
+  console.log('Packing the library (runs prepack and prepare)...');
+  // `yarn pack` skips `prepare`, which builds lib/.
+  execFileSync('npm', ['pack', '--pack-destination', workDir], {
     cwd: root,
     stdio: 'inherit',
   });
-  return tarball;
+  const tarball = fs.readdirSync(workDir).find((file) => file.endsWith('.tgz'));
+  if (!tarball) throw new Error('npm pack wrote no tarball');
+  return path.join(workDir, tarball);
 };
 
 const createProject = (workDir, tarball) => {

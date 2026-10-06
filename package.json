@@ -60,7 +60,7 @@
     "check:bundle": "node ./scripts/check-isolated-bundle.js",
     "clean": "rimraf android/build example/android/build example/android/app/build example/ios/build example-expo/android example-expo/ios lib lib-web",
     "prepare": "bob build",
-    "prepack": "yarn editor:build && yarn editor:build-web-utils && bob build",
+    "prepack": "yarn editor:build && yarn editor:build-web-utils",
     "release": "release-it"
   },
   "keywords": [

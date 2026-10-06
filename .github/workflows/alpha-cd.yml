@@ -46,7 +46,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       # release-it bumps the prerelease version once and publishes under the
-      # `alpha` dist-tag; npm publish runs prepack.
+      # `alpha` dist-tag; npm publish runs prepack and prepare.
       - name: Release
         run: yarn release --ci --preRelease=alpha
         env:

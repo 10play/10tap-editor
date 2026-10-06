@@ -46,7 +46,7 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      # npm publish runs prepack, which builds the editor, web utils and lib.
+      # npm publish runs prepack (editor and web utils) and then prepare (lib).
       - name: Release
         run: yarn release --ci
         env:

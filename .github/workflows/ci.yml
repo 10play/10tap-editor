@@ -75,7 +75,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
-      # npm pack runs prepack once and lists the packed files.
+      # npm pack runs prepack and prepare once each and lists the packed files.
       - name: Build and pack the library
         run: npm pack --pack-destination "$RUNNER_TEMP"
 
