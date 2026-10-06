@@ -64,4 +64,4 @@ The editor reports its content height in px as a `document-height` message. If y
 />
 ```
 
-On Expo web, multiple editors with `dynamicHeight` on one page need `@10play/react-native-web-webview` 0.0.4 or newer; see [Expo Web Setup](../setup/expoWeb.md).
+On Expo web, each editor's `onMessage` only receives that editor's messages, so several editors with `dynamicHeight` can share a page; see [Expo Web Setup](../setup/expoWeb.md).

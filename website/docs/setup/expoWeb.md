@@ -10,7 +10,7 @@ Some additional steps are necessary for supporting expo web - see working exampl
 
 `npx expo install @10play/react-native-web-webview expo-crypto`
 
-Use `@10play/react-native-web-webview` **0.0.4 or newer** if you render more than one editor on a page. Older versions deliver every editor's messages to every WebView on the page, so editors overwrite each other's state and height. 1.1 also tags its messages with an editor id and ignores messages meant for another editor; together with the 0.0.4 shim this keeps editors fully independent.
+Several editors on one page work with any version of `@10play/react-native-web-webview`: the shim delivers every editor's messages to every WebView on the page, so 1.1 tags each message with an editor id and every editor ignores messages meant for another one. A custom `onMessage` on `RichText` only receives its own editor's messages too.
 
 ### Step 2 - Configuring your bundler
 

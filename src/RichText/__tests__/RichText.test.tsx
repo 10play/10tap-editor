@@ -399,8 +399,15 @@ describe('RichText onMessage', () => {
 
   it('ignores messages of another editor and non-JSON data', () => {
     const onChange = jest.fn();
+    const onMessage = jest.fn();
     const { result } = createEditor({ onChange });
-    render(<RichText editor={result.current} />);
+    render(
+      <RichText
+        editor={result.current}
+        onMessage={onMessage}
+        exclusivelyUseCustomOnMessage={false}
+      />
+    );
     const webView = mockWebViews.latest();
     load(webView);
 
@@ -412,6 +419,9 @@ describe('RichText onMessage', () => {
     });
 
     expect(onChange).not.toHaveBeenCalled();
+    // A custom handler still sees the app's own non-protocol messages.
+    expect(onMessage).toHaveBeenCalledTimes(1);
+    expect(onMessage.mock.calls[0]?.[0].nativeEvent.data).toBe('not json');
   });
 });
 

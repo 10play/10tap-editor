@@ -16,6 +16,7 @@ import {
 
 import { editorHtml } from '../simpleWebEditor/build/editorHtml';
 import { buildBootScript, injectBootIntoHtml } from '../shared/bootConfig';
+import { decodeWebMessage, isForEditor } from '../shared/protocol';
 import {
   getEditorController,
   type EditorController,
@@ -395,6 +396,9 @@ export const RichText = ({
   const inlineBoot = !page.dev && props.source === undefined;
 
   const handleMessage = (event: WebViewMessageEvent) => {
+    // On Expo web every WebView may receive every editor's messages (#318).
+    const message = decodeWebMessage(event.nativeEvent.data);
+    if (message && !isForEditor(message.editorId, controller.editorId)) return;
     onMessage?.(event);
     // The instance about to be replaced must not make the editor ready.
     if (remountPending) return;
