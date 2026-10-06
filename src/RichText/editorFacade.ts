@@ -189,13 +189,32 @@ export function createEditorFacade(
       controller.subscribeContent(listener),
   };
 
+  // 1.0 returned plain data properties, so assigning one (`editor.theme =
+  // …`) replaces the live getter with the assigned value instead of throwing.
+  const assignable = (
+    key: string,
+    descriptor: PropertyDescriptor
+  ): PropertyDescriptor =>
+    descriptor.get && !descriptor.set
+      ? {
+          ...descriptor,
+          set: (value: unknown) =>
+            Object.defineProperty(editor, key, {
+              value,
+              writable: true,
+              enumerable: true,
+              configurable: true,
+            }),
+        }
+      : descriptor;
+
   // As in 1.0, a member returned by a bridge wins over the facade's own.
   (Object.keys(base) as (keyof typeof base)[]).forEach((key) => {
     if (Object.prototype.hasOwnProperty.call(editor, key)) return;
     Object.defineProperty(
       editor,
       key,
-      Object.getOwnPropertyDescriptor(base, key)!
+      assignable(key, Object.getOwnPropertyDescriptor(base, key)!)
     );
   });
 
@@ -208,11 +227,15 @@ export function createEditorFacade(
   const exposeStateKeys = (state: BridgeState) => {
     Object.keys(state).forEach((key) => {
       if (key in editor) return;
-      Object.defineProperty(editor, key, {
-        get: () => readState(key),
-        enumerable: true,
-        configurable: true,
-      });
+      Object.defineProperty(
+        editor,
+        key,
+        assignable(key, {
+          get: () => readState(key),
+          enumerable: true,
+          configurable: true,
+        })
+      );
     });
   };
   exposeStateKeys(controller.getState());

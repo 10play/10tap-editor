@@ -118,6 +118,22 @@ describe('useEditorBridge', () => {
     expect(EditorHelper.editorLastInstance).toBe(editor);
   });
 
+  it('lets 1.0 code assign option and state fields', () => {
+    const { result } = renderEditor({ autofocus: true });
+    const editor = result.current;
+    const theme = { ...editor.theme, webview: { backgroundColor: 'red' } };
+
+    editor.theme = theme;
+    editor.autofocus = false;
+    // 1.0 copied state fields onto the editor without declaring them.
+    const fields = editor as unknown as Record<string, unknown>;
+    fields.isFocused = true;
+
+    expect(editor.theme).toBe(theme);
+    expect(editor.autofocus).toBe(false);
+    expect(fields.isFocused).toBe(true);
+  });
+
   it('exposes every 1.0 member, delegating to the controller', () => {
     const { result } = renderEditor({ autofocus: true, dynamicHeight: true });
     const editor = result.current;
