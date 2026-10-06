@@ -172,10 +172,6 @@ export interface EditorController<S extends object = object> {
   rememberContent(content: string | object, version?: number): void;
 }
 
-export type CreateEditorController = <S extends object>(
-  options: EditorControllerOptions<S>
-) => EditorController<S>;
-
 /**
  * Passed to `BridgeExtension.extendEditorInstance` as an additive sixth
  * argument. Custom bridges use it for RPCs, capability checks and
