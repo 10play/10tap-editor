@@ -43,6 +43,16 @@ for (const [, id] of sources.matchAll(/testID:\s*["']([^"']+)["']/g)) {
   testIds.add(id);
 }
 
+// Labels built from a template, such as label: `Heading ${level}`.
+const labelPrefixes = Array.from(
+  sources.matchAll(/(?:label:\s*|accessibilityLabel=\{)`([^`$]+)\$\{/g),
+  ([, prefix]) => prefix
+);
+
+const hasText = (text) =>
+  sources.includes(text) ||
+  labelPrefixes.some((prefix) => text.startsWith(prefix));
+
 const hasTestId = (id) =>
   testIds.has(id) ||
   testIdPrefixes.some((prefix) => prefix && id.startsWith(prefix));
@@ -71,7 +81,7 @@ for (const file of flows) {
       /^\s*element:\s*(['"].+)$/.exec(line);
     if (!text) return;
     const value = unquote(text[1]);
-    if (!isPattern(value) && !sources.includes(value)) {
+    if (!isPattern(value) && !hasText(value)) {
       problems.push(`${at}: text "${value}" is not in the sources`);
     }
   });
