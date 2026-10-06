@@ -235,7 +235,7 @@ const usePlacementCheck = (
         }
         warned.current = true;
         console.warn(
-          `[tentap] CustomKeyboard ends ${Math.round(windowHeight - y - height)}pt above the bottom of the window. ` +
+          `[TenTap] CustomKeyboard ends ${Math.round(windowHeight - y - height)}pt above the bottom of the window. ` +
             'Render it last inside a KeyboardAvoidingView anchored to the bottom, or use layout="overlay".'
         );
       });

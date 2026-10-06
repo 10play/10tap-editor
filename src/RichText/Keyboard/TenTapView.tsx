@@ -18,7 +18,7 @@ export const TenTapView = (_props: TenTapViewProps) => {
   if (__DEV__ && !warned) {
     warned = true;
     console.warn(
-      '[tentap] TenTapView is deprecated and renders nothing. Render <CustomKeyboard> instead.'
+      '[TenTap] TenTapView is deprecated and renders nothing. Render <CustomKeyboard> instead.'
     );
   }
   return null;

@@ -263,7 +263,7 @@ export function createKeyboardSession(
     if (__DEV__ && !warned.has(event.reason)) {
       warned.add(event.reason);
       console.warn(
-        `[tentap] CustomKeyboard: ${event.reason} with the ${event.driver} driver; using the fallback driver.`,
+        `[TenTap] CustomKeyboard: ${event.reason} with the ${event.driver} driver; using the fallback driver.`,
         event.error ?? ''
       );
     }
