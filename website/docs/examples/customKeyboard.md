@@ -354,10 +354,10 @@ const ToolbarArea = ({ editor, activeKeyboard, setActiveKeyboard }) => {
 
 ## Android: keeping the toolbar still
 
-With the default `androidKeyboardMode="system"` the window keeps your `softInputMode`. With `adjustResize` (the React Native default) the window resizes when the system keyboard hides, so the toolbar can move for about a frame during the switch. To avoid it:
+With the default `androidKeyboardMode="system"` the window keeps your `softInputMode`. With `adjustResize` (the React Native default) the window resizes when the system keyboard hides, and the custom keyboard takes its space only once React Native reports the hide. The toolbar drops to the bottom and comes back up while switching to the custom keyboard, and is pushed up briefly while switching back. To avoid it:
 
 - use the [overlay layout](#overlay-with-editorkeyboardavoidingview), or
-- set `androidKeyboardMode="stable"` on `CustomKeyboard`. It switches the window to `adjustNothing` while `CustomKeyboard` is mounted (Android 11+), and restores your mode on unmount. Other inputs on that screen then need a `KeyboardAvoidingView` or `EditorKeyboardAvoidingView`.
+- set `androidKeyboardMode="stable"` on `CustomKeyboard`. It switches the window to `adjustNothing` while `CustomKeyboard` is mounted (Android 11+), and restores your mode on unmount. It needs the native module, so it has no effect in Expo Go, with the fallback driver or inside a `Modal`. Other inputs on that screen then need a `KeyboardAvoidingView` or `EditorKeyboardAvoidingView`.
 
 Edge-to-edge apps (the default with `targetSdk` 36) are not affected: their window never resizes.
 

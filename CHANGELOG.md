@@ -8,7 +8,7 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 
 ### Highlights
 
-- **Custom keyboards are back** and work on the new architecture (bridgeless included), the old architecture, Expo dev clients and Expo Go. `CustomKeyboard`, `ColorKeyboard`, `CustomKeyboardExtension`, the `colorKeyboard` theme and the `Color` / `ColorKeyboardTheme` types are exported again with their 0.7.x API. The keyboard is now rendered in your own React tree, while the editor keeps focus, caret and selection (#51, #285, #302, #50).
+- **Custom keyboards are back** and work on the new architecture (bridgeless included), the old architecture, Expo dev clients and Expo Go. `CustomKeyboard`, `ColorKeyboard`, `CustomKeyboardExtension`, the `colorKeyboard` theme and the `Color` / `ColorKeyboardTheme` types are exported again with their 0.7.x API. The keyboard is now rendered in your own React tree, while the editor keeps focus, caret and selection (#51, #285, #302). On Android the toolbar stays still while switching keyboards with `androidKeyboardMode="stable"` (Android 11+, not in Expo Go) or in an edge-to-edge app; with the default mode and `adjustResize` it still moves during the switch (#50).
 - **Reliable startup.** The editor reports `isReady` as soon as it is created, commands sent before that are queued instead of dropped, and readiness no longer depends on autofocus or editing (#343, #322, #227, #299).
 - **Dynamic height** grows and shrinks in any parent, respects a capped height and keeps the scroll position (#342, #336, #323, #289, #205).
 
