@@ -1,0 +1,20 @@
+# Opens the example named EXAMPLE and waits for the system keyboard that its
+# autofocus brings up (or taps TAP_TEXT first, for screens without autofocus).
+# The app is left on screen for a host-side measurement of the keyboard and
+# toolbar frames.
+appId: dev.tenplay.tentapexampleexpo
+---
+- runFlow:
+    file: ../../common/open-example.yaml
+    env:
+      EXAMPLE: ${EXAMPLE}
+- extendedWaitUntil:
+    visible: ${WAIT_TEXT}
+    timeout: 20000
+- runFlow:
+    when:
+      true: ${TAP_TEXT != null && TAP_TEXT != ''}
+    commands:
+      - tapOn: ${TAP_TEXT}
+- waitForAnimationToEnd:
+    timeout: 3000
