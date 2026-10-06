@@ -163,6 +163,13 @@ jobs:
       - name: Check that the library is autolinked
         run: .github/scripts/check-autolinking.sh example/android
 
+      - name: Run the library's Android unit tests
+        working-directory: example/android
+        run: >
+          ./gradlew :10play_tentap-editor:testDebugUnitTest --console=plain
+          -PreactNativeArchitectures=x86_64
+          -PnewArchEnabled=${{ matrix.new-arch }}
+
   build-ios:
     name: build-ios (newArch=${{ matrix.new-arch }})
     runs-on: macos-15

@@ -1,7 +1,5 @@
 package com.tentap;
 
-import androidx.annotation.NonNull;
-
 /**
  * Toggles {@code inputmode="none"} on the editor's contenteditable. Chromium
  * hides the IME while the focused node has that mode but keeps focus, the
@@ -22,9 +20,4 @@ final class InputModeScript {
           + "var e=document.querySelector('.ProseMirror');if(e){e.removeAttribute('inputmode')}})();true;";
 
   private InputModeScript() {}
-
-  @NonNull
-  static String build(boolean suppressed) {
-    return suppressed ? SUPPRESS : RESTORE;
-  }
 }
