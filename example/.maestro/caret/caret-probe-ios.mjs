@@ -9,7 +9,9 @@
 // checkpoint (or the one named by &marker=). Its bottom is compared with the
 // top of everything drawn over the editor: Toolbar, KeyboardSwitcher and
 // CustomKeyboard (measured through the app's Hermes inspector on Metro), the
-// toolbar buttons and the system keyboard. Results go to <out>/caret.jsonl.
+// toolbar buttons and the system keyboard. A checkpoint also fails when the
+// Toolbar or KeyboardSwitcher reaches below the top of the keyboard that is
+// up. Results go to <out>/caret.jsonl.
 import { execFileSync } from 'node:child_process';
 import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
@@ -52,6 +54,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const driverPort = () => {
   const ps = execFileSync('ps', ['-axo', 'pid=,command='], {
     encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
   });
   const line = ps
     .split('\n')
@@ -244,7 +247,7 @@ const measure = async (label, marker) => {
   const views = await measureNative();
   const covers = views
     .filter((v) => v.height > 0 && v.width > 0)
-    .map((v) => ({ label: v.label, top: v.y }));
+    .map((v) => ({ label: v.label, top: v.y, bottom: v.y + v.height }));
   const toolbarTop = Math.min(
     ...elements
       .filter((e) => e.type === 9 && TOOLBAR_LABELS.has(e.label))
@@ -262,11 +265,26 @@ const measure = async (label, marker) => {
     ...covers.filter((c) => c.top > webView.top),
   ];
   const nearestCover = limits.reduce((a, b) => (b.top < a.top ? b : a));
+  // The toolbar must sit fully on screen, on top of the keyboard that is up
+  // (the system keyboard or the custom keyboard view).
+  const keyboardTop = Math.min(
+    ...covers
+      .filter((c) => ['System keyboard', 'CustomKeyboard'].includes(c.label))
+      .map((c) => c.top)
+  );
+  const bars = covers.filter((c) =>
+    ['Toolbar', 'KeyboardSwitcher'].includes(c.label)
+  );
+  const toolbarOk = bars.every(
+    (c) =>
+      c.top >= 0 &&
+      (!Number.isFinite(keyboardTop) || c.bottom <= keyboardTop + 1)
+  );
   const visibleBottom = nearestCover.top;
   const caretBottom = caret.bottom;
   const caretTop = Math.max(caret.top, caret.bottom - LINE_PT);
   const margin = visibleBottom - caretBottom;
-  const ok = margin >= 0 && caretTop >= webView.top - 1;
+  const ok = margin >= 0 && caretTop >= webView.top - 1 && toolbarOk;
   return {
     label,
     ok,
@@ -287,7 +305,13 @@ const measure = async (label, marker) => {
       top: Math.round(webView.top),
       bottom: Math.round(webView.bottom),
     },
-    covers: covers.map((c) => ({ ...c, top: Math.round(c.top) })),
+    toolbarOk,
+    keyboardTop: Number.isFinite(keyboardTop) ? Math.round(keyboardTop) : null,
+    covers: covers.map((c) => ({
+      ...c,
+      top: Math.round(c.top),
+      bottom: c.bottom === undefined ? undefined : Math.round(c.bottom),
+    })),
     systemKeyboardTop: keyboard ? Math.round(keyboard.top) : null,
   };
 };
@@ -304,7 +328,7 @@ createServer(async (req, res) => {
   result.time = new Date().toISOString();
   appendFileSync(join(OUT, 'caret.jsonl'), JSON.stringify(result) + '\n');
   console.log(
-    `${result.ok ? 'OK  ' : 'FAIL'} ${label} margin=${result.marginDp}pt cover=${result.nearestCover?.label ?? '-'} caret="${result.caretText ?? ''}" ${result.error ?? ''}`
+    `${result.ok ? 'OK  ' : 'FAIL'} ${label} margin=${result.marginDp}pt toolbar=${result.toolbarOk === undefined ? '-' : result.toolbarOk ? 'ok' : 'COVERED'} cover=${result.nearestCover?.label ?? '-'} caret="${result.caretText ?? ''}" ${result.error ?? ''}`
   );
   res.writeHead(200, { 'content-type': 'application/json' });
   res.end(JSON.stringify(result));
