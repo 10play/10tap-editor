@@ -1,5 +1,7 @@
 # Types LINES numbered lines at the caret, each followed by Enter. The
-# running number is kept in output.line, which the caller initialises.
+# running number is kept in output.line, which the caller initialises. The
+# last line typed has to be on screen afterwards, which also fails the flow
+# when the editor stopped taking input.
 appId: dev.tenplay.tentapexampleexpo
 ---
 - repeat:
@@ -8,3 +10,4 @@ appId: dev.tenplay.tentapexampleexpo
       - evalScript: ${output.line = output.line + 1}
       - inputText: 'Line ${output.line} alpha delta kilo'
       - pressKey: Enter
+- assertVisible: '[\s\S]*Line ${output.line} alpha delta kilo[\s\S]*'

@@ -59,3 +59,19 @@ appId: dev.tenplay.tentapexampleexpo
     file: checkpoint.yaml
     env:
       SHOT: ${PREFIX}-lines-${output.line}
+# The toolbar is still on the keyboard after a pick, so ColorKeyboard can be
+# opened again and closed with it.
+- assertVisible: Color keyboard
+- tapOn: Color keyboard
+- assertVisible: Highlight
+- runFlow:
+    file: checkpoint.yaml
+    env:
+      SHOT: ${PREFIX}-custom-after-pick
+- tapOn: Color keyboard
+- assertNotVisible: Highlight
+- inputText: 'Typed after the round trip'
+- runFlow:
+    file: checkpoint.yaml
+    env:
+      SHOT: ${PREFIX}-after-round-trip
