@@ -27,19 +27,13 @@ type LinkMessage = {
   payload: null | string;
 };
 
-/** Tiptap's own default, used for autolinks; typed links default to https. */
-const TIPTAP_DEFAULT_PROTOCOL = 'http';
-
-/** The `defaultProtocol` configured with `LinkBridge.configureExtension`, else https. */
+/** The Link extension's `defaultProtocol`, which `configureExtension` can change. */
 const defaultProtocolOf = (editor: Editor): string | undefined => {
   const link = editor.extensionManager.extensions.find(
     (extension) => extension.name === Link.name
   );
   const configured: unknown = link?.options.defaultProtocol;
-  return typeof configured === 'string' &&
-    configured !== TIPTAP_DEFAULT_PROTOCOL
-    ? configured
-    : undefined;
+  return typeof configured === 'string' ? configured : undefined;
 };
 
 export const LinkBridge = new BridgeExtension<
@@ -50,6 +44,7 @@ export const LinkBridge = new BridgeExtension<
   tiptapExtension: Link.configure({
     openOnClick: false,
     autolink: true,
+    defaultProtocol: 'https',
   }),
   onBridgeMessage: (editor, { type, payload }) => {
     // null means the user cancelled.

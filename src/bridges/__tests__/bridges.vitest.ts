@@ -311,16 +311,23 @@ describe('LinkBridge (web)', () => {
     expect(setLink('mailto:a@b.co')).toContain('href="mailto:a@b.co"');
   });
 
-  it('uses a configured defaultProtocol', () => {
-    const bridges = TenTapStartKit.map((bridge) =>
-      bridge === LinkBridge
-        ? LinkBridge.configureExtension({ defaultProtocol: 'ftp' })
-        : bridge
-    );
-    expect(setLink('example.com', bridges)).toContain(
-      'href="ftp://example.com"'
-    );
-  });
+  it.each(['ftp', 'http'])(
+    'uses a configured defaultProtocol %s',
+    (protocol) => {
+      const bridges = TenTapStartKit.map((bridge) =>
+        bridge === LinkBridge
+          ? LinkBridge.configureExtension({
+              openOnClick: false,
+              autolink: true,
+              defaultProtocol: protocol,
+            })
+          : bridge
+      );
+      expect(setLink('example.com', bridges)).toContain(
+        `href="${protocol}://example.com"`
+      );
+    }
+  );
 
   it('removes the link for an empty value and ignores null', () => {
     const { editor, dispatch } = createEditor(
