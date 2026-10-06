@@ -59,7 +59,7 @@ interface ToolbarWithColorProps {
   setActiveKeyboard: (id: string | undefined) => void;
 }
 
-const ToolbarWithColor = ({
+export const ToolbarWithColor = ({
   editor,
   activeKeyboard,
   setActiveKeyboard,

@@ -1,0 +1,10 @@
+# Types LINES numbered lines at the caret, each followed by Enter. The
+# running number is kept in output.line, which the caller initialises.
+appId: dev.tenplay.tentapexampleexpo
+---
+- repeat:
+    times: ${LINES}
+    commands:
+      - evalScript: ${output.line = output.line + 1}
+      - inputText: 'Line ${output.line} alpha delta kilo'
+      - pressKey: Enter

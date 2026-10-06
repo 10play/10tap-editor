@@ -18,10 +18,12 @@ yarn example:expo typecheck
 
 Maestro flows live in `.maestro` (`maestro test example-expo/.maestro`); they
 open the installed development build on `METRO_URL` (default
-`http://localhost:8081`).
+`http://localhost:8081`). The long-typing flows in `.maestro/caret` check that
+the typed line stays above the toolbar; run them one at a time.
 
 Screens: a basic editor with the toolbar, dynamic height, a custom keyboard
-(ColorKeyboard) and two editors on one screen.
+(ColorKeyboard) in the inline and the overlay layout, and two editors on one
+screen.
 
 `metro.config.js` maps `@10play/tentap-editor` to `../src`, resolves React and
 the native packages from this app's `node_modules`, and on web swaps

@@ -1,0 +1,9 @@
+# Long-typing flows: the line being typed must stay above the toolbar (or the
+# keyboard, or the bottom of a capped editor). Each checkpoint takes a
+# screenshot. When the app renders a debug label with id `caret-probe`
+# reading `CP gap=<px> ...` (distance from the caret's bottom to the toolbar
+# top), a negative gap is reported as a warning; the flows themselves need no
+# instrumentation. Run one flow at a time, e.g.
+# maestro test -e METRO_URL=http://localhost:8083 example-expo/.maestro/caret/basic.yaml
+flows:
+  - '*'

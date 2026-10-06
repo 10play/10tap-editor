@@ -1,0 +1,15 @@
+# Screenshot named SHOT, plus the optional caret probe check.
+appId: dev.tenplay.tentapexampleexpo
+---
+- waitForAnimationToEnd:
+    timeout: 3000
+- takeScreenshot: ${SHOT}
+- runFlow:
+    when:
+      visible:
+        id: caret-probe
+    commands:
+      - assertNotVisible:
+          id: caret-probe
+          text: 'CP gap=-.*'
+          optional: true
