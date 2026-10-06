@@ -142,6 +142,12 @@ export const SLOT_ANIMATION_MS = 250;
 
 export const PRESS_LISTENER_SCRIPT_KEY = 'tentap.keyboard.pressListener';
 
+/**
+ * Hosts that applied Android's `'stable'` window mode. The window has one
+ * soft input mode, so only the last of them to detach restores it.
+ */
+let overlayHosts = 0;
+
 const microtask = (fn: () => void) => {
   Promise.resolve().then(fn);
 };
@@ -636,10 +642,11 @@ export function createKeyboardSession(
         .then((applied) => {
           if (!applied) return;
           if (!attached) {
-            void driver.setWindowOverlayMode(false);
+            if (overlayHosts === 0) void driver.setWindowOverlayMode(false);
             return;
           }
           overlayApplied = true;
+          overlayHosts++;
           emit();
         })
         .catch(() => {});
@@ -730,7 +737,10 @@ export function createKeyboardSession(
       channel.injectScript(pressListenerScript(false));
       if (overlayApplied && nativeDriver) {
         overlayApplied = false;
-        void nativeDriver.setWindowOverlayMode(false).catch(() => false);
+        overlayHosts--;
+        if (overlayHosts === 0) {
+          void nativeDriver.setWindowOverlayMode(false).catch(() => false);
+        }
       }
       phase = 'closed';
       activeId = undefined;

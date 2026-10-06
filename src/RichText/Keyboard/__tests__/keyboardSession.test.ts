@@ -898,6 +898,25 @@ describe('teardown', () => {
     expect(t.snapshot().windowOverlaysKeyboard).toBe(false);
   });
 
+  it("restores the window mode only when the last 'stable' host detaches", async () => {
+    const native = createFakeNativeModule();
+    const stable = () =>
+      setup({
+        platform: 'android',
+        native,
+        systemKeyboard: 280,
+        options: { androidKeyboardMode: 'stable' },
+      });
+    const first = stable();
+    const second = stable();
+    await flush();
+
+    second.session.detach();
+    expect(native.setWindowOverlayMode).not.toHaveBeenCalledWith(false);
+    first.session.detach();
+    expect(native.setWindowOverlayMode).toHaveBeenLastCalledWith(false);
+  });
+
   it("never touches the window mode in 'system' mode", async () => {
     const t = setup({ platform: 'android', systemKeyboard: 280 });
     await flush();
