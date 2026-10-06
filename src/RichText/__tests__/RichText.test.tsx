@@ -719,6 +719,23 @@ describe('RichText keyboard insets', () => {
     expect(thresholds(webView)).toEqual([50]);
   });
 
+  it('resets the insets when scrollBottomOffset is unset (#308)', () => {
+    const hook = createEditor({ scrollBottomOffset: 60 });
+    const view = render(<RichText editor={hook.result.current} />);
+    const webView = mockWebViews.latest();
+    load(webView);
+    ready(webView, hook.result.current);
+
+    hook.rerender({ scrollBottomOffset: undefined });
+    view.rerender(<RichText editor={hook.result.current} />);
+
+    expect(thresholds(webView)).toEqual([60, 0]);
+    expect(paddingScripts(webView)).toEqual([
+      utils.buildBottomPaddingScript(60),
+      utils.buildBottomPaddingScript(0),
+    ]);
+  });
+
   it('pads nothing in dynamic-height mode (#336)', () => {
     const { webView, update } = mountReady({
       avoidKeyboard: true,

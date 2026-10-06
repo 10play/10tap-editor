@@ -372,26 +372,35 @@ export const RichText = ({
   const padding = insets?.padding;
   const scrollThreshold = insets?.scrollThreshold;
   useEffect(() => {
-    if (padding === undefined || scrollThreshold === undefined) return;
-    const previous = appliedInsets.get(controller) ?? NO_INSETS;
+    const applied = appliedInsets.get(controller);
+    // Once insets were applied, dropping them (e.g. unsetting
+    // scrollBottomOffset) resets them as the documented default 0 does.
+    if ((padding === undefined || scrollThreshold === undefined) && !applied) {
+      return;
+    }
+    const next = {
+      padding: padding ?? 0,
+      scrollThreshold: scrollThreshold ?? 0,
+    };
+    const previous = applied ?? NO_INSETS;
     if (
-      previous.padding === padding &&
-      previous.scrollThreshold === scrollThreshold
+      previous.padding === next.padding &&
+      previous.scrollThreshold === next.scrollThreshold
     ) {
       return;
     }
     const apply = () => {
-      appliedInsets.set(controller, { padding, scrollThreshold });
-      if (previous.padding !== padding) {
+      appliedInsets.set(controller, next);
+      if (previous.padding !== next.padding) {
         controller.registerPersistentScript(
           KEYBOARD_PADDING_SCRIPT,
-          buildBottomPaddingScript(padding)
+          buildBottomPaddingScript(next.padding)
         );
       }
-      if (previous.scrollThreshold !== scrollThreshold) {
+      if (previous.scrollThreshold !== next.scrollThreshold) {
         // `updateScrollThresholdAndMargin` comes from CoreBridge, which a
         // custom bridge list may omit.
-        editor.updateScrollThresholdAndMargin?.(scrollThreshold);
+        editor.updateScrollThresholdAndMargin?.(next.scrollThreshold);
       }
     };
     if (Platform.OS === 'android' && !windowOverlaysKeyboard) {
