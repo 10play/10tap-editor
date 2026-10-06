@@ -214,13 +214,6 @@ export function isForEditor(
   return messageEditorId === undefined || messageEditorId === editorId;
 }
 
-export function isProtocolMessage<T extends ProtocolType>(
-  message: BridgeMessage,
-  type: T
-): message is ProtocolMessage<T> {
-  return message.type === type;
-}
-
 export function createEditorReadyPayload(
   editorId: string,
   capabilities: readonly CapabilityName[]

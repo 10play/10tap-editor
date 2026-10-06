@@ -6,7 +6,6 @@ import {
 } from '../capabilities';
 import {
   ACTION_ENVELOPE_TYPE,
-  PROTOCOL_TYPES,
   PROTOCOL_VERSION,
   capabilitiesFromEditorReady,
   createActionEnvelope,
@@ -19,7 +18,6 @@ import {
   decodeWebMessage,
   encodeMessage,
   isForEditor,
-  isProtocolMessage,
   parseEditorReadyPayload,
   readRpcReply,
   withMessageId,
@@ -127,16 +125,6 @@ describe('web → native messages', () => {
     expect(isForEditor(undefined, 'tt1')).toBe(true);
     expect(isForEditor('tt1', 'tt1')).toBe(true);
     expect(isForEditor('tt2', 'tt1')).toBe(false);
-  });
-
-  it('recognises protocol messages by type', () => {
-    const message = decodeWebMessage('{"type":"document-height","payload":4}');
-    expect(
-      message && isProtocolMessage(message, PROTOCOL_TYPES.DocumentHeight)
-    ).toBe(true);
-    expect(
-      isProtocolMessage({ type: 'stateUpdate' }, PROTOCOL_TYPES.DocumentHeight)
-    ).toBe(false);
   });
 });
 

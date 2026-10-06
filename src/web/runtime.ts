@@ -13,6 +13,7 @@ import {
   createDedupe,
   createEditorId,
   createEditorReadyPayload,
+  createWebMessage,
   decodeActionEnvelope,
   encodeMessage,
   isForEditor,
@@ -97,10 +98,11 @@ function createWebRuntime(win: Window): WebRuntime {
   let bootErrorTimer: ReturnType<typeof setTimeout> | undefined;
 
   const send = (message: BridgeMessage) => {
-    const tagged = config
-      ? { ...message, editorId: config.editorId, v: PROTOCOL_VERSION }
-      : message;
-    win.ReactNativeWebView?.postMessage(encodeMessage(tagged));
+    win.ReactNativeWebView?.postMessage(
+      encodeMessage(
+        createWebMessage(message.type, message.payload, config?.editorId)
+      )
+    );
   };
 
   const postBootError = (payload: BootErrorPayload) =>
