@@ -91,6 +91,8 @@ export interface KeyboardSessionDeps {
   getHiddenInput: DriverContext['getHiddenInput'];
   layoutAnimation: LayoutAnimationLike;
   backHandler: BackHandlerLike | null;
+  /** Window size changes (rotation, split screen). */
+  subscribeWindow?(listener: () => void): Unsubscribe;
   getOptions(): KeyboardSessionOptions;
 }
 
@@ -691,6 +693,21 @@ export function createKeyboardSession(
       .catch(() => {});
   };
 
+  /** The system keyboard height and the inset depend on the orientation. */
+  const onWindowChange = () => {
+    if ((phase !== 'opening' && phase !== 'open') || activeId === undefined) {
+      return;
+    }
+    if (nativeDriver && !deps.forceFallback) {
+      refreshNavigationBarInset(nativeDriver);
+    }
+    const height = heightFor(activeId);
+    if (height === keyboardHeight) return;
+    keyboardHeight = height;
+    if (phase === 'open') commitSlot(areaHeight(), null);
+    emit();
+  };
+
   return {
     ...controls,
     get activeKeyboardID() {
@@ -731,6 +748,9 @@ export function createKeyboardSession(
         }),
         channel.onReload(reset),
       ];
+      if (deps.subscribeWindow) {
+        unsubscribes.push(deps.subscribeWindow(onWindowChange));
+      }
       const backHandler = deps.backHandler;
       if (backHandler && platform === 'android') {
         const subscription = backHandler.addEventListener(

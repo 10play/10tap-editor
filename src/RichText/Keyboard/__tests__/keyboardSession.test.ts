@@ -59,9 +59,11 @@ const setup = ({
   options = {},
 }: SetupOptions = {}) => {
   const keyboard = createFakeKeyboard();
+  let windowSize = WINDOW;
+  const windowListeners = new Set<() => void>();
   const store = createKeyboardStore({
     keyboard,
-    getWindowSize: () => WINDOW,
+    getWindowSize: () => windowSize,
     platform,
   });
   const fake = createFakeEditor({ focused, withController });
@@ -90,9 +92,18 @@ const setup = ({
     getHiddenInput: () => hiddenInput,
     layoutAnimation,
     backHandler: back.backHandler,
+    subscribeWindow: (listener) => {
+      windowListeners.add(listener);
+      return () => windowListeners.delete(listener);
+    },
     getOptions: () => sessionOptions,
   });
   session.attach();
+
+  const resizeWindow = (size: typeof WINDOW) => {
+    windowSize = size;
+    windowListeners.forEach((listener) => listener());
+  };
 
   const showEvent = platform === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
   const showSystemKeyboard = (height: number) => {
@@ -116,6 +127,8 @@ const setup = ({
     configureNext,
     back,
     hiddenInput,
+    resizeWindow,
+    windowListeners,
     options: sessionOptions,
     view: () => session.getView(),
     snapshot: () => store.getSnapshot(),
@@ -686,6 +699,61 @@ describe('switching keyboards', () => {
     t.session.open('b');
     expect(t.view()).toMatchObject({ keyboardHeight: 300, slotHeight: 300 });
     expect(t.snapshot().keyboardHeight).toBe(300);
+  });
+});
+
+describe('window size changes', () => {
+  const LANDSCAPE = { width: WINDOW.height, height: WINDOW.width };
+
+  it('resizes an open keyboard to the height seen in the new orientation', async () => {
+    const t = setup();
+    // A landscape system keyboard seen earlier.
+    t.resizeWindow(LANDSCAPE);
+    t.keyboard.emit('keyboardWillShow', 200, IOS_ANIMATION);
+    t.keyboard.emit('keyboardWillHide', 200, IOS_ANIMATION);
+    t.resizeWindow(WINDOW);
+    t.keyboard.emit('keyboardWillShow', 300, IOS_ANIMATION);
+    t.keyboard.emit('keyboardDidShow', 300);
+    await openFully(t);
+    expect(t.view().slotHeight).toBe(300);
+
+    t.resizeWindow(LANDSCAPE);
+    expect(t.view().keyboardHeight).toBe(200);
+    await flush();
+    expect(t.view().slotHeight).toBe(200);
+    expect(t.snapshot().keyboardHeight).toBe(200);
+
+    t.resizeWindow(WINDOW);
+    await flush();
+    expect(t.view()).toMatchObject({ keyboardHeight: 300, slotHeight: 300 });
+  });
+
+  it('keeps an extension height', async () => {
+    const t = setup({ options: { heightOf: () => 220 } });
+    await openFully(t);
+    t.resizeWindow(LANDSCAPE);
+    await flush();
+    expect(t.view()).toMatchObject({ keyboardHeight: 220, slotHeight: 220 });
+  });
+
+  it('reads the navigation bar inset again', async () => {
+    const native = createFakeNativeModule();
+    const t = setup({ platform: 'android', native });
+    await openFully(t);
+    native.getNavigationBarInset.mockClear();
+    native.getNavigationBarInset.mockResolvedValue(24);
+    t.resizeWindow(LANDSCAPE);
+    await flush();
+    expect(native.getNavigationBarInset).toHaveBeenCalledTimes(1);
+    expect(t.view().navigationBarInset).toBe(24);
+  });
+
+  it('ignores changes while closed and stops listening on detach', async () => {
+    const t = setup();
+    t.resizeWindow(LANDSCAPE);
+    expect(t.view().keyboardHeight).toBe(0);
+    t.session.detach();
+    expect(t.windowListeners.size).toBe(0);
   });
 });
 

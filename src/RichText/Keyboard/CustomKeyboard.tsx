@@ -11,6 +11,7 @@ import React, {
 } from 'react';
 import {
   BackHandler,
+  Dimensions,
   LayoutAnimation,
   Platform,
   StyleSheet,
@@ -109,6 +110,10 @@ export const CustomKeyboard = (props: CustomKeyboardProps) => {
         getHiddenInput: () => hiddenInputRef.current,
         layoutAnimation: LayoutAnimation,
         backHandler: BackHandler,
+        subscribeWindow: (listener) => {
+          const subscription = Dimensions.addEventListener('change', listener);
+          return () => subscription.remove();
+        },
         getOptions: (): KeyboardSessionOptions => {
           const current = latestProps.current;
           return {
