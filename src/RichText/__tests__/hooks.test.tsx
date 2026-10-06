@@ -395,11 +395,14 @@ describe('useEditorContent', () => {
   const lastRequest = (webView: FakeWebView, type: string) =>
     webView.messages.filter((message) => message.type === type).pop();
 
-  const setup = (options?: Parameters<typeof useEditorContent>[1]) => {
+  const setup = (
+    options?: Parameters<typeof useEditorContent>[1],
+    { handshake: completeHandshake = false } = {}
+  ) => {
     jest.useFakeTimers();
     const { result: editorResult } = renderEditor();
     const editor = editorResult.current;
-    const { webView } = connect(editor, { ready: false });
+    const { webView } = connect(editor, { ready: completeHandshake });
     const hook = renderHook(() => useEditorContent(editor, options));
     return { editor, webView, ...hook };
   };
@@ -423,8 +426,10 @@ describe('useEditorContent', () => {
   });
 
   it('refetches on content updates but not on selection changes', () => {
-    const { editor, webView } = setup({ type: 'json', debounceInterval: 10 });
-    receive(editor, PROTOCOL_TYPES.StateUpdate, stateUpdate({}));
+    const { editor, webView } = setup(
+      { type: 'json', debounceInterval: 10 },
+      { handshake: true }
+    );
     flush();
     expect(webView.types.filter((t) => t === 'get-json')).toHaveLength(1);
 
@@ -439,6 +444,21 @@ describe('useEditorContent', () => {
     act(() => editor._onContentUpdate());
     act(() => editor._onContentUpdate());
     flush();
+    expect(webView.types.filter((t) => t === 'get-json')).toHaveLength(2);
+  });
+
+  it('refetches on every state update of a legacy bundle', () => {
+    const { editor, webView } = setup({ type: 'json', debounceInterval: 10 });
+    receive(editor, PROTOCOL_TYPES.StateUpdate, stateUpdate({}));
+    flush();
+
+    receive(
+      editor,
+      PROTOCOL_TYPES.StateUpdate,
+      stateUpdate({ selection: { from: 3, to: 3 } })
+    );
+    flush();
+
     expect(webView.types.filter((t) => t === 'get-json')).toHaveLength(2);
   });
 

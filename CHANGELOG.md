@@ -66,7 +66,7 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 - The web editor sends `editor-ready` followed by a full `stateUpdate` on creation, and `editor-ready` now carries a payload. Messages may carry `editorId` and `v` fields, and there are new message types (`boot-error`, `tentap-editor-press`).
 - Commands called before the editor is ready are queued instead of dropped with an "Editor isn't ready yet" warning.
 - `RichText` logs a development warning when `onMessage` is passed without `exclusivelyUseCustomOnMessage`.
-- `useEditorContent` fetches content on content changes only, ignores out-of-order replies and stops after unmount.
+- `useEditorContent` fetches content on content changes only (with custom bundles built before 1.1, on every state update as before), ignores out-of-order replies and stops after unmount.
 - On iOS the WebView is remounted after its first load only with react-native-webview 13.12.3 and 13.12.4.
 - The WebView reloads and restores the editor when its content process is killed.
 - `EditorTheme.colorKeyboard` is optional; the types of `editor.theme`, `defaultEditorTheme` and `darkEditorTheme` still always include it.

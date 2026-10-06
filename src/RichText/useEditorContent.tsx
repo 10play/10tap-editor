@@ -19,7 +19,10 @@ type ContentType<T extends EditorContentType> = T extends 'json'
 
 /**
  * The editor's content, fetched when the editor becomes ready and after every
- * content change (debounced). Selection changes don't fetch.
+ * content change (debounced). Selection changes don't fetch, except with
+ * legacy bundles: a 1.0 bundle whose `tiptapOptions.onUpdate` replaced the
+ * protocol handler never sends `content-update`, so every state update
+ * fetches, as in 1.0.
  */
 export function useEditorContent<T extends EditorContentType>(
   editor: EditorBridge,
@@ -63,7 +66,8 @@ export function useEditorContent<T extends EditorContentType>(
     if (ready) fetchContent();
     const unsubscribeState = editor._subscribeToEditorStateUpdate((state) => {
       const next = state.isReady === true;
-      if (next && !ready) fetchContent();
+      const legacy = getEditorController(editor)?.getCapabilities().legacy;
+      if (next && (!ready || legacy)) fetchContent();
       ready = next;
     });
     const unsubscribeContent = editor._subscribeToContentUpdate(() =>
