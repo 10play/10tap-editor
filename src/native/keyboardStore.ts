@@ -5,6 +5,7 @@ import {
   type KeyboardEvent,
   type KeyboardEventName,
 } from 'react-native';
+import { getNativeKeyboardModule } from '../RichText/Keyboard/nativeModule';
 import type { Listener, Unsubscribe } from '../shared/contracts';
 import { shallowEqual } from './stores';
 
@@ -108,6 +109,13 @@ export interface KeyboardState {
    * padding and the scroll threshold.
    */
   windowOverlaysKeyboard: boolean;
+  /**
+   * How far up from the bottom of the window the keyboard reaches: its
+   * height plus, on edge-to-edge Android, the navigation bar it covers
+   * without counting it. 0 while no keyboard covers the window, including a
+   * system keyboard the window resizes for.
+   */
+  keyboardCoverHeight: number;
 }
 
 export interface KeyboardStore {
@@ -129,12 +137,23 @@ export interface KeyboardStore {
   getHost(editor?: object): CustomKeyboardHost | undefined;
   /** Set when the native module reports a navigation bar inset (Android edge-to-edge). */
   setEdgeToEdge(edgeToEdge: boolean): void;
+  /**
+   * Height in dp of the navigation bar the app draws behind (Android
+   * edge-to-edge), 0 otherwise. A positive inset also means edge-to-edge.
+   */
+  setNavigationBarInset(inset: number): void;
 }
 
 export interface KeyboardStoreOptions {
   keyboard: KeyboardEventSource;
   getWindowSize(): WindowSize;
   platform: string;
+  /**
+   * Android: the navigation bar inset in dp, read again whenever the system
+   * keyboard shows. Without it (native module not linked) the inset is only
+   * known once a `CustomKeyboard` reports it.
+   */
+  getNavigationBarInset?(): Promise<number>;
 }
 
 type Orientation = 'portrait' | 'landscape';
@@ -147,6 +166,7 @@ export function createKeyboardStore({
   keyboard,
   getWindowSize,
   platform,
+  getNavigationBarInset,
 }: KeyboardStoreOptions): KeyboardStore {
   const stateListeners = new Set<() => void>();
   const eventListeners = new Set<Listener<SystemKeyboardEvent>>();
@@ -156,6 +176,7 @@ export function createKeyboardStore({
   let systemHeight = 0;
   let lastHeight = 0;
   let edgeToEdge = false;
+  let navigationBarInset = 0;
   let subscriptions: { remove(): void }[] = [];
   // Listeners run with the snapshot already updated; host updates they make
   // are folded into one change notification.
@@ -173,17 +194,27 @@ export function createKeyboardStore({
       if (hosts[i]!.state.open) openHost = hosts[i];
     }
     const customOpen = openHost !== undefined;
+    const windowOverlaysKeyboard =
+      platform === 'ios' ||
+      edgeToEdge ||
+      navigationBarInset > 0 ||
+      hosts.some((host) => host.state.overlaysWindow);
+    const keyboardHeight = openHost ? openHost.state.height : systemHeight;
     return {
       isKeyboardUp: systemVisible || customOpen,
-      keyboardHeight: openHost ? openHost.state.height : systemHeight,
+      keyboardHeight,
       isCustomKeyboardOpen: customOpen,
       activeCustomKeyboardID: openHost?.state.activeKeyboardID,
       systemKeyboardHeight: systemHeight,
       lastKeyboardHeight: lastHeight,
-      windowOverlaysKeyboard:
-        platform === 'ios' ||
-        edgeToEdge ||
-        hosts.some((host) => host.state.overlaysWindow),
+      windowOverlaysKeyboard,
+      keyboardCoverHeight: getKeyboardCoverHeight({
+        keyboardHeight,
+        customOpen,
+        systemHeight,
+        windowOverlaysKeyboard,
+        navigationBarInset,
+      }),
     };
   };
 
@@ -213,6 +244,17 @@ export function createKeyboardStore({
     lastHeight = height;
   };
 
+  const setNavigationBarInset = (inset: number) => {
+    if (inset === navigationBarInset) return;
+    navigationBarInset = inset;
+    emitChange();
+  };
+
+  const refreshNavigationBarInset = () => {
+    if (platform !== 'android' || !getNavigationBarInset) return;
+    getNavigationBarInset().then(setNavigationBarInset, () => {});
+  };
+
   const onKeyboardEvent = (name: KeyboardEventName, event: KeyboardEvent) => {
     const height = event?.endCoordinates?.height ?? 0;
     switch (name) {
@@ -221,6 +263,7 @@ export function createKeyboardStore({
         systemVisible = height > 0;
         systemHeight = height;
         recordHeight(height);
+        if (systemVisible) refreshNavigationBarInset();
         break;
       case 'keyboardWillHide':
       case 'keyboardDidHide':
@@ -261,6 +304,7 @@ export function createKeyboardStore({
     systemVisible = height > 0;
     systemHeight = height;
     recordHeight(height);
+    refreshNavigationBarInset();
     emitChange();
   };
 
@@ -322,11 +366,44 @@ export function createKeyboardStore({
       edgeToEdge = value;
       emitChange();
     },
+    setNavigationBarInset,
   };
 }
+
+export interface KeyboardCoverInput {
+  keyboardHeight: number;
+  customOpen: boolean;
+  systemHeight: number;
+  windowOverlaysKeyboard: boolean;
+  navigationBarInset: number;
+}
+
+/**
+ * Height of the bottom of the window under the keyboard. React Native
+ * reports the system keyboard without the navigation bar below it, which an
+ * edge-to-edge window still extends behind. Where the window resizes for the
+ * system keyboard, only a custom keyboard covers it.
+ */
+export const getKeyboardCoverHeight = ({
+  keyboardHeight,
+  customOpen,
+  systemHeight,
+  windowOverlaysKeyboard,
+  navigationBarInset,
+}: KeyboardCoverInput): number => {
+  const covers = windowOverlaysKeyboard
+    ? customOpen || systemHeight > 0
+    : customOpen && systemHeight === 0;
+  return covers && keyboardHeight > 0 ? keyboardHeight + navigationBarInset : 0;
+};
+
+const nativeKeyboardModule = getNativeKeyboardModule();
 
 export const keyboardStore: KeyboardStore = createKeyboardStore({
   keyboard: Keyboard,
   getWindowSize: () => Dimensions.get('window'),
   platform: Platform.OS,
+  getNavigationBarInset: nativeKeyboardModule
+    ? () => nativeKeyboardModule.getNavigationBarInset()
+    : undefined,
 });

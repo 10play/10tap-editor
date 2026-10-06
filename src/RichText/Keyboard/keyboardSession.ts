@@ -700,7 +700,7 @@ export function createKeyboardSession(
       .getNavigationBarInset()
       .then((inset) => {
         if (!attached) return;
-        store.setEdgeToEdge(inset > 0);
+        store.setNavigationBarInset(inset);
         if (inset === navigationBarInset) return;
         navigationBarInset = inset;
         if (phase === 'open') slotHeight = areaHeight();

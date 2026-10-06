@@ -13,6 +13,7 @@ import {
   type FlatListProps,
   type ListRenderItem,
 } from 'react-native';
+import { useKeyboardAccessory } from '../keyboardAccessories';
 import { useEditorOptions } from '../editorOptions';
 import { useBridgeState } from '../useBridgeState';
 import {
@@ -105,6 +106,11 @@ export function Toolbar({
   const hideToolbar =
     hidden === undefined ? !isKeyboardUp || !editorState.isFocused : hidden;
 
+  // While shown, the editor keeps its caret above the toolbar.
+  const accessory = useKeyboardAccessory(
+    !hideToolbar && toolbarContext !== ToolbarContext.Link
+  );
+
   const args = useMemo<ArgsToolbarCB>(
     () => ({ editor, editorState, setToolbarContext, toolbarContext }),
     [editor, editorState, toolbarContext]
@@ -183,6 +189,7 @@ export function Toolbar({
       extraData={theme}
       keyExtractor={keyExtractor}
       horizontal
+      onLayout={accessory.onLayout}
     />
   );
 }

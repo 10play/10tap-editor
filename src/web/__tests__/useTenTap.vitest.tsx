@@ -233,6 +233,23 @@ describe('readiness (#343, #322)', () => {
     expect(update.payload).toMatchObject({ isBoldActive: true });
     expect(types()).toContain('content-update');
   });
+
+  it('reports a focus change that comes without a transaction', async () => {
+    configure();
+    const input = document.createElement('input');
+    document.body.appendChild(input);
+    await mount();
+    posted = [];
+
+    act(() => input.focus());
+
+    const update = await vi.waitFor(() => {
+      const last = posted.filter(({ type }) => type === 'stateUpdate').pop();
+      if (!last) throw new Error('no stateUpdate');
+      return last;
+    });
+    expect(update.payload).toMatchObject({ isFocused: true });
+  });
 });
 
 describe('tiptap options', () => {

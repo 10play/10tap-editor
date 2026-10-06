@@ -195,13 +195,19 @@ The height of the open custom keyboard, or `0`. Use it with `layout="overlay"` t
 
 ## EditorKeyboardAvoidingView
 
-A view that adds bottom padding equal to the height of whichever keyboard is up, system or custom. Unlike React Native's `KeyboardAvoidingView` it keeps the same padding while switching between the two, so the toolbar doesn't move. Where the window itself resizes for the system keyboard (Android `adjustResize` without edge-to-edge or `'stable'` mode), it only pads for the custom keyboard.
+A view that adds bottom padding equal to the part of the window whichever keyboard covers, system or custom (`useKeyboard().keyboardCoverHeight`). On edge-to-edge Android that includes the navigation bar below the keyboard, which React Native leaves out of the keyboard height, so the toolbar sits fully on top of the keyboard. Unlike React Native's `KeyboardAvoidingView` it keeps the same padding while switching between the two keyboards, so the toolbar doesn't move, and it needs no `keyboardVerticalOffset` below a navigation header. Where the window itself resizes for the system keyboard (Android `adjustResize` without edge-to-edge or `'stable'` mode), it only pads for the custom keyboard.
+
+Place it so that it ends at the bottom of the window (for example inside a `SafeAreaView` with `edges={['top']}`), and put the `Toolbar` in a row so its default `flex: 1` doesn't share the column with the editor:
 
 ```tsx
 <SafeAreaView style={{ flex: 1 }} edges={['top']}>
   <EditorKeyboardAvoidingView style={{ flex: 1 }}>
-    <RichText editor={editor} />
-    <Toolbar editor={editor} />
+    <View style={{ flex: 1 }}>
+      <RichText editor={editor} />
+    </View>
+    <View style={{ flexDirection: 'row' }}>
+      <Toolbar editor={editor} />
+    </View>
   </EditorKeyboardAvoidingView>
   <CustomKeyboard layout="overlay" {...keyboardProps} />
 </SafeAreaView>
@@ -213,6 +219,40 @@ Props: all `View` props, plus
 | --- | --- | --- | --- |
 | `keyboardVerticalOffset` | `number` | `0` | distance in dp between the bottom of this view and the bottom of the window, subtracted from the padding |
 | `enabled` | `boolean` | `true` | `false` removes the padding |
+
+## useKeyboardAccessory
+
+Marks a view that is drawn on top of the keyboard, such as your own toolbar, so that `RichText` keeps the line being typed about one line above it. The library's `Toolbar` does this itself. Pass `false` while the view is hidden.
+
+```tsx
+const MyToolbar = ({ editor }: { editor: EditorBridge }) => {
+  const { isKeyboardUp } = useKeyboard();
+  const accessory = useKeyboardAccessory(isKeyboardUp);
+  return <View onLayout={accessory.onLayout}>{/* buttons */}</View>;
+};
+```
+
+Views that start above the editor (a static toolbar at the top of the screen) are ignored.
+
+## useScrollToCaret
+
+A `dynamicHeight` editor is as tall as its content and does not scroll itself, so inside a `ScrollView` the line being typed can grow under the keyboard. `useScrollToCaret` scrolls the `ScrollView` to keep the caret about one line clear of the keyboard, the toolbar on it and the `ScrollView`'s edges:
+
+```tsx
+const editor = useEditorBridge({ dynamicHeight: true });
+const scrollViewRef = useRef<ScrollView>(null);
+useScrollToCaret(editor, scrollViewRef);
+
+return (
+  <EditorKeyboardAvoidingView style={{ flex: 1 }}>
+    <ScrollView ref={scrollViewRef}>
+      <RichText editor={editor} />
+    </ScrollView>
+  </EditorKeyboardAvoidingView>
+);
+```
+
+It needs the web bundle of this version (custom bundles built before 1.1 do not report the caret).
 
 ## useKeyboard
 
@@ -236,6 +276,7 @@ const {
 | `systemKeyboardHeight` | height of the system keyboard, `0` while it is hidden |
 | `lastKeyboardHeight` | the last usable system keyboard height, kept after it hides; `0` before the first one |
 | `windowOverlaysKeyboard` | `true` when the keyboard covers the window instead of resizing it: iOS, Android edge-to-edge or `'stable'` mode |
+| `keyboardCoverHeight` | how far up from the bottom of the window the keyboard reaches: its height plus, on edge-to-edge Android, the navigation bar it also covers. `0` when no keyboard covers the window, including a system keyboard the window resizes for |
 
 Its type is exported as `KeyboardState`.
 

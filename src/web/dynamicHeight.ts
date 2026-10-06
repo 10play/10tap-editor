@@ -30,9 +30,19 @@ const FOLLOW_GRACE_MS = 500;
 const ANSWER_MIN_MS = 200;
 const TOLERANCE_PX = 1;
 
+export interface CaretRect {
+  top: number;
+  bottom: number;
+}
+
 export interface DynamicHeightOptions {
   /** Receives every new content height, rounded up to whole CSS pixels. */
   onHeight: (height: number) => void;
+  /**
+   * Receives the caret whenever the editor would scroll to its selection
+   * but leaves it to native, which grows the WebView instead.
+   */
+  onCaret?: (rect: CaretRect) => void;
   now?: () => number;
 }
 
@@ -70,6 +80,7 @@ const scrollContainerOf = (element: Element): Element | null =>
 
 export class DynamicHeight {
   private readonly onHeight: (height: number) => void;
+  private readonly onCaret: ((rect: CaretRect) => void) | undefined;
   private readonly now: () => number;
   private reports: Report[] = [];
   private containerHeight: number | null = null;
@@ -77,8 +88,9 @@ export class DynamicHeight {
   private element: Element | null = null;
   private view: EditorView | null = null;
 
-  constructor({ onHeight, now = Date.now }: DynamicHeightOptions) {
+  constructor({ onHeight, onCaret, now = Date.now }: DynamicHeightOptions) {
     this.onHeight = onHeight;
+    this.onCaret = onCaret;
     this.now = now;
   }
 
@@ -162,7 +174,23 @@ export class DynamicHeight {
   handleScrollToSelection(): boolean {
     if (!this.element || this.isClamped()) return false;
     this.resetScroll();
+    this.reportCaret();
     return true;
+  }
+
+  /** The caret relative to the top of the document, for native to scroll to. */
+  private reportCaret() {
+    const view = this.view;
+    if (!this.onCaret || !view || view.isDestroyed || !view.hasFocus()) return;
+    try {
+      const { top, bottom } = view.coordsAtPos(view.state.selection.head);
+      const scrollTop = this.element
+        ? (scrollContainerOf(this.element)?.scrollTop ?? 0)
+        : 0;
+      this.onCaret({ top: top + scrollTop, bottom: bottom + scrollTop });
+    } catch {
+      // No layout for the position (a detached or hidden editor).
+    }
   }
 
   private report(height: number) {

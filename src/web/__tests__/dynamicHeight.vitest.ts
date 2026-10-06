@@ -133,6 +133,29 @@ describe('DynamicHeight scroll policy', () => {
     expect(editor.wrapper.scrollTop).toBe(0);
   });
 
+  it('hands the caret to native instead of scrolling to it', () => {
+    const editor = createEditor();
+    const carets: { top: number; bottom: number }[] = [];
+    const dynamicHeight = new DynamicHeight({
+      onHeight: () => {},
+      onCaret: (rect) => carets.push(rect),
+      now: () => now,
+    });
+    Object.assign(editor.view, {
+      state: {
+        selection: { head: 5 },
+        tr: { scrollIntoView: () => 'scroll-tr' },
+      },
+      coordsAtPos: () => ({ top: 80, bottom: 100, left: 0, right: 0 }),
+    });
+    dynamicHeight.observe(editor.view);
+    dynamicHeight.setContainerHeight(100);
+    editor.setContentSilently(120);
+
+    expect(dynamicHeight.handleScrollToSelection()).toBe(true);
+    expect(carets).toEqual([{ top: 80, bottom: 100 }]);
+  });
+
   it('suppresses selection scrolling for the first new line after a pause', () => {
     const editor = createEditor();
     const dynamicHeight = create();

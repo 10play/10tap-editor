@@ -285,6 +285,23 @@ describe('CoreBridge (web)', () => {
     });
   });
 
+  it('scrolls the selection into view again when the focused threshold changes', () => {
+    const { editor, dispatch } = createEditor('<p>a</p>');
+    const viewDispatch = vi.spyOn(editor.view, 'dispatch');
+    const scrolled = () =>
+      viewDispatch.mock.calls.filter(([tr]) => tr.scrolledIntoView).length;
+    const message = getWireFixture(
+      'core.update-scroll-threshold-and-margin'
+    ).message;
+
+    dispatch(message);
+    expect(scrolled()).toBe(0);
+
+    vi.spyOn(editor.view, 'hasFocus').mockReturnValue(true);
+    dispatch(message);
+    expect(scrolled()).toBe(1);
+  });
+
   it('reports focus from the document focus events', () => {
     const { editor, state } = createEditor('<p>a</p>');
 

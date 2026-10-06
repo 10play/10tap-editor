@@ -21,13 +21,17 @@ const closedHost: CustomKeyboardHostState = {
   overlaysWindow: false,
 };
 
-const setup = (platform = 'ios') => {
+const setup = (
+  platform = 'ios',
+  getNavigationBarInset?: () => Promise<number>
+) => {
   const keyboard = createFakeKeyboard();
   let window: WindowSize = { width: 390, height: 844 };
   const store = createKeyboardStore({
     keyboard,
     getWindowSize: () => window,
     platform,
+    getNavigationBarInset,
   });
   const listener = jest.fn();
   const unsubscribe = store.subscribe(listener);
@@ -53,6 +57,7 @@ describe('keyboardStore', () => {
       activeCustomKeyboardID: undefined,
       systemKeyboardHeight: 0,
       lastKeyboardHeight: 0,
+      keyboardCoverHeight: 0,
     });
   });
 
@@ -148,6 +153,52 @@ describe('keyboardStore', () => {
     host.update({ overlaysWindow: false });
     store.setEdgeToEdge(true);
     expect(store.getSnapshot().windowOverlaysKeyboard).toBe(true);
+  });
+
+  it('covers the window by the keyboard height on iOS', () => {
+    const { store, keyboard } = setup('ios');
+    keyboard.emit('keyboardWillShow', 336);
+    expect(store.getSnapshot().keyboardCoverHeight).toBe(336);
+    keyboard.emit('keyboardWillHide', 0);
+    expect(store.getSnapshot().keyboardCoverHeight).toBe(0);
+  });
+
+  it('adds the edge-to-edge navigation bar the Android keyboard covers', async () => {
+    const getInset = jest.fn(() => Promise.resolve(24));
+    const { store, keyboard } = setup('android', getInset);
+    keyboard.emit('keyboardDidShow', 279);
+    await Promise.resolve();
+    expect(getInset).toHaveBeenCalled();
+    expect(store.getSnapshot()).toMatchObject({
+      windowOverlaysKeyboard: true,
+      keyboardHeight: 279,
+      keyboardCoverHeight: 303,
+    });
+    keyboard.emit('keyboardDidHide', 0);
+    expect(store.getSnapshot().keyboardCoverHeight).toBe(0);
+  });
+
+  it('leaves the system keyboard to a window that resizes for it', async () => {
+    const { store, keyboard } = setup('android', () => Promise.resolve(0));
+    keyboard.emit('keyboardDidShow', 279);
+    await Promise.resolve();
+    expect(store.getSnapshot()).toMatchObject({
+      windowOverlaysKeyboard: false,
+      keyboardCoverHeight: 0,
+    });
+    // An overlay custom keyboard still covers it.
+    const host = store.registerHost({}, controls, closedHost);
+    keyboard.emit('keyboardDidHide', 0);
+    host.update({ open: true, height: 279 });
+    expect(store.getSnapshot().keyboardCoverHeight).toBe(279);
+  });
+
+  it('counts the navigation bar under a custom keyboard', () => {
+    const { store } = setup('android');
+    store.setNavigationBarInset(24);
+    const host = store.registerHost({}, controls, closedHost);
+    host.update({ open: true, height: 279 });
+    expect(store.getSnapshot().keyboardCoverHeight).toBe(303);
   });
 
   it('listens to the keyboard only while subscribed', () => {

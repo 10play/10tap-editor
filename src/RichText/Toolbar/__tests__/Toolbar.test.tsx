@@ -14,6 +14,7 @@ import {
   type RenderResult,
 } from '@testing-library/react-native';
 import { Images } from '../../../assets';
+import { keyboardAccessories } from '../../keyboardAccessories';
 import { darkEditorTheme, defaultEditorTheme } from '../../theme';
 import { useKeyboard, type KeyboardState } from '../../../utils/useKeyboard';
 import {
@@ -40,6 +41,7 @@ const systemKeyboard = (height: number): KeyboardState => ({
   activeCustomKeyboardID: undefined,
   systemKeyboardHeight: height,
   lastKeyboardHeight: height,
+  keyboardCoverHeight: 0,
 });
 
 const icons = () =>
@@ -241,6 +243,26 @@ describe('<Toolbar />', () => {
     pressIcon(Images.close);
     expect(list().instance).not.toBe(headingList);
     expect(listData()).toBe(DEFAULT_TOOLBAR_ITEMS);
+  });
+
+  it('marks itself as drawn over the editor while shown', () => {
+    const view = { measureInWindow: jest.fn() };
+    const editor = createMockEditor({ isFocused: true });
+    const { rerender } = render(<Toolbar editor={editor} />);
+    act(() =>
+      list().props.onLayout({
+        currentTarget: view,
+        nativeEvent: { layout: { x: 0, y: 0, width: 320, height: 44 } },
+      })
+    );
+    expect(keyboardAccessories.getViews()).toEqual([view]);
+
+    rerender(<Toolbar editor={editor} hidden />);
+    expect(keyboardAccessories.getViews()).toEqual([]);
+    rerender(<Toolbar editor={editor} />);
+    expect(keyboardAccessories.getViews()).toEqual([view]);
+    screen.unmount();
+    expect(keyboardAccessories.getViews()).toEqual([]);
   });
 
   it('keeps the list instance while the editor state changes', () => {

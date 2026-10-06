@@ -27,6 +27,9 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 - Toolbar buttons have accessibility labels, the button role and a selected/disabled state; `ToolbarItem` takes an optional `label`.
 - Custom keyboard additions: `layout="inline" | "overlay"`, `defaultHeight`, `closeOnEditorPress`, `androidKeyboardMode="system" | "stable"`, `forceFallback`, `onOpen`, `onClose`, `onKeyboardError`; keyboard components receive `editor`, `close` and `keyboardHeight`; `CustomKeyboardExtension` takes an `options.height`; `useCustomKeyboard`, `useCustomKeyboardHeight` and `EditorKeyboardAvoidingView`; `defaultColorKeyboardTheme` and `darkColorKeyboardTheme` are exported.
 - `useKeyboard()` also returns `isCustomKeyboardOpen`, `activeCustomKeyboardID`, `systemKeyboardHeight`, `lastKeyboardHeight` and `windowOverlaysKeyboard`, and keeps `keyboardHeight` while switching keyboards. Its return type is exported as `KeyboardState`.
+- `useKeyboard()` also returns `keyboardCoverHeight`: how far the keyboard reaches up from the bottom of the window, including the navigation bar an edge-to-edge Android keyboard covers.
+- `useKeyboardAccessory()` marks your own toolbar (or any view drawn on the keyboard) so the editor keeps the caret above it, as it does for `Toolbar`.
+- `useScrollToCaret(editor, scrollViewRef)` keeps the caret of a `dynamicHeight` editor that grows inside a `ScrollView` above the keyboard.
 - `useRemoteEditorBridge` is exported and re-renders when the editor changes (#51).
 - `EditorContent` and `useEditor` are exported from `@10play/tentap-editor/web` (#309).
 - `useTenTap` `stateUpdateDebounceMs` option.
@@ -38,6 +41,9 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 - `getHTML` / `getText` / `getJSON` replies were never released (#346).
 - "Editor isn't ready yet" warnings after unmounting during the Android padding timer (#299).
 - Crash with `Cannot read property 'addEventListener' of undefined` when imports are not inlined (#339).
+- The toolbar was half hidden behind the keyboard on edge-to-edge Android with `EditorKeyboardAvoidingView` (the default in Expo SDK 53+ and on Android 15+): React Native's keyboard height leaves out the navigation bar under the keyboard. `EditorKeyboardAvoidingView` and the custom keyboard now use the full covered height.
+- The line being typed went under the toolbar while typing a long document (up to the toolbar's height on iOS and Android, more with a custom keyboard open or a second editor), or was kept far from the toolbar with `EditorKeyboardAvoidingView`. `RichText` now measures how far the keyboard and the toolbar on it reach into the editor and keeps the caret about one line above the toolbar, with the system or a custom keyboard, also after switching keyboards, after inserting an image, and in an editor that does not reach the bottom of the screen (#308).
+- The toolbar disappeared after picking a color in `ColorKeyboard`, or while opening a custom keyboard on Android, because the editor's focus change was not reported until the next edit.
 - Dynamic height ignored outside a `ScrollView`, could not shrink, looped on iOS 26, jumped to the top on new lines, and didn't apply on Expo web (#342, #336, #323, #289, #205).
 - Android: autofocus didn't open the keyboard on the new architecture (#321).
 - Multiple editors on Expo web received each other's messages, in their state and in a custom `onMessage` (#318).
@@ -57,13 +63,15 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 - `dynamicHeight` can be changed after mount without reloading the WebView. A custom editor bundle built with an earlier version keeps the value it loaded with, and only the container height follows, as in 1.0.
 - With `dynamicHeight`, `RichText` applies the content height after your `containerStyle`, so it can no longer be overridden. `style` and `containerStyle` otherwise still replace the defaults unless `mergeStyles` is set.
 - `RichText` throws a clear error when `editor` doesn't come from `useEditorBridge`. Spread copies (`{ ...editor }`) keep working as in 1.0.
+- The keyboard inset of `RichText` (document padding and scroll threshold) is measured from the layout instead of derived from the keyboard height, and applies to every non-dynamic-height editor that the keyboard or toolbar covers, also without `avoidIosKeyboard`. Until the first measurement, `avoidIosKeyboard` keeps its 1.0 value. `scrollBottomOffset` is added on top.
+- The navigation header example and docs use `EditorKeyboardAvoidingView` instead of a hard-coded header height, which was wrong on iOS 26.
 - `useEditorBridge` reads `bridgeExtensions` once and warns in development when the list changes after mount.
 - `setImage` adds an empty paragraph after an image that ends the document.
 - `setLink` adds `https://` to URLs without a scheme, or the `defaultProtocol` passed to `LinkBridge.configureExtension`, and `mailto:` to plain email addresses.
 - `shouldHideDisabledToolbarItems` also applies to heading items.
 - The link bar no longer closes on blur; the keyboard's Done key inserts the link.
 - `useTenTap` composes `tiptapOptions.onCreate`, `onUpdate`, `onSelectionUpdate` and `onTransaction` with its own handlers instead of letting them replace them.
-- The web editor sends `editor-ready` followed by a full `stateUpdate` on creation, and `editor-ready` now carries a payload. Messages may carry `editorId` and `v` fields, and there are new message types (`boot-error`, `tentap-editor-press`).
+- The web editor sends `editor-ready` followed by a full `stateUpdate` on creation, and `editor-ready` now carries a payload. Messages may carry `editorId` and `v` fields, and there are new message types (`boot-error`, `tentap-editor-press`, `caret-rect`).
 - Commands called before the editor is ready are queued instead of dropped with an "Editor isn't ready yet" warning.
 - `RichText` logs a development warning when `onMessage` is passed without `exclusivelyUseCustomOnMessage`.
 - `useEditorContent` fetches content on content changes only (with custom bundles built before 1.1, on every state update as before), ignores out-of-order replies and stops after unmount.

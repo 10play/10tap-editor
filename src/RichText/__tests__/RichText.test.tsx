@@ -36,6 +36,9 @@ import { darkEditorTheme, defaultEditorTheme } from '../theme';
 import { Toolbar } from '../Toolbar';
 import { useEditorBridge } from '../useEditorBridge';
 import * as utils from '../utils';
+import { keyboardAccessories } from '../keyboardAccessories';
+import { COVER_MEASURE_DELAYS_MS } from '../useKeyboardCover';
+import { useScrollToCaret } from '../useScrollToCaret';
 
 const keyboardDown: KeyboardState = {
   windowOverlaysKeyboard: true,
@@ -45,6 +48,7 @@ const keyboardDown: KeyboardState = {
   activeCustomKeyboardID: undefined,
   systemKeyboardHeight: 0,
   lastKeyboardHeight: 0,
+  keyboardCoverHeight: 0,
 };
 
 let mockKeyboard: KeyboardState = keyboardDown;
@@ -59,6 +63,7 @@ const keyboardUp = (height: number, overlays: boolean): KeyboardState => ({
   keyboardHeight: height,
   isKeyboardUp: true,
   windowOverlaysKeyboard: overlays,
+  keyboardCoverHeight: overlays ? height : 0,
 });
 
 const controllerOf = (editor: EditorBridge) => {
@@ -799,6 +804,39 @@ describe('RichText keyboard insets', () => {
     expect(thresholds(webView)).toEqual([]);
   });
 
+  it('keeps the caret above a toolbar drawn over the editor', async () => {
+    jest.useFakeTimers();
+    const toolbarKey = {};
+    const frame = (y: number, height: number) => ({
+      measureInWindow: (
+        callback: (x: number, y: number, w: number, h: number) => void
+      ) => callback(0, y, 320, height),
+    });
+    const { webView, update } = mountReady({ avoidIosKeyboard: true });
+    act(() =>
+      webView.props.onLayout?.({
+        currentTarget: frame(100, 740),
+        nativeEvent: { layout: { x: 0, y: 0, width: 320, height: 740 } },
+      } as unknown as LayoutChangeEvent)
+    );
+    act(() => keyboardAccessories.set(toolbarKey, frame(522, 44)));
+    update(keyboardUp(300, false));
+    await act(async () => {
+      jest.advanceTimersByTime(COVER_MEASURE_DELAYS_MS.at(-1)!);
+      await Promise.resolve();
+    });
+
+    // The keyboard-height fallback is held off while the editor is measured.
+    expect(thresholds(webView)).toEqual([840 - 522 + utils.CARET_MARGIN]);
+    expect(paddingScripts(webView).at(-1)).toBe(
+      utils.buildBottomPaddingScript(840 - 522 + utils.CARET_MARGIN)
+    );
+
+    update(keyboardDown);
+    expect(thresholds(webView).at(-1)).toBe(0);
+    act(() => keyboardAccessories.set(toolbarKey, null));
+  });
+
   it('keeps scrollBottomOffset as padding in dynamic-height mode (#308)', () => {
     const { webView, update } = mountReady({
       avoidKeyboard: true,
@@ -1167,6 +1205,73 @@ describe('RichText utils', () => {
     ).toEqual({ padding: 8, scrollThreshold: 8 });
   });
 
+  it('insets by the measured reach of the keyboard and toolbar', () => {
+    const base = {
+      platform: 'ios',
+      avoidKeyboard: false,
+      dynamicHeight: false,
+      scrollBottomOffset: undefined,
+      isKeyboardUp: true,
+      keyboardHeight: 300,
+      windowOverlaysKeyboard: true,
+    };
+    const margin = utils.CARET_MARGIN;
+    expect(utils.getKeyboardInsets({ ...base, coverOverlap: 318 })).toEqual({
+      padding: 318 + margin,
+      scrollThreshold: 318 + margin,
+    });
+    // An editor that ends above the toolbar keeps a line of space only
+    // when it ends within that line.
+    expect(
+      utils.getKeyboardInsets({ ...base, coverOverlap: -10 })?.padding
+    ).toBe(margin - 10);
+    expect(
+      utils.getKeyboardInsets({ ...base, coverOverlap: -200 })?.padding
+    ).toBe(0);
+    expect(
+      utils.getKeyboardInsets({
+        ...base,
+        coverOverlap: 100,
+        scrollBottomOffset: 8,
+      })?.padding
+    ).toBe(100 + margin + 8);
+    // Not measured yet: the 1.0 behaviour, only with avoidIosKeyboard.
+    expect(utils.getKeyboardInsets(base)).toBeNull();
+    expect(
+      utils.getKeyboardInsets({ ...base, avoidKeyboard: true })?.padding
+    ).toBe(310);
+    // Dynamic-height editors get no keyboard inset.
+    expect(
+      utils.getKeyboardInsets({
+        ...base,
+        dynamicHeight: true,
+        coverOverlap: 318,
+      })
+    ).toBeNull();
+  });
+
+  it('measures the cover from the keyboard and the views on it', () => {
+    const editor = { top: 100, bottom: 840 };
+    expect(utils.getCoverOverlap(editor, [], null)).toBeNull();
+    expect(utils.getCoverOverlap(editor, [], 566)).toBe(274);
+    // A toolbar on the keyboard.
+    expect(
+      utils.getCoverOverlap(editor, [{ top: 522, bottom: 566 }], 566)
+    ).toBe(318);
+    // A static toolbar above the editor does not cover it.
+    expect(utils.getCoverOverlap(editor, [{ top: 50, bottom: 94 }], 566)).toBe(
+      274
+    );
+    // An editor that already ends above the toolbar.
+    expect(
+      utils.getCoverOverlap(
+        { top: 100, bottom: 477 },
+        [{ top: 477, bottom: 521 }],
+        566
+      )
+    ).toBe(0);
+  });
+
   it('keeps the editor html untouched apart from the boot script', () => {
     const { result } = createEditor();
     render(<RichText editor={result.current} />);
@@ -1177,5 +1282,71 @@ describe('RichText utils', () => {
         ''
       )
     ).toBe(editorHtml);
+  });
+});
+
+describe('useScrollToCaret', () => {
+  const frame = (y: number, height: number) => ({
+    measureInWindow: (
+      callback: (x: number, y: number, w: number, h: number) => void
+    ) => callback(0, y, 320, height),
+  });
+
+  it('computes the scroll that brings the caret into view', () => {
+    const visible = { top: 100, bottom: 500 };
+    const scroll = (top: number, bottom: number, scrollOffset = 200) =>
+      utils.getCaretScroll({
+        caret: { top, bottom },
+        visible,
+        scrollOffset,
+        margin: 24,
+      });
+    expect(scroll(300, 320)).toBeNull();
+    expect(scroll(480, 500)).toBe(200 + 500 + 24 - 500);
+    expect(scroll(90, 110)).toBe(200 - (100 - 90 + 24));
+    expect(scroll(90, 110, 10)).toBe(0);
+  });
+
+  it('scrolls the ScrollView a dynamic-height editor grows in', async () => {
+    jest.useFakeTimers();
+    mockKeyboard = keyboardUp(300, true);
+    const hook = createEditor({ dynamicHeight: true });
+    const scrollTo = jest.fn();
+    const scrollView = {
+      ...frame(100, 400),
+      scrollTo,
+      getInnerViewRef: () => frame(-200, 2000),
+    };
+    const Screen = () => {
+      useScrollToCaret(hook.result.current, { current: scrollView });
+      return <RichText editor={hook.result.current} />;
+    };
+    render(<Screen />);
+    const webView = mockWebViews.latest();
+    load(webView);
+    ready(webView, hook.result.current);
+    act(() =>
+      webView.props.onLayout?.({
+        currentTarget: frame(150, 900),
+        nativeEvent: { layout: { x: 0, y: 0, width: 320, height: 900 } },
+      } as unknown as LayoutChangeEvent)
+    );
+
+    act(() =>
+      webView.simulateMessage(
+        webMessage(PROTOCOL_TYPES.CaretRect, { top: 600, bottom: 620 })
+      )
+    );
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    // Caret bottom 150 + 620 = 770, visible bottom 500: scrolled by 294.
+    expect(scrollTo).toHaveBeenLastCalledWith({
+      y: 300 + 770 + utils.CARET_MARGIN - 500,
+      animated: false,
+    });
+    mockKeyboard = keyboardDown;
   });
 });

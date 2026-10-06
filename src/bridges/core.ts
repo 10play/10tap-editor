@@ -308,6 +308,10 @@ export const CoreBridge = new BridgeExtension<
             scrollMargin: edges,
           },
         });
+        // The keyboard or toolbar moved over the caret: bring it back.
+        if (editor.view.hasFocus()) {
+          editor.view.dispatch(editor.state.tr.scrollIntoView());
+        }
         return true;
       }
       case CoreEditorActionType.SetEditable:

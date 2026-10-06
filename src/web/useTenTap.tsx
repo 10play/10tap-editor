@@ -12,6 +12,7 @@ import {
   selectActiveBridges,
   selectHandlerBridges,
 } from './extensions';
+import { revealSelectionOnImageLoad } from './revealSelection';
 import { boot, type WebRuntime } from './runtime';
 import { createStatePublisher, type StatePublisher } from './statePublisher';
 import {
@@ -65,6 +66,8 @@ function createEditorSetup(
   const dynamicHeight = new DynamicHeight({
     onHeight: (height) =>
       runtime.post({ type: PROTOCOL_TYPES.DocumentHeight, payload: height }),
+    onCaret: (rect) =>
+      runtime.post({ type: PROTOCOL_TYPES.CaretRect, payload: rect }),
   });
   return {
     runtime,
@@ -195,6 +198,21 @@ export const useTenTap = (options?: UseTenTapArgs): Editor | null => {
     applyStyleSheet(DYNAMIC_HEIGHT_STYLE_TAG, DYNAMIC_HEIGHT_CSS);
     return setup.dynamicHeight.observe(editor.view);
   }, [dynamicHeight, editor, setup]);
+
+  useEffect(() => {
+    if (!editor || editor.isDestroyed) return;
+    // `isFocused` changes without a transaction when the document loses or
+    // regains focus while the editor keeps its selection.
+    const onFocusChange = () => publisher.schedule(editor);
+    document.addEventListener('focus', onFocusChange, true);
+    document.addEventListener('blur', onFocusChange, true);
+    const stopRevealing = revealSelectionOnImageLoad(editor.view);
+    return () => {
+      document.removeEventListener('focus', onFocusChange, true);
+      document.removeEventListener('blur', onFocusChange, true);
+      stopRevealing();
+    };
+  }, [editor, publisher]);
 
   useEffect(() => publisher.cancel, [publisher]);
 

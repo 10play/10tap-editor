@@ -31,6 +31,7 @@ import type { EditorMessage } from '../types/Messaging';
 import { isFabric } from '../utils/misc';
 import { useKeyboard } from '../utils/useKeyboard';
 import { useEditorOptions } from './editorOptions';
+import { useKeyboardCover } from './useKeyboardCover';
 import { HiddenFocusInput } from './HiddenFocusInput';
 import { REFOCUS_DELAY_MS } from './Keyboard/drivers';
 import {
@@ -373,9 +374,19 @@ export const RichText = ({
   const getHeight = useCallback(() => controller.getHeight(), [controller]);
   const contentHeight = useSyncExternalStore(subscribeHeight, getHeight) ?? 0;
 
-  const { isKeyboardUp, keyboardHeight, windowOverlaysKeyboard } =
-    useKeyboard();
+  const {
+    isKeyboardUp,
+    keyboardHeight,
+    windowOverlaysKeyboard,
+    keyboardCoverHeight,
+  } = useKeyboard();
   useAndroidAutofocusKeyboard(editor, controller, autofocusInput, isKeyboardUp);
+  const cover = useKeyboardCover(
+    controller,
+    Platform.OS !== 'web' && !dynamicHeight,
+    isKeyboardUp,
+    keyboardCoverHeight
+  );
   const insets = getKeyboardInsets({
     platform: Platform.OS,
     avoidKeyboard: !!editor.avoidIosKeyboard,
@@ -384,10 +395,13 @@ export const RichText = ({
     isKeyboardUp,
     keyboardHeight,
     windowOverlaysKeyboard,
+    coverOverlap: cover.overlap,
   });
   const padding = insets?.padding;
   const scrollThreshold = insets?.scrollThreshold;
+  const coverPending = cover.pending;
   useEffect(() => {
+    if (coverPending) return;
     const applied = appliedInsets.get(controller);
     // Once insets were applied, dropping them (e.g. unsetting
     // scrollBottomOffset) resets them as the documented default 0 does.
@@ -419,13 +433,27 @@ export const RichText = ({
         editor.updateScrollThresholdAndMargin?.(next.scrollThreshold);
       }
     };
-    if (Platform.OS === 'android' && !windowOverlaysKeyboard) {
+    // Measured insets already waited for the layout; the fallback waits for
+    // Android to resize the window after its keyboard event.
+    if (
+      Platform.OS === 'android' &&
+      !windowOverlaysKeyboard &&
+      cover.overlap === null
+    ) {
       const timer = setTimeout(apply, ANDROID_INSET_DELAY_MS);
       return () => clearTimeout(timer);
     }
     apply();
     return undefined;
-  }, [controller, editor, padding, scrollThreshold, windowOverlaysKeyboard]);
+  }, [
+    controller,
+    editor,
+    padding,
+    scrollThreshold,
+    windowOverlaysKeyboard,
+    cover.overlap,
+    coverPending,
+  ]);
 
   const bridgeStyleSheets = useMemo(
     () => getInjectedJS(editor.bridgeExtensions ?? []),
@@ -501,6 +529,7 @@ export const RichText = ({
           props.onLoadEnd?.(event);
         }}
         onLayout={(event) => {
+          cover.onLayout(event);
           if (dynamicHeight) {
             controller.reportContainerHeight(event.nativeEvent.layout.height);
           }

@@ -107,6 +107,66 @@ export const AUTOFOCUS_KEYBOARD_CHECK_MS = 1000;
 export const TOOLBAR_HEIGHT = 44;
 /** Space between the caret and an overlaying keyboard (1.0 iOS behaviour). */
 const KEYBOARD_GAP = 10;
+/**
+ * Space kept between the caret and whatever covers the bottom of the editor,
+ * about one line of text.
+ */
+export const CARET_MARGIN = 24;
+
+export interface CoverFrame {
+  top: number;
+  bottom: number;
+}
+
+/**
+ * How far the cover reaches up into the editor, in window coordinates: the
+ * keyboard (from `keyboardTop`) and the views drawn on it (`accessories`,
+ * such as the toolbar). Views that start above the editor's top are not on
+ * the keyboard (a static toolbar above the editor) and are ignored.
+ * Negative when the cover ends below the editor, null when nothing covers.
+ */
+export const getCoverOverlap = (
+  editor: CoverFrame,
+  accessories: readonly CoverFrame[],
+  keyboardTop: number | null
+): number | null => {
+  let coverTop = keyboardTop ?? Infinity;
+  for (const accessory of accessories) {
+    if (accessory.top > editor.top && accessory.bottom > accessory.top) {
+      coverTop = Math.min(coverTop, accessory.top);
+    }
+  }
+  return Number.isFinite(coverTop) ? editor.bottom - coverTop : null;
+};
+
+export interface CaretScrollInput {
+  /** The caret in window coordinates. */
+  caret: CoverFrame;
+  /** The part of the scroll view nothing covers, in window coordinates. */
+  visible: CoverFrame;
+  /** The scroll view's current content offset. */
+  scrollOffset: number;
+  margin: number;
+}
+
+/**
+ * The content offset that brings the caret `margin` inside the visible part
+ * of a scroll view, or null when it already is.
+ */
+export const getCaretScroll = ({
+  caret,
+  visible,
+  scrollOffset,
+  margin,
+}: CaretScrollInput): number | null => {
+  if (caret.bottom + margin > visible.bottom) {
+    return scrollOffset + caret.bottom + margin - visible.bottom;
+  }
+  if (caret.top - margin < visible.top) {
+    return Math.max(0, scrollOffset - (visible.top - caret.top + margin));
+  }
+  return null;
+};
 
 export interface KeyboardInsetsInput {
   platform: string;
@@ -117,6 +177,11 @@ export interface KeyboardInsetsInput {
   keyboardHeight: number;
   /** The keyboard covers the window instead of resizing it. */
   windowOverlaysKeyboard: boolean;
+  /**
+   * Measured reach of the keyboard and toolbar into the editor
+   * (`getCoverOverlap`), null until measured.
+   */
+  coverOverlap?: number | null;
 }
 
 export interface KeyboardInsets {
@@ -127,16 +192,19 @@ export interface KeyboardInsets {
 }
 
 /**
- * Bottom insets that keep the caret above the keyboard and toolbar, or
- * `null` when RichText should leave them to the app (no `avoidKeyboard`
- * and no `scrollBottomOffset`, as in 1.0).
+ * Bottom insets that keep the caret `CARET_MARGIN` above the keyboard and
+ * the toolbar on it, or `null` when RichText should leave them to the app.
  *
- * Where the keyboard overlays the window (iOS, Android `'stable'` mode or
- * edge-to-edge) the inset is the keyboard height; where the window resizes
- * it is only the toolbar. Dynamic-height editors get no keyboard inset,
- * since it would feed back into the measured height (#336); they keep the
- * constant `scrollBottomOffset`, which a capped editor needs to scroll its
- * last line above something drawn over it (#308).
+ * The inset is how far the keyboard and toolbar reach into the editor as
+ * measured in the window, so it holds wherever the editor ends: behind the
+ * keyboard, above a `KeyboardAvoidingView`, or inside one that already
+ * avoids it. Until the first measurement it falls back to the keyboard
+ * height (or, where the window resizes, the toolbar height), which only an
+ * editor set to `avoidIosKeyboard` gets, as in 1.0. Dynamic-height editors
+ * get no keyboard inset, since it would feed back into the measured height
+ * (#336); they keep the constant `scrollBottomOffset`, which a capped
+ * editor needs to scroll its last line above something drawn over it
+ * (#308).
  */
 export const getKeyboardInsets = ({
   platform,
@@ -146,15 +214,19 @@ export const getKeyboardInsets = ({
   isKeyboardUp,
   keyboardHeight,
   windowOverlaysKeyboard,
+  coverOverlap = null,
 }: KeyboardInsetsInput): KeyboardInsets | null => {
-  if (!avoidKeyboard && scrollBottomOffset === undefined) return null;
-  const offset = scrollBottomOffset ?? 0;
-  if (dynamicHeight) return { padding: offset, scrollThreshold: offset };
-
   const native = platform === 'ios' || platform === 'android';
-  const keyboardUp = avoidKeyboard && native && isKeyboardUp;
+  const keyboardUp = native && isKeyboardUp && !dynamicHeight;
+  const measured = keyboardUp && coverOverlap !== null;
+  if (!avoidKeyboard && scrollBottomOffset === undefined && !measured) {
+    return null;
+  }
+  const offset = scrollBottomOffset ?? 0;
   let keyboardInset = 0;
-  if (keyboardUp && keyboardHeight > 0) {
+  if (measured) {
+    keyboardInset = Math.max(0, Math.ceil(coverOverlap + CARET_MARGIN));
+  } else if (keyboardUp && avoidKeyboard && keyboardHeight > 0) {
     keyboardInset = windowOverlaysKeyboard
       ? keyboardHeight + KEYBOARD_GAP
       : TOOLBAR_HEIGHT;

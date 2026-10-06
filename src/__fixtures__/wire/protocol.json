@@ -55,6 +55,17 @@
       }
     },
     {
+      "id": "protocol.caret-rect",
+      "direction": "web-to-native",
+      "protocolType": "CaretRect",
+      "message": {
+        "type": "caret-rect",
+        "payload": { "top": 300, "bottom": 320 },
+        "editorId": "tt-fixture",
+        "v": 2
+      }
+    },
+    {
       "id": "protocol.container-height",
       "direction": "native-to-web",
       "protocolType": "ContainerHeight",

@@ -15,6 +15,7 @@ import {
   screen,
   within,
 } from '@testing-library/react-native';
+import { keyboardStore } from '../../../native/keyboardStore';
 import { useKeyboard } from '../../../utils/useKeyboard';
 import type { EditorBridge } from '../../../types';
 import { EditorHelper } from '../../EditorHelper';
@@ -386,6 +387,16 @@ describe('EditorKeyboardAvoidingView', () => {
     );
     await settle();
     expect(padding()).toBe(266);
+  });
+
+  it('pads by the navigation bar an edge-to-edge Android keyboard covers', () => {
+    render(<EditorKeyboardAvoidingView testID="avoider" />);
+    act(() => keyboardStore.setNavigationBarInset(24));
+    emitKeyboard('keyboardDidShow', 279);
+    expect(padding()).toBe(303);
+    emitKeyboard('keyboardDidHide', 0);
+    expect(padding()).toBe(0);
+    act(() => keyboardStore.setNavigationBarInset(0));
   });
 
   it('can be disabled', () => {

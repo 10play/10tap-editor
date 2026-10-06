@@ -55,14 +55,15 @@ when true the editor focuses at the end of its content when it becomes ready. It
 <u>default</u>: `false`<br />
 This helps keep the cursor visible above the keyboard when the editor is full-screen and the virtual keyboard hides the bottom portion of the editor.
 
-When enabled, the editor automatically:
-- Adds bottom padding to the document equal to the keyboard height
-- Adjusts ProseMirror's scroll threshold and margin so the cursor stays visible
+While the keyboard is up, `RichText` measures how far the keyboard and the views drawn on it (the [Toolbar](./Components.md#toolbar), or your own toolbar marked with [useKeyboardAccessory](./CustomKeyboardUtils.md#usekeyboardaccessory)) reach into the editor, and then:
+- Adds that much bottom padding to the document, plus about one line
+- Sets ProseMirror's scroll threshold and margin to the same value, so the line being typed stays about one line above the toolbar
+- Scrolls the cursor back into view when the keyboard or toolbar moves over it
 - Removes the padding when the keyboard is dismissed
 
-The padding follows the keyboard height reported by [useKeyboard](./CustomKeyboardUtils.md#usekeyboard), so it also covers an open custom keyboard. It is skipped when `dynamicHeight` is on, because the WebView is already only as tall as its content.
+This works the same for the system keyboard and an open custom keyboard, on iOS and Android, edge-to-edge or not, and wherever the editor ends: behind the keyboard, above a `KeyboardAvoidingView`, or inside one that already avoids the keyboard (where only the one-line margin is added). It is skipped when `dynamicHeight` is on, because the WebView is already only as tall as its content; see [useScrollToCaret](./CustomKeyboardUtils.md#usescrolltocaret) for an editor that grows inside a `ScrollView`.
 
-**Note:** This option works on both iOS and Android, despite the name. On Android, it uses a fixed toolbar height for calculations.
+The measured inset applies to every editor, so an editor covered by the keyboard keeps its cursor visible even without this option. Until the first measurement, an editor with `avoidIosKeyboard` falls back to the 1.0 behaviour: the keyboard height on iOS (and wherever the keyboard overlays the window), or a fixed toolbar height on Android.
 
 #### avoidKeyboard
 
@@ -74,18 +75,19 @@ An alias of `avoidIosKeyboard` with a name that matches what it does. `avoidIosK
 
 `number`  
 <u>default</u>: `0`<br />
-Extra space in px kept between the cursor and the bottom of the editor. It is added to the scroll threshold and to the bottom padding, so new lines scroll into view before they reach something drawn over the editor, such as a floating toolbar:
+Extra space in px kept between the cursor and the bottom of the editor, on top of what `RichText` measures for the keyboard and toolbar. It is added to the scroll threshold and to the bottom padding, so new lines scroll into view before they reach something drawn over the editor that `RichText` cannot measure:
 
 ```tsx
 const editor = useEditorBridge({
-  avoidIosKeyboard: true,
-  scrollBottomOffset: 60, // e.g. the height of your floating toolbar
+  scrollBottomOffset: 60, // e.g. the height of your floating action bar
 });
 ```
 
+The `Toolbar`, and views marked with [useKeyboardAccessory](./CustomKeyboardUtils.md#usekeyboardaccessory), are already measured while the keyboard is up, so they need no offset.
+
 Unlike calling [updateScrollThresholdAndMargin](./EditorBridge.md#updatescrollthresholdandmargin) yourself, this value is kept when the keyboard opens and closes.
 
-With `dynamicHeight` the padding is part of the content height, so the editor is that much taller than its text.
+With `dynamicHeight` the padding is part of the content height, so the editor is that much taller than its text. A capped dynamic-height editor needs it to scroll its last line above something drawn over it (#308).
 
 #### dynamicHeight
 
@@ -94,7 +96,7 @@ With `dynamicHeight` the padding is part of the content height, so the editor is
 when true the editor's webview keeps the same height as its content. It grows and shrinks with the content in any parent, not only inside a `ScrollView`.
 
 - A height cap such as `maxHeight` on the container is respected. Once the cap is reached the editor scrolls internally and keeps its scroll position.
-- Keyboard padding (`avoidIosKeyboard`) is not applied in this mode.
+- Keyboard padding (`avoidIosKeyboard`) is not applied in this mode. When the editor grows inside a `ScrollView`, [useScrollToCaret](./CustomKeyboardUtils.md#usescrolltocaret) scrolls the `ScrollView` to keep the line being typed above the keyboard.
 - It can change after mount and the document is kept. A custom editor bundle built with a version before 1.1 keeps the value it loaded with and only the container height changes, as in 1.0. Rebuild the bundle to switch it at runtime.
 - The content height in px is also sent as a `document-height` message. To read it yourself, pass `onMessage` to [RichText](./Components.md#richtext) together with `exclusivelyUseCustomOnMessage={false}`.
 

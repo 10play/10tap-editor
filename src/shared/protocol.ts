@@ -35,6 +35,12 @@ export const PROTOCOL_TYPES = {
   ContainerHeight: 'container-height',
   /** native → web (inside an action envelope). Turns dynamic height on or off. */
   SetDynamicHeight: 'set-dynamic-height',
+  /**
+   * web → native. `{top, bottom}` of the caret in CSS px from the top of the
+   * document, when a dynamic-height editor that does not scroll itself would
+   * scroll to its selection (`useScrollToCaret`).
+   */
+  CaretRect: 'caret-rect',
   /** web → native. Diagnostics when the boot config never arrived. */
   BootError: 'boot-error',
   /** web → native. Posted by the injected press listener (custom keyboard). */
@@ -95,6 +101,7 @@ export interface ProtocolPayloads {
   [PROTOCOL_TYPES.StateUpdate]: Record<string, unknown>;
   [PROTOCOL_TYPES.DocumentHeight]: number;
   [PROTOCOL_TYPES.ContainerHeight]: number;
+  [PROTOCOL_TYPES.CaretRect]: { top: number; bottom: number };
   [PROTOCOL_TYPES.SetDynamicHeight]: boolean;
   [PROTOCOL_TYPES.BootError]: BootErrorPayload;
   [PROTOCOL_TYPES.EditorPress]: undefined;

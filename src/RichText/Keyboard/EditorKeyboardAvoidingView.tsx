@@ -9,11 +9,13 @@ export interface EditorKeyboardAvoidingViewProps extends ViewProps {
 }
 
 /**
- * Pads its bottom by the height of whichever keyboard is up, system or
- * custom. The height holds through swaps, so content above does not move
- * when a `CustomKeyboard` with `layout="overlay"` replaces the system
- * keyboard. Where the window resizes for the system keyboard (Android
- * adjustResize), only the custom keyboard is padded.
+ * Pads its bottom by the part of the window whichever keyboard covers,
+ * system or custom (`useKeyboard().keyboardCoverHeight`, which counts the
+ * navigation bar an edge-to-edge Android keyboard also covers). The height
+ * holds through swaps, so content above does not move when a
+ * `CustomKeyboard` with `layout="overlay"` replaces the system keyboard.
+ * Where the window resizes for the system keyboard (Android adjustResize),
+ * only the custom keyboard is padded.
  */
 export const EditorKeyboardAvoidingView = ({
   keyboardVerticalOffset = 0,
@@ -21,22 +23,9 @@ export const EditorKeyboardAvoidingView = ({
   style,
   ...props
 }: EditorKeyboardAvoidingViewProps) => {
-  const {
-    windowOverlaysKeyboard,
-    isKeyboardUp,
-    keyboardHeight,
-    isCustomKeyboardOpen,
-    systemKeyboardHeight,
-  } = useKeyboard();
-  const covered = !enabled
-    ? 0
-    : windowOverlaysKeyboard
-      ? isKeyboardUp
-        ? keyboardHeight
-        : 0
-      : isCustomKeyboardOpen && systemKeyboardHeight === 0
-        ? keyboardHeight
-        : 0;
-  const paddingBottom = Math.max(0, covered - keyboardVerticalOffset);
+  const { keyboardCoverHeight } = useKeyboard();
+  const paddingBottom = enabled
+    ? Math.max(0, keyboardCoverHeight - keyboardVerticalOffset)
+    : 0;
   return <View style={[style, { paddingBottom }]} {...props} />;
 };
