@@ -15,6 +15,8 @@ This project is a monorepo managed using [Yarn workspaces](https://yarnpkg.com/f
 - An Expo example app in the `example-expo/` directory (Expo SDK 57 with a dev client, new architecture only).
 - The web E2E app in the `e2e-web/` directory and the docs website in the `website/` directory.
 
+Development needs Node.js 20.19 or newer (the version in `.nvmrc` is used in CI), although the published package supports Node.js 18.
+
 To get started with the project, run `yarn` in the root directory to install the required dependencies for each package:
 
 ```sh
