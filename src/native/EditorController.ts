@@ -115,6 +115,7 @@ export class NativeEditorController<
   private readonly coalesced = new Map<string, BridgeMessage>();
   /** The `set-content` to replay after a reload. */
   private lastContent: BridgeMessage | undefined;
+  private contentVersion = 0;
 
   constructor(options: EditorControllerOptions<S>) {
     this.options = options;
@@ -241,7 +242,10 @@ export class NativeEditorController<
       this.coalesced.delete(coalesceKey);
       this.coalesced.set(coalesceKey, message);
     }
-    if (message.type === SET_CONTENT_TYPE) this.lastContent = message;
+    if (message.type === SET_CONTENT_TYPE) {
+      this.lastContent = message;
+      this.contentVersion++;
+    }
 
     if (this.isReady()) this.transport.post(message);
     else this.outbox.push({ kind: 'message', message, coalesceKey });
@@ -359,7 +363,12 @@ export class NativeEditorController<
     });
   }
 
-  rememberContent(content: string | object): void {
+  getContentVersion(): number {
+    return this.contentVersion;
+  }
+
+  rememberContent(content: string | object, version?: number): void {
+    if (version !== undefined && version !== this.contentVersion) return;
     this.lastContent = {
       type: SET_CONTENT_TYPE,
       payload: { content, emitUpdate: false },

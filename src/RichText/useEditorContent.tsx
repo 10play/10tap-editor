@@ -47,13 +47,14 @@ export function useEditorContent<T extends EditorContentType>(
 
     const fetchContent = debounce(() => {
       const request = ++latestRequest;
+      const version = getEditorController(editor)?.getContentVersion();
       read().then(
         (value) => {
           // A newer request was sent while this one was in flight.
           if (!active || request !== latestRequest) return;
           // Text loses formatting, so only HTML and JSON can restore the document.
           if (type !== 'text') {
-            getEditorController(editor)?.rememberContent(value);
+            getEditorController(editor)?.rememberContent(value, version);
           }
           setContent(value as ContentType<T>);
         },

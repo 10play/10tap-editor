@@ -161,11 +161,15 @@ export interface EditorController<S extends object = object> {
   /** Last `document-height`, kept across `RichText` remounts. */
   getHeight(): number | undefined;
   subscribeHeight(listener: Listener<number>): Unsubscribe;
+  /** Counts `set-content` commands, so fetched content can be dated. */
+  getContentVersion(): number;
   /**
    * Latest known document content. Used as `setContent` after a renderer
-   * crash so a reload does not fall back to `initialContent`.
+   * crash so a reload does not fall back to `initialContent`. Ignored when
+   * `version` (`getContentVersion()` when it was fetched) is older than the
+   * last `set-content`.
    */
-  rememberContent(content: string | object): void;
+  rememberContent(content: string | object, version?: number): void;
 }
 
 export type CreateEditorController = <S extends object>(

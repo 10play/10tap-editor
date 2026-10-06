@@ -516,6 +516,27 @@ describe('useEditorContent', () => {
     });
   });
 
+  it('does not remember content fetched before a later setContent', async () => {
+    const { editor, webView } = setup();
+    receive(editor, PROTOCOL_TYPES.StateUpdate, stateUpdate({}));
+    flush();
+    const pending = lastRequest(webView, 'get-html');
+    editor.setContent('<p>cleared</p>', { emitUpdate: false });
+    replyTo(editor, pending, 'send-html-back', '<p>old</p>');
+    await act(async () => {});
+
+    const controller = controllerOf(editor);
+    webView.envelopes.length = 0;
+    act(() => controller.onProcessTerminated());
+    act(() => controller.handleWebViewMessage(handshake(controller.editorId)));
+
+    expect(webView.messages).toContainEqual({
+      type: CoreEditorActionType.SetContent,
+      payload: { content: '<p>cleared</p>', emitUpdate: false },
+    });
+    expect(JSON.stringify(webView.messages)).not.toContain('<p>old</p>');
+  });
+
   it('does not fetch or update after unmount', async () => {
     const { editor, webView, unmount } = setup();
     receive(editor, PROTOCOL_TYPES.StateUpdate, stateUpdate({}));
