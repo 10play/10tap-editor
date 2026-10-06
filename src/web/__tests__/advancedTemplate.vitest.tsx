@@ -13,20 +13,23 @@ import {
 import { getWebRuntime } from '../runtime';
 
 /**
- * The custom web bundle template from docs/setup/advancedSetup.md, run
- * unchanged apart from the `@10play/tentap-editor` alias (fixtures/
- * advancedTemplate): it polls `window.contentInjected`, mounts its own React
- * root and renders `useTenTap` with the starter kit plus a custom bridge.
+ * The custom web bundle template from docs/setup/advancedSetup.md
+ * (test/fixtures/advanced-template, whose `@10play/tentap-editor` import the
+ * vitest config aliases as the docs' Vite config does): it polls
+ * `window.contentInjected`, mounts its own React root and renders
+ * `useTenTap` with the starter kit plus a custom bridge.
  */
 
 const EDITOR_ID = 'tt-advanced';
-const TEMPLATE = './fixtures/advancedTemplate/index';
+// Not literal imports, so tsc does not type the fixtures against the native
+// entry; test/fixtures/advanced-template has its own tsconfig for that.
+const FIXTURES = '../../../test/fixtures/advanced-template';
+const TEMPLATE = `${FIXTURES}/index`;
 
 let posted: WebMessage[] = [];
 
 const bootConfig = async () => {
-  const { CounterBridge } =
-    await import('./fixtures/advancedTemplate/CounterBridge');
+  const { CounterBridge } = await import(`${FIXTURES}/CounterBridge`);
   return buildBootConfig({
     editorId: EDITOR_ID,
     bridges: [...TenTapStartKit, CounterBridge],
