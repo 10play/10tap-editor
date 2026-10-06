@@ -513,8 +513,12 @@ export function createKeyboardSession(
     hideSeen = false;
     handedOver = false;
     closingToSystem = false;
-    // The window may have lacked focus for the mode at mount.
-    if (nativeDriver && !deps.forceFallback) requestOverlayMode(nativeDriver);
+    if (nativeDriver && !deps.forceFallback) {
+      // A mode the window lacked focus for at mount, and the inset of the
+      // current orientation and navigation mode.
+      requestOverlayMode(nativeDriver);
+      refreshNavigationBarInset(nativeDriver);
+    }
     keyboardHeight =
       options().heightOf(id) ??
       store.getKeyboardHeight(options().defaultHeight);

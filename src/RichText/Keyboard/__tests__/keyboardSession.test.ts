@@ -990,6 +990,19 @@ describe('teardown', () => {
     expect(t.snapshot().windowOverlaysKeyboard).toBe(true);
   });
 
+  it('reads the navigation bar inset again on every open', async () => {
+    const native = createFakeNativeModule({ navigationBarInset: 24 });
+    const t = setup({ platform: 'android', native, systemKeyboard: 280 });
+    await flush();
+    // Rotated to landscape: the navigation bar moved to the side.
+    native.getNavigationBarInset.mockResolvedValue(0);
+    await openFully(t);
+    await flush();
+
+    expect(t.view()).toMatchObject({ navigationBarInset: 0, slotHeight: 280 });
+    expect(t.snapshot().windowOverlaysKeyboard).toBe(false);
+  });
+
   it('covers the navigation bar like the system keyboard does', async () => {
     // RN reports an edge-to-edge IME's height without the navigation bar
     // it also covers.
