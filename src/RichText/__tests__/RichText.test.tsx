@@ -20,7 +20,11 @@ import {
   type MockWebView,
 } from '../../__mocks__/react-native-webview';
 import { CoreEditorActionType } from '../../bridges/core';
-import { handshake, webMessage } from '../../native/__tests__/helpers';
+import {
+  handshake,
+  legacyReady,
+  webMessage,
+} from '../../native/__tests__/helpers';
 import { CAPABILITIES } from '../../shared/capabilities';
 import { EDITOR_CONTROLLER, getEditorController } from '../../shared/contracts';
 import { PROTOCOL_TYPES, type ActionEnvelope } from '../../shared/protocol';
@@ -186,6 +190,28 @@ describe('RichText boot', () => {
       { type: PROTOCOL_TYPES.SetDynamicHeight, payload: false },
     ]);
     expect(flatStyle(webView.props.containerStyle).height).toBeUndefined();
+  });
+
+  it('keeps a loaded 1.0 bundle when dynamicHeight changes, as in 1.0', () => {
+    jest.useFakeTimers();
+    const hook = createEditor();
+    const view = render(<RichText editor={hook.result.current} />);
+    const webView = mockWebViews.latest();
+    load(webView);
+    act(() => webView.simulateMessage(legacyReady()));
+    act(() => jest.runOnlyPendingTimers());
+    webView.postedMessages.length = 0;
+
+    hook.rerender({ dynamicHeight: true });
+    view.rerender(<RichText editor={hook.result.current} />);
+    act(() =>
+      webView.simulateMessage(webMessage(PROTOCOL_TYPES.DocumentHeight, 120))
+    );
+
+    expect(mockWebViews.instances).toHaveLength(1);
+    expect(webView.sources).toHaveLength(1);
+    expect(postedTypes(webView)).not.toContain(PROTOCOL_TYPES.SetDynamicHeight);
+    expect(flatStyle(webView.props.containerStyle).height).toBe(120);
   });
 
   it('does not replay an older page dynamicHeight switch onto a new page', () => {

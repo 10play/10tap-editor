@@ -54,7 +54,7 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 
 ### Changed
 
-- `dynamicHeight` can be changed after mount without reloading the WebView. Custom editor bundles built with an earlier version still reload, with `initialContent`.
+- `dynamicHeight` can be changed after mount without reloading the WebView. A custom editor bundle built with an earlier version keeps the value it loaded with, and only the container height follows, as in 1.0.
 - With `dynamicHeight`, `RichText` applies the content height after your `containerStyle`, so it can no longer be overridden. `style` and `containerStyle` otherwise still replace the defaults unless `mergeStyles` is set.
 - `RichText` throws a clear error when `editor` doesn't come from `useEditorBridge`. Spread copies (`{ ...editor }`) keep working as in 1.0.
 - `useEditorBridge` reads `bridgeExtensions` once and warns in development when the list changes after mount.

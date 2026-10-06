@@ -99,15 +99,16 @@ const getPageInputs = (
   dynamicHeight: !!editor.dynamicHeight,
 });
 
-/** A loaded bundle that can switch dynamic height without a reload. */
-const canToggleDynamicHeight = (controller: EditorController) =>
-  controller.isReady() && controller.supports(CAPABILITIES.SetDynamicHeight);
-
+/**
+ * A loaded page keeps its document when `dynamicHeight` changes: a 1.1 bundle
+ * switches it at runtime, and an older one keeps the value it booted with
+ * while only the container height follows, as in 1.0.
+ */
 const isSamePage = (page: Page, inputs: PageInputs) =>
   (Object.keys(inputs) as (keyof PageInputs)[]).every(
     (key) =>
       page[key] === inputs[key] ||
-      (key === 'dynamicHeight' && canToggleDynamicHeight(inputs.controller))
+      (key === 'dynamicHeight' && inputs.controller.isReady())
   );
 
 const createPage = (editor: EditorBridge, inputs: PageInputs): Page => {
@@ -128,9 +129,8 @@ const createPage = (editor: EditorBridge, inputs: PageInputs): Page => {
 /**
  * The current page. It is built once per editor and only rebuilt when an
  * option that needs a new document changes (`DEV`, `customSource`,
- * `webviewBaseURL`, and `dynamicHeight` for bundles that cannot switch it at
- * runtime), so later option changes never reload the WebView with a stale
- * boot config.
+ * `webviewBaseURL`, and `dynamicHeight` before the page is ready), so later
+ * option changes never reload the WebView with a stale boot config.
  */
 const usePage = (editor: EditorBridge, controller: EditorController): Page => {
   const inputs = getPageInputs(editor, controller);
@@ -163,6 +163,7 @@ const useDynamicHeight = (
     }
     if (applied.current.value === dynamicHeight) return;
     applied.current.value = dynamicHeight;
+    if (!controller.supports(CAPABILITIES.SetDynamicHeight)) return;
     controller.send(
       { type: PROTOCOL_TYPES.SetDynamicHeight, payload: dynamicHeight },
       { coalesceKey: PROTOCOL_TYPES.SetDynamicHeight }
