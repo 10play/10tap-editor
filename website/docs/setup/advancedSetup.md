@@ -257,9 +257,9 @@ const editor = useEditorBridge({
 
 `yarn add react-dom`
 
-`yarn add -D @types/react-dom @tiptap/react`
+`yarn add -D @types/react-dom`
 
-`@tiptap/react` is an optional peer dependency of `@10play/tentap-editor`: `@10play/tentap-editor/web` bundles it, and its type declarations refer to it. Install the version that `@10play/tentap-editor` uses.
+Install the `react-dom` version that matches your `react`.
 
 You basically done with the advance setup now you have full control of the editor-web you can write your own bridgeExtensions add additional tiptapExtensions
 
@@ -287,7 +287,7 @@ Rebuild your editor bundle (`yarn editor:build`) whenever you upgrade `@10play/t
 When upgrading from 1.0, also:
 
 - change `#root div.dynamic-height .ProseMirror` in your `index.html` to `height: auto; min-height: 0; display: flow-root;` as shown above, so dynamic height can shrink, doesn't loop on iOS and includes the first and last paragraph margins (1.1 also injects this rule, so a bundle that wasn't rebuilt yet gets it too);
-- import `EditorContent` from `@10play/tentap-editor` instead of `@tiptap/react`, which 1.1 no longer installs (the editor build fails to resolve it otherwise), and follow [Sharing tiptap](#sharing-tiptap-with-10playtentap-editorweb).
+- preferably import `EditorContent` from `@10play/tentap-editor` instead of `@tiptap/react`, and follow [Sharing tiptap](#sharing-tiptap-with-10playtentap-editorweb).
 
 The `contentInjected` polling in `index.tsx` still works. In 1.1 the configuration is written into the `customSource` HTML before your script runs, so the first check already passes.
 
