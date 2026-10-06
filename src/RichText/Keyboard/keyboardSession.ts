@@ -141,6 +141,13 @@ export const SHOW_CONFIRM_TIMEOUT_MS = 600;
 export const FOCUS_TIMEOUT_MS = 300;
 /** Slot animation when no keyboard event drives it. */
 export const SLOT_ANIMATION_MS = 250;
+/**
+ * Opens in a row in which the native driver found no focused WebView while
+ * the editor was focused before the session stops trying it. One failure can
+ * be a window that briefly lost focus (a dialog, the notification shade);
+ * a repeat is lasting, such as an editor in a Modal window on Android.
+ */
+export const NATIVE_FOCUS_FAILURES_BEFORE_FALLBACK = 2;
 
 export const PRESS_LISTENER_SCRIPT_KEY = 'tentap.keyboard.pressListener';
 
@@ -180,6 +187,7 @@ export function createKeyboardSession(
   let useFallback = deps.forceFallback;
   // The native driver found no focused WebView for this transition only.
   let transitionFallback = false;
+  let nativeFocusFailures = 0;
 
   const currentDriver = (): KeyboardDriver =>
     inlineDriver ??
@@ -352,18 +360,26 @@ export function createKeyboardSession(
 
   const suppressWith = async (driver: KeyboardDriver, token: number) => {
     try {
-      if (await driver.suppress()) return;
+      if (await driver.suppress()) {
+        if (driver.kind === 'native') nativeFocusFailures = 0;
+        return;
+      }
     } catch (error) {
       reportError({ reason: 'native-error', driver: driver.kind, error });
     }
     // A close or detach while the native call was in flight already ended
     // this transition; latching the fallback now would outlive it.
     if (driver.kind !== 'native' || token !== epoch || !attached) return;
-    // No focused WebView. With the editor focused that lasts (e.g. a Modal
-    // window on Android), so fall back for good; otherwise the editor was
-    // not ready or the window briefly lost focus, so retry on the next open.
-    if (channel.isFocused()) useFallback = true;
-    else transitionFallback = true;
+    // No focused WebView: the editor was not ready or the window lost focus.
+    // Retry on the next open unless it keeps failing with the editor focused.
+    if (
+      channel.isFocused() &&
+      ++nativeFocusFailures >= NATIVE_FOCUS_FAILURES_BEFORE_FALLBACK
+    ) {
+      useFallback = true;
+    } else {
+      transitionFallback = true;
+    }
     emit();
     await getFallbackDriver().suppress();
   };

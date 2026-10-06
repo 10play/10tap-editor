@@ -485,6 +485,35 @@ describe('verification and driver selection', () => {
     expect(t.view().driver).toBe('native');
   });
 
+  it.each([
+    ['retries the native driver after one failure', [false, true], 'native'],
+    ['falls back for good after repeated failures', [false, false], 'fallback'],
+  ] as const)(
+    'focused editor without a focused WebView: %s',
+    async (_name, results, expected) => {
+      const native = createFakeNativeModule();
+      const t = setup({ platform: 'android', native, systemKeyboard: 0 });
+      const reopen = async (suppressed: boolean) => {
+        native.setSystemKeyboardSuppressed.mockResolvedValueOnce(suppressed);
+        t.session.open('kb');
+        await flush();
+        t.session.close(false);
+        jest.advanceTimersByTime(SLOT_ANIMATION_MS);
+        await flush();
+      };
+      for (const suppressed of results) await reopen(suppressed);
+      native.setSystemKeyboardSuppressed.mockClear();
+
+      t.session.open('kb');
+      await flush();
+
+      expect(t.view().driver).toBe(expected);
+      expect(native.setSystemKeyboardSuppressed).toHaveBeenCalledTimes(
+        expected === 'native' ? 1 : 0
+      );
+    }
+  );
+
   it('reports a rejected native call and falls back', async () => {
     const native = createFakeNativeModule();
     native.setSystemKeyboardSuppressed.mockRejectedValueOnce(new Error('boom'));
