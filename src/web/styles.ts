@@ -28,8 +28,12 @@ export function applyStyleSheet(
  * otherwise the reported height feeds back into the WebView height. It is
  * also a block formatting context, so the margins of its first and last
  * blocks stay inside the measured box instead of collapsing through it.
+ *
+ * The `#root` selector outranks the 1.0 template's `#root div .ProseMirror
+ * { min-height: 100% }` without `!important`, so app CSS can still set a
+ * minimum or fixed height.
  */
 export const DYNAMIC_HEIGHT_STYLE_TAG = 'tentap-dynamic-height';
 
 export const DYNAMIC_HEIGHT_CSS =
-  '.dynamic-height .ProseMirror{height:auto!important;min-height:0!important;display:flow-root;}';
+  '#root .dynamic-height .ProseMirror,.dynamic-height .ProseMirror{height:auto;min-height:0;display:flow-root;}';
