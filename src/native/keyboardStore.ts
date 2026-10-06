@@ -6,6 +6,7 @@ import {
   type KeyboardEventName,
 } from 'react-native';
 import type { Listener, Unsubscribe } from '../shared/contracts';
+import { shallowEqual } from './stores';
 
 /**
  * Process-wide keyboard state: the system keyboard as reported by RN's
@@ -324,11 +325,6 @@ export function createKeyboardStore({
       emitChange();
     },
   };
-}
-
-function shallowEqual(a: KeyboardState, b: KeyboardState): boolean {
-  const keys = Object.keys(a) as (keyof KeyboardState)[];
-  return keys.every((key) => a[key] === b[key]);
 }
 
 export const keyboardStore: KeyboardStore = createKeyboardStore({
