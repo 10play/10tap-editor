@@ -700,6 +700,20 @@ describe('RichText keyboard insets', () => {
     expect(thresholds(webView)).toEqual([]);
   });
 
+  it('keeps scrollBottomOffset as padding in dynamic-height mode (#308)', () => {
+    const { webView, update } = mountReady({
+      avoidKeyboard: true,
+      dynamicHeight: true,
+      scrollBottomOffset: 60,
+    });
+    update(keyboardUp(300, true));
+
+    expect(paddingScripts(webView)).toEqual([
+      utils.buildBottomPaddingScript(60),
+    ]);
+    expect(thresholds(webView)).toEqual([60]);
+  });
+
   it('waits for the Android window resize and cancels on unmount (#299)', () => {
     setPlatform('android');
     jest.useFakeTimers();

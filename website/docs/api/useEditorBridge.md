@@ -85,6 +85,8 @@ const editor = useEditorBridge({
 
 Unlike calling [updateScrollThresholdAndMargin](./EditorBridge.md#updatescrollthresholdandmargin) yourself, this value is kept when the keyboard opens and closes.
 
+With `dynamicHeight` the padding is part of the content height, so the editor is that much taller than its text.
+
 #### dynamicHeight
 
 `boolean`  

@@ -133,8 +133,10 @@ export interface KeyboardInsets {
  *
  * Where the keyboard overlays the window (iOS, Android `'stable'` mode or
  * edge-to-edge) the inset is the keyboard height; where the window resizes
- * it is only the toolbar. Dynamic-height editors get no padding, since it
- * would feed back into the measured height (#336).
+ * it is only the toolbar. Dynamic-height editors get no keyboard inset,
+ * since it would feed back into the measured height (#336); they keep the
+ * constant `scrollBottomOffset`, which a capped editor needs to scroll its
+ * last line above something drawn over it (#308).
  */
 export const getKeyboardInsets = ({
   platform,
@@ -147,7 +149,7 @@ export const getKeyboardInsets = ({
 }: KeyboardInsetsInput): KeyboardInsets | null => {
   if (!avoidKeyboard && scrollBottomOffset === undefined) return null;
   const offset = scrollBottomOffset ?? 0;
-  if (dynamicHeight) return { padding: 0, scrollThreshold: offset };
+  if (dynamicHeight) return { padding: offset, scrollThreshold: offset };
 
   const native = platform === 'ios' || platform === 'android';
   const keyboardUp = avoidKeyboard && native && isKeyboardUp;
