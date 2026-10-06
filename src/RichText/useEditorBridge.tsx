@@ -13,9 +13,13 @@ export type { RecursivePartial } from '../types/utility';
 export const useEditorBridge = (
   options?: EditorBridgeOptions
 ): EditorBridge => {
-  const [{ editor, controller, setOptions }] = useState(() =>
-    createEditorFacade(options)
-  );
+  const [{ editor, controller, setOptions }] = useState(() => {
+    const facade = createEditorFacade(options);
+    // As in 1.0, code later in the same render can already read it.
+    // Subscribers are told once it mounts.
+    EditorHelper.editorLastInstance = facade.editor;
+    return facade;
+  });
   setOptions(options);
 
   // Reversible, so a StrictMode remount keeps a working editor.

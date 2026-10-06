@@ -562,6 +562,24 @@ describe('EditorHelper', () => {
     expect(EditorHelper.editorLastInstance).toBeUndefined();
   });
 
+  it('is set during the render that creates the editor, as in 1.0', () => {
+    let editor: EditorBridge | undefined;
+    let seenBySibling: EditorBridge | undefined;
+    const Sibling = () => {
+      seenBySibling = EditorHelper.editorLastInstance;
+      return null;
+    };
+    render(
+      <>
+        <Editor onEditor={(e) => (editor = e)} />
+        <Sibling />
+      </>
+    );
+
+    expect(seenBySibling).toBe(editor);
+    expect(EditorHelper.editorLastInstance).toBe(editor);
+  });
+
   it('useRemoteEditorBridge follows the current editor (#51)', () => {
     const Remote = () => {
       const editor = useRemoteEditorBridge();

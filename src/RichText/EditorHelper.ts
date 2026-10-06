@@ -13,6 +13,8 @@ class _EditorHelper {
   editorLastInstance: EditorBridge | undefined;
   cbs: ((editor: EditorBridge | undefined) => void)[] = [];
   private readonly instances: EditorBridge[] = [];
+  /** The editor subscribers were last told about. */
+  private published: EditorBridge | undefined;
 
   constructor() {
     this.editorLastInstance = undefined;
@@ -45,8 +47,11 @@ class _EditorHelper {
 
   private update() {
     const current = this.instances[this.instances.length - 1];
-    if (current === this.editorLastInstance) return;
+    // `useEditorBridge` may have set `editorLastInstance` already, while
+    // rendering, without telling subscribers.
     this.editorLastInstance = current;
+    if (current === this.published) return;
+    this.published = current;
     this.cbs.forEach((cb) => {
       cb(current);
     });
