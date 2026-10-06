@@ -38,6 +38,14 @@ case "$platform" in
       echo "The tentap pod is not autolinked" >&2
       exit 1
     fi
+    # Xcode 26.4+ clang rejects fmt 11's consteval format strings, which
+    # SDK 52-54 still pin; turn consteval off as example/ios/Podfile does.
+    # The headers come from the fmt pod or from ReactNativeDependencies.
+    find ios/Pods -path '*/fmt/base.h' -print0 |
+      while IFS= read -r -d '' fmt_base; do
+        chmod u+w "$fmt_base"
+        perl -pi -e 's/^#if !defined\(__cpp_lib_is_constant_evaluated\)$/#if 1/' "$fmt_base"
+      done
     xcodebuild -workspace ios/ExpoSmoke.xcworkspace -scheme ExpoSmoke \
       -configuration Release -sdk iphonesimulator \
       -destination 'generic/platform=iOS Simulator' \
