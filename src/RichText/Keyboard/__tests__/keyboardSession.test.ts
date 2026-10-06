@@ -427,6 +427,30 @@ describe('verification and driver selection', () => {
     expect(t.options.onKeyboardError).not.toHaveBeenCalled();
   });
 
+  it.each(['close', 'detach'] as const)(
+    'does not latch the fallback after a %s during the native call',
+    async (end) => {
+      const native = createFakeNativeModule();
+      let settle: (suppressed: boolean) => void = () => {};
+      native.setSystemKeyboardSuppressed.mockImplementationOnce(
+        () => new Promise<boolean>((resolve) => (settle = resolve))
+      );
+      const t = setup({ platform: 'android', native });
+      t.session.open('kb');
+      await flush();
+
+      if (end === 'close') t.session.close();
+      else t.session.detach();
+      settle(false);
+      await flush();
+
+      expect(t.controller.persistent.get(INPUT_MODE_SCRIPT_KEY)).not.toBe(
+        INPUT_MODE_SUPPRESS_SCRIPT
+      );
+      expect(t.view().driver).toBe('native');
+    }
+  );
+
   it('reports a rejected native call and falls back', async () => {
     const native = createFakeNativeModule();
     native.setSystemKeyboardSuppressed.mockRejectedValueOnce(new Error('boom'));

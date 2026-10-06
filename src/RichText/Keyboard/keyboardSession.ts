@@ -332,13 +332,15 @@ export function createKeyboardSession(
     channel.injectScript(INPUT_MODE_RESTORE_SCRIPT);
   };
 
-  const suppressWith = async (driver: KeyboardDriver) => {
+  const suppressWith = async (driver: KeyboardDriver, token: number) => {
     try {
       if (await driver.suppress()) return;
     } catch (error) {
       reportError({ reason: 'native-error', driver: driver.kind, error });
     }
-    if (driver.kind !== 'native') return;
+    // A close or detach while the native call was in flight already ended
+    // this transition; latching the fallback now would outlive it.
+    if (driver.kind !== 'native' || token !== epoch || !attached) return;
     // No focused WebView (e.g. a Modal window on Android): fall back for good.
     useFallback = true;
     emit();
@@ -425,7 +427,7 @@ export function createKeyboardSession(
       schedule(EVENT_TIMEOUT_MS, () => settleOpen(null));
       schedule(VERIFY_TIMEOUT_MS, () => void verify(token));
     }
-    await suppressWith(driver);
+    await suppressWith(driver, token);
     if (token !== epoch) return;
     if (!systemWasUp) settleOpen(null);
   };
