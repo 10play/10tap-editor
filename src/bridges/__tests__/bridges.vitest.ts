@@ -228,6 +228,27 @@ describe('CoreBridge (web)', () => {
       expect(reply?.payload).toMatchObject({ content: 'Hello\nworld' });
     });
 
+    it('separates list items with a single newline', () => {
+      const reply = selectedText(
+        '<ul><li><p>alpha</p></li><li><p>beta</p></li></ul>',
+        {
+          range: { from: 3, to: 16 },
+        }
+      );
+      expect(reply?.payload).toMatchObject({ content: 'alpha\nbeta' });
+    });
+
+    it('separates nested lists and blockquotes with a single newline', () => {
+      const content =
+        '<ul><li><p>alpha</p><ul><li><p>beta</p></li></ul></li></ul>' +
+        '<blockquote><p>gamma</p></blockquote>';
+      const { editor } = createEditor(content);
+      const reply = selectedText(content, {
+        range: { from: 0, to: editor.state.doc.content.size },
+      });
+      expect(reply?.payload).toMatchObject({ content: 'alpha\nbeta\ngamma' });
+    });
+
     it('renders hard breaks as newlines, as getText does', () => {
       const reply = selectedText('<p>Hello<br>world</p>', {
         range: { from: 1, to: 12 },

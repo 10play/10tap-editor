@@ -1,6 +1,5 @@
 import {
   createDocument,
-  getTextBetween,
   getTextSerializersFromSchema,
   type Content,
   type Editor,
@@ -179,6 +178,35 @@ const clampRange = (editor: Editor, range: SelectionRange | undefined) => {
   return { from: clamp(Math.min(from, to)), to: clamp(Math.max(from, to)) };
 };
 
+/**
+ * The text in `from..to` with one newline between blocks, as the system Copy
+ * gives it. TipTap's getTextBetween also separates at every wrapper (list
+ * item, blockquote), which doubles the newlines inside nested blocks.
+ */
+const selectedText = (editor: Editor, from: number, to: number) => {
+  const serializers = getTextSerializersFromSchema(editor.schema);
+  let text = '';
+  let first = true;
+  editor.state.doc.nodesBetween(from, to, (node, pos, parent, index) => {
+    const serializer = serializers[node.type.name];
+    if (node.isBlock && (node.isTextblock || node.isLeaf)) {
+      if (!first) text += '\n';
+      first = false;
+    }
+    if (serializer) {
+      if (parent) {
+        text += serializer({ node, pos, parent, index, range: { from, to } });
+      }
+      return false;
+    }
+    if (node.isText) {
+      text += node.text?.slice(Math.max(from, pos) - pos, to - pos) ?? '';
+    }
+    return true;
+  });
+  return text;
+};
+
 /** Android needs a moment after load before `requestFocus` sticks (react-native-webview#1172). */
 const ANDROID_FOCUS_DELAY_MS = 100;
 
@@ -254,14 +282,7 @@ export const CoreBridge = new BridgeExtension<
         sendMessageBack({
           type: CoreEditorActionType.SendSelectedTextToNative,
           payload: {
-            content: getTextBetween(
-              editor.state.doc,
-              { from, to },
-              {
-                blockSeparator: '\n',
-                textSerializers: getTextSerializersFromSchema(editor.schema),
-              }
-            ),
+            content: selectedText(editor, from, to),
             messageId: message.payload.messageId,
           },
         });
