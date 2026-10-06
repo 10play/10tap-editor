@@ -178,6 +178,31 @@ describe('DynamicHeight scroll policy', () => {
     expect(dynamicHeight.isClamped()).toBe(false);
   });
 
+  it('detects a clamp at a height native already followed to (#323)', () => {
+    const editor = createEditor();
+    const dynamicHeight = create();
+    dynamicHeight.observe(editor.view);
+    now += 1000;
+    editor.setContent(120);
+    now += 16;
+    dynamicHeight.setContainerHeight(120);
+    now += 1000;
+    editor.setContent(140);
+    expect(dynamicHeight.isClamped()).toBe(false);
+
+    // Native applied 140 but its layout stayed at the 120 cap.
+    now += 250;
+    dynamicHeight.setContainerHeight(120);
+
+    expect(dynamicHeight.isClamped()).toBe(true);
+    expect(dynamicHeight.handleScrollToSelection()).toBe(false);
+    expect(editor.dispatch).toHaveBeenCalledWith('scroll-tr');
+    editor.wrapper.scrollTop = 30;
+    now += 16;
+    editor.setContent(160);
+    expect(editor.wrapper.scrollTop).toBe(30);
+  });
+
   it('scrolls normally and keeps the position when native clamps the WebView (#323)', () => {
     const editor = createEditor();
     const dynamicHeight = create();

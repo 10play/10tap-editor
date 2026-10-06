@@ -22,6 +22,12 @@ import type { EditorView } from '@tiptap/pm/view';
 
 /** How long native may take to apply a reported height. */
 const FOLLOW_GRACE_MS = 500;
+/**
+ * A `container-height` this long after a report answers it: native re-posts
+ * its height once it applied a report (#323), while one that arrives sooner
+ * may still describe an earlier layout.
+ */
+const ANSWER_MIN_MS = 200;
 const TOLERANCE_PX = 1;
 
 export interface DynamicHeightOptions {
@@ -67,6 +73,7 @@ export class DynamicHeight {
   private readonly now: () => number;
   private reports: Report[] = [];
   private containerHeight: number | null = null;
+  private containerAt = -Infinity;
   private element: Element | null = null;
   private view: EditorView | null = null;
 
@@ -116,12 +123,14 @@ export class DynamicHeight {
   }
 
   /**
-   * Native's WebView height (`container-height`, sent after every layout).
-   * When native resized the WebView to less than the content, the caret may
-   * have ended up below the visible area, so it is scrolled back into view.
+   * Native's WebView height (`container-height`, sent after every layout and
+   * once native applied a reported height). When native keeps the WebView
+   * smaller than the content, the caret may have ended up below the visible
+   * area, so it is scrolled back into view.
    */
   setContainerHeight(height: number): void {
     this.containerHeight = height;
+    this.containerAt = this.now();
     if (this.isClamped()) this.revealSelection();
   }
 
@@ -129,7 +138,7 @@ export class DynamicHeight {
    * Whether native keeps the WebView smaller than `contentHeight` (by default
    * the current content height). Native follows when the WebView matches a
    * report and every later report is recent enough for native to still be
-   * catching up with it.
+   * catching up with it, and native has not answered it with a smaller height.
    */
   isClamped(contentHeight: number | null = this.currentHeight()): boolean {
     if (contentHeight === null) return false;
@@ -141,6 +150,7 @@ export class DynamicHeight {
     for (const report of [...this.reports].reverse()) {
       if (Math.abs(report.height - container) <= TOLERANCE_PX) return false;
       if (report.at < since) return true;
+      if (report.at + ANSWER_MIN_MS <= this.containerAt) return true;
     }
     return true;
   }

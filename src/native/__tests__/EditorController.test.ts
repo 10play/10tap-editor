@@ -589,6 +589,29 @@ describe('container height', () => {
     controller.reportContainerHeight(500);
     expect(webView.types).toEqual([PROTOCOL_TYPES.ContainerHeight]);
   });
+  it('re-posts the height after a content height that did not change the layout (#323)', () => {
+    jest.useFakeTimers();
+    const { controller, webView } = setup();
+    controller.handleWebViewMessage(handshake());
+    controller.reportContainerHeight(200);
+    webView.envelopes.length = 0;
+
+    controller.handleWebViewMessage(webMessage('document-height', 220));
+    jest.advanceTimersByTime(299);
+    expect(webView.messages).toEqual([]);
+    jest.advanceTimersByTime(1);
+    expect(webView.messages).toEqual([
+      { type: PROTOCOL_TYPES.ContainerHeight, payload: 200 },
+    ]);
+
+    webView.envelopes.length = 0;
+    controller.handleWebViewMessage(webMessage('document-height', 240));
+    controller.reportContainerHeight(240);
+    jest.advanceTimersByTime(1000);
+    expect(webView.messages).toEqual([
+      { type: PROTOCOL_TYPES.ContainerHeight, payload: 240 },
+    ]);
+  });
 });
 
 describe('inbound', () => {

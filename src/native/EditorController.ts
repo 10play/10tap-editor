@@ -48,6 +48,9 @@ import { OUTBOX_LIMIT, Outbox, Transport, type OutboxEntry } from './transport';
  */
 export const SET_CONTENT_TYPE = 'set-content';
 
+/** Longer than the web side's minimum delay for an answer to a report. */
+const CONTAINER_ECHO_DELAY_MS = 300;
+
 type ReadySource = 'handshake' | 'state' | 'timeout';
 
 const warn = (message: string, ...details: unknown[]) => {
@@ -101,6 +104,7 @@ export class NativeEditorController<
   private overflowWarned = false;
   private internalToken: symbol | undefined;
   private containerHeight: number | undefined;
+  private containerEchoTimer: ReturnType<typeof setTimeout> | undefined;
   /** Latest message per coalesce key, in last-sent order. */
   private readonly coalesced = new Map<string, BridgeMessage>();
   /** The `set-content` to replay after a reload. */
@@ -139,6 +143,7 @@ export class NativeEditorController<
     this.detach();
     this.disposed = true;
     this.clearReadyTimer();
+    this.clearContainerEcho();
     this.rpcs.clear();
     this.outbox.clear();
     this.messageListeners.clear();
@@ -193,6 +198,7 @@ export class NativeEditorController<
 
   reportContainerHeight(height: number): void {
     this.containerHeight = height;
+    this.clearContainerEcho();
     if (this.isReady()) this.postContainerHeight();
   }
 
@@ -374,6 +380,7 @@ export class NativeEditorController<
           Number.isFinite(message.payload)
         ) {
           this.height.set(message.payload);
+          this.scheduleContainerEcho();
         }
         return;
       case PROTOCOL_TYPES.BootError:
@@ -506,6 +513,26 @@ export class NativeEditorController<
       return;
     }
     this.transport.post(pending.request);
+  }
+
+  /**
+   * A WebView clamped by its parent does not lay out again when it is given a
+   * larger height, so the web side would never learn that it stopped
+   * following. Re-post the height once a new content height had time to
+   * apply, unless a layout already reported it (#323).
+   */
+  private scheduleContainerEcho(): void {
+    if (this.containerHeight === undefined) return;
+    this.clearContainerEcho();
+    this.containerEchoTimer = setTimeout(() => {
+      this.containerEchoTimer = undefined;
+      if (this.isReady()) this.postContainerHeight();
+    }, CONTAINER_ECHO_DELAY_MS);
+  }
+
+  private clearContainerEcho(): void {
+    clearTimeout(this.containerEchoTimer);
+    this.containerEchoTimer = undefined;
   }
 
   private postContainerHeight(): void {
