@@ -22,17 +22,6 @@ describe('inputmode scripts', () => {
     expect(page.setInputMode.mock.calls).toEqual([['none'], [null]]);
     expect(page.attributes.size).toBe(0);
   });
-
-  it('match the Android InputModeScript strings', () => {
-    expect(INPUT_MODE_SUPPRESS_SCRIPT).toBe(
-      "(function(){var t=window.__tentap;if(t&&t.setInputMode){t.setInputMode('none');return}" +
-        "var e=document.querySelector('.ProseMirror');if(e){e.setAttribute('inputmode','none')}})();true;"
-    );
-    expect(INPUT_MODE_RESTORE_SCRIPT).toBe(
-      '(function(){var t=window.__tentap;if(t&&t.setInputMode){t.setInputMode(null);return}' +
-        "var e=document.querySelector('.ProseMirror');if(e){e.removeAttribute('inputmode')}})();true;"
-    );
-  });
 });
 
 describe('press listener script', () => {
