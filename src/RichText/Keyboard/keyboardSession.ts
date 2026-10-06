@@ -28,7 +28,7 @@ import {
 
 /**
  * One `CustomKeyboard` host: the state machine that swaps the system keyboard
- * for a custom one and back (master plan §2.4).
+ * for a custom one and back.
  *
  * The in-flow slot changes height only inside the handler of the keyboard
  * event a `KeyboardAvoidingView` reacts to, in a microtask, so both land in
