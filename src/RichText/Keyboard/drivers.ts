@@ -69,31 +69,58 @@ const delay = (ms: number) =>
 export const hasSystemKeyboard = (platform: string) =>
   platform === 'ios' || platform === 'android';
 
+/**
+ * The driver whose suppression the native module holds. The module keeps a
+ * single suppressed WebView, so a host only releases its own suppression,
+ * never one another host made since.
+ */
+const suppressionOwners = new WeakMap<NativeKeyboardModule, KeyboardDriver>();
+
 export const createNativeDriver = (
   module: NativeKeyboardModule,
   { platform, channel }: DriverContext
-): KeyboardDriver => ({
-  kind: 'native',
-  suppress: () => module.setSystemKeyboardSuppressed(true),
-  restore: () => module.setSystemKeyboardSuppressed(false),
-  async release() {
-    if (platform === 'android') {
-      // The native restore also shows the IME; dropping the latch does not.
-      channel.injectScript(INPUT_MODE_RESTORE_SCRIPT);
-      return;
-    }
-    await module.setSystemKeyboardSuppressed(false).catch(() => false);
-  },
-  setWindowOverlayMode: (enabled) =>
-    platform === 'android'
-      ? module.setWindowOverlayMode(enabled)
-      : resolved(false),
-  getNavigationBarInset: () =>
-    platform === 'android' ? module.getNavigationBarInset() : resolved(0),
-  isSystemKeyboardVisible: () => module.isSystemKeyboardVisible(),
-  showSystemKeyboard:
-    platform === 'android' ? () => module.showSystemKeyboard() : undefined,
-});
+): KeyboardDriver => {
+  const driver: KeyboardDriver = {
+    kind: 'native',
+    async suppress() {
+      // Owned while in flight, so a release that overtakes it still applies.
+      suppressionOwners.set(module, driver);
+      let suppressed = false;
+      try {
+        suppressed = await module.setSystemKeyboardSuppressed(true);
+        return suppressed;
+      } finally {
+        if (!suppressed && suppressionOwners.get(module) === driver) {
+          suppressionOwners.delete(module);
+        }
+      }
+    },
+    restore() {
+      suppressionOwners.delete(module);
+      return module.setSystemKeyboardSuppressed(false);
+    },
+    async release() {
+      if (platform === 'android') {
+        // The native restore also shows the IME; dropping the latch does not.
+        channel.injectScript(INPUT_MODE_RESTORE_SCRIPT);
+        return;
+      }
+      if (suppressionOwners.get(module) !== driver) return;
+      suppressionOwners.delete(module);
+      await module.setSystemKeyboardSuppressed(false).catch(() => false);
+    },
+    setWindowOverlayMode: (enabled) =>
+      platform === 'android'
+        ? module.setWindowOverlayMode(enabled)
+        : resolved(false),
+    getNavigationBarInset: () =>
+      platform === 'android' ? module.getNavigationBarInset() : resolved(0),
+    isSystemKeyboardVisible: () => module.isSystemKeyboardVisible(),
+    showSystemKeyboard:
+      platform === 'android' ? () => module.showSystemKeyboard() : undefined,
+  };
+  return driver;
+};
 
 export const createFallbackDriver = ({
   platform,
