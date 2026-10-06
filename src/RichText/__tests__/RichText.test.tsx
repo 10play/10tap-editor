@@ -1,5 +1,6 @@
 import React, { StrictMode, Suspense, use } from 'react';
 import {
+  FlatList,
   Platform,
   StyleSheet,
   TextInput,
@@ -27,6 +28,8 @@ import type { EditorBridge, EditorBridgeOptions } from '../../types';
 import * as misc from '../../utils/misc';
 import type { KeyboardState } from '../../utils/useKeyboard';
 import { RichText } from '../RichText';
+import { darkEditorTheme, defaultEditorTheme } from '../theme';
+import { Toolbar } from '../Toolbar';
 import { useEditorBridge } from '../useEditorBridge';
 import * as utils from '../utils';
 
@@ -983,6 +986,54 @@ describe('RichText lifecycle', () => {
     expect(webView.reloadCount).toBe(1);
     expect(result.current.getEditorState().isReady).toBe(false);
     expect(onContentProcessDidTerminate).toHaveBeenCalledTimes(1);
+  });
+
+  it('re-renders memoized RichText and Toolbar when the theme changes', () => {
+    const MemoRichText = React.memo(function MemoizedRichText({
+      editor,
+    }: {
+      editor: EditorBridge;
+    }) {
+      return <RichText editor={editor} />;
+    });
+    const MemoToolbar = React.memo(function MemoizedToolbar({
+      editor,
+    }: {
+      editor: EditorBridge;
+    }) {
+      return <Toolbar editor={editor} hidden={false} />;
+    });
+    const EditorScreen = ({ dark }: { dark: boolean }) => {
+      const editor = useEditorBridge({
+        theme: dark ? darkEditorTheme : defaultEditorTheme,
+      });
+      return (
+        <>
+          <MemoRichText editor={editor} />
+          <MemoToolbar editor={editor} />
+        </>
+      );
+    };
+    const background = () =>
+      flatStyle(mockWebViews.latest().props.style).backgroundColor;
+    const toolbarBackground = () =>
+      flatStyle(screen.UNSAFE_getByType(FlatList).props.style).backgroundColor;
+
+    const { rerender } = render(<EditorScreen dark={false} />);
+    expect(background()).toBe(
+      flatStyle(defaultEditorTheme.webview).backgroundColor
+    );
+    expect(toolbarBackground()).toBe(
+      flatStyle(defaultEditorTheme.toolbar.toolbarBody).backgroundColor
+    );
+
+    rerender(<EditorScreen dark />);
+    expect(background()).toBe(
+      flatStyle(darkEditorTheme.webview).backgroundColor
+    );
+    expect(toolbarBackground()).toBe(
+      flatStyle(darkEditorTheme.toolbar.toolbarBody).backgroundColor
+    );
   });
 
   it('accepts a spread copy of the editor, as 1.0 did', () => {

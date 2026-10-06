@@ -8,6 +8,7 @@ import {
   createEditorController,
   type NativeEditorController,
 } from '../native/EditorController';
+import { createEmitter } from '../native/stores';
 import { attachEditorController } from '../shared/contracts';
 import {
   DYNAMIC_HEIGHT_CSS,
@@ -17,6 +18,7 @@ import type { BridgeMessage } from '../shared/protocol';
 import type { BridgeState, EditorBridge, EditorBridgeOptions } from '../types';
 import { mergeThemes } from '../utils/mergeThemes';
 import { uniqueBy } from '../utils/uniqueBy';
+import { attachEditorOptionsStore, sameRenderedOptions } from './editorOptions';
 import { defaultEditorTheme } from './theme';
 import { toRuntimePlatform } from './utils';
 
@@ -31,6 +33,8 @@ export interface EditorFacade {
   readonly controller: NativeEditorController<BridgeState>;
   /** Called on every render with that render's options. */
   setOptions(options: EditorBridgeOptions | undefined): void;
+  /** Called after every render; notifies option subscribers of changes. */
+  commitOptions(): void;
 }
 
 type CoreState = Pick<
@@ -90,6 +94,14 @@ export function createEditorFacade(
     },
   });
   attachEditorController(editor, controller);
+
+  let committedOptions = options;
+  let optionsVersion = 0;
+  const optionsChanged = createEmitter();
+  attachEditorOptionsStore(editor, {
+    getVersion: () => optionsVersion,
+    subscribe: (listener) => optionsChanged.subscribe(listener),
+  });
   // Custom bundles built against 1.0 lack the corrected dynamic-height rules;
   // the 1.1 runtime applies the same stylesheet itself.
   controller.injectCSS(DYNAMIC_HEIGHT_CSS, DYNAMIC_HEIGHT_STYLE_TAG);
@@ -268,6 +280,12 @@ export function createEditorFacade(
             'Bridges are read once; remount the editor to change them.'
         );
       }
+    },
+    commitOptions() {
+      if (sameRenderedOptions(committedOptions, options)) return;
+      committedOptions = options;
+      optionsVersion++;
+      optionsChanged.emit();
     },
   };
 }

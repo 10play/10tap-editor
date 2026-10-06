@@ -13,6 +13,7 @@ import {
   type FlatListProps,
   type ListRenderItem,
 } from 'react-native';
+import { useEditorOptions } from '../editorOptions';
 import { useBridgeState } from '../useBridgeState';
 import {
   DEFAULT_TOOLBAR_ITEMS,
@@ -63,6 +64,7 @@ export function Toolbar({
   shouldHideDisabledToolbarItems = false,
   ListComponent = FlatList,
 }: ToolbarProps) {
+  useEditorOptions(editor);
   const editorState = useBridgeState(editor);
   const { isKeyboardUp } = useKeyboard();
   const [toolbarContext, setToolbarContext] = useState<ToolbarContext>(

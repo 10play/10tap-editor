@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { EditorBridge, EditorBridgeOptions } from '../types';
 import { EditorHelper } from './EditorHelper';
 import { createEditorFacade } from './editorFacade';
@@ -13,7 +13,7 @@ export type { RecursivePartial } from '../types/utility';
 export const useEditorBridge = (
   options?: EditorBridgeOptions
 ): EditorBridge => {
-  const [{ editor, controller, setOptions }] = useState(() => {
+  const [{ editor, controller, setOptions, commitOptions }] = useState(() => {
     const facade = createEditorFacade(options);
     // As in 1.0, code later in the same render can already read it.
     // Subscribers are told once it mounts.
@@ -21,6 +21,8 @@ export const useEditorBridge = (
     return facade;
   });
   setOptions(options);
+  // Re-renders RichText and Toolbar under a memoized parent too.
+  useLayoutEffect(commitOptions);
 
   // Reversible, so a StrictMode remount keeps a working editor.
   useEffect(() => {
