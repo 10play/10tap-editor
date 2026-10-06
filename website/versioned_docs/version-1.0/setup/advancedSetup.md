@@ -87,7 +87,9 @@ Add the following files
       overflow: visible;
     }
     #root div.dynamic-height .ProseMirror {
-      height: unset;
+      height: auto;
+      min-height: 0;
+      display: flow-root;
     }
     .ProseMirror:focus {
       outline: none;
