@@ -7,7 +7,11 @@ import { blueBackgroundPlugin } from '../bridges/HighlightSelection';
 import type { BootConfig } from '../shared/bootConfig';
 import { PROTOCOL_TYPES, type BridgeMessage } from '../shared/protocol';
 import { DynamicHeight, createDynamicHeightExtension } from './dynamicHeight';
-import { resolveBridgeExtensions, selectActiveBridges } from './extensions';
+import {
+  resolveBridgeExtensions,
+  selectActiveBridges,
+  selectHandlerBridges,
+} from './extensions';
 import { boot, type WebRuntime } from './runtime';
 import { createStatePublisher, type StatePublisher } from './statePublisher';
 import {
@@ -26,7 +30,10 @@ export interface UseTenTapArgs {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tiptapOptions?: any;
-  /** Bridges the bundle supports; only those the native side uses are loaded. */
+  /**
+   * Bridges the bundle supports. Those with a TipTap extension load only when
+   * the native side uses them; the others always run.
+   */
   bridges?: BridgeExtension[];
   /** Debounce of `stateUpdate` messages after the initial one. Default 10. */
   stateUpdateDebounceMs?: number;
@@ -35,6 +42,7 @@ export interface UseTenTapArgs {
 interface EditorSetup {
   runtime: WebRuntime;
   config: BootConfig;
+  /** Bridges whose state and message handlers run. */
   bridges: BridgeExtension[];
   extensions: AnyExtension[];
   dynamicHeight: DynamicHeight;
@@ -53,6 +61,7 @@ function createEditorSetup(
   const runtime = boot();
   const config = runtime.requireConfig();
   const active = selectActiveBridges(bridges, config);
+  const handlers = selectHandlerBridges(bridges, active);
   const dynamicHeight = new DynamicHeight({
     onHeight: (height) =>
       runtime.post({ type: PROTOCOL_TYPES.DocumentHeight, payload: height }),
@@ -60,7 +69,7 @@ function createEditorSetup(
   return {
     runtime,
     config,
-    bridges: active,
+    bridges: handlers,
     extensions: [
       ...(config.disableColorHighlight ? [] : [blueBackgroundPlugin]),
       ...resolveBridgeExtensions(active, config),
@@ -69,7 +78,7 @@ function createEditorSetup(
     dynamicHeight,
     publisher: createStatePublisher(
       runtime.post,
-      () => active,
+      () => handlers,
       stateUpdateDebounceMs
     ),
     announced: new WeakSet(),

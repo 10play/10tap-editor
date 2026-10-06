@@ -23,6 +23,20 @@ export function selectActiveBridges(
   );
 }
 
+/**
+ * The bridges whose state and message handlers run: the active ones, plus
+ * bridges without a TipTap extension, which 1.0 ran even when native had not
+ * configured them (e.g. a web-only bridge that only extends the state).
+ */
+export function selectHandlerBridges(
+  bridges: readonly BridgeExtension[],
+  active: readonly BridgeExtension[]
+): BridgeExtension[] {
+  return bridges.filter(
+    (bridge) => active.includes(bridge) || !bridge.tiptapExtension
+  );
+}
+
 function configureBridge(
   bridge: BridgeExtension,
   entry: BridgeConfigEntry | undefined

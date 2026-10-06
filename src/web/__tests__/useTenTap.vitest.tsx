@@ -299,6 +299,29 @@ describe('extensions (#309)', () => {
     expect(posted[1]?.payload).not.toHaveProperty('isItalicActive');
   });
 
+  it('runs web-only bridges without an extension, as 1.0 did', async () => {
+    const onBridgeMessage = vi.fn(() => false);
+    const wordCount = new BridgeExtension({
+      forceName: 'wordCount',
+      extendEditorState: (editor) => ({
+        wordCount: editor.getText().split(/\s+/).filter(Boolean).length,
+      }),
+      onBridgeMessage,
+    });
+    configure({ bridges: [CoreBridge] });
+    await mount({ bridges: [CoreBridge, wordCount] });
+
+    expect(posted[1]?.payload).toMatchObject({ wordCount: 1 });
+    send({ type: 'count-words' });
+    await vi.waitFor(() =>
+      expect(onBridgeMessage).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ type: 'count-words' }),
+        expect.any(Function)
+      )
+    );
+  });
+
   it('configures bridges without mutating them', async () => {
     const link = LinkBridge.configureExtension({ openOnClick: false });
     const original = link.tiptapExtension;
