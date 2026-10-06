@@ -118,6 +118,8 @@ export interface EditorController<S extends object = object> {
    * the editor is ready. Queued commands are replayed after a reload.
    */
   send(message: BridgeMessage, options?: SendOptions): void;
+  /** Stops replaying the command of `coalesceKey`, and drops it if queued. */
+  forgetCoalesced(coalesceKey: string): void;
   /**
    * Sends a request with `payload.messageId` set and resolves with the
    * `content` of the reply carrying the same id. Pending requests are

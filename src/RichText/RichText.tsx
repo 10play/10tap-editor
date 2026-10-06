@@ -143,7 +143,8 @@ const usePage = (editor: EditorBridge, controller: EditorController): Page => {
 /**
  * The editor's `dynamicHeight`. When it differs from what the page booted
  * with, the page switches it at runtime; the message is coalesced, so it is
- * replayed after a reload of the same page.
+ * replayed after a reload of the same page, but not onto a new page, which
+ * boots with the current value.
  */
 const useDynamicHeight = (
   editor: EditorBridge,
@@ -151,9 +152,12 @@ const useDynamicHeight = (
   page: Page
 ): boolean => {
   const dynamicHeight = !!editor.dynamicHeight;
-  const applied = useRef({ page: page.id, value: page.dynamicHeight });
+  const applied = useRef<{ page?: Page['id']; value: boolean }>({
+    value: page.dynamicHeight,
+  });
   useEffect(() => {
     if (applied.current.page !== page.id) {
+      controller.forgetCoalesced(PROTOCOL_TYPES.SetDynamicHeight);
       applied.current = { page: page.id, value: page.dynamicHeight };
     }
     if (applied.current.value === dynamicHeight) return;

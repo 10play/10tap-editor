@@ -49,10 +49,7 @@ export class Outbox {
 
   push(entry: OutboxEntry): void {
     if (entry.kind === 'message' && entry.coalesceKey !== undefined) {
-      const key = entry.coalesceKey;
-      this.entries = this.entries.filter(
-        (queued) => queued.kind !== 'message' || queued.coalesceKey !== key
-      );
+      this.discard(entry.coalesceKey);
     }
     this.entries.push(entry);
     if (this.entries.length > this.limit) {
@@ -62,6 +59,14 @@ export class Outbox {
         if (dropped) this.onDrop?.(dropped);
       }
     }
+  }
+
+  /** Removes the queued message of `coalesceKey`. */
+  discard(coalesceKey: string): void {
+    this.entries = this.entries.filter(
+      (queued) =>
+        queued.kind !== 'message' || queued.coalesceKey !== coalesceKey
+    );
   }
 
   /** Removes and returns every entry, oldest first. */

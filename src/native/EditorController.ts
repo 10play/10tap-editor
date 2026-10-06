@@ -235,6 +235,11 @@ export class NativeEditorController<
     else this.outbox.push({ kind: 'message', message, coalesceKey });
   }
 
+  forgetCoalesced(coalesceKey: string): void {
+    this.coalesced.delete(coalesceKey);
+    this.outbox.discard(coalesceKey);
+  }
+
   rpc<T>(message: BridgeMessage, options: RpcOptions = {}): Promise<T> {
     const { capability } = options;
     if (

@@ -554,6 +554,17 @@ describe('reload', () => {
     ]);
   });
 
+  it('forgets a coalesced command, sent or queued after a reload', () => {
+    const { controller, webView } = readyWithHistory();
+    controller.forgetCoalesced('placeholder');
+    controller.onLoadStart();
+    controller.forgetCoalesced('editable');
+    const sent = webView.envelopes.length;
+    controller.handleWebViewMessage(handshake());
+
+    expect(webView.types.slice(sent)).toEqual(['set-content']);
+  });
+
   it('does not replay anything when the page was never ready', () => {
     const { controller, webView } = setup();
     controller.send(setContent('<p>a</p>'));
