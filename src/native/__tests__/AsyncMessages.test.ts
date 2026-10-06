@@ -1,6 +1,6 @@
 import { asyncMessages } from '../../RichText/AsyncMessages';
 import type { BridgeMessage } from '../../shared/protocol';
-import { setup } from './helpers';
+import { handshake, setup, webMessage } from './helpers';
 
 type GetHTML = { type: 'get-html'; payload?: { messageId: string } };
 
@@ -22,6 +22,22 @@ describe('asyncMessages (deprecated shim)', () => {
 
     await expect(html).resolves.toBe('<p>hi</p>');
     expect(request).toEqual({ type: 'get-html' });
+  });
+
+  it('resolves requests from the core reply of an editor', async () => {
+    const { controller } = setup();
+    controller.handleWebViewMessage(handshake());
+    const html = asyncMessages.sendAsyncMessage<string>(
+      { type: 'get-html' },
+      (message) => controller.send(message)
+    );
+    const [messageId] = pendingIds();
+
+    controller.handleWebViewMessage(
+      webMessage('send-html-back', { messageId, content: '<p>hi</p>' })
+    );
+
+    await expect(html).resolves.toBe('<p>hi</p>');
   });
 
   it('removes callbacks once called (#346)', async () => {

@@ -7,6 +7,7 @@ import {
 import {
   getLastAttachedController,
   subscribeControllerReleased,
+  subscribeUnmatchedReplies,
 } from '../native/EditorController';
 
 type Callback = (value: unknown) => void;
@@ -18,8 +19,9 @@ type MessageSender = { send(message: BridgeMessage): void }['send'];
  * `BridgeContext` passed as the sixth `extendEditorInstance` argument:
  * `context.rpc(message)` resolves replies by `messageId` on its own.
  *
- * Requests still go through the given per-editor sender, and replies still
- * arrive through `onMessage`. Unlike 1.0, callbacks are removed once called
+ * Requests still go through the given per-editor sender, and replies arrive
+ * through `onMessage`, which the controller calls for core replies it did
+ * not request itself. Unlike 1.0, callbacks are removed once called
  * (#346), and requests are dropped when the editor that was attached last at
  * request time detaches, so an unanswered request cannot pin memory forever.
  */
@@ -29,6 +31,10 @@ class AsyncMessages {
   private readonly owners = new Map<string, EditorController<object>>();
 
   constructor() {
+    // 1.0's CoreBridge resolved these from the core `send-*-back` replies.
+    subscribeUnmatchedReplies(({ messageId, content }) =>
+      this.onMessage(messageId, content)
+    );
     subscribeControllerReleased((controller) => {
       this.owners.forEach((owner, id) => {
         if (owner !== controller) return;

@@ -29,6 +29,7 @@ import {
   isForEditor,
   readRpcReply,
   type BridgeMessage,
+  type RpcReplyPayload,
   type WebMessage,
 } from '../shared/protocol';
 import { DEFAULT_CSS_TAG, Injector } from './injector';
@@ -388,7 +389,9 @@ export class NativeEditorController<
         return;
       default: {
         const reply = readRpcReply(message);
-        if (reply) this.rpcs.resolve(reply.messageId, reply.content);
+        if (reply && !this.rpcs.resolve(reply.messageId, reply.content)) {
+          unmatchedReplies.emit(reply);
+        }
       }
     }
   }
@@ -594,6 +597,7 @@ export function createBridgeContext<S extends object>(
 // `asyncMessages` shim, which has no editor of its own.
 const attachedControllers: EditorController<object>[] = [];
 const released = createEmitter<EditorController<object>>();
+const unmatchedReplies = createEmitter<RpcReplyPayload>();
 
 function registerAttached(controller: EditorController<object>): void {
   const index = attachedControllers.indexOf(controller);
@@ -611,6 +615,16 @@ function unregisterAttached(controller: EditorController<object>): void {
 export function getLastAttachedController():
   EditorController<object> | undefined {
   return attachedControllers[attachedControllers.length - 1];
+}
+
+/**
+ * Called with replies no controller sent the request for, such as those of
+ * the deprecated `asyncMessages`.
+ */
+export function subscribeUnmatchedReplies(
+  listener: Listener<RpcReplyPayload>
+): Unsubscribe {
+  return unmatchedReplies.subscribe(listener);
 }
 
 /** Called when a controller is detached or disposed. */
