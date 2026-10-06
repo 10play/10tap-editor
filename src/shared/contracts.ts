@@ -88,8 +88,13 @@ export interface EditorController<S extends object = object> {
   attach(): void;
   detach(): void;
 
-  /** WebView wiring, called by `RichText`. */
+  /**
+   * WebView wiring, called by `RichText`. `null` only detaches: a ref that
+   * comes back (Suspense, `<Activity>`) can still show the same page.
+   */
   setWebView(handle: WebViewHandle | null): void;
+  /** A new WebView instance replaces the page: back to `loading`. */
+  onPageReplaced(): void;
   /** Raw `event.nativeEvent.data`. Invalid data and foreign `editorId`s are ignored. */
   handleWebViewMessage(data: unknown): void;
   /** A load after the first one means a reload: back to `loading`. */

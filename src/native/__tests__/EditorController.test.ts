@@ -581,14 +581,61 @@ describe('reload', () => {
     controller.send(setContent('<p>a</p>'));
 
     controller.setWebView(null);
-    expect(controller.isReady()).toBe(false);
     const next = new FakeWebView();
     controller.setWebView(next);
     controller.onLoadStart();
+    expect(controller.isReady()).toBe(false);
     controller.handleWebViewMessage(handshake());
 
     expect(webView.types).toEqual(['set-content']);
     expect(next.types).toEqual(['set-content']);
+  });
+
+  it('keeps a ready page whose WebView ref detaches and comes back', async () => {
+    const { controller, webView } = setup();
+    controller.handleWebViewMessage(handshake());
+    controller.send(setContent('<p>draft</p>'));
+    const html = controller.rpc<string>(getHTML);
+
+    // Suspense re-suspending, or an <Activity> hidden and shown again.
+    controller.setWebView(null);
+    expect(controller.isReady()).toBe(true);
+    controller.send(setEditable(false));
+    const again = new FakeWebView();
+    controller.setWebView(again);
+    await Promise.resolve();
+
+    expect(controller.isReady()).toBe(true);
+    expect(again.types).toEqual(['set-editable']);
+    controller.handleWebViewMessage(webMessage('stateUpdate', {}));
+    expect(again.types).toEqual(['set-editable']);
+    expect(controller.supports(CAPABILITIES.SelectedText)).toBe(true);
+
+    const { messageId } = webView.messages[1]!.payload as {
+      messageId: string;
+    };
+    controller.handleWebViewMessage(reply(messageId, '<p>typed</p>'));
+    await expect(html).resolves.toBe('<p>typed</p>');
+  });
+
+  it('sends what was queued while detached to a new page once', async () => {
+    const { controller } = setup();
+    controller.handleWebViewMessage(handshake());
+    controller.send(setContent('<p>a</p>'));
+
+    controller.setWebView(null);
+    const html = controller.rpc<string>(getHTML);
+    controller.send({ type: 'focus', payload: 'end' });
+    const next = new FakeWebView();
+    controller.setWebView(next);
+    controller.onPageReplaced();
+    await Promise.resolve();
+    expect(next.types).toEqual([]);
+
+    controller.onLoadStart();
+    controller.handleWebViewMessage(handshake());
+    expect(next.types).toEqual(['set-content', 'get-html', 'focus']);
+    void html;
   });
 });
 

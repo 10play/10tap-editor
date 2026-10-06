@@ -283,6 +283,15 @@ export const RichText = ({
     rendererLosses,
   ].join(':');
 
+  // A new key mounts a new WebView instance, so a new page. A ref that
+  // detaches and comes back with the same key (Suspense, <Activity>) keeps it.
+  const mountedWebViewKey = useRef(webViewKey);
+  useLayoutEffect(() => {
+    if (mountedWebViewKey.current === webViewKey) return;
+    mountedWebViewKey.current = webViewKey;
+    controller.onPageReplaced();
+  }, [controller, webViewKey]);
+
   const forwardingWebView = useMemo(
     () => (Platform.OS === 'web' ? createForwardingWebView() : null),
     // One per WebView instance.
@@ -497,6 +506,7 @@ export const RichText = ({
         onRenderProcessGone={(event) => {
           // The dead WebView must not be scripted again; until the new one
           // mounts, everything sent is queued.
+          controller.onPageReplaced();
           controller.setWebView(null);
           setRendererLosses((count) => count + 1);
           props.onRenderProcessGone?.(event);

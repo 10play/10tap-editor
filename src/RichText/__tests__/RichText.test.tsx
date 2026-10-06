@@ -1,4 +1,4 @@
-import React, { StrictMode } from 'react';
+import React, { StrictMode, Suspense, use } from 'react';
 import {
   Platform,
   StyleSheet,
@@ -862,6 +862,50 @@ describe('RichText lifecycle', () => {
     expect(editor.getEditorState().isReady).toBe(true);
     expect(postedTypes(webView)).toContain(CoreEditorActionType.SetContent);
     expect(webView.injectedJavaScript).toContain('true;');
+  });
+
+  it('keeps the page when a Suspense boundary hides and reveals the WebView', async () => {
+    let resolve = () => {};
+    const pending = new Promise<void>((done) => {
+      resolve = done;
+    });
+    const Sibling = ({ suspend }: { suspend: boolean }) => {
+      if (suspend) use(pending);
+      return null;
+    };
+    const { result } = createEditor();
+    const editor = result.current;
+    const tree = (suspend: boolean) => (
+      <Suspense fallback={null}>
+        <RichText editor={editor} />
+        <Sibling suspend={suspend} />
+      </Suspense>
+    );
+    const { rerender } = render(tree(false));
+    const webView = mockWebViews.latest();
+    load(webView);
+    ready(webView, editor);
+    editor.setContent('<p>draft</p>');
+
+    await act(async () => rerender(tree(true)));
+    expect(webView.mounted).toBe(false);
+    expect(editor.webviewRef.current).toBeNull();
+    await act(async () => {
+      resolve();
+      await pending;
+    });
+    expect(webView.mounted).toBe(true);
+    expect(editor.webviewRef.current).not.toBeNull();
+    expect(mockWebViews.latest()).toBe(webView);
+
+    webView.postedMessages.length = 0;
+    act(() =>
+      webView.simulateMessage(webMessage(PROTOCOL_TYPES.StateUpdate, {}))
+    );
+    expect(editor.getEditorState().isReady).toBe(true);
+    expect(webView.postedMessages).toEqual([]);
+    editor.toggleBold();
+    expect(postedTypes(webView)).toEqual(['toggle-bold']);
   });
 
   it('remounts the first WebView on affected iOS versions', () => {

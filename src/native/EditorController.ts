@@ -148,8 +148,24 @@ export class NativeEditorController<
   setWebView(handle: WebViewHandle | null): void {
     const previous = this.transport.getWebView();
     if (!this.transport.setWebView(handle)) return;
-    // Another WebView instance means another page, starting from scratch.
-    if (previous !== null) this.reset();
+    if (handle === null) return;
+    // Swapped without a detach: another page, starting from scratch.
+    if (previous !== null) {
+      this.reset();
+      return;
+    }
+    if (!this.isReady()) return;
+    // Re-attached while ready. Deliver what was queued after the commit,
+    // unless `onPageReplaced` showed the handle belongs to a new page.
+    void Promise.resolve().then(() => {
+      if (this.isReady() && this.transport.getWebView() === handle) {
+        this.flush();
+      }
+    });
+  }
+
+  onPageReplaced(): void {
+    this.reset();
   }
 
   handleWebViewMessage(data: unknown): void {
@@ -230,7 +246,7 @@ export class NativeEditorController<
       this.contentVersion++;
     }
 
-    if (this.isReady()) this.transport.post(message);
+    if (this.canPost()) this.transport.post(message);
     else this.outbox.push({ kind: 'message', message, coalesceKey });
   }
 
@@ -254,24 +270,23 @@ export class NativeEditorController<
       capability,
       timeoutMs: options.timeoutMs ?? this.options.rpcTimeoutMs,
     });
-    if (this.isReady()) this.postRpc(messageId);
+    if (this.canPost()) this.postRpc(messageId);
     else this.outbox.push({ kind: 'rpc', messageId });
     return promise;
   }
 
   injectJS(js: string): void {
-    if (this.isReady()) this.transport.inject(js);
+    if (this.canPost()) this.transport.inject(js);
     else this.outbox.push({ kind: 'script', js });
   }
 
   injectCSS(css: string, tag: string = DEFAULT_CSS_TAG): void {
-    const script = this.injector.setStyleSheet(tag, css);
-    if (this.isReady()) this.transport.inject(script);
+    this.injectPersistent(this.injector.setStyleSheet(tag, css));
   }
 
   registerPersistentScript(key: string, js: string | null): void {
     this.injector.setScript(key, js);
-    if (js !== null && this.isReady()) this.transport.inject(js);
+    if (js !== null) this.injectPersistent(js);
   }
 
   runInternal<T>(token: symbol, fn: () => T): T {
@@ -456,6 +471,23 @@ export class NativeEditorController<
     this.options.onReady?.();
   }
 
+  /** Ready with a WebView attached. */
+  private canPost(): boolean {
+    return this.isReady() && this.transport.getWebView() !== null;
+  }
+
+  /** Every ready re-applies it; a detached ready page gets it on re-attach. */
+  private injectPersistent(js: string): void {
+    if (this.canPost()) this.transport.inject(js);
+    else if (this.isReady()) this.outbox.push({ kind: 'script', js });
+  }
+
+  /** Delivers what was queued while a ready page had no WebView attached. */
+  private flush(): void {
+    this.postContainerHeight();
+    this.outbox.drain().forEach((entry) => this.deliver(entry));
+  }
+
   /** Back to `loading`; when the page was ready, re-queue what it held. */
   private reset(): void {
     this.clearReadyTimer();
@@ -466,6 +498,15 @@ export class NativeEditorController<
     if (!this.isReady()) return;
     this.phase = 'loading';
 
+    // Queued while detached; the replay below covers RPCs and coalesced
+    // commands.
+    const detached = this.outbox
+      .drain()
+      .filter(
+        (entry) =>
+          entry.kind === 'script' ||
+          (entry.kind === 'message' && entry.coalesceKey === undefined)
+      );
     if (this.lastContent) {
       this.outbox.push({ kind: 'message', message: this.lastContent });
     }
@@ -475,6 +516,7 @@ export class NativeEditorController<
     this.rpcs
       .ids()
       .forEach((messageId) => this.outbox.push({ kind: 'rpc', messageId }));
+    detached.forEach((entry) => this.outbox.push(entry));
 
     this.ready.set(false);
     this.state.set({ ...this.state.get(), isReady: false });
