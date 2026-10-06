@@ -138,7 +138,7 @@
     "@tiptap/react": "^3.11.0",
     "react": "*",
     "react-dom": "*",
-    "react-native": "*",
+    "react-native": ">=0.74",
     "react-native-webview": "*"
   },
   "peerDependenciesMeta": {

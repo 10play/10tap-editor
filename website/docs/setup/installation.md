@@ -33,7 +33,7 @@ Now you ready to add tentap to your app!
 | iOS | 15.1 or newer (or your app's `min_ios_version_supported`) |
 | Android | The library builds with `minSdkVersion` 24. The editor is tested on Android 10 (API level 29) and newer, which we recommend as your minimum. `androidKeyboardMode="stable"` needs Android 11 (API level 30). |
 
-`peerDependencies` are declared as `*`, so installation never fails on version ranges. On React Native 0.73 and older the JavaScript part still works, but the Android native module does not compile because it needs `BaseReactPackage` (added in 0.74). Stay on 1.0.x if you cannot upgrade React Native.
+The package declares `react-native` `>=0.74` as a peer dependency, because the Android native module needs `BaseReactPackage` (added in 0.74) and does not compile on older versions. Stay on 1.0.x if you cannot upgrade React Native.
 
 ### Expo Web
 
