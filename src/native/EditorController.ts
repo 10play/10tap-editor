@@ -106,6 +106,11 @@ export class NativeEditorController<
   private internalToken: symbol | undefined;
   private containerHeight: number | undefined;
   private containerEchoTimer: ReturnType<typeof setTimeout> | undefined;
+  /**
+   * Capability-gated RPCs held while the bundle is unknown: ready through the
+   * timeout fallback, before its handshake or its first legacy `stateUpdate`.
+   */
+  private heldRpcs: string[] = [];
   /** Latest message per coalesce key, in last-sent order. */
   private readonly coalesced = new Map<string, BridgeMessage>();
   /** The `set-content` to replay after a reload. */
@@ -248,6 +253,7 @@ export class NativeEditorController<
     if (
       capability !== undefined &&
       this.isReady() &&
+      this.readySource !== 'timeout' &&
       !this.supports(capability)
     ) {
       return Promise.reject(new TentapUnsupportedError(capability));
@@ -369,7 +375,12 @@ export class NativeEditorController<
         return;
       case PROTOCOL_TYPES.StateUpdate:
         // A legacy bundle: the new runtime posts `editor-ready` first.
-        if (!this.isReady()) this.becomeReady('state');
+        if (!this.isReady()) {
+          this.becomeReady('state');
+        } else if (this.readySource === 'timeout') {
+          this.readySource = 'state';
+          this.releaseHeldRpcs();
+        }
         if (isRecord(message.payload)) {
           // The bundle sends the merged `extendEditorState` of its bridges.
           this.setState(message.payload as S);
@@ -416,6 +427,7 @@ export class NativeEditorController<
           .scriptsForReady()
           .forEach((js) => this.transport.inject(js));
         this.postContainerHeight();
+        this.releaseHeldRpcs();
         return;
       }
     }
@@ -460,6 +472,8 @@ export class NativeEditorController<
     this.clearReadyTimer();
     this.capabilities = LEGACY_CAPABILITIES;
     this.readySource = undefined;
+    // Still pending in the registry, so they are re-queued below.
+    this.heldRpcs = [];
     if (!this.isReady()) return;
     this.phase = 'loading';
 
@@ -512,6 +526,10 @@ export class NativeEditorController<
       pending.capability !== undefined &&
       !this.supports(pending.capability)
     ) {
+      if (this.readySource === 'timeout') {
+        this.heldRpcs.push(messageId);
+        return;
+      }
       this.rpcs.reject(
         messageId,
         new TentapUnsupportedError(pending.capability)
@@ -519,6 +537,13 @@ export class NativeEditorController<
       return;
     }
     this.transport.post(pending.request);
+  }
+
+  /** Posts or rejects the held RPCs once the bundle's capabilities are known. */
+  private releaseHeldRpcs(): void {
+    const held = this.heldRpcs;
+    this.heldRpcs = [];
+    held.forEach((messageId) => this.postRpc(messageId));
   }
 
   /**

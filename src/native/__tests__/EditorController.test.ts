@@ -182,6 +182,49 @@ describe('readiness', () => {
     await expect(html).resolves.toBe('<p>a</p>');
   });
 
+  it('holds capability-gated RPCs until the bundle is known', async () => {
+    jest.useFakeTimers();
+    const { controller, webView } = setup();
+    const getSelected: BridgeMessage = { type: 'get-selected-text' };
+    const queued = controller.rpc<string>(getSelected, {
+      capability: CAPABILITIES.SelectedText,
+    });
+    controller.onLoadEnd();
+    jest.advanceTimersByTime(LEGACY_READY_TIMEOUT_MS);
+    const later = controller.rpc<string>(getSelected, {
+      capability: CAPABILITIES.SelectedText,
+    });
+    expect(webView.types).toEqual([]);
+
+    controller.handleWebViewMessage(handshake());
+
+    expect(webView.types).toEqual(['get-selected-text', 'get-selected-text']);
+    webView.messages.forEach(({ payload }) => {
+      const { messageId } = payload as { messageId: string };
+      controller.handleWebViewMessage(
+        webMessage('send-selected-text-back', { messageId, content: 'x' })
+      );
+    });
+    await expect(Promise.all([queued, later])).resolves.toEqual(['x', 'x']);
+  });
+
+  it('rejects held RPCs once a legacy bundle sends state', async () => {
+    jest.useFakeTimers();
+    const { controller } = setup();
+    controller.onLoadEnd();
+    jest.advanceTimersByTime(LEGACY_READY_TIMEOUT_MS);
+    const selected = controller.rpc(
+      { type: 'get-selected-text' },
+      {
+        capability: CAPABILITIES.SelectedText,
+      }
+    );
+
+    controller.handleWebViewMessage(webMessage('stateUpdate', {}));
+
+    await expect(selected).rejects.toBeInstanceOf(TentapUnsupportedError);
+  });
+
   it('replays what the fallback flushed when a legacy handshake arrives late', () => {
     jest.useFakeTimers();
     const { controller, webView } = setup();
