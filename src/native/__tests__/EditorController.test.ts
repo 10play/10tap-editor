@@ -832,41 +832,6 @@ describe('lifecycle', () => {
     expect(getLastAttachedController()).toBe(first);
     first.detach();
   });
-
-  it('drops everything on dispose and ignores later calls', () => {
-    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    const { controller, webView } = setup();
-    const settled = jest.fn();
-    controller.rpc(getHTML).then(settled, settled);
-    controller.send({ type: 'blur' });
-
-    controller.dispose();
-    controller.send({ type: 'focus' });
-    controller.handleWebViewMessage(handshake());
-
-    expect(controller['rpcs'].size).toBe(0);
-    expect(webView.envelopes).toEqual([]);
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining('send() called after')
-    );
-    expect(getLastAttachedController()).not.toBe(controller);
-    return Promise.resolve().then(() => expect(settled).not.toHaveBeenCalled());
-  });
-
-  it('drops scripts after dispose without warning', () => {
-    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    const { controller, webView } = setup();
-    controller.handleWebViewMessage(handshake());
-    const injected = webView.scripts.length;
-    controller.dispose();
-
-    controller.injectJS('teardown();');
-    controller.registerPersistentScript('keyboard', null);
-
-    expect(webView.scripts).toHaveLength(injected);
-    expect(warn).not.toHaveBeenCalled();
-    warn.mockRestore();
-  });
 });
 
 describe('createBridgeContext', () => {

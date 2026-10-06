@@ -101,7 +101,6 @@ export class NativeEditorController<
   private readyTimer: ReturnType<typeof setTimeout> | undefined;
   private loadStarted = false;
   private remountPending = false;
-  private disposed = false;
   private overflowWarned = false;
   private internalToken: symbol | undefined;
   private containerHeight: number | undefined;
@@ -132,10 +131,6 @@ export class NativeEditorController<
   // Lifecycle
 
   attach(): void {
-    if (this.disposed) {
-      warn('attach() called on a disposed editor controller.');
-      return;
-    }
     registerAttached(this);
   }
 
@@ -143,19 +138,6 @@ export class NativeEditorController<
   // pending when the editor unmounted.
   detach(): void {
     unregisterAttached(this);
-  }
-
-  dispose(): void {
-    if (this.disposed) return;
-    this.detach();
-    this.disposed = true;
-    this.clearReadyTimer();
-    this.clearContainerEcho();
-    this.rpcs.clear();
-    this.outbox.clear();
-    this.messageListeners.clear();
-    this.commandListeners.clear();
-    this.transport.setWebView(null);
   }
 
   // WebView wiring
@@ -172,7 +154,6 @@ export class NativeEditorController<
   }
 
   handleWebViewMessage(data: unknown): void {
-    if (this.disposed) return;
     const message = decodeWebMessage(data);
     if (!message || !isForEditor(message.editorId, this.editorId)) return;
     this.receive(message);
@@ -230,7 +211,6 @@ export class NativeEditorController<
   // Outbound
 
   send(message: BridgeMessage, options: SendOptions = {}): void {
-    if (this.isDisposed('send')) return;
     const meta: CommandMeta =
       this.internalToken === undefined ? {} : { internal: this.internalToken };
     Array.from(this.commandListeners).forEach((listener) =>
@@ -252,7 +232,6 @@ export class NativeEditorController<
   }
 
   rpc<T>(message: BridgeMessage, options: RpcOptions = {}): Promise<T> {
-    if (this.isDisposed('rpc')) return new Promise<T>(() => {});
     const { capability } = options;
     if (
       capability !== undefined &&
@@ -272,23 +251,17 @@ export class NativeEditorController<
     return promise;
   }
 
-  // Scripts sent after dispose come from teardown code that runs after the
-  // editor unmounted (the keyboard restoring inputmode); there is no page left
-  // to script, so they are dropped without a warning.
   injectJS(js: string): void {
-    if (this.disposed) return;
     if (this.isReady()) this.transport.inject(js);
     else this.outbox.push({ kind: 'script', js });
   }
 
   injectCSS(css: string, tag: string = DEFAULT_CSS_TAG): void {
-    if (this.isDisposed('injectCSS')) return;
     const script = this.injector.setStyleSheet(tag, css);
     if (this.isReady()) this.transport.inject(script);
   }
 
   registerPersistentScript(key: string, js: string | null): void {
-    if (this.disposed) return;
     this.injector.setScript(key, js);
     if (js !== null && this.isReady()) this.transport.inject(js);
   }
@@ -456,7 +429,6 @@ export class NativeEditorController<
 
   private becomeReady(source: ReadySource): void {
     if (
-      this.disposed ||
       this.remountPending ||
       this.isReady() ||
       this.transport.getWebView() === null
@@ -501,7 +473,7 @@ export class NativeEditorController<
   }
 
   private armLegacyFallback(): void {
-    if (this.disposed || this.isReady() || this.readyTimer !== undefined) {
+    if (this.isReady() || this.readyTimer !== undefined) {
       return;
     }
     this.readyTimer = setTimeout(() => {
@@ -596,12 +568,6 @@ export class NativeEditorController<
       entry
     );
   }
-
-  private isDisposed(method: string): boolean {
-    if (this.disposed)
-      warn(`${method}() called after the editor was disposed.`);
-    return this.disposed;
-  }
 }
 
 export function createEditorController<S extends object>(
@@ -664,7 +630,7 @@ export function subscribeUnmatchedReplies(
   return unmatchedReplies.subscribe(listener);
 }
 
-/** Called when a controller is detached or disposed. */
+/** Called when a controller is detached. */
 export function subscribeControllerReleased(
   listener: Listener<EditorController<object>>
 ): Unsubscribe {

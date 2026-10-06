@@ -275,10 +275,10 @@ describe('custom keyboard with the editor controller', () => {
     expect(t.phase()).toBe('closing');
   });
 
-  it('tears down silently after the editor was disposed', async () => {
+  it('tears down silently after the editor was detached', async () => {
     const t = setup({ native: null });
     await t.openFully();
-    t.controller.dispose();
+    t.controller.detach();
     t.session.detach();
     expect(console.warn).not.toHaveBeenCalled();
   });

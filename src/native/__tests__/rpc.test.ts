@@ -50,20 +50,4 @@ describe('RpcRegistry', () => {
     expect(error).toMatchObject({ requestType: 'get-html', timeoutMs: 50 });
     expect(registry.size).toBe(0);
   });
-
-  it('drops pending entries on clear without settling them', async () => {
-    jest.useFakeTimers();
-    const registry = new RpcRegistry();
-    const settled = jest.fn();
-    registry
-      .create('id.1', { type: 'get-html' }, { timeoutMs: 10 })
-      .then(settled, settled);
-
-    registry.clear();
-    jest.advanceTimersByTime(100);
-    await Promise.resolve();
-
-    expect(registry.size).toBe(0);
-    expect(settled).not.toHaveBeenCalled();
-  });
 });

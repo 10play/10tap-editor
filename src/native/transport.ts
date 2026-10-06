@@ -70,10 +70,6 @@ export class Outbox {
     this.entries = [];
     return drained;
   }
-
-  clear(): void {
-    this.entries = [];
-  }
 }
 
 /**

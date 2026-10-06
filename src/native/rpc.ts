@@ -14,8 +14,7 @@ interface PendingRpc {
 
 /**
  * Pending requests of one controller, keyed by `messageId` (#346). Entries
- * are deleted as soon as they settle; `clear` drops the rest without
- * settling them so their promises can be garbage-collected.
+ * are deleted as soon as they settle.
  */
 export class RpcRegistry {
   private readonly pending = new Map<string, PendingRpc>();
@@ -62,11 +61,6 @@ export class RpcRegistry {
     const entry = this.take(messageId);
     entry?.reject(error);
     return entry !== undefined;
-  }
-
-  clear(): void {
-    this.pending.forEach((entry) => clearTimeout(entry.timer));
-    this.pending.clear();
   }
 
   private startTimer(messageId: string, entry: PendingRpc): void {

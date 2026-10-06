@@ -83,12 +83,10 @@ export interface EditorController<S extends object = object> {
   /**
    * Lifecycle. `attach` and `detach` are called from an effect and are
    * reversible, so a StrictMode mount/unmount/mount keeps a working
-   * controller. `dispose` is final: pending RPCs are dropped (not rejected)
-   * and later sends are ignored with a dev warning.
+   * controller.
    */
   attach(): void;
   detach(): void;
-  dispose(): void;
 
   /** WebView wiring, called by `RichText`. */
   setWebView(handle: WebViewHandle | null): void;
