@@ -141,6 +141,34 @@ describe('CoreBridge (web)', () => {
     expect(editor.getText()).toBe('a  b');
   });
 
+  it.each([
+    [
+      '<span>Text with   multiple   spaces</span>',
+      'Text with   multiple   spaces',
+    ],
+    ['Hello <span>world</span>', 'Hello world'],
+  ])(
+    'parses inline-only HTML %s with preserveWhitespace full',
+    (html, text) => {
+      const perCall = createEditor('<p></p>');
+      perCall.dispatch({
+        type: 'set-content',
+        payload: {
+          content: html,
+          parseOptions: { preserveWhitespace: 'full' },
+        },
+      });
+      const editorLevel = createEditor('<p></p>', {
+        parseOptions: { preserveWhitespace: 'full' },
+      });
+      editorLevel.dispatch({ type: 'set-content', payload: { content: html } });
+
+      for (const { editor } of [perCall, editorLevel]) {
+        expect(editor.getHTML()).toBe(`<p>${text}</p>`);
+      }
+    }
+  );
+
   it('emits an update unless emitUpdate is false', () => {
     const { editor, dispatch } = createEditor('<p>a</p>');
     const onUpdate = vi.fn();

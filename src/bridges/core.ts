@@ -1,4 +1,5 @@
 import {
+  createDocument,
   getTextBetween,
   getTextSerializersFromSchema,
   type Content,
@@ -188,9 +189,22 @@ export const CoreBridge = new BridgeExtension<
     switch (message.type) {
       case CoreEditorActionType.SetContent: {
         const { content, parseOptions, emitUpdate } = message.payload;
-        editor.commands.setContent(content, {
-          parseOptions: parseOptions ?? editor.options.parseOptions,
-          emitUpdate: emitUpdate ?? true,
+        // TipTap's setContent inserts plain inline HTML as literal text when
+        // preserveWhitespace is 'full', so the document is built here.
+        editor.commands.command(({ tr, dispatch }) => {
+          const doc = createDocument(
+            content,
+            editor.schema,
+            parseOptions ?? editor.options.parseOptions,
+            { errorOnInvalidContent: editor.options.enableContentCheck }
+          );
+          if (dispatch) {
+            tr.replaceWith(0, tr.doc.content.size, doc).setMeta(
+              'preventUpdate',
+              !(emitUpdate ?? true)
+            );
+          }
+          return true;
         });
         return true;
       }
