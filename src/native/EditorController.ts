@@ -223,7 +223,11 @@ export class NativeEditorController<
       this.coalesced.set(coalesceKey, message);
     }
     if (message.type === SET_CONTENT_TYPE) {
-      this.lastContent = message;
+      // Replayed only to restore a reloaded page, which is not an edit.
+      this.lastContent = {
+        ...message,
+        payload: { ...(message.payload as object), emitUpdate: false },
+      };
       this.contentVersion++;
     }
 

@@ -508,7 +508,11 @@ describe('reload', () => {
       'set-editable',
       'get-html',
     ]);
-    expect(replayed[0]).toEqual(setContent('<p>last</p>'));
+    // A restore must not reach the app's onChange as an edit.
+    expect(replayed[0]).toEqual({
+      type: SET_CONTENT_TYPE,
+      payload: { content: '<p>last</p>', emitUpdate: false },
+    });
     expect(replayed[2]).toEqual(setEditable(true));
     expect(webView.scripts.slice(injected)).toEqual([
       expect.stringContaining('p{color:red}'),
