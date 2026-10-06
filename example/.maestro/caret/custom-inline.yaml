@@ -20,6 +20,8 @@ tags:
     env:
       LABEL: ${RUN}
 - runFlow:
+    file: subflows/dismiss-logbox.yaml
+- runFlow:
     file: tap-id.yaml
     env:
       ID: toggle-sticker-keyboard

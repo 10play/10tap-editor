@@ -1,0 +1,16 @@
+# Debug builds: dismisses a LogBox warning toast that would cover the
+# controls at the bottom of the screen.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+---
+- runFlow:
+    when:
+      visible: 'Open debugger to view warnings.'
+    commands:
+      - tapOn: 'Open debugger to view warnings.'
+      # Older LogBox opens an inspector instead of the debugger.
+      - tapOn:
+          text: 'Dismiss'
+          optional: true
+      - waitForAnimationToEnd
