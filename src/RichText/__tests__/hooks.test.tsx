@@ -6,7 +6,12 @@ import BridgeExtension from '../../bridges/base';
 import { BoldBridge } from '../../bridges/bold';
 import { TenTapStartKit } from '../../bridges/StarterKit';
 import { CoreBridge, CoreEditorActionType } from '../../bridges/core';
+import { buildStyleSheetScript } from '../../native/injector';
 import { getEditorController } from '../../shared/contracts';
+import {
+  DYNAMIC_HEIGHT_CSS,
+  DYNAMIC_HEIGHT_STYLE_TAG,
+} from '../../shared/dynamicHeightStyle';
 import { TentapRpcTimeoutError } from '../../shared/errors';
 import { PROTOCOL_TYPES, type BridgeMessage } from '../../shared/protocol';
 import {
@@ -392,6 +397,22 @@ describe('useEditorBridge', () => {
 
     const applied = webView.scripts.filter((js) => js.includes('color: red'));
     expect(applied).toHaveLength(2);
+  });
+
+  it('gives legacy bundles the corrected dynamic-height stylesheet (#336)', () => {
+    jest.useFakeTimers();
+    const { result } = renderEditor({ dynamicHeight: true });
+    const editor = result.current;
+    const { controller, webView } = connect(editor, { ready: false });
+
+    act(() => controller.handleWebViewMessage(legacyReady()));
+    act(() => jest.runOnlyPendingTimers());
+
+    const css = buildStyleSheetScript(
+      DYNAMIC_HEIGHT_CSS,
+      DYNAMIC_HEIGHT_STYLE_TAG
+    );
+    expect(webView.scripts).toContain(css);
   });
 });
 

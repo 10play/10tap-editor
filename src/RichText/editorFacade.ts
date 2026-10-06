@@ -9,6 +9,10 @@ import {
   type NativeEditorController,
 } from '../native/EditorController';
 import { attachEditorController } from '../shared/contracts';
+import {
+  DYNAMIC_HEIGHT_CSS,
+  DYNAMIC_HEIGHT_STYLE_TAG,
+} from '../shared/dynamicHeightStyle';
 import type { BridgeMessage } from '../shared/protocol';
 import type { BridgeState, EditorBridge, EditorBridgeOptions } from '../types';
 import { mergeThemes } from '../utils/mergeThemes';
@@ -86,6 +90,9 @@ export function createEditorFacade(
     },
   });
   attachEditorController(editor, controller);
+  // Custom bundles built against 1.0 lack the corrected dynamic-height rules;
+  // the 1.1 runtime applies the same stylesheet itself.
+  controller.injectCSS(DYNAMIC_HEIGHT_CSS, DYNAMIC_HEIGHT_STYLE_TAG);
 
   // React assigns `current` when `RichText` mounts the WebView, which hands
   // the instance to the controller; reads return whatever the controller has.

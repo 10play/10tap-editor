@@ -286,7 +286,7 @@ Rebuild your editor bundle (`yarn editor:build`) whenever you upgrade `@10play/t
 
 When upgrading from 1.0, also:
 
-- change `#root div.dynamic-height .ProseMirror` in your `index.html` to `height: auto; min-height: 0; display: flow-root;` as shown above, so dynamic height can shrink, doesn't loop on iOS and includes the first and last paragraph margins (the 1.1 runtime also applies this rule itself);
+- change `#root div.dynamic-height .ProseMirror` in your `index.html` to `height: auto; min-height: 0; display: flow-root;` as shown above, so dynamic height can shrink, doesn't loop on iOS and includes the first and last paragraph margins (1.1 also injects this rule, so a bundle that wasn't rebuilt yet gets it too);
 - import `EditorContent` from `@10play/tentap-editor` instead of `@tiptap/react`, which 1.1 no longer installs (the editor build fails to resolve it otherwise), and follow [Sharing tiptap](#sharing-tiptap-with-10playtentap-editorweb).
 
 The `contentInjected` polling in `index.tsx` still works. In 1.1 the configuration is written into the `customSource` HTML before your script runs, so the first check already passes.
