@@ -21,8 +21,11 @@ import { getFocusTracker } from '../web/focus';
 
 export type EditorContentType = 'html' | 'text' | 'json';
 
+/** A range of ProseMirror document positions (as in `BridgeState.selection`). */
+export type SelectionRange = { from: number; to: number };
+
 type CoreEditorState = {
-  selection: { from: number; to: number };
+  selection: SelectionRange;
   isFocused: boolean;
   isReady: boolean;
   editable: boolean;
@@ -30,9 +33,6 @@ type CoreEditorState = {
 };
 
 type FocusArgs = 'start' | 'end' | 'all' | number | boolean | null;
-
-/** A range of ProseMirror document positions (as in `BridgeState.selection`). */
-export type SelectionRange = { from: number; to: number };
 
 export interface SetContentOptions {
   /**
