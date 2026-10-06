@@ -69,7 +69,7 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 - `useEditorContent` fetches content on content changes only, ignores out-of-order replies and stops after unmount.
 - On iOS the WebView is remounted after its first load only with react-native-webview 13.12.3 and 13.12.4.
 - The WebView reloads and restores the editor when its content process is killed.
-- `EditorTheme.colorKeyboard` is optional.
+- `EditorTheme.colorKeyboard` is optional; the types of `editor.theme`, `defaultEditorTheme` and `darkEditorTheme` still always include it.
 - Type-level: `EditorBridge` has the new required members `insertContent` and `getSelectedText`.
 
 ### Deprecated

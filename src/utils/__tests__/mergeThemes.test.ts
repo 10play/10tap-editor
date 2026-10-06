@@ -111,7 +111,9 @@ describe('mergeThemes', () => {
   it('leaves a base theme without colorKeyboard untouched', () => {
     const { colorKeyboard: _omitted, ...base } = defaults();
 
-    expect(mergeThemes(base, { webview: {} }).colorKeyboard).toBeUndefined();
+    const theme: EditorTheme = base;
+
+    expect(mergeThemes(theme, { webview: {} }).colorKeyboard).toBeUndefined();
   });
 
   it('never mutates the built-in themes', () => {

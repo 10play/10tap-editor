@@ -65,12 +65,13 @@ export const useCustomTheme = () =>
     },
   });
 
+// 0.7.x read these without optional chaining.
 export const themeReads = (editor: EditorBridge) => {
-  const root: ColorValue | undefined =
-    editor.theme.colorKeyboard?.keyboardRootColor;
-  const selections: (Color[] | undefined)[] = [
-    defaultEditorTheme.colorKeyboard?.colorSelection,
-    darkEditorTheme.colorKeyboard?.highlightSelection,
+  const root: ColorValue = editor.theme.colorKeyboard.keyboardRootColor;
+  const keyboardTheme: ColorKeyboardTheme = darkEditorTheme.colorKeyboard;
+  const selections: Color[] = [
+    ...defaultEditorTheme.colorKeyboard.colorSelection,
+    ...keyboardTheme.highlightSelection,
   ];
   return { root, selections };
 };

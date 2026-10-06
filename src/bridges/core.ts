@@ -13,7 +13,11 @@ import { resolveBridgeContext, resolveFallbackReply } from './context';
 import type { SerializableParseOptions } from '../shared/bootConfig';
 import { CAPABILITIES } from '../shared/capabilities';
 import { getEditorController } from '../shared/contracts';
-import type { BridgeState as EditorState, EditorTheme } from '../types';
+import type {
+  BridgeState as EditorState,
+  ColorKeyboardTheme,
+  EditorTheme,
+} from '../types';
 import { getFocusTracker } from '../web/focus';
 
 export type EditorContentType = 'html' | 'text' | 'json';
@@ -60,7 +64,8 @@ type CoreEditorInstance = {
   injectJS: (js: string) => void;
   injectCSS: (css: string, tag?: string) => void;
   setEditable: (editable: boolean) => void;
-  theme: EditorTheme;
+  /** The resolved theme, merged over the default one. */
+  theme: EditorTheme & { colorKeyboard: ColorKeyboardTheme };
 };
 
 declare module '../types/EditorBridge' {

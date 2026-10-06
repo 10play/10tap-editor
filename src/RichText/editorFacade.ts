@@ -10,12 +10,7 @@ import {
 } from '../native/EditorController';
 import { attachEditorController } from '../shared/contracts';
 import type { BridgeMessage } from '../shared/protocol';
-import type {
-  BridgeState,
-  EditorBridge,
-  EditorBridgeOptions,
-  EditorTheme,
-} from '../types';
+import type { BridgeState, EditorBridge, EditorBridgeOptions } from '../types';
 import { mergeThemes } from '../utils/mergeThemes';
 import { uniqueBy } from '../utils/uniqueBy';
 import { defaultEditorTheme } from './theme';
@@ -48,7 +43,7 @@ const bridgeNames = (options: EditorBridgeOptions) =>
     .join('\n');
 
 // The default theme is shared and read-only, so merge into a copy.
-const resolveTheme = (theme: EditorBridgeOptions['theme']): EditorTheme =>
+const resolveTheme = (theme: EditorBridgeOptions['theme']) =>
   mergeThemes(cloneDeep(defaultEditorTheme), theme);
 
 /**

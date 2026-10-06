@@ -10,8 +10,7 @@ export interface EditorTheme {
   toolbar: ToolbarTheme;
   /**
    * Styles for `ColorKeyboard`. Optional so a full 1.0 `EditorTheme` still
-   * compiles; the built-in themes always provide it and readers fall back to
-   * `defaultColorKeyboardTheme`.
+   * compiles; `editor.theme` and the built-in themes always provide it.
    */
   colorKeyboard?: ColorKeyboardTheme;
   webview: StyleProp<ViewStyle>;
