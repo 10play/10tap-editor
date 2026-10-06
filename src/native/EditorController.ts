@@ -400,13 +400,16 @@ export class NativeEditorController<
     if (this.remountPending) return;
     const capabilities = capabilitiesFromEditorReady(payload);
     if (this.isReady()) {
-      if (this.readySource !== 'state') {
-        // A second handshake means the page restarted. One after the timeout
-        // fallback means the editor only now exists: what the fallback
-        // flushed reached no listener.
+      // After the timeout fallback, a 1.1 runtime buffered what was flushed
+      // and hands it to the editor before this handshake; only a legacy
+      // bundle, whose listener did not exist yet, lost it.
+      const buffered = this.readySource === 'timeout' && !capabilities.legacy;
+      if (this.readySource !== 'state' && !buffered) {
+        // A second handshake means the page restarted, and a legacy one
+        // after the timeout fallback that the fallback reached no listener.
         this.reset();
       } else {
-        // A bundle that already sent state; the handshake upgrades it.
+        // The handshake upgrades a bundle that is already being talked to.
         this.capabilities = capabilities;
         this.readySource = 'handshake';
         this.injector

@@ -149,15 +149,22 @@ describe('readiness', () => {
     expect(webView.scripts).toHaveLength(2);
   });
 
-  it('replays what the fallback flushed when the handshake arrives late', async () => {
+  it('keeps what the fallback flushed when a 1.1 handshake arrives late', async () => {
     jest.useFakeTimers();
     const { controller, webView } = setup();
+    controller.injectCSS('p{}');
     controller.send(setContent('<p>a</p>'));
     const html = controller.rpc<string>(getHTML);
     controller.onLoadEnd();
     jest.advanceTimersByTime(LEGACY_READY_TIMEOUT_MS);
-    expect(webView.types).toEqual(['set-content', 'get-html']);
+    controller.send({ type: 'insert-content', payload: { content: 'b' } });
+    expect(webView.types).toEqual([
+      'set-content',
+      'get-html',
+      'insert-content',
+    ]);
 
+    // The runtime buffered those and handed them to the editor.
     controller.handleWebViewMessage(handshake());
 
     expect(controller.isReady()).toBe(true);
@@ -165,14 +172,34 @@ describe('readiness', () => {
     expect(webView.types).toEqual([
       'set-content',
       'get-html',
-      'set-content',
-      'get-html',
+      'insert-content',
     ]);
-    const { messageId } = webView.messages[3]!.payload as {
+    expect(webView.scripts.at(-1)).toContain('"p{}"');
+    const { messageId } = webView.messages[1]!.payload as {
       messageId: string;
     };
     controller.handleWebViewMessage(reply(messageId, '<p>a</p>'));
     await expect(html).resolves.toBe('<p>a</p>');
+  });
+
+  it('replays what the fallback flushed when a legacy handshake arrives late', () => {
+    jest.useFakeTimers();
+    const { controller, webView } = setup();
+    controller.send(setContent('<p>a</p>'));
+    void controller.rpc<string>(getHTML);
+    controller.onLoadEnd();
+    jest.advanceTimersByTime(LEGACY_READY_TIMEOUT_MS);
+
+    controller.handleWebViewMessage(legacyReady());
+    jest.advanceTimersByTime(0);
+
+    expect(controller.isReady()).toBe(true);
+    expect(webView.types).toEqual([
+      'set-content',
+      'get-html',
+      'set-content',
+      'get-html',
+    ]);
   });
 
   it('owns isReady in the state store', () => {
