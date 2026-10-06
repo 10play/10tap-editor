@@ -93,6 +93,7 @@
     "@react-native/metro-config": "0.82.1",
     "@release-it/conventional-changelog": "^5.0.0",
     "@testing-library/react-native": "^13.3.3",
+    "@tiptap/react": "^3.11.0",
     "@types/jest": "^29.5.14",
     "@types/lodash": "^4.17.20",
     "@types/node": "^22.18.0",
@@ -134,12 +135,16 @@
     "prosemirror-transform": "1.10.5"
   },
   "peerDependencies": {
+    "@tiptap/react": "^3.11.0",
     "react": "*",
     "react-dom": "*",
     "react-native": "*",
     "react-native-webview": "*"
   },
   "peerDependenciesMeta": {
+    "@tiptap/react": {
+      "optional": true
+    },
     "react-dom": {
       "optional": true
     }
@@ -211,7 +216,6 @@
     "@tiptap/extension-underline": "^3.11.0",
     "@tiptap/extensions": "^3.11.0",
     "@tiptap/pm": "^3.11.0",
-    "@tiptap/react": "^3.11.0",
     "lodash": "^4.17.21"
   },
   "codegenConfig": {

@@ -257,7 +257,9 @@ const editor = useEditorBridge({
 
 `yarn add react-dom`
 
-`yarn add -D @types/react-dom`
+`yarn add -D @types/react-dom @tiptap/react`
+
+`@tiptap/react` is an optional peer dependency of `@10play/tentap-editor`: `@10play/tentap-editor/web` bundles it, and its type declarations refer to it. Install the version that `@10play/tentap-editor` uses.
 
 You basically done with the advance setup now you have full control of the editor-web you can write your own bridgeExtensions add additional tiptapExtensions
 

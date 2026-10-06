@@ -86,11 +86,14 @@ __metadata:
     vite-plugin-singlefile: ^2.3.0
     vitest: ^3.2.4
   peerDependencies:
+    "@tiptap/react": ^3.11.0
     react: "*"
     react-dom: "*"
     react-native: "*"
     react-native-webview: "*"
   peerDependenciesMeta:
+    "@tiptap/react":
+      optional: true
     react-dom:
       optional: true
   languageName: unknown
