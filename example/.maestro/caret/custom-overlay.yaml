@@ -1,0 +1,72 @@
+# CustomKeyboard with layout="overlay" ('Keyboard: Overlay': Toolbar in an
+# EditorKeyboardAvoidingView, 'stable' mode on Android): ~40 lines, then the
+# color keyboard opens over the system keyboard, closes back to it, and
+# typing goes on; then a color is picked from the keyboard.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+  RUN: ${RUN || 'overlay'}
+name: 'Caret: overlay custom keyboard'
+tags:
+  - caret
+---
+- runFlow:
+    file: open.yaml
+    env:
+      SCREEN: 'Keyboard: Overlay'
+      FOCUS_ID: keyboard-example-editor
+- runFlow:
+    file: subflows/lines-40.yaml
+    env:
+      LABEL: ${RUN}
+- runFlow:
+    file: tap-id.yaml
+    env:
+      ID: toggle-color-keyboard
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-50-color-open'}
+- runFlow:
+    file: tap-id.yaml
+    env:
+      ID: toggle-color-keyboard
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-51-system-again'}
+- runFlow:
+    file: type-lines.yaml
+    env:
+      START: '41'
+      COUNT: '8'
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-52-lines-after-switch'}
+- runFlow:
+    file: subflows/paragraph.yaml
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-53-paragraph'}
+- runFlow:
+    file: tap-id.yaml
+    env:
+      ID: toggle-color-keyboard
+- tapOn:
+    text: Blue
+    index: 0
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-54-color-picked'}
+- runFlow:
+    file: type-lines.yaml
+    env:
+      START: '49'
+      COUNT: '4'
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-55-lines-after-pick'}

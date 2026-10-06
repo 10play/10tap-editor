@@ -1,0 +1,36 @@
+# Types 40 lines at the caret in chunks of 8, with a checkpoint after each
+# chunk named ${LABEL}-<chunk>-lines.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+---
+- runFlow:
+    file: ../type-lines.yaml
+    env: { START: '1', COUNT: '8' }
+- runFlow:
+    file: checkpoint.yaml
+    env: { LABEL: '${LABEL + "-08-lines"}' }
+- runFlow:
+    file: ../type-lines.yaml
+    env: { START: '9', COUNT: '8' }
+- runFlow:
+    file: checkpoint.yaml
+    env: { LABEL: '${LABEL + "-16-lines"}' }
+- runFlow:
+    file: ../type-lines.yaml
+    env: { START: '17', COUNT: '8' }
+- runFlow:
+    file: checkpoint.yaml
+    env: { LABEL: '${LABEL + "-24-lines"}' }
+- runFlow:
+    file: ../type-lines.yaml
+    env: { START: '25', COUNT: '8' }
+- runFlow:
+    file: checkpoint.yaml
+    env: { LABEL: '${LABEL + "-32-lines"}' }
+- runFlow:
+    file: ../type-lines.yaml
+    env: { START: '33', COUNT: '8' }
+- runFlow:
+    file: checkpoint.yaml
+    env: { LABEL: '${LABEL + "-40-lines"}' }

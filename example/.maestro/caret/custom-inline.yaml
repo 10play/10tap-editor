@@ -1,0 +1,69 @@
+# Inline CustomKeyboard ('Keyboard: Custom': switcher bar and keyboard in a
+# bottom KeyboardAvoidingView): ~40 lines with the system keyboard, then the
+# sticker keyboard opens, inserts stickers at the caret, switches to the
+# color keyboard and back to the system keyboard, and typing goes on.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+  RUN: ${RUN || 'inline'}
+name: 'Caret: inline custom keyboard'
+tags:
+  - caret
+---
+- runFlow:
+    file: open.yaml
+    env:
+      SCREEN: 'Keyboard: Custom'
+      FOCUS_ID: keyboard-example-editor
+- runFlow:
+    file: subflows/lines-40.yaml
+    env:
+      LABEL: ${RUN}
+- runFlow:
+    file: tap-id.yaml
+    env:
+      ID: toggle-sticker-keyboard
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-50-sticker-open'}
+- repeat:
+    times: 3
+    commands:
+      - tapOn:
+          id: sticker-0
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-51-stickers-inserted'}
+- runFlow:
+    file: tap-id.yaml
+    env:
+      ID: toggle-color-keyboard
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-52-color-open'}
+- runFlow:
+    file: tap-id.yaml
+    env:
+      ID: toggle-color-keyboard
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-53-system-again'}
+- runFlow:
+    file: type-lines.yaml
+    env:
+      START: '41'
+      COUNT: '8'
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-54-lines-after-switch'}
+- runFlow:
+    file: subflows/paragraph.yaml
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-55-paragraph'}
