@@ -9,18 +9,17 @@ import { StyleSheet, TextInput, type TextInputProps } from 'react-native';
 export const HiddenFocusInput = forwardRef<
   TextInput,
   Omit<TextInputProps, 'style'>
->(function HiddenFocusInput(props, ref) {
-  return (
-    <TextInput
-      ref={ref}
-      caretHidden
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
-      {...props}
-      style={styles.input}
-    />
-  );
-});
+>((props, ref) => (
+  <TextInput
+    ref={ref}
+    caretHidden
+    accessibilityElementsHidden
+    importantForAccessibility="no-hide-descendants"
+    {...props}
+    style={styles.input}
+  />
+));
+HiddenFocusInput.displayName = 'HiddenFocusInput';
 
 const styles = StyleSheet.create({
   input: {
