@@ -213,28 +213,13 @@ export default defineConfig({
 
 > <strong>It's important to have the `alias` configuration so vite will not load react-native code</strong>
 
-#### Keeping a single copy of tiptap
+#### Sharing tiptap with `@10play/tentap-editor/web`
 
-`@10play/tentap-editor/web` comes with its own copy of tiptap and ProseMirror. If your editor-web also pulls in a second copy, for example through `@tiptap/react` or extra extensions installed at a different version, the two copies don't recognize each other's state. This shows up as subtle bugs, such as bold or italic not applying to the next typed characters on an empty selection.
+`@10play/tentap-editor/web` is a prebuilt bundle with its own copy of tiptap and ProseMirror inlined. Code you import from `@tiptap/*` in your editor-web, such as extra extensions, is bundled separately, and the two copies don't recognize each other's objects. Bundler options such as vite's `resolve.dedupe` cannot merge them, because the copy inside `@10play/tentap-editor/web` is not a package in `node_modules`.
 
-- Import `EditorContent` (and `useEditor` if you need it) from `@10play/tentap-editor`, not from `@tiptap/react`.
+- Import `EditorContent` (and `useEditor` if you need it) from `@10play/tentap-editor`, not from `@tiptap/react`, so the editor and the component that renders it come from the same copy.
+- Keep the `@tiptap/pm/view` and `@tiptap/pm/state` aliases above, so extensions share ProseMirror's view and state classes with the bundled editor.
 - Install extra `@tiptap/*` extensions at the same version that `@10play/tentap-editor` uses (`npm ls @tiptap/core` shows it).
-- Add `resolve.dedupe` to your vite config so a single copy is bundled:
-
-```ts title="vite.config.ts"
-resolve: {
-  alias: [/* ...as above */],
-  dedupe: [
-    '@tiptap/core',
-    '@tiptap/react',
-    '@tiptap/pm',
-    'prosemirror-model',
-    'prosemirror-state',
-    'prosemirror-view',
-    'prosemirror-transform',
-  ],
-},
-```
 
 ### Step 6 - adding build scripts
 
