@@ -20,7 +20,11 @@ import { useKeyboard } from '../../../utils/useKeyboard';
 import type { EditorBridge } from '../../../types';
 import { EditorHelper } from '../../EditorHelper';
 import { ColorKeyboard } from '../ColorKeyboard';
-import { CustomKeyboard, type CustomKeyboardProps } from '../CustomKeyboard';
+import {
+  CustomKeyboard,
+  getOverlayBodyTop,
+  type CustomKeyboardProps,
+} from '../CustomKeyboard';
 import {
   CustomKeyboardExtension,
   type CustomKeyboardComponentProps,
@@ -153,6 +157,16 @@ describe('CustomKeyboard', () => {
       top: 0,
       height: 300,
     });
+  });
+
+  it('pins an overlay body to the bottom of the window', () => {
+    expect(getOverlayBodyTop(800, undefined)).toBe(0);
+    expect(getOverlayBodyTop(800, 800)).toBe(0);
+    // A host that ends above the bottom of the window (a safe area inset).
+    expect(getOverlayBodyTop(800, 766)).toBe(34);
+    // Edge-to-edge Android: the window height leaves out the navigation bar
+    // the host reaches behind, so the body must not move up over the toolbar.
+    expect(getOverlayBodyTop(777.45, 801.45)).toBe(0);
   });
 
   it('renders keyboard components written for 0.7.x', async () => {
@@ -387,6 +401,22 @@ describe('EditorKeyboardAvoidingView', () => {
     );
     await settle();
     expect(padding()).toBe(266);
+  });
+
+  it('leaves out the space an inline keyboard takes itself', async () => {
+    const { editor } = createFakeEditor();
+    render(
+      <EditorKeyboardAvoidingView testID="avoider">
+        <Host editor={editor} initialId="test.fixed" />
+      </EditorKeyboardAvoidingView>
+    );
+    await settle();
+    // The slot holds the keyboard, so nothing is padded twice.
+    expect(keyboardStore.getSnapshot()).toMatchObject({
+      keyboardCoverHeight: 300,
+      inlineKeyboardHeight: 300,
+    });
+    expect(padding()).toBe(0);
   });
 
   it('pads by the navigation bar an edge-to-edge Android keyboard covers', () => {

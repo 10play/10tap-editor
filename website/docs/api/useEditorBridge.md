@@ -63,7 +63,7 @@ While the keyboard is up, `RichText` measures how far the keyboard and the views
 
 This works the same for the system keyboard and an open custom keyboard, on iOS and Android, edge-to-edge or not, and wherever the editor ends: behind the keyboard, above a `KeyboardAvoidingView`, or inside one that already avoids the keyboard (where only the one-line margin is added). It is skipped when `dynamicHeight` is on, because the WebView is already only as tall as its content; see [useScrollToCaret](./CustomKeyboardUtils.md#usescrolltocaret) for an editor that grows inside a `ScrollView`.
 
-The measured inset applies to every editor, so an editor covered by the keyboard keeps its cursor visible even without this option. Until the first measurement, an editor with `avoidIosKeyboard` falls back to the 1.0 behaviour: the keyboard height on iOS (and wherever the keyboard overlays the window), or a fixed toolbar height on Android.
+The measured inset applies to every editor, so an editor covered by the keyboard keeps its cursor visible even without this option. An editor that ends above the keyboard still keeps the line being typed about one line above its own bottom edge. If the editor reaches behind the keyboard and no view on the keyboard is marked, `RichText` assumes a toolbar of your own sits there and keeps the default toolbar height clear too; mark your toolbar with `useKeyboardAccessory` to measure it exactly. Until the first measurement, an editor with `avoidIosKeyboard` falls back to the 1.0 behaviour: the keyboard height on iOS (and wherever the keyboard overlays the window), or a fixed toolbar height on Android.
 
 #### avoidKeyboard
 

@@ -49,6 +49,7 @@ const keyboardDown: KeyboardState = {
   systemKeyboardHeight: 0,
   lastKeyboardHeight: 0,
   keyboardCoverHeight: 0,
+  inlineKeyboardHeight: 0,
 };
 
 let mockKeyboard: KeyboardState = keyboardDown;
@@ -1032,24 +1033,33 @@ describe('RichText lifecycle', () => {
     expect(postedTypes(second)).toContain('toggle-bold');
   });
 
-  it('reloads the WebView when the iOS content process terminates', () => {
+  it('mounts a new WebView when the iOS content process terminates', () => {
     const onContentProcessDidTerminate = jest.fn();
     const { result } = createEditor();
+    const editor = result.current;
     render(
       <RichText
-        editor={result.current}
+        editor={editor}
         onContentProcessDidTerminate={onContentProcessDidTerminate}
       />
     );
-    const webView = mockWebViews.latest();
-    load(webView);
-    ready(webView, result.current);
+    const first = mockWebViews.latest();
+    load(first);
+    ready(first, editor);
+    editor.setContent('<p>kept</p>');
 
-    act(() => webView.simulateContentProcessDidTerminate());
+    act(() => first.simulateContentProcessDidTerminate());
+    const second = mockWebViews.latest();
 
-    expect(webView.reloadCount).toBe(1);
-    expect(result.current.getEditorState().isReady).toBe(false);
+    expect(second).not.toBe(first);
+    expect(first.reloadCount).toBe(0);
+    expect(editor.getEditorState().isReady).toBe(false);
     expect(onContentProcessDidTerminate).toHaveBeenCalledTimes(1);
+    load(second);
+    ready(second, editor);
+    expect(posted(second)).toContainEqual(
+      expect.objectContaining({ type: CoreEditorActionType.SetContent })
+    );
   });
 
   it('re-renders memoized RichText and Toolbar when the theme changes', () => {
@@ -1220,14 +1230,14 @@ describe('RichText utils', () => {
       padding: 318 + margin,
       scrollThreshold: 318 + margin,
     });
-    // An editor that ends above the toolbar keeps a line of space only
-    // when it ends within that line.
-    expect(
-      utils.getKeyboardInsets({ ...base, coverOverlap: -10 })?.padding
-    ).toBe(margin - 10);
+    // An editor that ends above the toolbar keeps a line of space above its
+    // own bottom edge.
+    expect(utils.getKeyboardInsets({ ...base, coverOverlap: 0 })?.padding).toBe(
+      margin
+    );
     expect(
       utils.getKeyboardInsets({ ...base, coverOverlap: -200 })?.padding
-    ).toBe(0);
+    ).toBe(margin);
     expect(
       utils.getKeyboardInsets({
         ...base,
@@ -1252,16 +1262,23 @@ describe('RichText utils', () => {
 
   it('measures the cover from the keyboard and the views on it', () => {
     const editor = { top: 100, bottom: 840 };
-    expect(utils.getCoverOverlap(editor, [], null)).toBeNull();
-    expect(utils.getCoverOverlap(editor, [], 566)).toBe(274);
+    // Nothing covers an editor where the window resizes for the keyboard.
+    expect(utils.getCoverOverlap(editor, [], null)).toBe(0);
     // A toolbar on the keyboard.
     expect(
       utils.getCoverOverlap(editor, [{ top: 522, bottom: 566 }], 566)
     ).toBe(318);
     // A static toolbar above the editor does not cover it.
-    expect(utils.getCoverOverlap(editor, [{ top: 50, bottom: 94 }], 566)).toBe(
-      274
-    );
+    expect(
+      utils.getCoverOverlap(
+        editor,
+        [
+          { top: 50, bottom: 94 },
+          { top: 522, bottom: 566 },
+        ],
+        566
+      )
+    ).toBe(318);
     // An editor that already ends above the toolbar.
     expect(
       utils.getCoverOverlap(
@@ -1270,6 +1287,31 @@ describe('RichText utils', () => {
         566
       )
     ).toBe(0);
+    expect(
+      utils.getCoverOverlap(
+        { top: 100, bottom: 400 },
+        [{ top: 477, bottom: 521 }],
+        566
+      )
+    ).toBe(-77);
+  });
+
+  it('keeps room for a bar the app did not register on the keyboard', () => {
+    // An editor behind the keyboard with nothing registered on it: a 1.0
+    // custom toolbar drawn over it is not measured.
+    expect(utils.getCoverOverlap({ top: 100, bottom: 840 }, [], 566)).toBe(
+      274 + utils.TOOLBAR_HEIGHT
+    );
+    expect(
+      utils.getCoverOverlap(
+        { top: 100, bottom: 840 },
+        [{ top: 50, bottom: 94 }],
+        566
+      )
+    ).toBe(274 + utils.TOOLBAR_HEIGHT);
+    // An editor that ends at the keyboard top avoids it already.
+    expect(utils.getCoverOverlap({ top: 100, bottom: 566 }, [], 566)).toBe(0);
+    expect(utils.getCoverOverlap({ top: 100, bottom: 590 }, [], 566)).toBe(24);
   });
 
   it('keeps the editor html untouched apart from the boot script', () => {

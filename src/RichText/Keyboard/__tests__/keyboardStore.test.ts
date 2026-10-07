@@ -58,6 +58,7 @@ describe('keyboardStore', () => {
       systemKeyboardHeight: 0,
       lastKeyboardHeight: 0,
       keyboardCoverHeight: 0,
+      inlineKeyboardHeight: 0,
     });
   });
 

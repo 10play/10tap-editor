@@ -66,6 +66,8 @@ export interface KeyboardSessionOptions {
   onKeyboardError?(event: KeyboardErrorEvent): void;
   /** The system keyboard came back while the custom one was up. */
   onSystemKeyboardReturn?(): void;
+  /** The keyboard is drawn in its in-flow slot (`layout="inline"`, the default). */
+  inline?: boolean;
 }
 
 export interface LayoutAnimationLike {
@@ -230,6 +232,7 @@ export function createKeyboardSession(
       (phase === 'closing' && !handedOver),
     height: keyboardHeight,
     overlaysWindow: overlayApplied || navigationBarInset > 0,
+    slotHeight: options().inline === false ? 0 : slotHeight,
   });
 
   const buildView = (): KeyboardSessionView => ({

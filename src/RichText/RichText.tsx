@@ -278,8 +278,16 @@ export const RichText = ({
   const remountPending =
     remountedPage !== page.id && shouldRemountOnFirstLoad();
 
-  // Android cannot reuse a WebView whose renderer is gone; mount a new one.
+  // A WebView whose renderer is gone is replaced by a new one: Android
+  // cannot reuse it, and an iOS reload does not bring an html page back.
   const [rendererLosses, setRendererLosses] = useState(0);
+  const replaceWebView = () => {
+    // The dead WebView must not be scripted again; until the new one
+    // mounts, everything sent is queued.
+    controller.onPageReplaced();
+    controller.setWebView(null);
+    setRendererLosses((count) => count + 1);
+  };
 
   const webViewKey = [
     page.id,
@@ -536,15 +544,11 @@ export const RichText = ({
           props.onLayout?.(event);
         }}
         onRenderProcessGone={(event) => {
-          // The dead WebView must not be scripted again; until the new one
-          // mounts, everything sent is queued.
-          controller.onPageReplaced();
-          controller.setWebView(null);
-          setRendererLosses((count) => count + 1);
+          replaceWebView();
           props.onRenderProcessGone?.(event);
         }}
         onContentProcessDidTerminate={(event) => {
-          controller.onProcessTerminated();
+          replaceWebView();
           props.onContentProcessDidTerminate?.(event);
         }}
       />

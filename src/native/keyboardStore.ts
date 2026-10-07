@@ -75,6 +75,8 @@ export interface CustomKeyboardHostState {
   height: number;
   /** Android `'stable'` mode applied, or the window is edge-to-edge. */
   overlaysWindow: boolean;
+  /** Height in dp of the in-flow slot of an inline keyboard, 0 for an overlay. */
+  slotHeight?: number;
 }
 
 export interface CustomKeyboardHost {
@@ -116,6 +118,12 @@ export interface KeyboardState {
    * system keyboard the window resizes for.
    */
   keyboardCoverHeight: number;
+  /**
+   * Height of the in-flow slot of an inline `CustomKeyboard`, which takes
+   * its own space at the bottom of the layout; 0 for an overlay keyboard or
+   * none. `EditorKeyboardAvoidingView` pads only the rest of the cover.
+   */
+  inlineKeyboardHeight: number;
 }
 
 export interface KeyboardStore {
@@ -208,6 +216,10 @@ export function createKeyboardStore({
       systemKeyboardHeight: systemHeight,
       lastKeyboardHeight: lastHeight,
       windowOverlaysKeyboard,
+      inlineKeyboardHeight: hosts.reduce(
+        (sum, host) => sum + (host.state.slotHeight ?? 0),
+        0
+      ),
       keyboardCoverHeight: getKeyboardCoverHeight({
         keyboardHeight,
         customOpen,

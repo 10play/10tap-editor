@@ -122,21 +122,32 @@ export interface CoverFrame {
  * How far the cover reaches up into the editor, in window coordinates: the
  * keyboard (from `keyboardTop`) and the views drawn on it (`accessories`,
  * such as the toolbar). Views that start above the editor's top are not on
- * the keyboard (a static toolbar above the editor) and are ignored.
- * Negative when the cover ends below the editor, null when nothing covers.
+ * the keyboard (a static toolbar above the editor) and are ignored. An
+ * editor that reaches well behind the keyboard with no view registered on
+ * it likely has a bar of the app's own there (a 1.0 custom toolbar), so a
+ * toolbar's height is kept clear above the keyboard. Negative when the
+ * cover ends below the editor, 0 when nothing covers it.
  */
 export const getCoverOverlap = (
   editor: CoverFrame,
   accessories: readonly CoverFrame[],
   keyboardTop: number | null
-): number | null => {
-  let coverTop = keyboardTop ?? Infinity;
+): number => {
+  let coverTop = Infinity;
   for (const accessory of accessories) {
     if (accessory.top > editor.top && accessory.bottom > accessory.top) {
       coverTop = Math.min(coverTop, accessory.top);
     }
   }
-  return Number.isFinite(coverTop) ? editor.bottom - coverTop : null;
+  if (keyboardTop !== null) {
+    const unregisteredBar =
+      coverTop === Infinity && editor.bottom - keyboardTop > TOOLBAR_HEIGHT;
+    coverTop = Math.min(
+      coverTop,
+      unregisteredBar ? keyboardTop - TOOLBAR_HEIGHT : keyboardTop
+    );
+  }
+  return Number.isFinite(coverTop) ? editor.bottom - coverTop : 0;
 };
 
 export interface CaretScrollInput {
@@ -179,7 +190,7 @@ export interface KeyboardInsetsInput {
   windowOverlaysKeyboard: boolean;
   /**
    * Measured reach of the keyboard and toolbar into the editor
-   * (`getCoverOverlap`), null until measured.
+   * (`getCoverOverlap`), null until the editor was measured.
    */
   coverOverlap?: number | null;
 }
@@ -193,7 +204,8 @@ export interface KeyboardInsets {
 
 /**
  * Bottom insets that keep the caret `CARET_MARGIN` above the keyboard and
- * the toolbar on it, or `null` when RichText should leave them to the app.
+ * the toolbar on it, or above the editor's own bottom edge when that ends
+ * higher, or `null` when RichText should leave them to the app.
  *
  * The inset is how far the keyboard and toolbar reach into the editor as
  * measured in the window, so it holds wherever the editor ends: behind the
@@ -225,7 +237,7 @@ export const getKeyboardInsets = ({
   const offset = scrollBottomOffset ?? 0;
   let keyboardInset = 0;
   if (measured) {
-    keyboardInset = Math.max(0, Math.ceil(coverOverlap + CARET_MARGIN));
+    keyboardInset = Math.ceil(Math.max(0, coverOverlap) + CARET_MARGIN);
   } else if (keyboardUp && avoidKeyboard && keyboardHeight > 0) {
     keyboardInset = windowOverlaysKeyboard
       ? keyboardHeight + KEYBOARD_GAP

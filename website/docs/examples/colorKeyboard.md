@@ -14,13 +14,10 @@ First we need a state of the current active keyboard id (used inside the toolbar
 const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
 ```
 
-Then, into our `KeyboardAvoidingView` we want to add the `CustomKeyboard` component, right under the toolbar
+Then, into an `EditorKeyboardAvoidingView` at the bottom of the screen we add the `CustomKeyboard` component, right under the toolbar
 
 ```tsx
-<KeyboardAvoidingView
-  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-  style={exampleStyles.keyboardAvoidingView}
->
+<EditorKeyboardAvoidingView style={exampleStyles.keyboardAvoidingView}>
   <Toolbar
     ...
   />
@@ -30,7 +27,7 @@ Then, into our `KeyboardAvoidingView` we want to add the `CustomKeyboard` compon
     keyboards={[ColorKeyboard]} // <-- here we add the color keyboard
     editor={editor}
   />
-</KeyboardAvoidingView>
+</EditorKeyboardAvoidingView>
 ```
 
 ## Adding Custom Toolbar
@@ -86,12 +83,13 @@ Then all that is left to replace `Toolbar` with our new `ToolbarWithColor` and w
 
 ```tsx
 import React from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ColorKeyboard,
   CustomKeyboard,
   DEFAULT_TOOLBAR_ITEMS,
+  EditorKeyboardAvoidingView,
   Images,
   RichText,
   Toolbar,
@@ -112,10 +110,7 @@ export const WithColorKeyboard = () => {
       <View style={exampleStyles.fullScreen}>
         <RichText editor={editor} />
       </View>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={exampleStyles.keyboardAvoidingView}
-      >
+      <EditorKeyboardAvoidingView style={exampleStyles.keyboardAvoidingView}>
         <ToolbarWithColor
           editor={editor}
           activeKeyboard={activeKeyboard}
@@ -127,7 +122,7 @@ export const WithColorKeyboard = () => {
           keyboards={[ColorKeyboard]}
           editor={editor}
         />
-      </KeyboardAvoidingView>
+      </EditorKeyboardAvoidingView>
     </SafeAreaView>
   );
 };

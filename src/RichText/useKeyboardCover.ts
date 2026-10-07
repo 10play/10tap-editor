@@ -90,9 +90,7 @@ export const useKeyboardCover = (
         keyboardTop
       );
       setOverlap((previous) =>
-        previous !== null && next !== null && Math.abs(previous - next) < 1
-          ? previous
-          : next
+        previous !== null && Math.abs(previous - next) < 1 ? previous : next
       );
     };
     const timers = COVER_MEASURE_DELAYS_MS.map((ms, index) =>

@@ -49,7 +49,8 @@ export interface CustomKeyboardProps {
   rootBackground?: ColorValue;
   /**
    * - `inline` (default): an in-flow slot that grows to the keyboard height.
-   *   Place it at the bottom of the `KeyboardAvoidingView`, under the toolbar.
+   *   Place it at the bottom of the `EditorKeyboardAvoidingView` (or
+   *   `KeyboardAvoidingView`), under the toolbar.
    * - `overlay`: the keyboard is drawn over the bottom of the window and
    *   takes no space; reserve it with `EditorKeyboardAvoidingView` or
    *   `useKeyboard().keyboardHeight`. Render it in a container that reaches
@@ -81,6 +82,18 @@ export interface CustomKeyboardProps {
 }
 
 const PLACEMENT_CHECK_DELAY_MS = SLOT_ANIMATION_MS + 50;
+
+/**
+ * Offset of an overlay keyboard's body from its host, which is pinned to
+ * the bottom of its parent: down to the bottom of the window when the host
+ * ends above it, never up. On edge-to-edge Android the window height can
+ * leave out the navigation bar that the host reaches behind.
+ */
+export const getOverlayBodyTop = (
+  windowHeight: number,
+  hostBottom: number | undefined
+): number =>
+  hostBottom === undefined ? 0 : Math.max(0, windowHeight - hostBottom);
 
 export const CustomKeyboard = (props: CustomKeyboardProps) => {
   const {
@@ -128,6 +141,7 @@ export const CustomKeyboard = (props: CustomKeyboardProps) => {
             onClose: current.onClose,
             onKeyboardError: current.onKeyboardError,
             onSystemKeyboardReturn: current.onKeyboardHideAndroid,
+            inline: (current.layout ?? 'inline') === 'inline',
           };
         },
       }),
@@ -175,9 +189,7 @@ export const CustomKeyboard = (props: CustomKeyboardProps) => {
       ? [styles.overlayHost, { height: Body ? bodyHeight : 0 }]
       : { height: view.slotHeight };
   const bodyTop =
-    layout === 'overlay' && hostBottom !== undefined
-      ? windowHeight - hostBottom
-      : 0;
+    layout === 'overlay' ? getOverlayBodyTop(windowHeight, hostBottom) : 0;
 
   return (
     <CustomKeyboardContext.Provider value={session}>

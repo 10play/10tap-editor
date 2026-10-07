@@ -52,10 +52,7 @@ export const CustomKeyboardExample = () => {
       <View style={exampleStyles.fullScreen}>
         <RichText editor={editor} />
       </View>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={exampleStyles.keyboardAvoidingView}
-      >
+      <EditorKeyboardAvoidingView style={exampleStyles.keyboardAvoidingView}>
         <StickerToolbar
           activeKeyboard={activeKeyboard}
           setActiveKeyboard={setActiveKeyboard}
@@ -67,14 +64,14 @@ export const CustomKeyboardExample = () => {
           keyboards={[StickerKeyboard]} // <-- Add our custom keyboard to the keyboards prop
           editor={editor}
         />
-      </KeyboardAvoidingView>
+      </EditorKeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 ```
 
 - A react state controls which custom keyboard is shown. `CustomKeyboard` calls `setActiveKeyboard(undefined)` itself when the keyboard closes, for example when the user taps the editor.
-- `CustomKeyboard` goes right under the toolbar, as the last child of the same `KeyboardAvoidingView`, so the toolbar stays where it is when the keyboards switch. Use `behavior="padding"` on iOS and `"height"` on Android, as in 0.7.x.
+- `CustomKeyboard` goes right under the toolbar, as the last child of the same `EditorKeyboardAvoidingView`, so the toolbar stays where it is when the keyboards switch. `EditorKeyboardAvoidingView` pads for the system keyboard and leaves out the space the open `CustomKeyboard` takes itself. It also works on edge-to-edge Android (the default in Expo), where the window does not resize for the keyboard, so a React Native `KeyboardAvoidingView` with `behavior="height"` or no behavior, as in 0.7.x, leaves the toolbar behind the keyboard.
 
 ### Add button that will toggle our custom keyboard
 
@@ -118,8 +115,6 @@ The 0.7.x version of this example still works: `rootRef` is ignored, and a toolb
 import React from 'react';
 import {
   View,
-  KeyboardAvoidingView,
-  Platform,
   StyleSheet,
   TouchableOpacity,
   Image,
@@ -134,6 +129,7 @@ import {
   ImageBridge,
   CustomKeyboard,
   CustomKeyboardExtension,
+  EditorKeyboardAvoidingView,
   DEFAULT_TOOLBAR_ITEMS,
   Images,
 } from '@10play/tentap-editor';
@@ -201,10 +197,7 @@ export const CustomKeyboardExample = () => {
       <View style={exampleStyles.fullScreen}>
         <RichText editor={editor} />
       </View>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={exampleStyles.keyboardAvoidingView}
-      >
+      <EditorKeyboardAvoidingView style={exampleStyles.keyboardAvoidingView}>
         <StickerToolbar
           activeKeyboard={activeKeyboard}
           setActiveKeyboard={setActiveKeyboard}
@@ -216,7 +209,7 @@ export const CustomKeyboardExample = () => {
           keyboards={[StickerKeyboard]}
           editor={editor}
         />
-      </KeyboardAvoidingView>
+      </EditorKeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -285,7 +278,7 @@ const exampleStyles = StyleSheet.create({
 
 ### Inline (default)
 
-The layout above: `CustomKeyboard` takes up the keyboard's height under the toolbar, and a `KeyboardAvoidingView` around both keeps the toolbar in place for the system keyboard. This is the same layout as in 0.7.x.
+The layout above: `CustomKeyboard` takes up the keyboard's height under the toolbar, and an `EditorKeyboardAvoidingView` around both keeps the toolbar in place for the system keyboard. This is the 0.7.x layout with `EditorKeyboardAvoidingView` in place of React Native's `KeyboardAvoidingView`; the 0.7.x version keeps working where the window resizes for the keyboard.
 
 ### Overlay with EditorKeyboardAvoidingView
 
