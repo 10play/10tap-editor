@@ -61,4 +61,12 @@ public class KeyboardGeometryTest {
         KeyboardGeometry.isKeyboardCoveringFrame(
             WINDOW_BOTTOM, WINDOW_BOTTOM - NAV_BAR - 100, NAV_BAR, MIN_KEYBOARD));
   }
+
+  @Test
+  public void onlyAShownKeyboardChangingHeightIsAResize() {
+    assertTrue(KeyboardGeometry.isKeyboardResize(767, 949));
+    assertFalse(KeyboardGeometry.isKeyboardResize(767, 767));
+    assertFalse(KeyboardGeometry.isKeyboardResize(-1, 767));
+    assertFalse(KeyboardGeometry.isKeyboardResize(767, -1));
+  }
 }

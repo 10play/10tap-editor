@@ -1,5 +1,4 @@
 import { useEffect, useRef, type RefObject } from 'react';
-import { Dimensions } from 'react-native';
 import { PROTOCOL_TYPES } from '../shared/protocol';
 import { getEditorController } from '../shared/contracts';
 import type { EditorBridge } from '../types';
@@ -11,7 +10,10 @@ import {
   measureFrame,
 } from './keyboardAccessories';
 import { CARET_MARGIN, getCaretScroll, type CoverFrame } from './utils';
-import { COVER_MEASURE_DELAYS_MS } from './useKeyboardCover';
+import {
+  COVER_MEASURE_DELAYS_MS,
+  getKeyboardTopInWindow,
+} from './useKeyboardCover';
 
 /** The parts of a `ScrollView` the hook uses. */
 export interface CaretScrollView {
@@ -44,7 +46,7 @@ export const useScrollToCaret = (
   editor: EditorBridge,
   scrollViewRef: RefObject<CaretScrollView | null>
 ): void => {
-  const { isKeyboardUp, keyboardCoverHeight } = useKeyboard();
+  const { isKeyboardUp, keyboardCoverHeight, keyboardTop } = useKeyboard();
   const caret = useRef<Caret | null>(null);
   const reveal = useRef<() => void>(() => {});
 
@@ -61,11 +63,10 @@ export const useScrollToCaret = (
       ...keyboardAccessories.getViews().map(measureFrame),
     ]).then(([editorFrame, viewport, content, ...accessories]) => {
       if (!editorFrame || !viewport || !content) return;
-      const keyboardTop =
-        keyboardCoverHeight > 0
-          ? Dimensions.get('window').height - keyboardCoverHeight
-          : Infinity;
-      let visibleBottom = Math.min(viewport.bottom, keyboardTop);
+      let visibleBottom = Math.min(
+        viewport.bottom,
+        getKeyboardTopInWindow(keyboardTop, keyboardCoverHeight) ?? Infinity
+      );
       for (const accessory of accessories) {
         if (accessory && accessory.top > viewport.top) {
           visibleBottom = Math.min(visibleBottom, accessory.top);
@@ -118,5 +119,5 @@ export const useScrollToCaret = (
       setTimeout(() => reveal.current(), ms)
     );
     return () => timers.forEach((timer) => clearTimeout(timer));
-  }, [isKeyboardUp, keyboardCoverHeight]);
+  }, [isKeyboardUp, keyboardCoverHeight, keyboardTop]);
 };

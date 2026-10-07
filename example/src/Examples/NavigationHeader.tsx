@@ -10,8 +10,8 @@ import {
 
 /**
  * Below a navigation header, `EditorKeyboardAvoidingView` keeps the toolbar
- * on the keyboard without a `keyboardVerticalOffset`: it only needs to end
- * at the bottom of the window.
+ * on the keyboard without a `keyboardVerticalOffset`: it measures how far
+ * the keyboard reaches into it.
  */
 export const NavigationHeader = (
   _props: NativeStackScreenProps<any, any, any>

@@ -28,4 +28,13 @@ final class KeyboardGeometry {
       int windowBottom, int visibleBottom, int navigationBarHeight, int minKeyboardHeight) {
     return windowBottom - visibleBottom - navigationBarHeight >= minKeyboardHeight;
   }
+
+  /**
+   * Whether a keyboard that went from {@code previousHeight} to {@code height}
+   * changed size while shown. React Native reports showing and hiding itself
+   * (a previous height below 0 means it was hidden).
+   */
+  static boolean isKeyboardResize(int previousHeight, int height) {
+    return previousHeight > 0 && height > 0 && previousHeight != height;
+  }
 }

@@ -43,6 +43,7 @@ const systemKeyboard = (height: number): KeyboardState => ({
   lastKeyboardHeight: height,
   keyboardCoverHeight: 0,
   inlineKeyboardHeight: 0,
+  keyboardTop: null,
 });
 
 const icons = () =>

@@ -195,9 +195,9 @@ The height of the open custom keyboard, or `0`. Use it with `layout="overlay"` t
 
 ## EditorKeyboardAvoidingView
 
-A view that adds bottom padding equal to the part of the window whichever keyboard covers, system or custom (`useKeyboard().keyboardCoverHeight`). On edge-to-edge Android that includes the navigation bar below the keyboard, which React Native leaves out of the keyboard height, so the toolbar sits fully on top of the keyboard. Unlike React Native's `KeyboardAvoidingView` it keeps the same padding while switching between the two keyboards, so the toolbar doesn't move, and it needs no `keyboardVerticalOffset` below a navigation header. Where the window itself resizes for the system keyboard (Android `adjustResize` without edge-to-edge or `'stable'` mode), it only pads for the custom keyboard. An inline `CustomKeyboard` inside it takes its own space, so the padding leaves that out.
+A view that adds bottom padding equal to the part of it whichever keyboard covers, system or custom, so the toolbar at its bottom sits fully on top of the keyboard. It measures where it ends in the window and compares that with the top of the keyboard (`useKeyboard().keyboardTop`), so it needs no `keyboardVerticalOffset` below a navigation header or above a tab bar, it covers the navigation bar an edge-to-edge Android keyboard reaches over (also without the native module, as in Expo Go), and it adds nothing where the window already resized for the keyboard (Android `adjustResize` without edge-to-edge). Unlike React Native's `KeyboardAvoidingView` it keeps the same padding while switching between the two keyboards, so the toolbar doesn't move. An inline `CustomKeyboard` inside it takes its own space, so the padding leaves that out.
 
-Place it so that it ends at the bottom of the window (for example inside a `SafeAreaView` with `edges={['top']}`), and put the `Toolbar` in a row so its default `flex: 1` doesn't share the column with the editor:
+Place it around the editor and the toolbar (for example inside a `SafeAreaView` with `edges={['top']}`), and put the `Toolbar` in a row so its default `flex: 1` doesn't share the column with the editor:
 
 ```tsx
 <SafeAreaView style={{ flex: 1 }} edges={['top']}>
@@ -217,7 +217,7 @@ Props: all `View` props, plus
 
 | prop | type | default | description |
 | --- | --- | --- | --- |
-| `keyboardVerticalOffset` | `number` | `0` | distance in dp between the bottom of this view and the bottom of the window, subtracted from the padding |
+| `keyboardVerticalOffset` | `number` | `0` | distance in dp between the bottom of this view and the bottom of the window, subtracted from the padding until the view was measured. Not needed otherwise |
 | `enabled` | `boolean` | `true` | `false` removes the padding |
 
 ## useKeyboardAccessory
@@ -278,6 +278,7 @@ const {
 | `windowOverlaysKeyboard` | `true` when the keyboard covers the window instead of resizing it: iOS, Android edge-to-edge or `'stable'` mode |
 | `keyboardCoverHeight` | how far up from the bottom of the window the keyboard reaches: its height plus, on edge-to-edge Android, the navigation bar it also covers. `0` when no keyboard covers the window, including a system keyboard the window resizes for |
 | `inlineKeyboardHeight` | height of the slot an open inline `CustomKeyboard` takes in the layout, `0` for an overlay keyboard or none |
+| `keyboardTop` | top of whichever keyboard is up in window coordinates (the space of `measureInWindow`), or `null`. A view whose bottom is `viewBottom` in the window is covered by `Math.max(0, viewBottom - keyboardTop)`. A custom keyboard takes the place of the system keyboard |
 
 Its type is exported as `KeyboardState`.
 

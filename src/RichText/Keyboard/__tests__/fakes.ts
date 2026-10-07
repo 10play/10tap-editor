@@ -19,7 +19,8 @@ export interface FakeKeyboard extends KeyboardEventSource {
   emit(
     name: KeyboardEventName,
     height: number,
-    animation?: { duration: number; easing: 'keyboard' | 'linear' }
+    animation?: { duration: number; easing: 'keyboard' | 'linear' },
+    screenY?: number
   ): void;
   listenerCount(): number;
 }
@@ -33,12 +34,12 @@ export const createFakeKeyboard = (): FakeKeyboard => {
       handlers.set(name, set);
       return { remove: () => set.delete(handler) };
     },
-    emit(name, height, animation) {
+    emit(name, height, animation, screenY = 0) {
       handlers.get(name)?.forEach((handler) =>
         handler({
           duration: animation?.duration ?? 0,
           easing: animation?.easing ?? 'keyboard',
-          endCoordinates: { height, width: 390, screenX: 0, screenY: 0 },
+          endCoordinates: { height, width: 390, screenX: 0, screenY },
         })
       );
     },

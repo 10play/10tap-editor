@@ -6,6 +6,7 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.view.View;
 import android.view.ViewParent;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -14,11 +15,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.UiThreadUtil;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import java.lang.ref.WeakReference;
 
 /**
@@ -33,10 +37,14 @@ public class TenTapKeyboardModule extends TenTapKeyboardSpec implements Lifecycl
   @Nullable private WeakReference<WebView> suppressedWebView;
   @Nullable private WeakReference<Window> overlayWindow;
   @Nullable private Integer savedSoftInputMode;
+  @Nullable private WeakReference<View> observedDecorView;
+  private int imeHeight = -1;
+  private final ViewTreeObserver.OnGlobalLayoutListener imeListener = this::checkImeHeight;
 
   TenTapKeyboardModule(ReactApplicationContext context) {
     super(context);
     context.addLifecycleEventListener(this);
+    UiThreadUtil.runOnUiThread(this::observeIme);
   }
 
   @NonNull
@@ -103,21 +111,95 @@ public class TenTapKeyboardModule extends TenTapKeyboardSpec implements Lifecycl
   }
 
   @Override
-  public void onHostResume() {}
+  public void onHostResume() {
+    UiThreadUtil.runOnUiThread(this::observeIme);
+  }
 
   @Override
   public void onHostPause() {}
 
   @Override
   public void onHostDestroy() {
-    UiThreadUtil.runOnUiThread(this::reset);
+    UiThreadUtil.runOnUiThread(
+        () -> {
+          stopObservingIme();
+          reset();
+        });
   }
 
   @Override
   public void invalidate() {
     getReactApplicationContext().removeLifecycleEventListener(this);
-    UiThreadUtil.runOnUiThread(this::reset);
+    UiThreadUtil.runOnUiThread(
+        () -> {
+          stopObservingIme();
+          reset();
+        });
     super.invalidate();
+  }
+
+  /**
+   * From API 30 React Native sends keyboard events only when the keyboard
+   * shows or hides, not when it changes height while shown (the emoji panel,
+   * a suggestion strip), which would leave the toolbar under the taller
+   * keyboard. Such a change is sent here as React Native sends a show.
+   */
+  private void observeIme() {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+      return;
+    }
+    Activity activity = getReactApplicationContext().getCurrentActivity();
+    View decorView = activity != null ? activity.getWindow().getDecorView() : null;
+    View observed = observedDecorView != null ? observedDecorView.get() : null;
+    if (decorView == null || decorView == observed) {
+      return;
+    }
+    stopObservingIme();
+    decorView.getViewTreeObserver().addOnGlobalLayoutListener(imeListener);
+    observedDecorView = new WeakReference<>(decorView);
+  }
+
+  private void stopObservingIme() {
+    View observed = observedDecorView != null ? observedDecorView.get() : null;
+    if (observed != null) {
+      observed.getViewTreeObserver().removeOnGlobalLayoutListener(imeListener);
+    }
+    observedDecorView = null;
+    imeHeight = -1;
+  }
+
+  private void checkImeHeight() {
+    View decorView = observedDecorView != null ? observedDecorView.get() : null;
+    WindowInsetsCompat insets =
+        decorView != null ? ViewCompat.getRootWindowInsets(decorView) : null;
+    if (insets == null || !insets.isVisible(WindowInsetsCompat.Type.ime())) {
+      imeHeight = -1;
+      return;
+    }
+    int imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+    int height = imeBottom - insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
+    int previous = imeHeight;
+    imeHeight = height;
+    if (!KeyboardGeometry.isKeyboardResize(previous, height)
+        || !getReactApplicationContext().hasActiveReactInstance()) {
+      return;
+    }
+    int[] location = new int[2];
+    decorView.getLocationOnScreen(location);
+    float density = decorView.getResources().getDisplayMetrics().density;
+    WritableMap endCoordinates = Arguments.createMap();
+    endCoordinates.putDouble("height", height / density);
+    endCoordinates.putDouble("screenX", 0);
+    endCoordinates.putDouble("width", decorView.getWidth() / density);
+    endCoordinates.putDouble(
+        "screenY", (location[1] + decorView.getHeight() - imeBottom) / density);
+    WritableMap event = Arguments.createMap();
+    event.putMap("endCoordinates", endCoordinates);
+    event.putString("easing", "keyboard");
+    event.putDouble("duration", 0);
+    getReactApplicationContext()
+        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+        .emit("keyboardDidShow", event);
   }
 
   private void suppress(Promise promise) {

@@ -5,9 +5,25 @@ import {
   isMeasurableView,
   keyboardAccessories,
   measureFrame,
+  measureViewGeometry,
   type MeasurableView,
 } from './keyboardAccessories';
 import { getCoverOverlap } from './utils';
+
+/**
+ * The keyboard's top in window coordinates: `useKeyboard().keyboardTop`,
+ * else estimated from how far up from the bottom of the window it reaches.
+ * Null when no keyboard covers the window.
+ */
+export const getKeyboardTopInWindow = (
+  keyboardTop: number | null,
+  keyboardCoverHeight: number
+): number | null => {
+  if (keyboardTop !== null) return keyboardTop;
+  return keyboardCoverHeight > 0
+    ? Dimensions.get('window').height - keyboardCoverHeight
+    : null;
+};
 
 /**
  * Delays after a change at which the editor is measured again: layout lands
@@ -27,7 +43,8 @@ export const useKeyboardCover = (
   controller: object,
   enabled: boolean,
   isKeyboardUp: boolean,
-  keyboardCoverHeight: number
+  keyboardCoverHeight: number,
+  keyboardTop: number | null = null
 ): {
   overlap: number | null;
   /** The keyboard is up and the editor is about to be measured. */
@@ -49,6 +66,7 @@ export const useKeyboardCover = (
       if (isMeasurableView(target)) {
         editorView.current = target;
         editorViews.set(controller, target);
+        measureViewGeometry(target);
         setMeasurable(true);
       }
       setLayoutVersion((version) => version + 1);
@@ -80,14 +98,10 @@ export const useKeyboardCover = (
         ...keyboardAccessories.getViews().map(measureFrame),
       ]);
       if (cancelled || !editor) return;
-      const keyboardTop =
-        keyboardCoverHeight > 0
-          ? Dimensions.get('window').height - keyboardCoverHeight
-          : null;
       const next = getCoverOverlap(
         editor,
         accessories.filter((frame) => frame !== null),
-        keyboardTop
+        getKeyboardTopInWindow(keyboardTop, keyboardCoverHeight)
       );
       setOverlap((previous) =>
         previous !== null && Math.abs(previous - next) < 1 ? previous : next
@@ -109,7 +123,13 @@ export const useKeyboardCover = (
       timers.forEach((timer) => clearTimeout(timer));
       dimensions.remove();
     };
-  }, [active, keyboardCoverHeight, layoutVersion, accessoryVersion]);
+  }, [
+    active,
+    keyboardCoverHeight,
+    keyboardTop,
+    layoutVersion,
+    accessoryVersion,
+  ]);
 
   return {
     overlap: active ? overlap : null,

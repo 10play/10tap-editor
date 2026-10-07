@@ -1,11 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform, type LayoutChangeEvent } from 'react-native';
 import type { Listener, Unsubscribe } from '../shared/contracts';
+import { keyboardStore } from '../native/keyboardStore';
 
 /** A mounted view whose window frame can be read, like a host component. */
 export interface MeasurableView {
   measureInWindow(
     callback: (x: number, y: number, width: number, height: number) => void
+  ): void;
+  measure?(
+    callback: (
+      x: number,
+      y: number,
+      width: number,
+      height: number,
+      pageX: number,
+      pageY: number
+    ) => void
   ): void;
 }
 
@@ -78,6 +89,23 @@ export const measureFrame = (
       resolve(null);
     }
   });
+
+/**
+ * Reports where `view` sits in the window and in its root view, which tells
+ * the keyboard store how window coordinates lie on the screen.
+ */
+export const measureViewGeometry = (view: MeasurableView): void => {
+  if (Platform.OS !== 'android' || !view.measure) return;
+  try {
+    view.measure((_x, _y, _width, height, _pageX, pageY) =>
+      view.measureInWindow((_wx, windowY) =>
+        keyboardStore.reportViewGeometry({ windowY, pageY, height })
+      )
+    );
+  } catch {
+    // Not laid out.
+  }
+};
 
 /**
  * Marks a view drawn over the bottom of the editor while the keyboard is up,

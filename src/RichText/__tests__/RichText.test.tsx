@@ -50,6 +50,7 @@ const keyboardDown: KeyboardState = {
   lastKeyboardHeight: 0,
   keyboardCoverHeight: 0,
   inlineKeyboardHeight: 0,
+  keyboardTop: null,
 };
 
 let mockKeyboard: KeyboardState = keyboardDown;

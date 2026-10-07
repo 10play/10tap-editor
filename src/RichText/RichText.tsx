@@ -387,13 +387,15 @@ export const RichText = ({
     keyboardHeight,
     windowOverlaysKeyboard,
     keyboardCoverHeight,
+    keyboardTop,
   } = useKeyboard();
   useAndroidAutofocusKeyboard(editor, controller, autofocusInput, isKeyboardUp);
   const cover = useKeyboardCover(
     controller,
     Platform.OS !== 'web' && !dynamicHeight,
     isKeyboardUp,
-    keyboardCoverHeight
+    keyboardCoverHeight,
+    keyboardTop
   );
   const insets = getKeyboardInsets({
     platform: Platform.OS,

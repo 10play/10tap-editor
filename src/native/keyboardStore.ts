@@ -2,6 +2,7 @@ import {
   Dimensions,
   Keyboard,
   Platform,
+  StatusBar,
   type KeyboardEvent,
   type KeyboardEventName,
 } from 'react-native';
@@ -49,7 +50,7 @@ export interface KeyboardEventSource {
     listener: (event: KeyboardEvent) => void
   ): { remove(): void };
   isVisible?(): boolean;
-  metrics?(): { height: number } | undefined;
+  metrics?(): { height: number; screenY?: number } | undefined;
 }
 
 export interface WindowSize {
@@ -124,6 +125,16 @@ export interface KeyboardState {
    * none. `EditorKeyboardAvoidingView` pads only the rest of the cover.
    */
   inlineKeyboardHeight: number;
+  /**
+   * Top of whichever keyboard is up in window coordinates, the space
+   * `measureInWindow` reports in; null while none is up or before its
+   * position is known. A view covers the keyboard by
+   * `max(0, viewBottom - keyboardTop)`, wherever it ends and whatever
+   * navigation bar the keyboard reaches over. A custom keyboard takes the
+   * place of the system keyboard: its bottom is where the system keyboard
+   * last ended in this orientation.
+   */
+  keyboardTop: number | null;
 }
 
 export interface KeyboardStore {
@@ -136,6 +147,12 @@ export interface KeyboardStore {
    * current orientation, else `defaultHeight`, else a share of the window.
    */
   getKeyboardHeight(defaultHeight?: number): number;
+  /**
+   * Where the system keyboard last ended in the current orientation, in
+   * window coordinates: above the navigation bar on edge-to-edge Android.
+   * A custom keyboard ends there too. Undefined before one was seen.
+   */
+  getKeyboardBottom(): number | undefined;
   registerHost(
     editor: object,
     controls: CustomKeyboardControls,
@@ -150,6 +167,11 @@ export interface KeyboardStore {
    * edge-to-edge), 0 otherwise. A positive inset also means edge-to-edge.
    */
   setNavigationBarInset(inset: number): void;
+  /**
+   * Places window coordinates on the screen from a measured view, so
+   * keyboard events convert to them. `measureViewGeometry` reports here.
+   */
+  reportViewGeometry(geometry: ViewGeometry): void;
 }
 
 export interface KeyboardStoreOptions {
@@ -162,6 +184,19 @@ export interface KeyboardStoreOptions {
    * known once a `CustomKeyboard` reports it.
    */
   getNavigationBarInset?(): Promise<number>;
+  /** Android: the status bar height in dp (`StatusBar.currentHeight`). */
+  getStatusBarHeight?(): number;
+  /** Screen height in dp, `Dimensions.get('screen').height`. */
+  getScreenHeight?(): number;
+}
+
+/** A view measured both in the window and relative to its root view. */
+export interface ViewGeometry {
+  /** `measureInWindow` y. */
+  windowY: number;
+  /** `measure` pageY: relative to the React root view. */
+  pageY: number;
+  height: number;
 }
 
 type Orientation = 'portrait' | 'landscape';
@@ -175,14 +210,23 @@ export function createKeyboardStore({
   getWindowSize,
   platform,
   getNavigationBarInset,
+  getStatusBarHeight = () => 0,
+  getScreenHeight = () => getWindowSize().height,
 }: KeyboardStoreOptions): KeyboardStore {
   const stateListeners = new Set<() => void>();
   const eventListeners = new Set<Listener<SystemKeyboardEvent>>();
   const heightCache: Partial<Record<Orientation, number>> = {};
+  // Where the system keyboard ends, in screen coordinates.
+  const bottomCache: Partial<Record<Orientation, number>> = {};
   let hosts: MutableHost[] = [];
   let systemVisible = false;
   let systemHeight = 0;
   let lastHeight = 0;
+  // The system keyboard's top in screen coordinates.
+  let systemScreenTop: number | null = null;
+  // Screen y of the origin of window coordinates; see `reportViewGeometry`.
+  let windowOffset = getStatusBarHeight();
+  let fullScreenRoot = false;
   let edgeToEdge = false;
   let navigationBarInset = 0;
   let subscriptions: { remove(): void }[] = [];
@@ -194,6 +238,11 @@ export function createKeyboardStore({
   const orientation = (): Orientation => {
     const { width, height } = getWindowSize();
     return width > height ? 'landscape' : 'portrait';
+  };
+
+  const getKeyboardBottom = () => {
+    const bottom = bottomCache[orientation()];
+    return bottom === undefined ? undefined : bottom - windowOffset;
   };
 
   const computeSnapshot = (): KeyboardState => {
@@ -208,6 +257,15 @@ export function createKeyboardStore({
       navigationBarInset > 0 ||
       hosts.some((host) => host.state.overlaysWindow);
     const keyboardHeight = openHost ? openHost.state.height : systemHeight;
+    const keyboardBottom = getKeyboardBottom();
+    let keyboardTop: number | null = null;
+    if (openHost) {
+      if (keyboardBottom !== undefined && keyboardHeight > 0) {
+        keyboardTop = keyboardBottom - keyboardHeight;
+      }
+    } else if (systemVisible && systemScreenTop !== null) {
+      keyboardTop = systemScreenTop - windowOffset;
+    }
     return {
       isKeyboardUp: systemVisible || customOpen,
       keyboardHeight,
@@ -227,6 +285,7 @@ export function createKeyboardStore({
         windowOverlaysKeyboard,
         navigationBarInset,
       }),
+      keyboardTop,
     };
   };
 
@@ -250,10 +309,18 @@ export function createKeyboardStore({
     stateListeners.forEach((listener) => listener());
   };
 
-  const recordHeight = (height: number) => {
+  /** Records the system keyboard; `screenY` is its top on the screen, if known. */
+  const recordKeyboard = (height: number, screenY: number | undefined) => {
+    systemVisible = height > 0;
+    systemHeight = height;
+    systemScreenTop =
+      systemVisible && screenY !== undefined && screenY > 0 ? screenY : null;
     if (height < MIN_KEYBOARD_HEIGHT) return;
     heightCache[orientation()] = height;
     lastHeight = height;
+    if (systemScreenTop !== null) {
+      bottomCache[orientation()] = systemScreenTop + height;
+    }
   };
 
   const setNavigationBarInset = (inset: number) => {
@@ -272,15 +339,12 @@ export function createKeyboardStore({
     switch (name) {
       case 'keyboardWillShow':
       case 'keyboardDidShow':
-        systemVisible = height > 0;
-        systemHeight = height;
-        recordHeight(height);
+        recordKeyboard(height, event?.endCoordinates?.screenY);
         if (systemVisible) refreshNavigationBarInset();
         break;
       case 'keyboardWillHide':
       case 'keyboardDidHide':
-        systemVisible = false;
-        systemHeight = 0;
+        recordKeyboard(0, undefined);
         break;
       default:
         break;
@@ -310,12 +374,8 @@ export function createKeyboardStore({
     );
     // Events were missed while nobody listened: start from the keyboard's
     // current state, not the last one seen.
-    const height = keyboard.isVisible?.()
-      ? (keyboard.metrics?.()?.height ?? 0)
-      : 0;
-    systemVisible = height > 0;
-    systemHeight = height;
-    recordHeight(height);
+    const metrics = keyboard.isVisible?.() ? keyboard.metrics?.() : undefined;
+    recordKeyboard(metrics?.height ?? 0, metrics?.screenY);
     refreshNavigationBarInset();
     emitChange();
   };
@@ -350,6 +410,7 @@ export function createKeyboardStore({
       if (defaultHeight !== undefined) return defaultHeight;
       return Math.round(DEFAULT_KEYBOARD_HEIGHT_RATIO * getWindowSize().height);
     },
+    getKeyboardBottom,
     registerHost(editor, controls, state) {
       const host: MutableHost = { editor, controls, state: { ...state } };
       hosts = [...hosts, host];
@@ -379,6 +440,23 @@ export function createKeyboardStore({
       emitChange();
     },
     setNavigationBarInset,
+    reportViewGeometry({ windowY, pageY, height }) {
+      if (![windowY, pageY, height].every(Number.isFinite)) return;
+      // Window coordinates start at the root view, or (older React Native
+      // on Android) at the top of the visible display frame, below the
+      // status bar. The root view starts at the top of the screen when the
+      // app draws behind the status bar: then either the window y is above
+      // the root y, or the view reaches further down than a root below the
+      // status bar could.
+      const statusBar = getStatusBarHeight();
+      const rootOffset = windowY - pageY;
+      fullScreenRoot ||=
+        rootOffset < -1 || pageY + height > getScreenHeight() - statusBar + 1;
+      const next = (fullScreenRoot ? 0 : statusBar) - rootOffset;
+      if (Math.abs(next - windowOffset) < 0.5) return;
+      windowOffset = next;
+      emitChange();
+    },
   };
 }
 
@@ -418,4 +496,7 @@ export const keyboardStore: KeyboardStore = createKeyboardStore({
   getNavigationBarInset: nativeKeyboardModule
     ? () => nativeKeyboardModule.getNavigationBarInset()
     : undefined,
+  getStatusBarHeight: () =>
+    Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) : 0,
+  getScreenHeight: () => Dimensions.get('screen').height,
 });

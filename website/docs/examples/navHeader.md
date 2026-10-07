@@ -6,7 +6,7 @@ sidebar_position: 5
 
 Below a `react-navigation` header, a `KeyboardAvoidingView` needs a `keyboardVerticalOffset` equal to the header height plus the top inset, and that height changes between platforms and OS versions. A hard-coded value leaves the toolbar partly behind the keyboard.
 
-`EditorKeyboardAvoidingView` does not need the offset. It pads its bottom by the part of the window the keyboard covers, system or custom, including the navigation bar an edge-to-edge Android keyboard also covers, so it works below any header as long as it ends at the bottom of the window:
+`EditorKeyboardAvoidingView` does not need the offset. It measures where it ends in the window and pads its bottom by the part of it the keyboard covers, system or custom, including the navigation bar an edge-to-edge Android keyboard also covers, so it works below any header and above a tab bar:
 
 ```tsx
 import {

@@ -22,7 +22,7 @@ import { EditorHelper } from '../../EditorHelper';
 import { ColorKeyboard } from '../ColorKeyboard';
 import {
   CustomKeyboard,
-  getOverlayBodyTop,
+  getOverlayBodyFrame,
   type CustomKeyboardProps,
 } from '../CustomKeyboard';
 import {
@@ -31,7 +31,10 @@ import {
 } from '../CustomKeyboardExtension';
 import { useCustomKeyboard, useCustomKeyboardHeight } from '../context';
 import { INPUT_MODE_SCRIPT_KEY } from '../drivers';
-import { EditorKeyboardAvoidingView } from '../EditorKeyboardAvoidingView';
+import {
+  EditorKeyboardAvoidingView,
+  getKeyboardAvoidingPadding,
+} from '../EditorKeyboardAvoidingView';
 import { defaultColorKeyboardTheme } from '../keyboardTheme';
 import { SLOT_ANIMATION_MS } from '../keyboardSession';
 import { getNativeKeyboardModule } from '../nativeModule';
@@ -159,14 +162,44 @@ describe('CustomKeyboard', () => {
     });
   });
 
-  it('pins an overlay body to the bottom of the window', () => {
-    expect(getOverlayBodyTop(800, undefined)).toBe(0);
-    expect(getOverlayBodyTop(800, 800)).toBe(0);
+  it('pins an overlay body to the bottom of the window before a keyboard was seen', () => {
+    const frame = (hostBottom: number | undefined, windowHeight = 800) =>
+      getOverlayBodyFrame({
+        keyboardHeight: 300,
+        navigationBarInset: 24,
+        hostBottom,
+        keyboardBottom: undefined,
+        windowHeight,
+      });
+    expect(frame(undefined)).toEqual({
+      top: 0,
+      height: 324,
+      paddingBottom: 24,
+    });
+    expect(frame(800).top).toBe(0);
     // A host that ends above the bottom of the window (a safe area inset).
-    expect(getOverlayBodyTop(800, 766)).toBe(34);
+    expect(frame(766).top).toBe(34);
     // Edge-to-edge Android: the window height leaves out the navigation bar
     // the host reaches behind, so the body must not move up over the toolbar.
-    expect(getOverlayBodyTop(777.45, 801.45)).toBe(0);
+    expect(frame(801.45, 777.45).top).toBe(0);
+  });
+
+  it('ends an overlay body where the system keyboard ended', () => {
+    const frame = (hostBottom: number, keyboardBottom: number) =>
+      getOverlayBodyFrame({
+        keyboardHeight: 279,
+        navigationBarInset: 0,
+        hostBottom,
+        keyboardBottom,
+        windowHeight: 780,
+      });
+    // Edge-to-edge Android without the native module: the host reaches
+    // behind the 24dp navigation bar, which the body covers below its content.
+    expect(frame(804, 780)).toEqual({ top: 0, height: 303, paddingBottom: 24 });
+    // The window ends at the keyboard's bottom.
+    expect(frame(780, 780)).toEqual({ top: 0, height: 279, paddingBottom: 0 });
+    // A host that ends above it (a tab bar) has the body moved down.
+    expect(frame(730, 780)).toEqual({ top: 50, height: 279, paddingBottom: 0 });
   });
 
   it('renders keyboard components written for 0.7.x', async () => {
@@ -427,6 +460,75 @@ describe('EditorKeyboardAvoidingView', () => {
     emitKeyboard('keyboardDidHide', 0);
     expect(padding()).toBe(0);
     act(() => keyboardStore.setNavigationBarInset(0));
+  });
+
+  describe('padding from the measured geometry', () => {
+    const base = {
+      keyboardCoverHeight: 279,
+      inlineKeyboardHeight: 0,
+      keyboardVerticalOffset: 0,
+      screenHeight: 891,
+    };
+
+    it('pads by how far the keyboard reaches into the view', () => {
+      // Edge-to-edge Android: the view ends behind the 24dp navigation bar
+      // and the keyboard top is 303dp above that, whatever the height says.
+      expect(
+        getKeyboardAvoidingPadding({
+          ...base,
+          viewBottom: 867,
+          keyboardTop: 564,
+        })
+      ).toBe(303);
+      // Below a header and above a tab bar, no offset is needed.
+      expect(
+        getKeyboardAvoidingPadding({
+          ...base,
+          keyboardVerticalOffset: 116,
+          viewBottom: 783,
+          keyboardTop: 564,
+        })
+      ).toBe(219);
+    });
+
+    it('needs no padding where the window resized for the keyboard', () => {
+      expect(
+        getKeyboardAvoidingPadding({
+          ...base,
+          viewBottom: 563.6,
+          keyboardTop: 564,
+        })
+      ).toBe(0);
+    });
+
+    it('leaves out an inline keyboard and never pads past the screen', () => {
+      expect(
+        getKeyboardAvoidingPadding({
+          ...base,
+          inlineKeyboardHeight: 279,
+          viewBottom: 867,
+          keyboardTop: 564,
+        })
+      ).toBe(24);
+      expect(
+        getKeyboardAvoidingPadding({
+          ...base,
+          viewBottom: 2000,
+          keyboardTop: 564,
+        })
+      ).toBe(327);
+    });
+
+    it('falls back to the cover height until measured', () => {
+      expect(
+        getKeyboardAvoidingPadding({
+          ...base,
+          keyboardVerticalOffset: 34,
+          viewBottom: null,
+          keyboardTop: 564,
+        })
+      ).toBe(245);
+    });
   });
 
   it('can be disabled', () => {

@@ -23,6 +23,7 @@ import {
 import { keyboardStore } from '../../native/keyboardStore';
 import type { EditorBridge } from '../../types';
 import { HiddenFocusInput } from '../HiddenFocusInput';
+import { measureViewGeometry } from '../keyboardAccessories';
 import { CustomKeyboardContext } from './context';
 import type {
   AnyCustomKeyboardExtension,
@@ -83,17 +84,55 @@ export interface CustomKeyboardProps {
 
 const PLACEMENT_CHECK_DELAY_MS = SLOT_ANIMATION_MS + 50;
 
+export interface OverlayBodyInput {
+  keyboardHeight: number;
+  navigationBarInset: number;
+  /** Bottom of the host in window coordinates, undefined until measured. */
+  hostBottom: number | undefined;
+  /** `keyboardStore.getKeyboardBottom()`. */
+  keyboardBottom: number | undefined;
+  windowHeight: number;
+}
+
+export interface OverlayBodyFrame {
+  /** Offset from the top of the host, which is pinned to the bottom of its parent. */
+  top: number;
+  height: number;
+  /** Space below the keyboard content, over the navigation bar. */
+  paddingBottom: number;
+}
+
 /**
- * Offset of an overlay keyboard's body from its host, which is pinned to
- * the bottom of its parent: down to the bottom of the window when the host
- * ends above it, never up. On edge-to-edge Android the window height can
- * leave out the navigation bar that the host reaches behind.
+ * Frame of an overlay keyboard's body: its content where the system
+ * keyboard was, ending where that one ended, and the body reaching on down
+ * to the bottom of the host, over an edge-to-edge navigation bar. A host
+ * that ends above the keyboard's bottom has the body moved down, never up.
+ * Before a system keyboard was seen, the body has the navigation bar inset
+ * the native module reports below the content and reaches at least the
+ * bottom of the window.
  */
-export const getOverlayBodyTop = (
-  windowHeight: number,
-  hostBottom: number | undefined
-): number =>
-  hostBottom === undefined ? 0 : Math.max(0, windowHeight - hostBottom);
+export const getOverlayBodyFrame = ({
+  keyboardHeight,
+  navigationBarInset,
+  hostBottom,
+  keyboardBottom,
+  windowHeight,
+}: OverlayBodyInput): OverlayBodyFrame => {
+  if (hostBottom === undefined || keyboardBottom === undefined) {
+    return {
+      top:
+        hostBottom === undefined ? 0 : Math.max(0, windowHeight - hostBottom),
+      height: keyboardHeight + navigationBarInset,
+      paddingBottom: navigationBarInset,
+    };
+  }
+  const below = hostBottom - keyboardBottom;
+  return {
+    top: Math.max(0, -below),
+    height: keyboardHeight + Math.max(0, below),
+    paddingBottom: Math.max(0, below),
+  };
+};
 
 export const CustomKeyboard = (props: CustomKeyboardProps) => {
   const {
@@ -161,11 +200,16 @@ export const CustomKeyboard = (props: CustomKeyboardProps) => {
   const close = useCallback(() => session.close(true), [session]);
 
   const { height: windowHeight } = useWindowDimensions();
+  const keyboardBottom = useSyncExternalStore(
+    keyboardStore.subscribe,
+    keyboardStore.getKeyboardBottom
+  );
   const [hostBottom, setHostBottom] = useState<number>();
   const measureHost = useCallback(() => {
-    hostRef.current?.measureInWindow((_x, y, _width, height) =>
-      setHostBottom(y + height)
-    );
+    const host = hostRef.current;
+    if (!host) return;
+    measureViewGeometry(host);
+    host.measureInWindow((_x, y, _width, height) => setHostBottom(y + height));
   }, []);
 
   usePlacementCheck(
@@ -183,13 +227,24 @@ export const CustomKeyboard = (props: CustomKeyboardProps) => {
   // An overlay host covers the bottom of its parent, so the body, pinned to
   // the bottom of the window, stays inside it: accessibility services skip
   // views outside their parent's bounds.
-  const bodyHeight = view.keyboardHeight + view.navigationBarInset;
+  const body =
+    layout === 'overlay'
+      ? getOverlayBodyFrame({
+          keyboardHeight: view.keyboardHeight,
+          navigationBarInset: view.navigationBarInset,
+          hostBottom,
+          keyboardBottom,
+          windowHeight,
+        })
+      : {
+          top: 0,
+          height: view.keyboardHeight + view.navigationBarInset,
+          paddingBottom: view.navigationBarInset,
+        };
   const hostStyle =
     layout === 'overlay'
-      ? [styles.overlayHost, { height: Body ? bodyHeight : 0 }]
+      ? [styles.overlayHost, { height: Body ? body.height : 0 }]
       : { height: view.slotHeight };
-  const bodyTop =
-    layout === 'overlay' ? getOverlayBodyTop(windowHeight, hostBottom) : 0;
 
   return (
     <CustomKeyboardContext.Provider value={session}>
@@ -205,9 +260,9 @@ export const CustomKeyboard = (props: CustomKeyboardProps) => {
             style={[
               styles.body,
               {
-                top: bodyTop,
-                height: bodyHeight,
-                paddingBottom: view.navigationBarInset,
+                top: body.top,
+                height: body.height,
+                paddingBottom: body.paddingBottom,
                 backgroundColor:
                   rootBackground ??
                   resolveColorKeyboardTheme(editor.theme).keyboardRootColor,

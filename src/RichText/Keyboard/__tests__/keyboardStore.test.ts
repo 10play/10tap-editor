@@ -59,6 +59,7 @@ describe('keyboardStore', () => {
       lastKeyboardHeight: 0,
       keyboardCoverHeight: 0,
       inlineKeyboardHeight: 0,
+      keyboardTop: null,
     });
   });
 
@@ -200,6 +201,106 @@ describe('keyboardStore', () => {
     const host = store.registerHost({}, controls, closedHost);
     host.update({ open: true, height: 279 });
     expect(store.getSnapshot().keyboardCoverHeight).toBe(303);
+  });
+
+  it('places the system keyboard in window coordinates', () => {
+    const keyboard = createFakeKeyboard();
+    const store = createKeyboardStore({
+      keyboard,
+      getWindowSize: () => ({ width: 411, height: 780 }),
+      platform: 'android',
+      // Until a view is measured, window coordinates start below the
+      // status bar.
+      getStatusBarHeight: () => 24,
+    });
+    store.subscribe(() => {});
+    keyboard.emit('keyboardDidShow', 279, undefined, 525);
+    // Edge-to-edge: the keyboard reaches over the navigation bar below it,
+    // which neither its height nor a missing native module tells.
+    expect(store.getSnapshot()).toMatchObject({
+      keyboardTop: 501,
+      keyboardHeight: 279,
+    });
+    expect(store.getKeyboardBottom()).toBe(780);
+    keyboard.emit('keyboardDidHide', 0);
+    expect(store.getSnapshot().keyboardTop).toBeNull();
+    // Events without a position leave it unknown.
+    keyboard.emit('keyboardDidShow', 279);
+    expect(store.getSnapshot().keyboardTop).toBeNull();
+  });
+
+  describe('places window coordinates on the screen from a measured view', () => {
+    const setupAndroid = () => {
+      const keyboard = createFakeKeyboard();
+      const store = createKeyboardStore({
+        keyboard,
+        getWindowSize: () => ({ width: 411, height: 867 }),
+        getScreenHeight: () => 915,
+        getStatusBarHeight: () => 24,
+        platform: 'android',
+      });
+      store.subscribe(() => {});
+      keyboard.emit('keyboardDidShow', 279, undefined, 588);
+      return store;
+    };
+
+    it('below the status bar for a window that does not reach behind it', () => {
+      const store = setupAndroid();
+      store.reportViewGeometry({ windowY: 0, pageY: 0, height: 843 });
+      expect(store.getSnapshot().keyboardTop).toBe(564);
+    });
+
+    it('at the top of the screen for an edge-to-edge root view', () => {
+      const store = setupAndroid();
+      // The view reaches lower than a root below the status bar could.
+      store.reportViewGeometry({ windowY: 100, pageY: 100, height: 815 });
+      expect(store.getSnapshot().keyboardTop).toBe(588);
+      expect(store.getKeyboardBottom()).toBe(867);
+      // A shorter view later does not undo it.
+      store.reportViewGeometry({ windowY: 100, pageY: 100, height: 300 });
+      expect(store.getSnapshot().keyboardTop).toBe(588);
+    });
+
+    it('below the status bar where window coordinates start there', () => {
+      const store = setupAndroid();
+      // Older React Native: the edge-to-edge root starts at the top of the
+      // screen and window coordinates at the bottom of the status bar.
+      store.reportViewGeometry({ windowY: 76, pageY: 100, height: 300 });
+      expect(store.getSnapshot().keyboardTop).toBe(564);
+    });
+  });
+
+  it('puts a custom keyboard where the system keyboard ended', () => {
+    const { store, keyboard, rotate } = setup('ios');
+    const host = store.registerHost({}, controls, closedHost);
+    host.update({ open: true, height: 300 });
+    // No system keyboard seen yet.
+    expect(store.getSnapshot().keyboardTop).toBeNull();
+    host.update({ open: false });
+    keyboard.emit('keyboardWillShow', 336, IOS_ANIMATION, 508);
+    expect(store.getSnapshot().keyboardTop).toBe(508);
+    keyboard.emit('keyboardWillHide', 336, IOS_ANIMATION);
+    host.update({ open: true, height: 300 });
+    expect(store.getSnapshot().keyboardTop).toBe(544);
+    // The bottom is kept per orientation.
+    rotate();
+    host.update({ height: 200 });
+    expect(store.getKeyboardBottom()).toBeUndefined();
+    expect(store.getSnapshot().keyboardTop).toBeNull();
+  });
+
+  it('seeds the keyboard top from a keyboard that is already up', () => {
+    const keyboard = Object.assign(createFakeKeyboard(), {
+      isVisible: () => true,
+      metrics: () => ({ height: 320, screenY: 524 }),
+    });
+    const store = createKeyboardStore({
+      keyboard,
+      getWindowSize: () => ({ width: 390, height: 844 }),
+      platform: 'ios',
+    });
+    store.subscribe(() => {});
+    expect(store.getSnapshot().keyboardTop).toBe(524);
   });
 
   it('listens to the keyboard only while subscribed', () => {
