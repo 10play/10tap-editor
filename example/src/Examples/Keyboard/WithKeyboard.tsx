@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ColorKeyboard,
   CustomKeyboard,
+  EditorKeyboardAvoidingView,
   DEFAULT_TOOLBAR_ITEMS,
   Images,
   RichText,
@@ -15,7 +16,7 @@ import {
 /**
  * The documented ColorKeyboard setup: a palette toolbar item toggles the
  * keyboard, and the toolbar and `CustomKeyboard` share a bottom
- * KeyboardAvoidingView.
+ * EditorKeyboardAvoidingView.
  */
 export const WithKeyboard = () => {
   const editor = useEditorBridge({
@@ -30,10 +31,7 @@ export const WithKeyboard = () => {
       <View style={styles.editor}>
         <RichText editor={editor} testID="keyboard-example-editor" />
       </View>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardAvoidingView}
-      >
+      <EditorKeyboardAvoidingView style={styles.keyboardAvoidingView}>
         <ToolbarWithColor
           editor={editor}
           activeKeyboard={activeKeyboard}
@@ -45,7 +43,7 @@ export const WithKeyboard = () => {
           activeKeyboardID={activeKeyboard}
           setActiveKeyboardID={setActiveKeyboard}
         />
-      </KeyboardAvoidingView>
+      </EditorKeyboardAvoidingView>
     </SafeAreaView>
   );
 };

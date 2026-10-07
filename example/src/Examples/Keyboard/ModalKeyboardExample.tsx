@@ -1,17 +1,10 @@
 import React, { useState } from 'react';
-import {
-  Button,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Button, Modal, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import {
   ColorKeyboard,
   CustomKeyboard,
+  EditorKeyboardAvoidingView,
   RichText,
   Toolbar,
   useEditorBridge,
@@ -67,10 +60,7 @@ const ModalEditor = ({ onClose }: { onClose: () => void }) => {
       <View style={styles.fullScreen}>
         <RichText editor={editor} testID="keyboard-example-editor" />
       </View>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardAvoidingView}
-      >
+      <EditorKeyboardAvoidingView style={styles.keyboardAvoidingView}>
         <KeyboardSwitcher editor={editor} entries={[colorKeyboardEntry]} />
         <Toolbar editor={editor} />
         <CustomKeyboard
@@ -80,7 +70,7 @@ const ModalEditor = ({ onClose }: { onClose: () => void }) => {
           setActiveKeyboardID={setActiveKeyboard}
           onKeyboardError={(event) => setFailedDriver(event.driver)}
         />
-      </KeyboardAvoidingView>
+      </EditorKeyboardAvoidingView>
     </SafeAreaView>
   );
 };

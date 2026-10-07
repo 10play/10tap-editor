@@ -1,16 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ColorKeyboard,
   CustomKeyboard,
+  EditorKeyboardAvoidingView,
   CustomKeyboardExtension,
   ImageBridge,
   RichText,
@@ -94,10 +88,7 @@ export const CustomKeyboardExample = () => {
       <View style={styles.fullScreen}>
         <RichText editor={editor} testID="keyboard-example-editor" />
       </View>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardAvoidingView}
-      >
+      <EditorKeyboardAvoidingView style={styles.keyboardAvoidingView}>
         <KeyboardSwitcher editor={editor} entries={switcherEntries} />
         <CustomKeyboard
           editor={editor}
@@ -105,7 +96,7 @@ export const CustomKeyboardExample = () => {
           activeKeyboardID={activeKeyboard}
           setActiveKeyboardID={setActiveKeyboard}
         />
-      </KeyboardAvoidingView>
+      </EditorKeyboardAvoidingView>
     </SafeAreaView>
   );
 };

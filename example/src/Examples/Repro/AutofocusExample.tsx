@@ -1,5 +1,5 @@
 import React from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
 import { EditorProbe } from './EditorProbe';
@@ -19,7 +19,7 @@ export const AutofocusExample = () => {
         <RichText editor={editor} testID="autofocus-editor" />
       </View>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior="padding"
         style={styles.keyboardAvoidingView}
       >
         <Toolbar editor={editor} />

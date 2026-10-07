@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { RichText, useEditorBridge } from '@10play/tentap-editor';
+import {
+  EditorKeyboardAvoidingView,
+  RichText,
+  useEditorBridge,
+  useScrollToCaret,
+} from '@10play/tentap-editor';
 import { EditorProbe, ProbeButton } from './EditorProbe';
 
 const shortContent = '<p>One line</p>';
@@ -17,7 +22,9 @@ const MIN_CHANGE = 100;
 /**
  * `dynamicHeight` editors must follow their content as it grows and shrinks
  * (#342, #336). The second editor is capped by its parent: typing at its end
- * must keep the caret in view instead of jumping to the top (#323).
+ * must keep the caret in view instead of jumping to the top (#323). The
+ * first one grows in the ScrollView, which `useScrollToCaret` scrolls to keep
+ * the line being typed above the keyboard.
  */
 export const DynamicHeightExample = () => {
   const editor = useEditorBridge({
@@ -30,6 +37,8 @@ export const DynamicHeightExample = () => {
   });
   const [height, setHeight] = useState(0);
   const [check, setCheck] = useState<Check>();
+  const scrollViewRef = useRef<ScrollView>(null);
+  useScrollToCaret(editor, scrollViewRef);
 
   const passed =
     check &&
@@ -44,7 +53,7 @@ export const DynamicHeightExample = () => {
   };
 
   return (
-    <SafeAreaView style={styles.fullScreen}>
+    <SafeAreaView style={styles.fullScreen} edges={['top']}>
       <EditorProbe editor={editor}>
         <ProbeButton
           label="Grow"
@@ -58,18 +67,20 @@ export const DynamicHeightExample = () => {
         />
       </EditorProbe>
       <Text testID="dynamic-height-status">{`height:${Math.round(height)}${status}`}</Text>
-      <ScrollView keyboardDismissMode="none">
-        <View
-          style={styles.editorFrame}
-          onLayout={(e) => setHeight(e.nativeEvent.layout.height)}
-        >
-          <RichText editor={editor} testID="dynamic-height-editor" />
-        </View>
-        <Text style={styles.caption}>Capped at 150pt</Text>
-        <View style={[styles.editorFrame, styles.capped]}>
-          <RichText editor={cappedEditor} testID="capped-dynamic-editor" />
-        </View>
-      </ScrollView>
+      <EditorKeyboardAvoidingView style={styles.fullScreen}>
+        <ScrollView ref={scrollViewRef} keyboardDismissMode="none">
+          <View
+            style={styles.editorFrame}
+            onLayout={(e) => setHeight(e.nativeEvent.layout.height)}
+          >
+            <RichText editor={editor} testID="dynamic-height-editor" />
+          </View>
+          <Text style={styles.caption}>Capped at 150pt</Text>
+          <View style={[styles.editorFrame, styles.capped]}>
+            <RichText editor={cappedEditor} testID="capped-dynamic-editor" />
+          </View>
+        </ScrollView>
+      </EditorKeyboardAvoidingView>
     </SafeAreaView>
   );
 };

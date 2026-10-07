@@ -1,24 +1,23 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import {
   ColorKeyboard,
   CustomKeyboard as CustomKeyboardView,
   DEFAULT_TOOLBAR_ITEMS,
+  EditorKeyboardAvoidingView,
   Images,
   RichText,
   Toolbar,
   useEditorBridge,
   type EditorBridge,
 } from '@10play/tentap-editor';
-import { useKeyboardVerticalOffset } from '../screenOffset';
 
 /**
  * A palette toolbar item toggles ColorKeyboard in place of the system
  * keyboard. The toolbar and the custom keyboard share a bottom
- * KeyboardAvoidingView.
+ * EditorKeyboardAvoidingView.
  */
 export const CustomKeyboard = () => {
-  const keyboardVerticalOffset = useKeyboardVerticalOffset();
   const editor = useEditorBridge({
     autofocus: true,
     avoidIosKeyboard: true,
@@ -32,11 +31,7 @@ export const CustomKeyboard = () => {
       <View style={styles.editor}>
         <RichText editor={editor} />
       </View>
-      <KeyboardAvoidingView
-        keyboardVerticalOffset={keyboardVerticalOffset}
-        behavior="padding"
-        style={styles.keyboardAvoidingView}
-      >
+      <EditorKeyboardAvoidingView style={styles.keyboardAvoidingView}>
         <ToolbarWithColor
           editor={editor}
           activeKeyboard={activeKeyboard}
@@ -48,7 +43,7 @@ export const CustomKeyboard = () => {
           activeKeyboardID={activeKeyboard}
           setActiveKeyboardID={setActiveKeyboard}
         />
-      </KeyboardAvoidingView>
+      </EditorKeyboardAvoidingView>
     </View>
   );
 };
