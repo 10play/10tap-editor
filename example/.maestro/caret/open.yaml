@@ -12,6 +12,9 @@ name: 'Caret: open screen'
 - extendedWaitUntil:
     visible: '10Tap Rich Text Editor!'
     timeout: 180000
+# A LogBox toast at the bottom would take the tap on the last screens.
+- runFlow:
+    file: subflows/dismiss-logbox.yaml
 - scrollUntilVisible:
     element: ${SCREEN}
     timeout: 60000
