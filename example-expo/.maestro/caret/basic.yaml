@@ -13,6 +13,10 @@ tags:
     visible: '.*This is a basic example.*'
     timeout: 20000
 - waitForAnimationToEnd
+- runFlow:
+    file: common/checkpoint.yaml
+    env:
+      SHOT: basic-open
 - pressKey: Enter
 - runFlow:
     file: common/type-long-text.yaml

@@ -11,6 +11,12 @@ appId: dev.tenplay.tentapexampleexpo
     visible: Color keyboard
     timeout: 20000
 - waitForAnimationToEnd
+# The keyboard that autofocus opens, before anything is typed: the toolbar
+# has to sit fully on top of it already.
+- runFlow:
+    file: checkpoint.yaml
+    env:
+      SHOT: ${PREFIX}-open
 - pressKey: Enter
 - runFlow:
     file: type-long-text.yaml
