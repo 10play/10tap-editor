@@ -1,6 +1,6 @@
 // Caret probe for the caret/ flows on Android debug builds.
 //
-//   node example/.maestro/caret/caret-probe.mjs --out <dir> [--port 8790] [--metro 8082] (set ANDROID_SERIAL)
+//   node example/.maestro/caret/caret-probe.mjs --out <dir> [--port 8790] [--metro 8082] [--app <id>] [--device <title part>] (set ANDROID_SERIAL)
 //   maestro test -e CARET_PROBE=http://localhost:8790 example/.maestro/caret
 //
 // Each checkpoint requests /measure?label=..., and the probe compares the caret
@@ -31,6 +31,9 @@ const APP_ID = args.app ?? 'dev.tenplay.tentapexample';
 const WEBVIEW_PORT = Number(args.webviewPort ?? 9333);
 // Space the caret should keep from the toolbar: about a line.
 const COMFORT_DP = Number(args.comfort ?? 16);
+// Part of the Metro target title naming the device, when several devices
+// run the app on the same Metro.
+const DEVICE = args.device ?? '';
 mkdirSync(OUT, { recursive: true });
 
 const adb = (...cmd) =>
@@ -39,7 +42,14 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const evaluate = (url, expression) =>
   new Promise((resolve, reject) => {
-    const ws = new WebSocket(url);
+    // Expo's Metro only accepts inspector connections from a local origin,
+    // while WebView DevTools refuses any origin.
+    const local = new URL(url.replace('//localhost:', '//127.0.0.1:'));
+    const ws = new WebSocket(local, {
+      headers: local.pathname.startsWith('/inspector/')
+        ? { origin: `http://${local.host}` }
+        : {},
+    });
     const timer = setTimeout(() => {
       ws.close();
       reject(new Error(`timeout ${url}`));
@@ -187,7 +197,9 @@ const metroTarget = async () => {
   const list = await (
     await fetch(`http://localhost:${METRO}/json/list`)
   ).json();
-  const targets = list.filter((t) => t.appId === APP_ID);
+  const targets = list.filter(
+    (t) => t.appId === APP_ID && (t.title ?? '').includes(DEVICE)
+  );
   return targets[targets.length - 1]?.webSocketDebuggerUrl;
 };
 
@@ -240,6 +252,19 @@ const imeTop = () => {
   const insets = dump.match(/mGivenContentInsets=\[\d+,(\d+)\]/);
   if (!frame || !insets) return null;
   return Number(frame[2]) + Number(insets[1]);
+};
+
+// The custom keyboard as the accessibility tree has it, for when the React
+// tree walk does not reach it.
+const customKeyboardTop = () => {
+  adb('shell', 'uiautomator', 'dump', '/sdcard/caret-probe.xml');
+  const xml = adb('shell', 'cat', '/sdcard/caret-probe.xml');
+  const node = xml.match(
+    /resource-id="tentap-custom-keyboard"[^>]*bounds="\[\d+,(\d+)\]\[\d+,(\d+)\]"/
+  );
+  return node && Number(node[2]) > Number(node[1])
+    ? Number(node[1])
+    : undefined;
 };
 
 const screenHeight = () =>
@@ -312,7 +337,11 @@ const measure = async (label) => {
   const customView = views.find(
     (v) => v.label === 'CustomKeyboard' && v.height > 0
   );
-  const customTop = customView && Math.round(toScreen(customView.y));
+  const customTop = customView
+    ? Math.round(toScreen(customView.y))
+    : ime === null
+      ? customKeyboardTop()
+      : undefined;
   const keyboardTop =
     customTop !== undefined && customTop < height
       ? customTop

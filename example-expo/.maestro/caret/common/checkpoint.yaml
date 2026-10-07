@@ -1,15 +1,17 @@
-# Screenshot named SHOT, plus the optional caret probe check.
+# Screenshot named SHOT. With CARET_PROBE set (example/.maestro/caret/
+# caret-probe.mjs on Android, caret-probe-ios.mjs on iOS, both started with
+# --app dev.tenplay.tentapexampleexpo), also asserts that a keyboard is up,
+# that the toolbar sits fully on top of it and that the caret is above
+# everything drawn over the editor (CARET_SOFT=true only records the result).
 appId: dev.tenplay.tentapexampleexpo
 ---
 - waitForAnimationToEnd:
     timeout: 3000
 - takeScreenshot: ${SHOT}
-- runFlow:
-    when:
-      visible:
-        id: caret-probe
-    commands:
-      - assertNotVisible:
-          id: caret-probe
-          text: 'CP gap=-.*'
-          optional: true
+- runScript:
+    file: ../../../../example/.maestro/caret/probe.js
+    env:
+      LABEL: ${SHOT}
+      CARET_PROBE: ${CARET_PROBE || ''}
+      CARET_SOFT: ${CARET_SOFT || 'false'}
+- assertTrue: ${output.caretOk}

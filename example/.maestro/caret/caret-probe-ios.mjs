@@ -1,6 +1,6 @@
 // Caret probe for the caret/ flows on iOS simulator debug builds.
 //
-//   node example/.maestro/caret/caret-probe-ios.mjs --udid <sim> --out <dir> [--port 8791] [--metro 8081] [--marker false]
+//   node example/.maestro/caret/caret-probe-ios.mjs --udid <sim> --out <dir> [--port 8791] [--metro 8081] [--app <id>] [--device <title part>] [--marker false]
 //   maestro --device <sim> test -e CARET_PROBE=http://localhost:8791 example/.maestro/caret/basic.yaml
 //
 // Same protocol as caret-probe.mjs: each checkpoint GETs /measure?label=...,
@@ -36,6 +36,9 @@ const OUT = args.out ?? '.';
 const APP_ID = args.app ?? 'dev.tenplay.tentapexample';
 // Space the caret should keep from the toolbar: about a line.
 const COMFORT_PT = Number(args.comfort ?? 16);
+// Part of the Metro target title naming the device, when several devices
+// run the app on the same Metro.
+const DEVICE = args.device ?? '';
 // --marker false measures the changed paragraph instead of the caret: adding
 // the marker sometimes makes the iOS 26 simulator's WebContent crash.
 const USE_MARKER = args.marker !== 'false';
@@ -119,7 +122,14 @@ const flatten = (root) => {
 
 const evaluate = (url, expression) =>
   new Promise((resolve, reject) => {
-    const ws = new WebSocket(url);
+    // Expo's Metro only accepts inspector connections from a local origin,
+    // while WebView DevTools refuses any origin.
+    const local = new URL(url.replace('//localhost:', '//127.0.0.1:'));
+    const ws = new WebSocket(local, {
+      headers: local.pathname.startsWith('/inspector/')
+        ? { origin: `http://${local.host}` }
+        : {},
+    });
     const timer = setTimeout(() => {
       ws.close();
       reject(new Error(`timeout ${url}`));
@@ -190,7 +200,9 @@ const hermesTarget = async () => {
   const list = await (
     await fetch(`http://localhost:${METRO}/json/list`)
   ).json();
-  const target = list.filter((t) => t.appId === APP_ID).pop();
+  const target = list
+    .filter((t) => t.appId === APP_ID && (t.title ?? '').includes(DEVICE))
+    .pop();
   if (!target) throw new Error('no Hermes target on Metro');
   return target.webSocketDebuggerUrl;
 };
@@ -357,6 +369,18 @@ const measure = async (label, marker) => {
     (e) => e.id === 'inputView' && e.bottom > e.top
   );
   if (keyboard) covers.push({ label: 'System keyboard', top: keyboard.top });
+  // The native driver draws the custom keyboard as the input view, outside
+  // the React tree the Hermes walk measures.
+  const customKeyboard = elements.find(
+    (e) => e.id === 'tentap-custom-keyboard' && e.bottom > e.top
+  );
+  if (customKeyboard && !covers.some((c) => c.label === 'CustomKeyboard')) {
+    covers.push({
+      label: 'CustomKeyboard',
+      top: customKeyboard.top,
+      bottom: customKeyboard.bottom,
+    });
+  }
   // The editor's own bottom edge limits it too, e.g. when a parent caps it.
   const limits = [
     { label: 'Editor bottom', top: webView.bottom },

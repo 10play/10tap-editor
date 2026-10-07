@@ -1,6 +1,6 @@
-# ~40 lines in chunks of five, a long paragraph, a run of Enters and a line
-# after them, with a checkpoint after each chunk. Screenshots are prefixed
-# with PREFIX.
+# ~40 lines in chunks of five, a long paragraph, a run of Enters, a line
+# after them and a pasted block, with a checkpoint after each chunk.
+# Screenshots are prefixed with PREFIX.
 appId: dev.tenplay.tentapexampleexpo
 ---
 - evalScript: ${output.line = 0}
@@ -34,3 +34,15 @@ appId: dev.tenplay.tentapexampleexpo
     file: checkpoint.yaml
     env:
       SHOT: ${PREFIX}-after-enters
+# A 30-paragraph block pasted at the caret (only with CARET_PROBE, which
+# dispatches the paste in the editor page).
+- runScript:
+    file: ../../../../example/.maestro/caret/probe.js
+    env:
+      ACTION: paste
+      LABEL: ${PREFIX}-paste
+      CARET_PROBE: ${CARET_PROBE || ''}
+- runFlow:
+    file: checkpoint.yaml
+    env:
+      SHOT: ${PREFIX}-pasted

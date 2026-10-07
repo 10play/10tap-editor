@@ -1,9 +1,9 @@
 # Long-typing flows: the line being typed must stay above the toolbar (or the
 # keyboard, or the bottom of a capped editor). Each checkpoint takes a
-# screenshot. When the app renders a debug label with id `caret-probe`
-# reading `CP gap=<px> ...` (distance from the caret's bottom to the toolbar
-# top), a negative gap is reported as a warning; the flows themselves need no
-# instrumentation. Run one flow at a time, e.g.
-# maestro test -e METRO_URL=http://localhost:8083 example-expo/.maestro/caret/basic.yaml
+# screenshot; with CARET_PROBE set it also measures the caret, the toolbar
+# and the keyboard (see common/checkpoint.yaml) and fails on a miss. Run one
+# flow at a time, e.g.
+# node example/.maestro/caret/caret-probe.mjs --app dev.tenplay.tentapexampleexpo --metro 8083 --out <dir>
+# maestro test -e METRO_URL=http://localhost:8083 -e CARET_PROBE=http://localhost:8790 example-expo/.maestro/caret/basic.yaml
 flows:
   - '*'
