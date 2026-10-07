@@ -365,9 +365,26 @@ const measure = async (label, marker) => {
   );
   if (Number.isFinite(toolbarTop))
     covers.push({ label: 'Toolbar buttons', top: toolbarTop });
-  const keyboard = elements.find(
+  const inputView = elements.find(
     (e) => e.id === 'inputView' && e.bottom > e.top
   );
+  // The input view keeps the frame of a taller keyboard it switched from
+  // (emoji -> ABC). The keyboard drawn is the topmost full-width plane in the
+  // keyboard window that follows it.
+  const planeTops = elements
+    .slice(elements.indexOf(inputView) + 1)
+    .filter(
+      (e) =>
+        inputView &&
+        e.left <= inputView.left &&
+        e.right >= inputView.right - 1 &&
+        e.bottom >= inputView.bottom - 1 &&
+        e.top >= inputView.top
+    )
+    .map((e) => e.top);
+  const keyboard = inputView && {
+    top: planeTops.length ? Math.min(...planeTops) : inputView.top,
+  };
   if (keyboard) covers.push({ label: 'System keyboard', top: keyboard.top });
   // The native driver draws the custom keyboard as the input view, outside
   // the React tree the Hermes walk measures.
