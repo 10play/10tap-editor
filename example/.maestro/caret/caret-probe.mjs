@@ -289,13 +289,12 @@ const measure = async (label) => {
   const dpr = web.dpr;
   // RN window dp -> screen px: anchor on the RN WebView with the same height.
   const webViews = views.filter((v) => v.label === 'WebView');
+  // Editors of the same size (two editors on a screen) are told apart by
+  // the window offset they imply, which is never more than a status bar.
+  const score = (v) =>
+    Math.abs(v.height * dpr - rect.height) + Math.abs(rect.screenY - v.y * dpr);
   const anchor = webViews.reduce(
-    (best, v) =>
-      !best ||
-      Math.abs(v.height * dpr - rect.height) <
-        Math.abs(best.height * dpr - rect.height)
-        ? v
-        : best,
+    (best, v) => (!best || score(v) < score(best) ? v : best),
     undefined
   );
   const windowOffset = anchor ? rect.screenY - anchor.y * dpr : 0;
