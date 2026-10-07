@@ -87,7 +87,7 @@ The `Toolbar`, and views marked with [useKeyboardAccessory](./CustomKeyboardUtil
 
 Unlike calling [updateScrollThresholdAndMargin](./EditorBridge.md#updatescrollthresholdandmargin) yourself, this value is kept when the keyboard opens and closes.
 
-With `dynamicHeight` the padding is part of the content height, so the editor is that much taller than its text. A capped dynamic-height editor needs it to scroll its last line above something drawn over it (#308).
+With `dynamicHeight` the padding is part of the content height, so the editor is that much taller than its text. A capped dynamic-height editor needs it to scroll its last line above something drawn over it (#308). Without it, a capped dynamic-height editor keeps about one line between the caret and its own bottom edge when it scrolls.
 
 #### dynamicHeight
 

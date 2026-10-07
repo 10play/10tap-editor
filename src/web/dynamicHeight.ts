@@ -29,6 +29,13 @@ const FOLLOW_GRACE_MS = 500;
  */
 const ANSWER_MIN_MS = 200;
 const TOLERANCE_PX = 1;
+/**
+ * Space kept below the caret when a clamped editor scrolls it into view,
+ * about one line. Insets RichText applies as `editorProps` take precedence.
+ */
+export const CLAMPED_CARET_MARGIN = 24;
+/** ProseMirror's default `scrollMargin`. */
+const DEFAULT_SCROLL_MARGIN = 5;
 
 export interface CaretRect {
   top: number;
@@ -86,6 +93,17 @@ export class DynamicHeight {
   private containerHeight: number | null = null;
   private containerAt = -Infinity;
   private element: Element | null = null;
+  /**
+   * The plugin's scroll props. ProseMirror reads their sides on every
+   * scroll, so they follow `observe`; unobserved they are its defaults.
+   */
+  readonly scrollThreshold = { top: 0, right: 0, bottom: 0, left: 0 };
+  readonly scrollMargin = {
+    top: DEFAULT_SCROLL_MARGIN,
+    right: DEFAULT_SCROLL_MARGIN,
+    bottom: DEFAULT_SCROLL_MARGIN,
+    left: DEFAULT_SCROLL_MARGIN,
+  };
   private view: EditorView | null = null;
 
   constructor({ onHeight, onCaret, now = Date.now }: DynamicHeightOptions) {
@@ -107,6 +125,8 @@ export class DynamicHeight {
     const element = view.dom;
     this.view = view;
     this.element = element;
+    this.scrollThreshold.bottom = CLAMPED_CARET_MARGIN;
+    this.scrollMargin.bottom = CLAMPED_CARET_MARGIN;
     let frame: FrameHandle | undefined;
     let scheduled = false;
     const measure = () => {
@@ -130,6 +150,8 @@ export class DynamicHeight {
       if (this.element === element) {
         this.element = null;
         this.view = null;
+        this.scrollThreshold.bottom = 0;
+        this.scrollMargin.bottom = DEFAULT_SCROLL_MARGIN;
         this.reports = [];
         this.containerHeight = null;
         this.containerAt = -Infinity;
@@ -240,6 +262,8 @@ export function createDynamicHeightExtension(dynamicHeight: DynamicHeight) {
           props: {
             handleScrollToSelection: () =>
               dynamicHeight.handleScrollToSelection(),
+            scrollThreshold: dynamicHeight.scrollThreshold,
+            scrollMargin: dynamicHeight.scrollMargin,
           },
         }),
       ];

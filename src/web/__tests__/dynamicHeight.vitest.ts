@@ -1,6 +1,6 @@
 import type { EditorView } from '@tiptap/pm/view';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { DynamicHeight } from '../dynamicHeight';
+import { CLAMPED_CARET_MARGIN, DynamicHeight } from '../dynamicHeight';
 
 let resize: () => void = () => {};
 
@@ -281,5 +281,27 @@ describe('DynamicHeight scroll policy', () => {
 
     editor.setViewport(120);
     expect(dynamicHeight.isClamped()).toBe(true);
+  });
+
+  it('keeps about a line below the caret while it observes an editor', () => {
+    const editor = createEditor();
+    const dynamicHeight = create();
+    const defaults = {
+      threshold: { ...dynamicHeight.scrollThreshold },
+      margin: { ...dynamicHeight.scrollMargin },
+    };
+    expect(defaults.threshold.bottom).toBe(0);
+    expect(defaults.margin.bottom).toBe(5);
+
+    const disconnect = dynamicHeight.observe(editor.view);
+    expect(dynamicHeight.scrollThreshold.bottom).toBe(CLAMPED_CARET_MARGIN);
+    expect(dynamicHeight.scrollMargin).toEqual({
+      ...defaults.margin,
+      bottom: CLAMPED_CARET_MARGIN,
+    });
+
+    disconnect();
+    expect(dynamicHeight.scrollThreshold).toEqual(defaults.threshold);
+    expect(dynamicHeight.scrollMargin).toEqual(defaults.margin);
   });
 });

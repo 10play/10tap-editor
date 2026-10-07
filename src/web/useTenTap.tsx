@@ -13,7 +13,10 @@ import {
   selectHandlerBridges,
 } from './extensions';
 import { getFocusTracker } from './focus';
-import { revealSelectionOnImageLoad } from './revealSelection';
+import {
+  revealSelectionOnImageLoad,
+  revealSelectionOnViewportShrink,
+} from './revealSelection';
 import { boot, type WebRuntime } from './runtime';
 import { createStatePublisher, type StatePublisher } from './statePublisher';
 import {
@@ -212,11 +215,13 @@ export const useTenTap = (options?: UseTenTapArgs): Editor | null => {
     };
     document.addEventListener('focus', onFocusChange, true);
     document.addEventListener('blur', onFocusChange, true);
-    const stopRevealing = revealSelectionOnImageLoad(editor.view);
+    const stopRevealingOnLoad = revealSelectionOnImageLoad(editor.view);
+    const stopRevealingOnShrink = revealSelectionOnViewportShrink(editor.view);
     return () => {
       document.removeEventListener('focus', onFocusChange, true);
       document.removeEventListener('blur', onFocusChange, true);
-      stopRevealing();
+      stopRevealingOnLoad();
+      stopRevealingOnShrink();
     };
   }, [editor, publisher]);
 
