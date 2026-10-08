@@ -82,6 +82,7 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 - `useEditorContent` fetches content on content changes only (with custom bundles built before 1.1, on every state update as before), ignores out-of-order replies and stops after unmount.
 - On iOS the WebView is remounted after its first load only with react-native-webview 13.12.3 and 13.12.4.
 - A new WebView is mounted and the editor restored when its content process is killed on iOS, as on Android. Reloading the old one left the editor on its loading indicator.
+- A WebView that replaces a crashed renderer and does not become ready within a few seconds is replaced again (up to three times), so the editor no longer stays blank when the new renderer fails to launch.
 - `EditorTheme.colorKeyboard` is optional; the types of `editor.theme`, `defaultEditorTheme` and `darkEditorTheme` still always include it.
 - Type-level: `EditorBridge` has the new required members `insertContent` and `getSelectedText`.
 

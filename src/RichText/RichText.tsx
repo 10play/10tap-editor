@@ -42,6 +42,8 @@ import {
   getInjectedJS,
   getKeyboardInsets,
   getWebViewStyles,
+  MAX_UNREADY_REPLACEMENTS,
+  REPLACEMENT_READY_TIMEOUT_MS,
   shouldRemountOnFirstLoad,
   type KeyboardInsets,
 } from './utils';
@@ -283,13 +285,38 @@ export const RichText = ({
   // A WebView whose renderer is gone is replaced by a new one: Android
   // cannot reuse it, and an iOS reload does not bring an html page back.
   const [rendererLosses, setRendererLosses] = useState(0);
-  const replaceWebView = () => {
+  const replaceWebView = useCallback(() => {
     // The dead WebView must not be scripted again; until the new one
     // mounts, everything sent is queued.
     controller.onPageReplaced();
     controller.setWebView(null);
     setRendererLosses((count) => count + 1);
-  };
+  }, [controller]);
+
+  // Right after a crash the replacement's renderer can fail to launch
+  // without any further event (iOS), so a replacement that does not become
+  // ready in time is replaced again, waiting longer each time.
+  const unreadyReplacements = useRef(0);
+  useEffect(() => {
+    if (rendererLosses === 0 || controller.isReady()) return;
+    const timer = setTimeout(
+      () => {
+        if (unreadyReplacements.current >= MAX_UNREADY_REPLACEMENTS) return;
+        unreadyReplacements.current += 1;
+        replaceWebView();
+      },
+      REPLACEMENT_READY_TIMEOUT_MS * (unreadyReplacements.current + 1)
+    );
+    const unsubscribe = controller.subscribeReady((ready) => {
+      if (!ready) return;
+      clearTimeout(timer);
+      unreadyReplacements.current = 0;
+    });
+    return () => {
+      clearTimeout(timer);
+      unsubscribe();
+    };
+  }, [controller, rendererLosses, replaceWebView]);
 
   const webViewKey = [
     page.id,

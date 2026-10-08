@@ -1067,6 +1067,68 @@ describe('RichText lifecycle', () => {
     );
   });
 
+  it('replaces a replacement WebView that never becomes ready', () => {
+    jest.useFakeTimers();
+    const { result } = createEditor();
+    const editor = result.current;
+    render(<RichText editor={editor} />);
+    const first = mockWebViews.latest();
+    load(first);
+    ready(first, editor);
+    editor.setContent('<p>kept</p>');
+
+    act(() => first.simulateContentProcessDidTerminate());
+    const second = mockWebViews.latest();
+    act(() => jest.advanceTimersByTime(utils.REPLACEMENT_READY_TIMEOUT_MS - 1));
+    expect(mockWebViews.latest()).toBe(second);
+    act(() => jest.advanceTimersByTime(1));
+    const third = mockWebViews.latest();
+    expect(third).not.toBe(second);
+
+    load(third);
+    ready(third, editor);
+    expect(editor.getEditorState().isReady).toBe(true);
+    expect(posted(third)).toContainEqual(
+      expect.objectContaining({ type: CoreEditorActionType.SetContent })
+    );
+    act(() =>
+      jest.advanceTimersByTime(utils.REPLACEMENT_READY_TIMEOUT_MS * 10)
+    );
+    expect(mockWebViews.latest()).toBe(third);
+  });
+
+  it('stops replacing after a few replacements that never become ready', () => {
+    jest.useFakeTimers();
+    const { result } = createEditor();
+    const editor = result.current;
+    render(<RichText editor={editor} />);
+    const first = mockWebViews.latest();
+    load(first);
+    ready(first, editor);
+
+    act(() => first.simulateContentProcessDidTerminate());
+    const mounted = mockWebViews.instances.length;
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      act(() =>
+        jest.advanceTimersByTime(utils.REPLACEMENT_READY_TIMEOUT_MS * 10)
+      );
+    }
+    expect(mockWebViews.instances).toHaveLength(
+      mounted + utils.MAX_UNREADY_REPLACEMENTS
+    );
+  });
+
+  it('does not replace a first WebView that is slow to load', () => {
+    jest.useFakeTimers();
+    const { result } = createEditor();
+    render(<RichText editor={result.current} />);
+    const first = mockWebViews.latest();
+    act(() =>
+      jest.advanceTimersByTime(utils.REPLACEMENT_READY_TIMEOUT_MS * 10)
+    );
+    expect(mockWebViews.latest()).toBe(first);
+  });
+
   it('restores the edits, not initialContent, after a renderer crash', async () => {
     jest.useFakeTimers();
     const { result } = createEditor({ initialContent: '<p>initial</p>' });
