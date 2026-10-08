@@ -8,9 +8,10 @@ import {
   Images,
   RichText,
   Toolbar,
-  useEditorBridge,
   type EditorBridge,
 } from '@10play/tentap-editor';
+import { spacing, useTheme } from '../theme';
+import { useExampleEditor } from '../useExampleEditor';
 
 /**
  * A palette toolbar item toggles ColorKeyboard in place of the system
@@ -18,7 +19,8 @@ import {
  * EditorKeyboardAvoidingView.
  */
 export const CustomKeyboard = () => {
-  const editor = useEditorBridge({
+  const { colors } = useTheme();
+  const editor = useExampleEditor({
     autofocus: true,
     avoidIosKeyboard: true,
     initialContent:
@@ -27,7 +29,7 @@ export const CustomKeyboard = () => {
   const [activeKeyboard, setActiveKeyboard] = useState<string>();
 
   return (
-    <View style={styles.fullScreen}>
+    <View style={[styles.fullScreen, { backgroundColor: colors.surface }]}>
       <View style={styles.editor}>
         <RichText editor={editor} />
       </View>
@@ -81,11 +83,10 @@ export const ToolbarWithColor = ({
 const styles = StyleSheet.create({
   fullScreen: {
     flex: 1,
-    backgroundColor: 'white',
   },
   editor: {
     flex: 1,
-    paddingHorizontal: 12,
+    paddingHorizontal: spacing.lg,
   },
   keyboardAvoidingView: {
     position: 'absolute',

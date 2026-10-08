@@ -1,11 +1,14 @@
 import React, { useRef } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import {
   EditorKeyboardAvoidingView,
   RichText,
-  useEditorBridge,
   useScrollToCaret,
 } from '@10play/tentap-editor';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { EditorCard } from '../EditorCard';
+import { spacing, useTheme } from '../theme';
+import { useExampleEditor } from '../useExampleEditor';
 
 const longContent = Array.from(
   { length: 15 },
@@ -19,11 +22,13 @@ const longContent = Array.from(
  * above the keyboard.
  */
 export const DynamicHeight = () => {
-  const editor = useEditorBridge({
+  const { colors } = useTheme();
+  const { bottom } = useSafeAreaInsets();
+  const editor = useExampleEditor({
     dynamicHeight: true,
     initialContent: '<p>Type here: the editor grows with its content.</p>',
   });
-  const cappedEditor = useEditorBridge({
+  const cappedEditor = useExampleEditor({
     dynamicHeight: true,
     initialContent: longContent,
   });
@@ -31,16 +36,22 @@ export const DynamicHeight = () => {
   useScrollToCaret(editor, scrollViewRef);
 
   return (
-    <EditorKeyboardAvoidingView style={styles.fullScreen}>
-      <ScrollView ref={scrollViewRef} contentContainerStyle={styles.content}>
-        <Text style={styles.caption}>Grows with its content</Text>
-        <View style={styles.editorFrame}>
+    <EditorKeyboardAvoidingView
+      style={[styles.fullScreen, { backgroundColor: colors.background }]}
+    >
+      <ScrollView
+        ref={scrollViewRef}
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: bottom + spacing.lg },
+        ]}
+      >
+        <EditorCard label="Grows with its content">
           <RichText editor={editor} />
-        </View>
-        <Text style={styles.caption}>Capped at 150pt</Text>
-        <View style={[styles.editorFrame, styles.capped]}>
+        </EditorCard>
+        <EditorCard label="Capped at 150pt" style={styles.capped}>
           <RichText editor={cappedEditor} />
-        </View>
+        </EditorCard>
       </ScrollView>
     </EditorKeyboardAvoidingView>
   );
@@ -51,17 +62,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: 8,
-    gap: 8,
-  },
-  editorFrame: {
-    borderWidth: 1,
-    borderColor: '#c4c4c4',
+    padding: spacing.lg,
+    paddingTop: spacing.sm,
+    gap: spacing.sm,
   },
   capped: {
     maxHeight: 150,
-  },
-  caption: {
-    color: '#666',
+    overflow: 'hidden',
   },
 });

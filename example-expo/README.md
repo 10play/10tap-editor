@@ -23,7 +23,9 @@ the typed line stays above the toolbar; run them one at a time.
 
 Screens: a basic editor with the toolbar, dynamic height, a custom keyboard
 (ColorKeyboard) in the inline and the overlay layout, and two editors on one
-screen.
+screen. The screens share a small theme (`src/theme.ts`) and follow the
+system light or dark appearance; in dark mode the editors use
+`darkEditorTheme` and `darkEditorCss`.
 
 `metro.config.js` maps `@10play/tentap-editor` to `../src`, resolves React and
 the native packages from this app's `node_modules`, and on web swaps

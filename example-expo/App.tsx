@@ -5,6 +5,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  useColorScheme,
   View,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -13,24 +14,11 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from 'react-native-safe-area-context';
-import { examples, type Example } from './src/examples';
+import { Chevron } from './src/Chevron';
+import type { Example } from './src/examples';
+import { Home } from './src/Home';
 import { ScreenOffsetContext } from './src/screenOffset';
-
-const Home = ({ onOpen }: { onOpen: (example: Example) => void }) => (
-  <View style={styles.home}>
-    <Text style={styles.title}>10Tap Rich Text Editor</Text>
-    {examples.map((example) => (
-      <Pressable
-        key={example.name}
-        accessibilityRole="button"
-        onPress={() => onOpen(example)}
-        style={styles.link}
-      >
-        <Text style={styles.linkText}>{example.name}</Text>
-      </Pressable>
-    ))}
-  </View>
-);
+import { spacing, typography, useTheme } from './src/theme';
 
 const ExampleScreen = ({
   example,
@@ -40,26 +28,53 @@ const ExampleScreen = ({
   onBack: () => void;
 }) => {
   const { top } = useSafeAreaInsets();
+  const { colors } = useTheme();
+  const scheme = useColorScheme();
   const [headerHeight, setHeaderHeight] = useState(0);
 
   const Screen = example.component;
   return (
     <ScreenOffsetContext.Provider value={top + headerHeight}>
       <View
-        style={styles.header}
+        style={[
+          styles.header,
+          {
+            backgroundColor: colors.surface,
+            borderBottomColor: colors.separator,
+          },
+        ]}
         onLayout={(event) => setHeaderHeight(event.nativeEvent.layout.height)}
       >
-        <Pressable accessibilityRole="button" onPress={onBack}>
-          <Text style={styles.linkText}>Back</Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          hitSlop={spacing.sm}
+          onPress={onBack}
+          style={({ pressed }) => [styles.back, pressed && styles.pressed]}
+        >
+          <Chevron color={colors.accent} direction="left" />
+          {Platform.OS === 'ios' && (
+            <Text style={[typography.body, { color: colors.accent }]}>
+              Examples
+            </Text>
+          )}
         </Pressable>
-        <Text style={styles.title}>{example.name}</Text>
+        <Text
+          accessibilityRole="header"
+          numberOfLines={1}
+          style={[typography.headline, styles.title, { color: colors.text }]}
+        >
+          {example.name}
+        </Text>
       </View>
-      <Screen />
+      {/* The editors read the color scheme once, so a change remounts them. */}
+      <Screen key={scheme ?? 'light'} />
     </ScreenOffsetContext.Provider>
   );
 };
 
 export default function App() {
+  const { dark, colors } = useTheme();
   const [example, setExample] = useState<Example>();
   const exampleRef = useRef(example);
 
@@ -86,7 +101,15 @@ export default function App() {
     <SafeAreaProvider>
       {/* The keyboards rise from the window bottom, so the screens extend
           under the home indicator. */}
-      <SafeAreaView edges={['top', 'left', 'right']} style={styles.fullScreen}>
+      <SafeAreaView
+        edges={['top', 'left', 'right']}
+        style={[
+          styles.fullScreen,
+          {
+            backgroundColor: example ? colors.surface : colors.background,
+          },
+        ]}
+      >
         {example ? (
           <ExampleScreen
             example={example}
@@ -96,7 +119,7 @@ export default function App() {
           <Home onOpen={setExample} />
         )}
       </SafeAreaView>
-      <StatusBar style="dark" />
+      <StatusBar style={dark ? 'light' : 'dark'} />
     </SafeAreaProvider>
   );
 }
@@ -104,31 +127,40 @@ export default function App() {
 const styles = StyleSheet.create({
   fullScreen: {
     flex: 1,
-    backgroundColor: 'white',
-  },
-  home: {
-    alignItems: 'center',
-    gap: 4,
-    paddingVertical: 48,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    minHeight: 48,
+    paddingHorizontal: spacing.sm,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#c4c4c4',
   },
-  title: {
-    fontSize: 16,
-    fontWeight: '600',
+  back: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    minWidth: 44,
+    minHeight: 44,
+    paddingLeft: spacing.md,
+    paddingRight: spacing.sm,
   },
-  link: {
-    paddingVertical: 8,
+  pressed: {
+    opacity: 0.5,
   },
-  linkText: {
-    color: '#1a73e8',
-    fontSize: 16,
-  },
+  title: Platform.select({
+    ios: {
+      ...StyleSheet.absoluteFill,
+      paddingHorizontal: 120,
+      textAlign: 'center',
+      textAlignVertical: 'center',
+      lineHeight: 48,
+      pointerEvents: 'none',
+    },
+    default: {
+      flex: 1,
+      marginLeft: spacing.xs,
+      fontSize: 20,
+      fontWeight: '500',
+    },
+  }),
 });

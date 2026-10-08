@@ -1,12 +1,16 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import {
   EditorKeyboardAvoidingView,
   RichText,
   Toolbar,
   useBridgeState,
-  useEditorBridge,
+  useKeyboard,
 } from '@10play/tentap-editor';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { EditorCard } from '../EditorCard';
+import { spacing, useTheme } from '../theme';
+import { useExampleEditor } from '../useExampleEditor';
 
 /**
  * Two independent editors on one screen. The toolbar follows whichever editor
@@ -14,26 +18,35 @@ import {
  * keyboard, so the second editor stays on screen while it is edited.
  */
 export const TwoEditors = () => {
-  const first = useEditorBridge({
+  const { colors } = useTheme();
+  const { bottom } = useSafeAreaInsets();
+  const { isKeyboardUp } = useKeyboard();
+  const first = useExampleEditor({
     initialContent: '<p>First editor</p>',
   });
-  const second = useEditorBridge({
+  const second = useExampleEditor({
     initialContent: '<p>Second editor</p>',
   });
   const secondFocused = useBridgeState(second).isFocused;
   const active = secondFocused ? second : first;
 
   return (
-    <EditorKeyboardAvoidingView style={styles.fullScreen}>
-      <View style={styles.editors}>
-        <Text style={styles.caption}>First</Text>
-        <View style={styles.editorFrame}>
+    <EditorKeyboardAvoidingView
+      style={[styles.fullScreen, { backgroundColor: colors.background }]}
+    >
+      <View
+        style={[
+          styles.editors,
+          // Clear the home indicator while the toolbar is hidden.
+          { paddingBottom: isKeyboardUp ? spacing.sm : bottom + spacing.sm },
+        ]}
+      >
+        <EditorCard label="First" style={styles.editorCard}>
           <RichText editor={first} />
-        </View>
-        <Text style={styles.caption}>Second</Text>
-        <View style={styles.editorFrame}>
+        </EditorCard>
+        <EditorCard label="Second" style={styles.editorCard}>
           <RichText editor={second} />
-        </View>
+        </EditorCard>
       </View>
       <View style={styles.toolbarRow}>
         <Toolbar editor={active} />
@@ -48,16 +61,12 @@ const styles = StyleSheet.create({
   },
   editors: {
     flex: 1,
-    padding: 8,
-    gap: 8,
+    padding: spacing.lg,
+    paddingTop: spacing.sm,
+    gap: spacing.sm,
   },
-  editorFrame: {
+  editorCard: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: '#c4c4c4',
-  },
-  caption: {
-    color: '#666',
   },
   toolbarRow: {
     flexDirection: 'row',
