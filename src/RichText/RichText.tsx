@@ -31,6 +31,7 @@ import type { EditorMessage } from '../types/Messaging';
 import { isFabric } from '../utils/misc';
 import { useKeyboard } from '../utils/useKeyboard';
 import { useEditorOptions } from './editorOptions';
+import { useContentSnapshot } from './useContentSnapshot';
 import { useKeyboardCover } from './useKeyboardCover';
 import { HiddenFocusInput } from './HiddenFocusInput';
 import { REFOCUS_DELAY_MS } from './Keyboard/drivers';
@@ -262,6 +263,7 @@ export const RichText = ({
 }: RichTextProps) => {
   const controller = useController(editor);
   useEditorOptions(editor);
+  useContentSnapshot(editor, controller);
   const page = usePage(editor, controller);
   const dynamicHeight = useDynamicHeight(editor, controller, page);
   const fabric = isFabric();

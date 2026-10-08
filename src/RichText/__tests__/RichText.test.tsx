@@ -37,6 +37,10 @@ import { Toolbar } from '../Toolbar';
 import { useEditorBridge } from '../useEditorBridge';
 import * as utils from '../utils';
 import { keyboardAccessories } from '../keyboardAccessories';
+import {
+  SNAPSHOT_DEBOUNCE_MS,
+  SNAPSHOT_MAX_WAIT_MS,
+} from '../useContentSnapshot';
 import { COVER_MEASURE_DELAYS_MS } from '../useKeyboardCover';
 import { useScrollToCaret } from '../useScrollToCaret';
 
@@ -1061,6 +1065,82 @@ describe('RichText lifecycle', () => {
     expect(posted(second)).toContainEqual(
       expect.objectContaining({ type: CoreEditorActionType.SetContent })
     );
+  });
+
+  it('restores the edits, not initialContent, after a renderer crash', async () => {
+    jest.useFakeTimers();
+    const { result } = createEditor({ initialContent: '<p>initial</p>' });
+    const editor = result.current;
+    render(<RichText editor={editor} />);
+    const first = mockWebViews.latest();
+    load(first);
+    ready(first, editor);
+
+    const typed = { type: 'doc', content: [{ type: 'paragraph' }] };
+    act(() => {
+      first.simulateMessage(webMessage(CoreEditorActionType.ContentUpdate));
+      jest.advanceTimersByTime(SNAPSHOT_DEBOUNCE_MS);
+    });
+    const request = posted(first).find(
+      (message) => message.type === CoreEditorActionType.GetJSON
+    );
+    const { messageId } = request?.payload as { messageId: string };
+    await act(async () => {
+      first.simulateMessage(
+        webMessage(CoreEditorActionType.SendJSONToNative, {
+          content: typed,
+          messageId,
+        })
+      );
+    });
+
+    act(() => first.simulateContentProcessDidTerminate());
+    const second = mockWebViews.latest();
+    load(second);
+    ready(second, editor);
+    expect(posted(second)).toContainEqual({
+      type: CoreEditorActionType.SetContent,
+      payload: { content: typed, emitUpdate: false },
+    });
+  });
+
+  it('snapshots the content at least every few seconds while typing', () => {
+    jest.useFakeTimers();
+    const { result } = createEditor();
+    const editor = result.current;
+    render(<RichText editor={editor} />);
+    const webView = mockWebViews.latest();
+    load(webView);
+    ready(webView, editor);
+
+    const requests = () =>
+      postedTypes(webView).filter(
+        (type) => type === CoreEditorActionType.GetJSON
+      ).length;
+    act(() => {
+      for (let t = 0; t < SNAPSHOT_MAX_WAIT_MS; t += 100) {
+        webView.simulateMessage(webMessage(CoreEditorActionType.ContentUpdate));
+        jest.advanceTimersByTime(100);
+      }
+    });
+    expect(requests()).toBe(1);
+  });
+
+  it('takes no content snapshots on web', () => {
+    setPlatform('web');
+    jest.useFakeTimers();
+    const { result } = createEditor();
+    const editor = result.current;
+    render(<RichText editor={editor} />);
+    const webView = mockWebViews.latest();
+    load(webView);
+    ready(webView, editor);
+
+    act(() => {
+      webView.simulateMessage(webMessage(CoreEditorActionType.ContentUpdate));
+      jest.advanceTimersByTime(SNAPSHOT_MAX_WAIT_MS);
+    });
+    expect(postedTypes(webView)).not.toContain(CoreEditorActionType.GetJSON);
   });
 
   it('re-renders memoized RichText and Toolbar when the theme changes', () => {
