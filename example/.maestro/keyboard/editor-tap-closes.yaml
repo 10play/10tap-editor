@@ -18,8 +18,9 @@ name: Editor tap closes the custom keyboard
     id: toggle-sticker-keyboard
 - assertVisible:
     id: sticker-0
-- tapOn:
-    id: keyboard-example-editor
+# The editor view reaches under the custom keyboard, so its center can land on
+# the keyboard switcher; tap the text instead.
+- tapOn: 'Pick a sticker or a color.'
 - waitForAnimationToEnd
 - assertNotVisible:
     id: sticker-0
