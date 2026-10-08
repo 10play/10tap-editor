@@ -8,7 +8,11 @@ name: Custom keyboard inside a Modal
 - launchApp:
     clearState: true
 - extendedWaitUntil:
-    visible: 'Keyboard: Modal'
+    visible: '10Tap Rich Text Editor!'
+    timeout: 60000
+# The entry can be below the fold on smaller screens.
+- scrollUntilVisible:
+    element: 'Keyboard: Modal'
     timeout: 60000
 - tapOn: 'Keyboard: Modal'
 - tapOn:
