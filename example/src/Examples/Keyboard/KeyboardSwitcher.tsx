@@ -7,6 +7,7 @@ import {
   type AnyCustomKeyboardExtension,
   type EditorBridge,
 } from '@10play/tentap-editor';
+import { paper, radii, spacing, type } from '../../ui/theme';
 
 export interface SwitcherEntry {
   keyboard: AnyCustomKeyboardExtension;
@@ -47,7 +48,9 @@ export const KeyboardSwitcher = ({
             onPress={() => (active ? close() : open(keyboard.id))}
             style={[styles.button, active && styles.buttonActive]}
           >
-            <Text>{label}</Text>
+            <Text style={[styles.label, active && styles.labelActive]}>
+              {label}
+            </Text>
           </Pressable>
         );
       })}
@@ -58,19 +61,31 @@ export const KeyboardSwitcher = ({
 const styles = StyleSheet.create({
   switcher: {
     flexDirection: 'row',
-    gap: 8,
-    padding: 8,
-    backgroundColor: '#F5F5F5',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    backgroundColor: paper.bar,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#C8C8C9',
+    borderTopColor: paper.border,
   },
   button: {
-    paddingHorizontal: 12,
+    paddingHorizontal: spacing.md,
     paddingVertical: 6,
-    borderRadius: 6,
-    backgroundColor: 'white',
+    borderRadius: radii.pill,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: paper.border,
+    backgroundColor: paper.chip,
   },
   buttonActive: {
-    backgroundColor: '#DEE0E3',
+    borderColor: paper.chipActive,
+    backgroundColor: paper.chipActive,
+  },
+  label: {
+    ...type.footnote,
+    fontWeight: '600',
+    color: paper.text,
+  },
+  labelActive: {
+    color: paper.chipActiveText,
   },
 });

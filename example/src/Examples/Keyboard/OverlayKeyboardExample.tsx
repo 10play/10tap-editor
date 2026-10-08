@@ -9,6 +9,7 @@ import {
   Toolbar,
   useEditorBridge,
 } from '@10play/tentap-editor';
+import { layoutStyles } from '../../ui/styles';
 import { KeyboardDebugBar } from './KeyboardDebugBar';
 import { KeyboardSwitcher, colorKeyboardEntry } from './KeyboardSwitcher';
 
@@ -31,7 +32,7 @@ export const OverlayKeyboardExample = () => {
     <SafeAreaView style={styles.fullScreen} edges={['top']}>
       <KeyboardDebugBar editor={editor} />
       <EditorKeyboardAvoidingView style={styles.fullScreen}>
-        <View style={styles.fullScreen}>
+        <View style={layoutStyles.paper}>
           <RichText editor={editor} testID="keyboard-example-editor" />
         </View>
         <KeyboardSwitcher editor={editor} entries={[colorKeyboardEntry]} />
@@ -56,7 +57,6 @@ export const OverlayKeyboardExample = () => {
 const styles = StyleSheet.create({
   fullScreen: {
     flex: 1,
-    backgroundColor: 'white',
   },
   toolbarRow: {
     flexDirection: 'row',

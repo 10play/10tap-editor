@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Button } from 'react-native';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   LinkBridge,
@@ -9,6 +9,9 @@ import {
   useEditorBridge,
   DropCursorBridge,
 } from '@10play/tentap-editor';
+import { Chip } from '../ui/Chip';
+import { ScreenHeader } from '../ui/ScreenHeader';
+import { layoutStyles } from '../ui/styles';
 
 export const ConfigureExtensions = () => {
   const [hideContent, setHideContent] = React.useState(false);
@@ -29,10 +32,11 @@ export const ConfigureExtensions = () => {
   });
 
   return (
-    <SafeAreaView style={exampleStyles.fullScreen}>
-      <View>
-        <Button
-          title="Toggle Content"
+    <SafeAreaView style={layoutStyles.fullScreen}>
+      <ScreenHeader />
+      <View style={layoutStyles.actions}>
+        <Chip
+          label="Toggle Content"
           onPress={() => {
             editor.setContent(
               hideContent
@@ -45,8 +49,8 @@ export const ConfigureExtensions = () => {
             setHideContent(!hideContent);
           }}
         />
-        <Button
-          title="Change Placeholder"
+        <Chip
+          label="Change Placeholder"
           onPress={() => {
             editor.setPlaceholder(
               `New PLACEHOLDER at: ${new Date().toISOString()}`
@@ -55,20 +59,9 @@ export const ConfigureExtensions = () => {
           }}
         />
       </View>
-      <View style={exampleStyles.fullScreen}>
+      <View style={layoutStyles.paper}>
         <RichText editor={editor} />
       </View>
     </SafeAreaView>
   );
 };
-
-const exampleStyles = StyleSheet.create({
-  fullScreen: {
-    flex: 1,
-  },
-  keyboardAvoidingView: {
-    position: 'absolute',
-    width: '100%',
-    bottom: 0,
-  },
-});

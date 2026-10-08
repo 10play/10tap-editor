@@ -1,6 +1,6 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
-import { KeyboardAvoidingView, StyleSheet, Button } from 'react-native';
+import { KeyboardAvoidingView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   CodeBridge,
@@ -11,6 +11,9 @@ import {
   useEditorBridge,
 } from '@10play/tentap-editor';
 import { ProtestRiotFont } from './CustomFont';
+import { Chip } from '../ui/Chip';
+import { ScreenHeader } from '../ui/ScreenHeader';
+import { layoutStyles } from '../ui/styles';
 
 const customFont = `
 ${ProtestRiotFont}
@@ -46,12 +49,14 @@ export const CustomCss = (_props: NativeStackScreenProps<any, any, any>) => {
   });
 
   return (
-    <SafeAreaView style={exampleStyles.fullScreen}>
-      <Button
-        title={'Random CodeBlock Color'}
-        onPress={() => {
-          editor.injectCSS(
-            `
+    <SafeAreaView style={layoutStyles.fullScreen}>
+      <ScreenHeader />
+      <View style={layoutStyles.actions}>
+        <Chip
+          label="Random CodeBlock Color"
+          onPress={() => {
+            editor.injectCSS(
+              `
             code {
               background-color: ${
                 '#' + Math.floor(Math.random() * 16777215).toString(16)
@@ -68,47 +73,39 @@ export const CustomCss = (_props: NativeStackScreenProps<any, any, any>) => {
               padding: 0.25em;
           }
           `,
-            // Because we are passing CodeBridge name here, the existing css from CodeBridge will be replaced
-            // With the css we are injecting here
-            CodeBridge.name
-          );
-        }}
-      />
-      <Button
-        title={'Random Font Size'}
-        onPress={() => {
-          editor.injectCSS(
-            `
+              // Because we are passing CodeBridge name here, the existing css from CodeBridge will be replaced
+              // With the css we are injecting here
+              CodeBridge.name
+            );
+          }}
+        />
+        <Chip
+          label="Random Font Size"
+          onPress={() => {
+            editor.injectCSS(
+              `
             * {
               font-size: ${Math.random() * 60}px;
             }
           `,
-            // We are passing a custom tag here, so no bridge css will be replaced, instead a new stylesheet with be created with
-            // the tag 'font-size', and it will only be replaced with we injectCSS again with the same tag
-            'font-size'
-          );
-        }}
-      />
-      <RichText editor={editor} />
+              // We are passing a custom tag here, so no bridge css will be replaced, instead a new stylesheet with be created with
+              // the tag 'font-size', and it will only be replaced with we injectCSS again with the same tag
+              'font-size'
+            );
+          }}
+        />
+      </View>
+      <View style={layoutStyles.paper}>
+        <RichText editor={editor} />
+      </View>
       <KeyboardAvoidingView
         behavior={'padding'}
-        style={exampleStyles.keyboardAvoidingView}
+        style={layoutStyles.keyboardAvoidingView}
       >
         <Toolbar editor={editor} />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
-
-const exampleStyles = StyleSheet.create({
-  fullScreen: {
-    flex: 1,
-  },
-  keyboardAvoidingView: {
-    position: 'absolute',
-    width: '100%',
-    bottom: 0,
-  },
-});
 
 const initialContent = `<p>Custom Font And CSS!</p></br><code>Custom Code Block</code></br><p></p>`;

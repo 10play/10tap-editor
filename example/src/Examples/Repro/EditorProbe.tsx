@@ -5,6 +5,7 @@ import {
   useKeyboard,
   type EditorBridge,
 } from '@10play/tentap-editor';
+import { radii, useTheme } from '../../ui/theme';
 
 /**
  * Test hooks for the E2E flows: the bridge state and keyboard state as text,
@@ -20,10 +21,11 @@ export const EditorProbe = ({
   const { isReady, editable } = useBridgeState(editor);
   const { isKeyboardUp } = useKeyboard();
   const [html, setHtml] = useState('');
+  const { colors } = useTheme();
 
   return (
-    <View style={styles.probe}>
-      <Text testID="editor-status">
+    <View style={[styles.probe, { backgroundColor: colors.surface }]}>
+      <Text testID="editor-status" style={{ color: colors.text }}>
         {`ready:${isReady} editable:${editable} keyboard:${isKeyboardUp ? 'up' : 'down'}`}
       </Text>
       <View style={styles.actions}>
@@ -34,7 +36,10 @@ export const EditorProbe = ({
         />
         {children}
       </View>
-      <Text testID="editor-html" style={styles.html}>
+      <Text
+        testID="editor-html"
+        style={[styles.html, { color: colors.textSecondary }]}
+      >
         {html}
       </Text>
     </View>
@@ -49,22 +54,27 @@ export const ProbeButton = ({
   label: string;
   testID: string;
   onPress: () => void;
-}) => (
-  <Pressable
-    testID={testID}
-    accessibilityRole="button"
-    onPress={onPress}
-    style={styles.button}
-  >
-    <Text>{label}</Text>
-  </Pressable>
-);
+}) => {
+  const { colors } = useTheme();
+  return (
+    <Pressable
+      testID={testID}
+      accessibilityRole="button"
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.button,
+        { backgroundColor: pressed ? colors.accentSoft : colors.chip },
+      ]}
+    >
+      <Text style={[styles.label, { color: colors.accent }]}>{label}</Text>
+    </Pressable>
+  );
+};
 
 const styles = StyleSheet.create({
   probe: {
     padding: 8,
     gap: 6,
-    backgroundColor: '#f2f2f2',
   },
   actions: {
     flexDirection: 'row',
@@ -74,8 +84,10 @@ const styles = StyleSheet.create({
   button: {
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 4,
-    backgroundColor: '#dcdcdc',
+    borderRadius: radii.pill,
+  },
+  label: {
+    fontWeight: '600',
   },
   html: {
     fontSize: 10,

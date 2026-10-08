@@ -1,45 +1,92 @@
-import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useState, type ReactElement, type ReactNode } from 'react';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { EditorBridge } from '@10play/tentap-editor';
+import { ScreenHeader } from '../../ui/ScreenHeader';
+import { radii, spacing, type, useTheme } from '../../ui/theme';
 
 interface KeyboardDebugBarProps {
   editor: EditorBridge;
   /** Extra state captured with the HTML, e.g. keyboard mount counters. */
   details?: () => string;
+  /** Renders the header row around the read button; a ScreenHeader by default. */
+  header?: (readButton: ReactElement) => ReactNode;
 }
 
-/** Shows the document HTML on demand, so E2E flows can check what was typed. */
+const defaultHeader = (readButton: ReactElement) => (
+  <ScreenHeader right={readButton} />
+);
+
+/**
+ * The screen header with a button that shows the document HTML, so E2E flows
+ * can check what was typed.
+ */
 export const KeyboardDebugBar = ({
   editor,
   details,
+  header = defaultHeader,
 }: KeyboardDebugBarProps) => {
+  const { colors } = useTheme();
   const [html, setHtml] = useState('');
   const [detailText, setDetailText] = useState('');
-  return (
-    <View style={styles.bar}>
-      <Pressable
-        testID="read-editor-state"
-        accessibilityRole="button"
-        onPress={async () => {
-          setHtml(await editor.getHTML());
-          setDetailText(details?.() ?? '');
-        }}
-      >
-        <Text>Read state</Text>
-      </Pressable>
-      {details && <Text testID="keyboard-details">{detailText}</Text>}
-      <Text testID="editor-html" numberOfLines={3}>
-        {html}
+  const readButton = (
+    <Pressable
+      testID="read-editor-state"
+      accessibilityRole="button"
+      onPress={async () => {
+        setHtml(await editor.getHTML());
+        setDetailText(details?.() ?? '');
+      }}
+      style={({ pressed }) => [
+        styles.button,
+        { backgroundColor: pressed ? colors.accentSoft : colors.chip },
+      ]}
+    >
+      <Text style={[styles.buttonText, { color: colors.accent }]}>
+        Read state
       </Text>
-    </View>
+    </Pressable>
+  );
+  return (
+    <>
+      {header(readButton)}
+      <View style={styles.output}>
+        {details && (
+          <Text
+            testID="keyboard-details"
+            style={[styles.details, { color: colors.textSecondary }]}
+          >
+            {detailText}
+          </Text>
+        )}
+        <Text
+          testID="editor-html"
+          numberOfLines={3}
+          style={[styles.html, { color: colors.textSecondary }]}
+        >
+          {html}
+        </Text>
+      </View>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
-  bar: {
-    padding: 8,
-    gap: 4,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#C8C8C9',
+  button: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6,
+    borderRadius: radii.pill,
+  },
+  buttonText: {
+    ...type.footnote,
+    fontWeight: '600',
+  },
+  output: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xs,
+  },
+  details: type.caption,
+  html: {
+    ...type.caption,
+    fontFamily: Platform.select({ ios: 'Menlo', default: 'monospace' }),
   },
 });

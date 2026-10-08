@@ -7,6 +7,7 @@ import {
   Text,
   TextInput,
   Alert,
+  StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -16,6 +17,9 @@ import {
 } from '@10play/tentap-editor';
 import { Icon } from '../Icon';
 import { ComposeRichText } from './CustomRichText';
+import { paper } from '../../ui/theme';
+
+const SEND_COLOR = '#3D5AFE';
 
 export const CustomAndStaticToolbar = ({
   navigation,
@@ -33,13 +37,15 @@ export const CustomAndStaticToolbar = ({
 
   return (
     <SafeAreaView style={[exampleStyles.fullScreen]}>
+      {/* The composer is light in both color schemes. */}
+      <StatusBar barStyle="dark-content" />
       <View style={exampleStyles.header}>
         <View style={exampleStyles.topBar}>
           <TouchableOpacity onPress={navigation.goBack}>
             <Icon name="close" fill="#5F6368" />
           </TouchableOpacity>
           <TouchableOpacity onPress={onSendClick}>
-            <Icon name="send" fill="#5F6368" />
+            <Icon name="send" fill={SEND_COLOR} />
           </TouchableOpacity>
         </View>
         <View style={exampleStyles.recipientArea}>
@@ -48,6 +54,7 @@ export const CustomAndStaticToolbar = ({
             <TextInput
               style={exampleStyles.textPrimary}
               autoFocus
+              placeholderTextColor={paper.placeholder}
               placeholder="tentap@10play.dev"
             />
           </View>
@@ -55,11 +62,13 @@ export const CustomAndStaticToolbar = ({
             <Text style={exampleStyles.textSecondary}>From</Text>
             <TextInput
               style={exampleStyles.textPrimary}
+              placeholderTextColor={paper.placeholder}
               placeholder="you@10play.dev"
             />
           </View>
           <TextInput
             style={[exampleStyles.textPrimary, exampleStyles.recipientField]}
+            placeholderTextColor={paper.placeholder}
             placeholder="Subject"
           />
           <StaticToolbar editor={editor} />
@@ -117,15 +126,16 @@ const exampleStyles = StyleSheet.create({
     gap: 8,
     alignItems: 'center',
     paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: 'lightgrey',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: paper.border,
   },
   textPrimary: {
     fontSize: 16,
+    color: paper.text,
   },
   textSecondary: {
     fontSize: 14,
-    color: 'grey',
+    color: paper.textSecondary,
   },
   staticToolbar: {
     justifyContent: 'flex-end',

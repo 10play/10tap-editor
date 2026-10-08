@@ -12,23 +12,18 @@ import {
 
 import { editorHtml } from './editor-web/build/editorHtml';
 import { CounterBridge } from './CounterBridge';
-
-const exampleStyles = StyleSheet.create({
-  fullScreen: {
-    flex: 1,
-  },
-  keyboardAvoidingView: {
-    position: 'absolute',
-    width: '100%',
-    bottom: 0,
-  },
-});
+import { ScreenHeader } from '../../ui/ScreenHeader';
+import { layoutStyles } from '../../ui/styles';
+import { radii, spacing, type, useTheme } from '../../ui/theme';
 
 const Counter = ({ editor }: { editor: EditorBridge }) => {
   const state = useBridgeState(editor);
+  const { colors } = useTheme();
   return (
-    <View>
-      <Text>
+    <View
+      style={[exampleStyles.counter, { backgroundColor: colors.accentSoft }]}
+    >
+      <Text style={[exampleStyles.counterText, { color: colors.accent }]}>
         {state.wordCount} || {state.characterCount}
       </Text>
     </View>
@@ -46,11 +41,24 @@ export const Advanced = (_props: NativeStackScreenProps<any, any, any>) => {
   const TapRef = useRef(null);
 
   return (
-    <SafeAreaView style={exampleStyles.fullScreen} ref={TapRef}>
-      <View style={exampleStyles.fullScreen}>
-        <Counter editor={editor} />
+    <SafeAreaView style={layoutStyles.fullScreen} ref={TapRef}>
+      <ScreenHeader right={<Counter editor={editor} />} />
+      <View style={layoutStyles.paper}>
         <RichText editor={editor} />
       </View>
     </SafeAreaView>
   );
 };
+
+const exampleStyles = StyleSheet.create({
+  counter: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radii.pill,
+  },
+  counterText: {
+    ...type.caption,
+    fontWeight: '600',
+    fontVariant: ['tabular-nums'],
+  },
+});

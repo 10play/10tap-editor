@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RichText, useEditorBridge } from '@10play/tentap-editor';
+import { useTheme } from '../../ui/theme';
 import { EditorProbe, ProbeButton } from './EditorProbe';
 
 const initialContent = '<p>Hello world</p>';
@@ -19,6 +20,7 @@ const hello = { from: 1, to: 6 };
 export const ContentApiExample = () => {
   const editor = useEditorBridge({ initialContent });
   const [selected, setSelected] = useState('');
+  const { colors } = useTheme();
 
   return (
     <SafeAreaView style={styles.fullScreen}>
@@ -62,7 +64,10 @@ export const ContentApiExample = () => {
           }
         />
       </EditorProbe>
-      <Text testID="selected-text">{`selected:${selected}`}</Text>
+      <Text
+        testID="selected-text"
+        style={[styles.selected, { color: colors.textSecondary }]}
+      >{`selected:${selected}`}</Text>
       <View style={styles.fullScreen}>
         <RichText editor={editor} testID="content-api-editor" />
       </View>
@@ -73,5 +78,8 @@ export const ContentApiExample = () => {
 const styles = StyleSheet.create({
   fullScreen: {
     flex: 1,
+  },
+  selected: {
+    paddingHorizontal: 8,
   },
 });

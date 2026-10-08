@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ColorKeyboard,
@@ -12,6 +12,8 @@ import {
   useEditorBridge,
   type EditorBridge,
 } from '@10play/tentap-editor';
+import { ScreenHeader } from '../../ui/ScreenHeader';
+import { layoutStyles } from '../../ui/styles';
 
 /**
  * The documented ColorKeyboard setup: a palette toolbar item toggles the
@@ -27,11 +29,12 @@ export const WithKeyboard = () => {
   const [activeKeyboard, setActiveKeyboard] = useState<string>();
 
   return (
-    <SafeAreaView style={styles.fullScreen} edges={['top']}>
-      <View style={styles.editor}>
+    <SafeAreaView style={layoutStyles.fullScreen} edges={['top']}>
+      <ScreenHeader />
+      <View style={layoutStyles.paper}>
         <RichText editor={editor} testID="keyboard-example-editor" />
       </View>
-      <EditorKeyboardAvoidingView style={styles.keyboardAvoidingView}>
+      <EditorKeyboardAvoidingView style={layoutStyles.keyboardAvoidingView}>
         <ToolbarWithColor
           editor={editor}
           activeKeyboard={activeKeyboard}
@@ -79,21 +82,5 @@ const ToolbarWithColor = ({
     ]}
   />
 );
-
-const styles = StyleSheet.create({
-  fullScreen: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  editor: {
-    flex: 1,
-    paddingHorizontal: 12,
-  },
-  keyboardAvoidingView: {
-    position: 'absolute',
-    width: '100%',
-    bottom: 0,
-  },
-});
 
 const initialContent = `<p>This is a basic <a href="https://google.com">example</a> of using ColorKeyboard</p><p></p>`;

@@ -1,8 +1,10 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
-import { KeyboardAvoidingView, StyleSheet } from 'react-native';
+import { KeyboardAvoidingView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
+import { ScreenHeader } from '../ui/ScreenHeader';
+import { layoutStyles } from '../ui/styles';
 
 export const Basic = (_props: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditorBridge({
@@ -12,27 +14,19 @@ export const Basic = (_props: NativeStackScreenProps<any, any, any>) => {
   });
 
   return (
-    <SafeAreaView style={exampleStyles.fullScreen}>
-      <RichText editor={editor} />
+    <SafeAreaView style={layoutStyles.fullScreen}>
+      <ScreenHeader />
+      <View style={layoutStyles.paper}>
+        <RichText editor={editor} />
+      </View>
       <KeyboardAvoidingView
         behavior={'padding'}
-        style={exampleStyles.keyboardAvoidingView}
+        style={layoutStyles.keyboardAvoidingView}
       >
         <Toolbar editor={editor} />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
-
-const exampleStyles = StyleSheet.create({
-  fullScreen: {
-    flex: 1,
-  },
-  keyboardAvoidingView: {
-    position: 'absolute',
-    width: '100%',
-    bottom: 0,
-  },
-});
 
 const initialContent = `<p>This is a basic example</p>`;

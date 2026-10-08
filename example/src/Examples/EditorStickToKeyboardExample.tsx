@@ -5,43 +5,18 @@ import {
   KeyboardAvoidingView,
   StyleSheet,
   TouchableOpacity,
-  Text,
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
 import WebView from 'react-native-webview';
+import { Icon } from './Icon';
+import { ScreenHeader } from '../ui/ScreenHeader';
+import { layoutStyles } from '../ui/styles';
+import { paper, radii, spacing, useTheme } from '../ui/theme';
 
-const exampleStyles = StyleSheet.create({
-  fullScreen: {
-    flex: 1,
-  },
-  keyboardAvoidingView: {
-    position: 'absolute',
-    width: '100%',
-    bottom: 0,
-  },
-  messageBox: {
-    minHeight: 70,
-    padding: 3,
-    backgroundColor: '#828282',
-    margin: 5,
-    borderRadius: 3,
-    maxWidth: '70%',
-  },
-  editorWrapper: {
-    height: 70,
-    paddingLeft: 12,
-    backgroundColor: 'white',
-    flexDirection: 'row',
-  },
-  sendButton: {
-    // backgroundColor: 'red',
-    width: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});
+const messageHtml = (text: string, color: string) =>
+  `<html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>body{margin:0;background:transparent;color:${color};font:16px -apple-system,Roboto,sans-serif}p{margin:0}</style></head><body>${text}</body></html>`;
 
 const defaultMessages = [{ text: 'Hello World!', date: Date.now() }];
 
@@ -54,6 +29,7 @@ export const EditorStickToKeyboardExample = (
   });
   const MessagesScrollViewRef = useRef<ScrollView>(null);
   const TapRef = useRef(null);
+  const { colors } = useTheme();
   const [messages, setMessages] =
     React.useState<{ text: string; date: number }[]>(defaultMessages);
 
@@ -69,33 +45,46 @@ export const EditorStickToKeyboardExample = (
   };
 
   return (
-    <SafeAreaView style={exampleStyles.fullScreen} ref={TapRef}>
+    <SafeAreaView style={layoutStyles.fullScreen} ref={TapRef}>
+      <ScreenHeader />
       <ScrollView
         automaticallyAdjustKeyboardInsets={true}
         ref={MessagesScrollViewRef}
-        contentContainerStyle={{ paddingBottom: 120 }}
+        contentContainerStyle={exampleStyles.messages}
       >
         {messages.map((message) => (
-          <View key={message.date} style={exampleStyles.messageBox}>
+          <View
+            key={message.date}
+            style={[
+              exampleStyles.messageBox,
+              { backgroundColor: colors.accentFill },
+            ]}
+          >
             <WebView
-              source={{
-                html: `<html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"></head><body>${message.text}</body></html>`,
-              }}
+              style={exampleStyles.messageWebView}
+              source={{ html: messageHtml(message.text, colors.accentText) }}
             />
           </View>
         ))}
       </ScrollView>
       <KeyboardAvoidingView
         behavior={'padding'}
-        style={exampleStyles.keyboardAvoidingView}
+        style={layoutStyles.keyboardAvoidingView}
       >
         <View style={exampleStyles.editorWrapper}>
-          <RichText editor={editor} />
+          <View style={exampleStyles.composer}>
+            <RichText editor={editor} />
+          </View>
           <TouchableOpacity
-            style={exampleStyles.sendButton}
+            accessibilityRole="button"
+            accessibilityLabel="Send"
+            style={[
+              exampleStyles.sendButton,
+              { backgroundColor: colors.accentFill },
+            ]}
             onPress={onSendMessage}
           >
-            <Text>{'>'}</Text>
+            <Icon name="send" fill={colors.accentText} width={20} height={20} />
           </TouchableOpacity>
         </View>
         <Toolbar editor={editor} />
@@ -103,3 +92,51 @@ export const EditorStickToKeyboardExample = (
     </SafeAreaView>
   );
 };
+
+const exampleStyles = StyleSheet.create({
+  messages: {
+    alignItems: 'flex-end',
+    gap: spacing.sm,
+    padding: spacing.lg,
+    paddingBottom: 140,
+  },
+  messageBox: {
+    width: '70%',
+    height: 56,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radii.lg,
+    borderBottomRightRadius: radii.sm / 2,
+  },
+  messageWebView: {
+    backgroundColor: 'transparent',
+  },
+  editorWrapper: {
+    height: 70,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    backgroundColor: paper.bar,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: paper.border,
+  },
+  composer: {
+    flex: 1,
+    alignSelf: 'stretch',
+    paddingHorizontal: spacing.md,
+    borderRadius: radii.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: paper.border,
+    backgroundColor: paper.background,
+    overflow: 'hidden',
+  },
+  sendButton: {
+    width: 40,
+    height: 40,
+    borderRadius: radii.pill,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});

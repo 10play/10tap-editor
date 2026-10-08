@@ -12,6 +12,8 @@ import {
   useEditorBridge,
   type CustomKeyboardComponentProps,
 } from '@10play/tentap-editor';
+import { layoutStyles } from '../../ui/styles';
+import { paper, radii, spacing } from '../../ui/theme';
 import { KeyboardDebugBar } from './KeyboardDebugBar';
 import {
   KeyboardSwitcher,
@@ -85,10 +87,10 @@ export const CustomKeyboardExample = () => {
           `mounts:${lifecycle.mounts} unmounts:${lifecycle.unmounts}`
         }
       />
-      <View style={styles.fullScreen}>
+      <View style={layoutStyles.paper}>
         <RichText editor={editor} testID="keyboard-example-editor" />
       </View>
-      <EditorKeyboardAvoidingView style={styles.keyboardAvoidingView}>
+      <EditorKeyboardAvoidingView style={layoutStyles.keyboardAvoidingView}>
         <KeyboardSwitcher editor={editor} entries={switcherEntries} />
         <CustomKeyboard
           editor={editor}
@@ -113,27 +115,27 @@ const switcherEntries: SwitcherEntry[] = [
 const styles = StyleSheet.create({
   fullScreen: {
     flex: 1,
-    backgroundColor: 'white',
-  },
-  keyboardAvoidingView: {
-    position: 'absolute',
-    width: '100%',
-    bottom: 0,
   },
   stickers: {
     flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    alignItems: 'center',
+    alignContent: 'center',
     justifyContent: 'center',
+    gap: spacing.md,
+    padding: spacing.md,
+    backgroundColor: paper.bar,
   },
   sticker: {
-    width: '33%',
+    width: '28%',
+    aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: radii.md,
+    backgroundColor: paper.background,
   },
   stickerImage: {
-    width: 80,
-    height: 80,
+    width: '70%',
+    height: '70%',
   },
 });

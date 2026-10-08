@@ -7,6 +7,7 @@ import {
   useEditorBridge,
   useScrollToCaret,
 } from '@10play/tentap-editor';
+import { paper, radii, useTheme } from '../../ui/theme';
 import { EditorProbe, ProbeButton } from './EditorProbe';
 
 const shortContent = '<p>One line</p>';
@@ -38,6 +39,7 @@ export const DynamicHeightExample = () => {
   const [height, setHeight] = useState(0);
   const [check, setCheck] = useState<Check>();
   const scrollViewRef = useRef<ScrollView>(null);
+  const { colors } = useTheme();
   useScrollToCaret(editor, scrollViewRef);
 
   const passed =
@@ -66,7 +68,10 @@ export const DynamicHeightExample = () => {
           onPress={() => resize('shrink')}
         />
       </EditorProbe>
-      <Text testID="dynamic-height-status">{`height:${Math.round(height)}${status}`}</Text>
+      <Text
+        testID="dynamic-height-status"
+        style={[styles.status, { color: colors.text }]}
+      >{`height:${Math.round(height)}${status}`}</Text>
       <EditorKeyboardAvoidingView style={styles.fullScreen}>
         <ScrollView ref={scrollViewRef} keyboardDismissMode="none">
           <View
@@ -75,7 +80,9 @@ export const DynamicHeightExample = () => {
           >
             <RichText editor={editor} testID="dynamic-height-editor" />
           </View>
-          <Text style={styles.caption}>Capped at 150pt</Text>
+          <Text style={[styles.caption, { color: colors.textSecondary }]}>
+            Capped at 150pt
+          </Text>
           <View style={[styles.editorFrame, styles.capped]}>
             <RichText editor={cappedEditor} testID="capped-dynamic-editor" />
           </View>
@@ -92,12 +99,17 @@ const styles = StyleSheet.create({
   editorFrame: {
     margin: 8,
     borderWidth: 1,
-    borderColor: '#c4c4c4',
+    borderColor: paper.border,
+    borderRadius: radii.md,
+    overflow: 'hidden',
   },
   capped: {
     maxHeight: 150,
   },
   caption: {
     marginHorizontal: 8,
+  },
+  status: {
+    paddingHorizontal: 8,
   },
 });

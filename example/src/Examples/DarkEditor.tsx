@@ -1,6 +1,11 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React from 'react';
-import { View, KeyboardAvoidingView, StyleSheet } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  StatusBar,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   RichText,
@@ -15,8 +20,15 @@ import {
   darkEditorTheme,
   darkEditorCss,
 } from '@10play/tentap-editor';
+import { ScreenHeader } from '../ui/ScreenHeader';
+import { layoutStyles } from '../ui/styles';
 
 const EDITOR_BACKGROUND_COLOR = '#1C1C1E';
+const headerColors = {
+  text: '#F2F2F7',
+  textSecondary: '#9C9CA3',
+  accent: '#7C8CFF',
+};
 
 export const DarkEditor = (_props: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditorBridge({
@@ -31,24 +43,15 @@ export const DarkEditor = (_props: NativeStackScreenProps<any, any, any>) => {
   });
 
   return (
-    <SafeAreaView
-      style={{
-        ...exampleStyles.fullScreen,
-        backgroundColor: EDITOR_BACKGROUND_COLOR,
-      }}
-    >
-      <View
-        style={{
-          ...exampleStyles.fullScreen,
-          paddingHorizontal: 12,
-          backgroundColor: EDITOR_BACKGROUND_COLOR,
-        }}
-      >
+    <SafeAreaView style={exampleStyles.screen}>
+      <StatusBar barStyle="light-content" />
+      <ScreenHeader colors={headerColors} />
+      <View style={exampleStyles.editor}>
         <RichText editor={editor} />
       </View>
       <KeyboardAvoidingView
         behavior={'padding'}
-        style={exampleStyles.keyboardAvoidingView}
+        style={layoutStyles.keyboardAvoidingView}
       >
         <ToolbarWithColor editor={editor} />
       </KeyboardAvoidingView>
@@ -76,13 +79,13 @@ const ToolbarWithColor = ({ editor }: ToolbarWithColorProps) => {
 };
 
 const exampleStyles = StyleSheet.create({
-  fullScreen: {
+  screen: {
     flex: 1,
+    backgroundColor: EDITOR_BACKGROUND_COLOR,
   },
-  keyboardAvoidingView: {
-    position: 'absolute',
-    width: '100%',
-    bottom: 0,
+  editor: {
+    flex: 1,
+    paddingHorizontal: 16,
   },
 });
 

@@ -14,6 +14,7 @@ import type { EditorBridge } from '../../../../src/types';
 import { icons } from '../../assets';
 import { Icon } from '../Icon';
 import { useKeyboard } from '../../../../src/utils';
+import { paper } from '../../ui/theme';
 
 interface ComposeRichTextProps {
   editor: EditorBridge;
@@ -153,18 +154,18 @@ const composeStyles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     backgroundColor: 'white',
-    borderTopWidth: 1,
-    borderTopColor: 'lightgray',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: paper.border,
   },
   formattingToolbar: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
     backgroundColor: 'white',
-    borderTopWidth: 1,
+    borderTopWidth: StyleSheet.hairlineWidth,
     paddingVertical: 4,
     paddingHorizontal: 8,
     gap: 4,
-    borderTopColor: 'lightgray',
+    borderTopColor: paper.border,
   },
   button: {
     width: 24,
@@ -172,7 +173,7 @@ const composeStyles = StyleSheet.create({
     padding: 5,
   },
   activeButton: {
-    backgroundColor: 'lightblue',
+    backgroundColor: paper.chipActive,
     borderRadius: 10,
   },
   hidden: {

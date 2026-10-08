@@ -7,6 +7,8 @@ import {
   Toolbar,
   useEditorBridge,
 } from '@10play/tentap-editor';
+import { layoutStyles } from '../ui/styles';
+import { spacing } from '../ui/theme';
 
 /**
  * Below a navigation header, `EditorKeyboardAvoidingView` keeps the toolbar
@@ -23,7 +25,7 @@ export const NavigationHeader = (
 
   return (
     <EditorKeyboardAvoidingView style={exampleStyles.fullScreen}>
-      <View style={exampleStyles.fullScreen}>
+      <View style={[layoutStyles.paper, exampleStyles.paper]}>
         <RichText editor={editor} />
       </View>
       <View style={exampleStyles.toolbarRow}>
@@ -36,6 +38,9 @@ export const NavigationHeader = (
 const exampleStyles = StyleSheet.create({
   fullScreen: {
     flex: 1,
+  },
+  paper: {
+    marginTop: spacing.sm,
   },
   // The toolbar's default flex: 1 would share the column with the editor;
   // in a row it only fills the width.
