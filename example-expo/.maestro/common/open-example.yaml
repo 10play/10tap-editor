@@ -7,8 +7,9 @@ env:
 - launchApp:
     stopApp: true
 - openLink: exp+tentap-example-expo://expo-development-client/?url=${encodeURIComponent(METRO_URL)}
+# A fresh install greets with the dev menu sheet, which hides the list.
 - extendedWaitUntil:
-    visible: 10Tap Rich Text Editor
+    visible: 10Tap Rich Text Editor|Continue
     timeout: 120000
 - runFlow:
     when:
@@ -20,4 +21,5 @@ env:
       visible: Close
     commands:
       - tapOn: Close
+- assertVisible: 10Tap Rich Text Editor
 - tapOn: ${EXAMPLE}
