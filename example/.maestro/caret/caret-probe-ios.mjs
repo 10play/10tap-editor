@@ -176,12 +176,19 @@ const RN_MEASURE = `(() => {
     if (!host || !host.stateNode) return;
     const sn = host.stateNode;
     const node = (sn.canonical && sn.canonical.publicInstance) || sn;
-    if (!node.measureInWindow) return;
-    out.pending++;
-    node.measureInWindow((x, y, width, height) => {
+    const done = (x, y, width, height) => {
       out.views.push({ label, x, y, width, height });
       out.pending--;
-    });
+    };
+    // Fabric creates a view's public instance only once a ref asks for it.
+    const fabric = globalThis.nativeFabricUIManager;
+    if (node.measureInWindow) {
+      out.pending++;
+      node.measureInWindow(done);
+    } else if (sn.node && fabric) {
+      out.pending++;
+      fabric.measureInWindow(sn.node, done);
+    }
   };
   const visit = (fiber) => {
     for (let f = fiber; f; f = f.sibling) {
