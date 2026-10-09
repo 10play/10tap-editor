@@ -26,6 +26,7 @@ const EXPECTED_METHODS = {
   isSystemKeyboardVisible: '() => Promise<boolean>',
   setWindowOverlayMode: '(enabled: boolean) => Promise<boolean>',
   getNavigationBarInset: '() => Promise<Double>',
+  getStatusBarHeight: '() => Promise<Double>',
 };
 const EXPECTED_CODEGEN_CONFIG = {
   name: 'RNTenTapSpec',

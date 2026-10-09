@@ -261,6 +261,27 @@ describe('keyboardStore', () => {
       expect(store.getSnapshot().keyboardTop).toBe(588);
     });
 
+    it('with the status bar height the native module reads', async () => {
+      // StatusBar.currentHeight is 0 when React Native read it before the
+      // window was attached.
+      const readStatusBarHeight = jest.fn(() => Promise.resolve(24));
+      const keyboard = createFakeKeyboard();
+      const store = createKeyboardStore({
+        keyboard,
+        getWindowSize: () => ({ width: 411, height: 867 }),
+        getScreenHeight: () => 915,
+        getStatusBarHeight: () => 0,
+        readStatusBarHeight,
+        platform: 'android',
+      });
+      store.subscribe(() => {});
+      await Promise.resolve();
+      keyboard.emit('keyboardDidShow', 279, undefined, 588);
+      store.reportViewGeometry({ windowY: 0, pageY: 0, height: 843 });
+      expect(store.getSnapshot().keyboardTop).toBe(564);
+      expect(readStatusBarHeight).toHaveBeenCalledTimes(2);
+    });
+
     it('below the status bar where window coordinates start there', () => {
       const store = setupAndroid();
       // Older React Native: the edge-to-edge root starts at the top of the

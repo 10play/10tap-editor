@@ -28,4 +28,7 @@ abstract class TenTapKeyboardSpec extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public abstract void getNavigationBarInset(Promise promise);
+
+  @ReactMethod
+  public abstract void getStatusBarHeight(Promise promise);
 }

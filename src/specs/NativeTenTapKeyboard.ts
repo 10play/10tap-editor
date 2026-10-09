@@ -23,6 +23,11 @@ export interface Spec extends TurboModule {
   setWindowOverlayMode(enabled: boolean): Promise<boolean>;
   /** Android: bottom navigation bar inset in dp when edge-to-edge, otherwise 0. iOS: 0. */
   getNavigationBarInset(): Promise<Double>;
+  /**
+   * Android: status bar height in dp from the window insets, read on each call.
+   * Rejects while the window is not attached. iOS: 0.
+   */
+  getStatusBarHeight(): Promise<Double>;
 }
 
 // null when the native module is not linked (Expo Go, web); callers fall back to the JS driver.

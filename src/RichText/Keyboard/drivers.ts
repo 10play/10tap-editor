@@ -15,6 +15,7 @@ export interface NativeKeyboardModule {
   isSystemKeyboardVisible(): Promise<boolean>;
   setWindowOverlayMode(enabled: boolean): Promise<boolean>;
   getNavigationBarInset(): Promise<number>;
+  getStatusBarHeight(): Promise<number>;
 }
 
 /**

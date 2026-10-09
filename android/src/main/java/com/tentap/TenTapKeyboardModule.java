@@ -110,6 +110,32 @@ public class TenTapKeyboardModule extends TenTapKeyboardSpec implements Lifecycl
         });
   }
 
+  /**
+   * React Native's {@code StatusBar.currentHeight} is read once, and is 0 when
+   * that happens before the window is attached.
+   */
+  @ReactMethod
+  @Override
+  public void getStatusBarHeight(Promise promise) {
+    UiThreadUtil.runOnUiThread(
+        () -> {
+          Activity activity = getReactApplicationContext().getCurrentActivity();
+          View decorView = activity != null ? activity.getWindow().getDecorView() : null;
+          WindowInsetsCompat insets =
+              decorView != null ? ViewCompat.getRootWindowInsets(decorView) : null;
+          if (insets == null) {
+            promise.reject("E_NO_WINDOW", "The activity window is not attached");
+            return;
+          }
+          int top =
+              insets.getInsets(
+                      WindowInsetsCompat.Type.statusBars()
+                          | WindowInsetsCompat.Type.displayCutout())
+                  .top;
+          promise.resolve(top / (double) decorView.getResources().getDisplayMetrics().density);
+        });
+  }
+
   @Override
   public void onHostResume() {
     UiThreadUtil.runOnUiThread(this::observeIme);

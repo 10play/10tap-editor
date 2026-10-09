@@ -171,6 +171,12 @@ RCT_EXPORT_METHOD(getNavigationBarInset:(RCTPromiseResolveBlock)resolve
   resolve(@0);
 }
 
+RCT_EXPORT_METHOD(getStatusBarHeight:(RCTPromiseResolveBlock)resolve
+                  reject:(__unused RCTPromiseRejectBlock)reject)
+{
+  resolve(@0);
+}
+
 /// Swaps the focused web view's keyboard for an empty input view. The content
 /// view stays first responder, so caret, selection and hardware keyboard input
 /// survive. Returns NO when no web view owns the first responder.

@@ -231,6 +231,7 @@ export const createFakeNativeModule = ({
     Promise.resolve(overlayResult)
   ),
   getNavigationBarInset: jest.fn(() => Promise.resolve(navigationBarInset)),
+  getStatusBarHeight: jest.fn(() => Promise.resolve(0)),
 });
 
 export const createFakeLayoutAnimation = () => {
