@@ -29,8 +29,11 @@ export const ComposeRichText = ({
       <View style={composeStyles.compose}>
         <RichText editor={editor} />
       </View>
+      {/* Only the toolbar takes touches; the keyboard padding below it can
+          cover the editor while another input has the keyboard. */}
       <KeyboardAvoidingView
         behavior={'padding'}
+        pointerEvents="box-none"
         style={composeStyles.keyboardAvoidingView}
       >
         <ComposeToolbar editor={editor} onSendClick={onSendClick} />
@@ -101,10 +104,18 @@ const ComposeToolbar = ({ editor, onSendClick }: ComposeToolbarProps) => {
         onLayout={accessory.onLayout}
         style={[hideToolbar && composeStyles.hidden, composeStyles.mainToolbar]}
       >
-        <TouchableOpacity onPress={() => setToolbar(ToolbarType.Formatting)}>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Formatting"
+          onPress={() => setToolbar(ToolbarType.Formatting)}
+        >
           <Icon name={'formatting'} style={composeStyles.button} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={onSendClick}>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Send"
+          onPress={onSendClick}
+        >
           <Icon name={'send'} style={composeStyles.button} />
         </TouchableOpacity>
       </View>
