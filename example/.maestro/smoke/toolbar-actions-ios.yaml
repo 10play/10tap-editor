@@ -19,6 +19,11 @@ tags:
           element: 'E2E: Smoke'
           timeout: 60000
       - tapOn: 'E2E: Smoke'
+      # A tap during the push transition is lost on a cold old-arch start.
+      - extendedWaitUntil:
+          notVisible: '10Tap Rich Text Editor!'
+          timeout: 10000
+      - waitForAnimationToEnd
       - extendedWaitUntil:
           visible:
             id: editor-status
