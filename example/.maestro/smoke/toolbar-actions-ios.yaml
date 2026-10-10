@@ -48,9 +48,12 @@ tags:
           id: editor-html
           text: '.*<a [^>]*href="https://example\.com"[^>]*>(Smoke|test)</a>.*'
 
-      # Italic at the end of the document (the empty editor area)
+      # Italic at the end of the document (the empty editor area). The
+      # editor view reaches under the keyboard, so on short screens its
+      # center can be the toolbar; tap just below the text instead.
       - tapOn:
-          id: smoke-editor
+          point: 50%,35%
+      - waitForAnimationToEnd
       - tapOn: 'Italic'
       - inputText: ' ital'
       - tapOn: 'Italic'
@@ -60,6 +63,21 @@ tags:
           id: editor-html
           text: '.*<em>.*ital</em>.*'
 
+      # Bold; the probe row has its own "Bold" button, so the toolbar's is
+      # the second match.
+      - tapOn:
+          text: 'Bold'
+          index: 1
+      - inputText: ' bld'
+      - tapOn:
+          text: 'Bold'
+          index: 1
+      - tapOn:
+          id: read-editor-state
+      - assertVisible:
+          id: editor-html
+          text: '.*<strong>.*bld</strong>.*'
+
       # Heading sub-toolbar: Heading, Heading 1, close; then toggle it off
       - tapOn: 'Heading'
       - tapOn: 'Heading 1'
@@ -68,7 +86,7 @@ tags:
           id: read-editor-state
       - assertVisible:
           id: editor-html
-          text: '<h1>.*ital</em></h1>'
+          text: '<h1>.*ital</em>.*bld</strong></h1>'
       - tapOn: 'Heading'
       - tapOn: 'Heading 1'
       - tapOn: 'Close headings'
@@ -76,13 +94,18 @@ tags:
           id: read-editor-state
       - assertVisible:
           id: editor-html
-          text: '<p>.*ital</em></p>'
+          text: '<p>.*ital</em>.*bld</strong></p>'
 
       # Bullet list, then toolbar undo and redo
-      - swipe:
-          from: 'Link'
-          direction: LEFT
-      - waitForAnimationToEnd
+      - repeat:
+          while:
+            notVisible: 'Bullet list'
+          times: 4
+          commands:
+            - swipe:
+                from: 'Quote|Ordered list'
+                direction: LEFT
+            - waitForAnimationToEnd
       - tapOn: 'Bullet list'
       - tapOn:
           id: read-editor-state
@@ -105,7 +128,7 @@ tags:
           id: read-editor-state
       - assertVisible:
           id: editor-html
-          text: '<p>.*ital</em></p>'
+          text: '<p>.*ital</em>.*bld</strong></p>'
       - tapOn: 'Redo'
       - tapOn:
           id: read-editor-state

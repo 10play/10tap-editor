@@ -9,7 +9,11 @@ name: Overlay custom keyboard
 - launchApp:
     clearState: true
 - extendedWaitUntil:
-    visible: 'Keyboard: Overlay'
+    visible: '10Tap Rich Text Editor!'
+    timeout: 60000
+# The entry can be below the fold on smaller screens.
+- scrollUntilVisible:
+    element: 'Keyboard: Overlay'
     timeout: 60000
 - tapOn: 'Keyboard: Overlay'
 - tapOn:

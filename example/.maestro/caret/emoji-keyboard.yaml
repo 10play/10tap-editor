@@ -8,6 +8,10 @@ env:
   APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
   RUN: ${RUN || 'emoji'}
   FOCUS_ID: ${FOCUS_ID || ''}
+  # The emoji (globe) key and the ABC key on the emoji keyboard; the defaults
+  # fit Face ID phones, home-button phones have them lower (about 96%).
+  EMOJI_POINT: ${EMOJI_POINT || '19%,89%'}
+  ABC_POINT: ${ABC_POINT || '8%,89%'}
 name: 'Caret: emoji keyboard switch'
 tags:
   - caret
@@ -31,13 +35,13 @@ tags:
       LABEL: ${RUN + '-10-pasted'}
 # The emoji key, then ABC on the emoji keyboard.
 - tapOn:
-    point: 19%,89%
+    point: ${EMOJI_POINT}
 - runFlow:
     file: subflows/checkpoint.yaml
     env:
       LABEL: ${RUN + '-20-emoji'}
 - tapOn:
-    point: 8%,89%
+    point: ${ABC_POINT}
 - runFlow:
     file: subflows/checkpoint.yaml
     env:

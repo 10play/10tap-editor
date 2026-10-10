@@ -13,7 +13,11 @@ name: Android back dismisses the custom keyboard
       platform: Android
     commands:
       - extendedWaitUntil:
-          visible: 'Keyboard: Custom'
+          visible: '10Tap Rich Text Editor!'
+          timeout: 60000
+      # The entry can be below the fold on smaller screens.
+      - scrollUntilVisible:
+          element: 'Keyboard: Custom'
           timeout: 60000
       - tapOn: 'Keyboard: Custom'
       - tapOn:

@@ -8,7 +8,11 @@ name: Toggle the custom keyboard 20 times
 - launchApp:
     clearState: true
 - extendedWaitUntil:
-    visible: 'Keyboard: Custom'
+    visible: '10Tap Rich Text Editor!'
+    timeout: 60000
+# The entry can be below the fold on smaller screens.
+- scrollUntilVisible:
+    element: 'Keyboard: Custom'
     timeout: 60000
 - tapOn: 'Keyboard: Custom'
 - tapOn:
