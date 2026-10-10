@@ -18,6 +18,13 @@ name: Editor tap closes the custom keyboard
 - tapOn:
     id: keyboard-example-editor
 - waitForAnimationToEnd
+# On a cold start the keyboard can begin rising after the wait above
+# returns, and the switcher rides up with it; give it time to arrive so
+# the toggle tap is not aimed at where the switcher was.
+- extendedWaitUntil:
+    visible: 'keyboard-settle-never-shown'
+    timeout: 2500
+    optional: true
 - tapOn:
     id: toggle-sticker-keyboard
 - assertVisible:

@@ -44,6 +44,12 @@ tags:
             visible: '^Select$'
           commands:
             - tapOn: '^Select$'
+      # The toolbar rides up with a keyboard that can start rising late on a
+      # cold start; let it arrive before aiming at Link.
+      - extendedWaitUntil:
+          visible: 'keyboard-settle-never-shown'
+          timeout: 2500
+          optional: true
       - tapOn: 'Link'
       - inputText: 'example.com'
       - tapOn: 'Insert'
