@@ -25,7 +25,6 @@ export default tseslint.config(
       'lib/**',
       'lib-web/**',
       'website/**',
-      '.claude/**',
       'example/android/**',
       'example/ios/**',
       'example/vendor/**',
