@@ -19,6 +19,10 @@ name: 'Caret: open screen'
     element: ${SCREEN}
     timeout: 60000
 - tapOn: ${SCREEN}
+# A tap during the push transition is lost on a cold old-arch iOS start.
+- extendedWaitUntil:
+    notVisible: '10Tap Rich Text Editor!'
+    timeout: 10000
 - waitForAnimationToEnd
 - assertNotVisible: 'Render Error'
 - runFlow:
