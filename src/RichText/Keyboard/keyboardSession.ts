@@ -141,6 +141,13 @@ export const EVENT_TIMEOUT_MS = 500;
 export const SHOW_CONFIRM_TIMEOUT_MS = 600;
 /** Wait for an editor focus change requested by the keyboard. */
 export const FOCUS_TIMEOUT_MS = 300;
+/**
+ * Android: how long an editor blur may last before it dismisses the custom
+ * keyboard. A layout that leaves the editor without height for a frame (the
+ * window resizing for the IME, a rotation) takes its Android focus, which
+ * the native module gives back at the next frame; the page blurs meanwhile.
+ */
+export const ANDROID_BLUR_GRACE_MS = 300;
 /** Slot animation when no keyboard event drives it. */
 export const SLOT_ANIMATION_MS = 250;
 /**
@@ -756,7 +763,17 @@ export function createKeyboardSession(
       unsubscribes = [
         store.subscribeEvents(onSystemEvent),
         channel.onFocusChange((focused) => {
-          if (!focused && phase === 'open') dismiss(true);
+          if (focused || phase !== 'open') return;
+          if (isIOS || !nativeDriver || deps.forceFallback) {
+            dismiss(true);
+            return;
+          }
+          const token = epoch;
+          schedule(ANDROID_BLUR_GRACE_MS, () => {
+            if (token === epoch && phase === 'open' && !channel.isFocused()) {
+              dismiss(true);
+            }
+          });
         }),
         channel.onEditorPress(() => {
           if (!options().closeOnEditorPress) return;

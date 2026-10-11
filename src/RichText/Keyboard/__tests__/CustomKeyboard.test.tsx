@@ -33,6 +33,7 @@ import { useCustomKeyboard, useCustomKeyboardHeight } from '../context';
 import { INPUT_MODE_SCRIPT_KEY } from '../drivers';
 import {
   EditorKeyboardAvoidingView,
+  getCurrentViewBottom,
   getKeyboardAvoidingPadding,
 } from '../EditorKeyboardAvoidingView';
 import { defaultColorKeyboardTheme } from '../keyboardTheme';
@@ -460,6 +461,26 @@ describe('EditorKeyboardAvoidingView', () => {
     emitKeyboard('keyboardDidHide', 0);
     expect(padding()).toBe(0);
     act(() => keyboardStore.setNavigationBarInset(0));
+  });
+
+  describe('measured bottom of the view', () => {
+    const measured = { bottom: 1776, keyboardTop: null };
+
+    it('is stale once a system keyboard the window resizes for moves', () => {
+      // Android ADJUST_RESIZE: the keyboard covers nothing, the view moves.
+      expect(getCurrentViewBottom(measured, 1000, 0)).toBeNull();
+      expect(
+        getCurrentViewBottom({ bottom: 1000, keyboardTop: 1000 }, 1000, 0)
+      ).toBe(1000);
+    });
+
+    it('holds where the keyboard covers the window', () => {
+      expect(getCurrentViewBottom(measured, 1000, 776)).toBe(1776);
+    });
+
+    it('is unknown before the first measurement', () => {
+      expect(getCurrentViewBottom(null, 1000, 776)).toBeNull();
+    });
   });
 
   describe('padding from the measured geometry', () => {

@@ -7,6 +7,7 @@ import {
 } from '../drivers';
 import { createEditorChannel } from '../editorChannel';
 import {
+  ANDROID_BLUR_GRACE_MS,
   EVENT_TIMEOUT_MS,
   EVENT_VERIFY_TIMEOUT_MS,
   FOCUS_TIMEOUT_MS,
@@ -860,6 +861,31 @@ describe('close triggers', () => {
     expect(t.view()).toMatchObject({
       phase: 'closed',
       renderedKeyboardID: undefined,
+    });
+  });
+
+  it('an Android blur the editor recovers from keeps the keyboard open', async () => {
+    const t = setup({ platform: 'android', systemKeyboard: 280 });
+    await openFully(t);
+    // A collapsed layout took the WebView's focus; the module gives it back.
+    t.setFocused(false);
+    jest.advanceTimersByTime(ANDROID_BLUR_GRACE_MS / 2);
+    t.setFocused(true);
+    jest.advanceTimersByTime(ANDROID_BLUR_GRACE_MS);
+    await flush();
+    expect(t.view()).toMatchObject({ phase: 'open', activeKeyboardID: 'kb' });
+  });
+
+  it('an Android blur that lasts dismisses the keyboard', async () => {
+    const t = setup({ platform: 'android', systemKeyboard: 280 });
+    await openFully(t);
+    t.setFocused(false);
+    expect(t.view().phase).toBe('open');
+    jest.advanceTimersByTime(ANDROID_BLUR_GRACE_MS);
+    await flush();
+    expect(t.view()).toMatchObject({
+      phase: 'closing',
+      activeKeyboardID: undefined,
     });
   });
 

@@ -38,13 +38,21 @@ public class TenTapKeyboardModule extends TenTapKeyboardSpec implements Lifecycl
   @Nullable private WeakReference<Window> overlayWindow;
   @Nullable private Integer savedSoftInputMode;
   @Nullable private WeakReference<View> observedDecorView;
+  @Nullable private WeakReference<WebView> collapsedFocus;
   private int imeHeight = KeyboardGeometry.HIDDEN;
-  private final ViewTreeObserver.OnGlobalLayoutListener imeListener = this::checkImeHeight;
+  private final ViewTreeObserver.OnGlobalLayoutListener layoutListener = this::checkImeHeight;
+  private final ViewTreeObserver.OnGlobalFocusChangeListener focusListener =
+      this::onGlobalFocusChanged;
+  private final ViewTreeObserver.OnPreDrawListener refocusListener =
+      () -> {
+        restoreCollapsedFocus();
+        return true;
+      };
 
   TenTapKeyboardModule(ReactApplicationContext context) {
     super(context);
     context.addLifecycleEventListener(this);
-    UiThreadUtil.runOnUiThread(this::observeIme);
+    UiThreadUtil.runOnUiThread(this::observeWindow);
   }
 
   @NonNull
@@ -138,7 +146,7 @@ public class TenTapKeyboardModule extends TenTapKeyboardSpec implements Lifecycl
 
   @Override
   public void onHostResume() {
-    UiThreadUtil.runOnUiThread(this::observeIme);
+    UiThreadUtil.runOnUiThread(this::observeWindow);
   }
 
   @Override
@@ -148,7 +156,7 @@ public class TenTapKeyboardModule extends TenTapKeyboardSpec implements Lifecycl
   public void onHostDestroy() {
     UiThreadUtil.runOnUiThread(
         () -> {
-          stopObservingIme();
+          stopObservingWindow();
           reset();
         });
   }
@@ -158,10 +166,108 @@ public class TenTapKeyboardModule extends TenTapKeyboardSpec implements Lifecycl
     getReactApplicationContext().removeLifecycleEventListener(this);
     UiThreadUtil.runOnUiThread(
         () -> {
-          stopObservingIme();
+          stopObservingWindow();
           reset();
         });
     super.invalidate();
+  }
+
+  /**
+   * Watches the activity window for IME heights React Native does not report
+   * (see {@link #checkImeHeight}) and for an editor WebView losing focus to a
+   * collapsed layout (see {@link #onGlobalFocusChanged}).
+   */
+  private void observeWindow() {
+    Activity activity = getReactApplicationContext().getCurrentActivity();
+    View decorView = activity != null ? activity.getWindow().getDecorView() : null;
+    View observed = observedDecorView != null ? observedDecorView.get() : null;
+    if (decorView == null || decorView == observed) {
+      return;
+    }
+    stopObservingWindow();
+    ViewTreeObserver observer = decorView.getViewTreeObserver();
+    observer.addOnGlobalFocusChangeListener(focusListener);
+    observedDecorView = new WeakReference<>(decorView);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+      observer.addOnGlobalLayoutListener(layoutListener);
+    }
+  }
+
+  /**
+   * Android clears the focus of a view laid out with no width or height, or
+   * inside such a view. A layout that collapses the editor for a frame, as
+   * when the window resizes for the IME before React Native padded for it,
+   * then leaves the IME bound to a WebView without focus, which drops what is
+   * typed. The WebView that lost focus this way, still served by the IME, gets
+   * it back once it has a size again; focus moved to another view is kept.
+   * React Native lays its views out outside of a window layout pass, so this
+   * is checked before each frame is drawn.
+   */
+  private void onGlobalFocusChanged(@Nullable View oldFocus, @Nullable View newFocus) {
+    if (newFocus != null) {
+      setCollapsedFocus(null);
+      return;
+    }
+    WebView webView = enclosingWebView(oldFocus);
+    if (webView != null && isCollapsed(webView) && inputMethodManager().isActive(webView)) {
+      setCollapsedFocus(webView);
+    }
+  }
+
+  private void setCollapsedFocus(@Nullable WebView webView) {
+    View decorView = observedDecorView != null ? observedDecorView.get() : null;
+    if (decorView != null) {
+      ViewTreeObserver observer = decorView.getViewTreeObserver();
+      observer.removeOnPreDrawListener(refocusListener);
+      if (webView != null) {
+        observer.addOnPreDrawListener(refocusListener);
+      }
+    }
+    collapsedFocus = webView != null ? new WeakReference<>(webView) : null;
+  }
+
+  private void restoreCollapsedFocus() {
+    WebView webView = collapsedFocus != null ? collapsedFocus.get() : null;
+    if (webView == null) {
+      return;
+    }
+    if (!webView.isAttachedToWindow()) {
+      setCollapsedFocus(null);
+      return;
+    }
+    if (isCollapsed(webView) || !webView.hasWindowFocus()) {
+      return;
+    }
+    setCollapsedFocus(null);
+    webView.requestFocus();
+  }
+
+  /** Whether the view or one of its ancestors is hidden or has no width or height. */
+  private static boolean isCollapsed(View view) {
+    if (!view.isShown()) {
+      return true;
+    }
+    for (View current = view; current != null; ) {
+      if (current.getWidth() <= 0 || current.getHeight() <= 0) {
+        return true;
+      }
+      ViewParent parent = current.getParent();
+      current = parent instanceof View ? (View) parent : null;
+    }
+    return false;
+  }
+
+  private void stopObservingWindow() {
+    View observed = observedDecorView != null ? observedDecorView.get() : null;
+    if (observed != null) {
+      ViewTreeObserver observer = observed.getViewTreeObserver();
+      observer.removeOnGlobalLayoutListener(layoutListener);
+      observer.removeOnGlobalFocusChangeListener(focusListener);
+      observer.removeOnPreDrawListener(refocusListener);
+    }
+    observedDecorView = null;
+    collapsedFocus = null;
+    imeHeight = KeyboardGeometry.HIDDEN;
   }
 
   /**
@@ -175,30 +281,6 @@ public class TenTapKeyboardModule extends TenTapKeyboardSpec implements Lifecycl
    * reported with no height and never again, so the height it reaches is
    * sent here too.
    */
-  private void observeIme() {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-      return;
-    }
-    Activity activity = getReactApplicationContext().getCurrentActivity();
-    View decorView = activity != null ? activity.getWindow().getDecorView() : null;
-    View observed = observedDecorView != null ? observedDecorView.get() : null;
-    if (decorView == null || decorView == observed) {
-      return;
-    }
-    stopObservingIme();
-    decorView.getViewTreeObserver().addOnGlobalLayoutListener(imeListener);
-    observedDecorView = new WeakReference<>(decorView);
-  }
-
-  private void stopObservingIme() {
-    View observed = observedDecorView != null ? observedDecorView.get() : null;
-    if (observed != null) {
-      observed.getViewTreeObserver().removeOnGlobalLayoutListener(imeListener);
-    }
-    observedDecorView = null;
-    imeHeight = KeyboardGeometry.HIDDEN;
-  }
-
   private void checkImeHeight() {
     View decorView = observedDecorView != null ? observedDecorView.get() : null;
     WindowInsetsCompat insets =
@@ -285,12 +367,18 @@ public class TenTapKeyboardModule extends TenTapKeyboardSpec implements Lifecycl
   @Nullable
   private WebView focusedWebView() {
     Activity activity = getReactApplicationContext().getCurrentActivity();
-    View view = activity != null ? activity.getCurrentFocus() : null;
+    WebView webView = enclosingWebView(activity != null ? activity.getCurrentFocus() : null);
+    return webView != null && webView.hasWindowFocus() ? webView : null;
+  }
+
+  /** The view itself when it is a WebView, else the WebView it is in, if any. */
+  @Nullable
+  private static WebView enclosingWebView(@Nullable View view) {
     while (view != null && !(view instanceof WebView)) {
       ViewParent parent = view.getParent();
       view = parent instanceof View ? (View) parent : null;
     }
-    return view != null && view.hasWindowFocus() ? (WebView) view : null;
+    return (WebView) view;
   }
 
   private InputMethodManager inputMethodManager() {

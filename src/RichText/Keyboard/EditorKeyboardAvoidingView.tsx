@@ -54,6 +54,30 @@ export const getKeyboardAvoidingPadding = ({
   return Math.max(0, Math.round(cover - inlineKeyboardHeight));
 };
 
+/** Where the view ended in the window, and under which keyboard top. */
+export interface MeasuredViewBottom {
+  bottom: number;
+  keyboardTop: number | null;
+}
+
+/**
+ * The measured bottom of the view while it still holds, else null. A window
+ * that resizes for the system keyboard (it covers nothing) moves the view
+ * when the keyboard moves, so a bottom measured under another keyboard top
+ * is stale until measured again: padding by it would squeeze the content
+ * above to nothing for a frame, and Android takes focus from a view laid
+ * out with no height. Where the keyboard covers the window the view stays.
+ */
+export const getCurrentViewBottom = (
+  measured: MeasuredViewBottom | null,
+  keyboardTop: number | null,
+  keyboardCoverHeight: number
+): number | null =>
+  measured !== null &&
+  (keyboardCoverHeight > 0 || measured.keyboardTop === keyboardTop)
+    ? measured.bottom
+    : null;
+
 /**
  * Pads its bottom by the part of it whichever keyboard covers, system or
  * custom, so the toolbar at its bottom sits fully on top of the keyboard.
@@ -75,7 +99,7 @@ export const EditorKeyboardAvoidingView = ({
   const { keyboardTop, keyboardCoverHeight, inlineKeyboardHeight } =
     useKeyboard();
   const ref = useRef<View>(null);
-  const [viewBottom, setViewBottom] = useState<number | null>(null);
+  const [measured, setMeasured] = useState<MeasuredViewBottom | null>(null);
   const [layoutVersion, setLayoutVersion] = useState(0);
   const active = enabled && keyboardTop !== null;
 
@@ -94,10 +118,13 @@ export const EditorKeyboardAvoidingView = ({
     const measure = () =>
       ref.current?.measureInWindow((_x, y, _width, height) => {
         if (cancelled || !Number.isFinite(y) || height <= 0) return;
-        setViewBottom((previous) =>
-          previous !== null && Math.abs(previous - (y + height)) < 1
+        const bottom = y + height;
+        setMeasured((previous) =>
+          previous !== null &&
+          previous.keyboardTop === keyboardTop &&
+          Math.abs(previous.bottom - bottom) < 1
             ? previous
-            : y + height
+            : { bottom, keyboardTop }
         );
       });
     measure();
@@ -111,7 +138,11 @@ export const EditorKeyboardAvoidingView = ({
 
   const paddingBottom = enabled
     ? getKeyboardAvoidingPadding({
-        viewBottom,
+        viewBottom: getCurrentViewBottom(
+          measured,
+          keyboardTop,
+          keyboardCoverHeight
+        ),
         keyboardTop,
         keyboardCoverHeight,
         inlineKeyboardHeight,
