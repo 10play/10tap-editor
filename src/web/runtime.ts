@@ -22,6 +22,7 @@ import {
   type BridgeMessage,
 } from '../shared/protocol';
 import { getFocusTracker } from './focus';
+import { installPolyfills } from './polyfills';
 import { applyStyleSheet } from './styles';
 
 /**
@@ -260,6 +261,8 @@ function createWebRuntime(win: Window): WebRuntime {
  * instance. Safe to call during render.
  */
 export function boot(win: Window = window): WebRuntime {
+  // Before any editor exists: Tiptap needs them from its first transaction.
+  installPolyfills();
   const host = win as RuntimeHost;
   const existing = host[RUNTIME_KEY];
   if (existing) return existing;
