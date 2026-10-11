@@ -24,6 +24,8 @@ export const defaultColorKeyboardTheme: ColorKeyboardTheme = {
   },
   colorButton: {
     width: 114,
+    // Three buttons and their gaps need about 380dp: narrower screens shrink them.
+    flexShrink: 1,
     height: 46,
     flexDirection: 'row',
     alignItems: 'center',
