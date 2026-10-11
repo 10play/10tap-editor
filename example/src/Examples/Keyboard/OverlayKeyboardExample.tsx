@@ -9,6 +9,10 @@ import {
   Toolbar,
   useEditorBridge,
 } from '@10play/tentap-editor';
+import {
+  BottomInsetSpacer,
+  useCompactKeyboardLayout,
+} from '../../ui/keyboardLayout';
 import { layoutStyles } from '../../ui/styles';
 import { KeyboardDebugBar } from './KeyboardDebugBar';
 import { KeyboardSwitcher, colorKeyboardEntry } from './KeyboardSwitcher';
@@ -27,6 +31,7 @@ export const OverlayKeyboardExample = () => {
     initialContent: '<p>The toolbar should not move when you switch.</p>',
   });
   const [activeKeyboard, setActiveKeyboard] = useState<string>();
+  const compact = useCompactKeyboardLayout();
 
   return (
     <SafeAreaView style={styles.fullScreen} edges={['top']}>
@@ -35,12 +40,17 @@ export const OverlayKeyboardExample = () => {
         <View style={layoutStyles.paper}>
           <RichText editor={editor} testID="keyboard-example-editor" />
         </View>
-        <KeyboardSwitcher editor={editor} entries={[colorKeyboardEntry]} />
-        {/* The toolbar's default flex: 1 would share the column with the
-            editor; in a row it only fills the width. */}
-        <View style={styles.toolbarRow}>
-          <Toolbar editor={editor} />
+        {/* A short landscape window keeps a line of the editor above the
+            caret by putting the switcher and the toolbar in one row. */}
+        <View style={compact && styles.bars}>
+          <KeyboardSwitcher editor={editor} entries={[colorKeyboardEntry]} />
+          {/* The toolbar's default flex: 1 would share the column with the
+              editor; in a row it only fills the width. */}
+          <View style={[styles.toolbarRow, compact && styles.fill]}>
+            <Toolbar editor={editor} />
+          </View>
         </View>
+        <BottomInsetSpacer />
       </EditorKeyboardAvoidingView>
       <CustomKeyboard
         editor={editor}
@@ -60,5 +70,11 @@ const styles = StyleSheet.create({
   },
   toolbarRow: {
     flexDirection: 'row',
+  },
+  bars: {
+    flexDirection: 'row',
+  },
+  fill: {
+    flex: 1,
   },
 });

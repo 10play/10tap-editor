@@ -1,6 +1,7 @@
 import React, { type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useCompactKeyboardLayout } from './keyboardLayout';
 import { spacing, type, useTheme, type Colors } from './theme';
 
 export type ExampleParams = { description?: string } | undefined;
@@ -11,14 +12,19 @@ interface ScreenHeaderProps {
   right?: ReactNode;
 }
 
-/** Back button, the example's name and its one-line description. */
+/**
+ * Back button, the example's name and its one-line description. Hidden while
+ * a keyboard is up in a short landscape window, to leave the editor room.
+ */
 export const ScreenHeader = ({ colors, right }: ScreenHeaderProps) => {
   const theme = useTheme().colors;
   const { text, textSecondary, accent } = colors ?? theme;
   const navigation = useNavigation();
   const route = useRoute();
   const description = (route.params as ExampleParams)?.description;
+  const compact = useCompactKeyboardLayout();
 
+  if (compact) return null;
   return (
     <View style={styles.header}>
       <Pressable

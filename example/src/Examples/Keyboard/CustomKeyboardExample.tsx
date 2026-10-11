@@ -12,6 +12,7 @@ import {
   useEditorBridge,
   type CustomKeyboardComponentProps,
 } from '@10play/tentap-editor';
+import { BottomInsetSpacer } from '../../ui/keyboardLayout';
 import { layoutStyles } from '../../ui/styles';
 import { paper, radii, spacing } from '../../ui/theme';
 import { KeyboardDebugBar } from './KeyboardDebugBar';
@@ -90,7 +91,9 @@ export const CustomKeyboardExample = () => {
       <View style={layoutStyles.paper}>
         <RichText editor={editor} testID="keyboard-example-editor" />
       </View>
-      <EditorKeyboardAvoidingView style={layoutStyles.keyboardAvoidingView}>
+      {/* In the column below the editor, not over it, so the switcher never
+          hides the last line while the keyboard is down. */}
+      <EditorKeyboardAvoidingView>
         <KeyboardSwitcher editor={editor} entries={switcherEntries} />
         <CustomKeyboard
           editor={editor}
@@ -98,6 +101,7 @@ export const CustomKeyboardExample = () => {
           activeKeyboardID={activeKeyboard}
           setActiveKeyboardID={setActiveKeyboard}
         />
+        <BottomInsetSpacer />
       </EditorKeyboardAvoidingView>
     </SafeAreaView>
   );
