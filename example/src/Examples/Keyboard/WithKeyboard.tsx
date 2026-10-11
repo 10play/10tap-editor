@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ColorKeyboard,
@@ -12,7 +11,7 @@ import {
   useEditorBridge,
   type EditorBridge,
 } from '@10play/tentap-editor';
-import { TOP_AND_SIDES } from '../../ui/keyboardLayout';
+import { EditorPaper, TOP_AND_SIDES } from '../../ui/keyboardLayout';
 import { ScreenHeader } from '../../ui/ScreenHeader';
 import { layoutStyles } from '../../ui/styles';
 
@@ -32,9 +31,9 @@ export const WithKeyboard = () => {
   return (
     <SafeAreaView style={layoutStyles.fullScreen} edges={TOP_AND_SIDES}>
       <ScreenHeader />
-      <View style={layoutStyles.paper}>
+      <EditorPaper>
         <RichText editor={editor} testID="keyboard-example-editor" />
-      </View>
+      </EditorPaper>
       <EditorKeyboardAvoidingView style={layoutStyles.keyboardAvoidingView}>
         <ToolbarWithColor
           editor={editor}

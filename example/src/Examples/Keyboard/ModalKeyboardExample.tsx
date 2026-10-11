@@ -10,7 +10,7 @@ import {
   useEditorBridge,
   type KeyboardDriverKind,
 } from '@10play/tentap-editor';
-import { TOP_AND_SIDES } from '../../ui/keyboardLayout';
+import { EditorPaper, TOP_AND_SIDES } from '../../ui/keyboardLayout';
 import { ScreenHeader } from '../../ui/ScreenHeader';
 import { layoutStyles } from '../../ui/styles';
 import { radii, spacing, type, useTheme } from '../../ui/theme';
@@ -106,9 +106,9 @@ const ModalEditor = ({ onClose }: { onClose: () => void }) => {
           </View>
         )}
       />
-      <View style={layoutStyles.paper}>
+      <EditorPaper>
         <RichText editor={editor} testID="keyboard-example-editor" />
-      </View>
+      </EditorPaper>
       <EditorKeyboardAvoidingView style={layoutStyles.keyboardAvoidingView}>
         <KeyboardSwitcher editor={editor} entries={[colorKeyboardEntry]} />
         <Toolbar editor={editor} />

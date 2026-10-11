@@ -17,6 +17,11 @@ export const layoutStyles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: paper.background,
   },
+  /** The paper in a short landscape window with a keyboard up. */
+  compactPaper: {
+    marginBottom: 0,
+    paddingTop: 0,
+  },
   /** Bottom toolbars and keyboards over the screen. */
   keyboardAvoidingView: {
     position: 'absolute',

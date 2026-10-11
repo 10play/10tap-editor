@@ -1,7 +1,13 @@
-import React from 'react';
-import { View, useWindowDimensions } from 'react-native';
+import React, { type ReactNode } from 'react';
+import {
+  View,
+  useWindowDimensions,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import { useSafeAreaInsets, type Edge } from 'react-native-safe-area-context';
 import { useKeyboard } from '@10play/tentap-editor';
+import { layoutStyles } from './styles';
 
 /**
  * SafeAreaView edges of screens whose bottom bars follow the keyboard: in
@@ -33,4 +39,25 @@ export const BottomInsetSpacer = () => {
   const { bottom } = useSafeAreaInsets();
   const height = isKeyboardUp ? 0 : bottom;
   return <View style={{ height }} />;
+};
+
+/**
+ * The editor's sheet of paper. In a short landscape window with a keyboard
+ * up it drops its margin above the toolbar, which is a line of the editor.
+ */
+export const EditorPaper = ({
+  style,
+  children,
+}: {
+  style?: StyleProp<ViewStyle>;
+  children: ReactNode;
+}) => {
+  const compact = useCompactKeyboardLayout();
+  return (
+    <View
+      style={[layoutStyles.paper, compact && layoutStyles.compactPaper, style]}
+    >
+      {children}
+    </View>
+  );
 };

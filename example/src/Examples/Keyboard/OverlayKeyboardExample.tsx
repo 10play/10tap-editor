@@ -11,10 +11,10 @@ import {
 } from '@10play/tentap-editor';
 import {
   BottomInsetSpacer,
-  useCompactKeyboardLayout,
+  EditorPaper,
   TOP_AND_SIDES,
+  useCompactKeyboardLayout,
 } from '../../ui/keyboardLayout';
-import { layoutStyles } from '../../ui/styles';
 import { KeyboardDebugBar } from './KeyboardDebugBar';
 import { KeyboardSwitcher, colorKeyboardEntry } from './KeyboardSwitcher';
 
@@ -38,9 +38,9 @@ export const OverlayKeyboardExample = () => {
     <SafeAreaView style={styles.fullScreen} edges={TOP_AND_SIDES}>
       <KeyboardDebugBar editor={editor} />
       <EditorKeyboardAvoidingView style={styles.fullScreen}>
-        <View style={layoutStyles.paper}>
+        <EditorPaper>
           <RichText editor={editor} testID="keyboard-example-editor" />
-        </View>
+        </EditorPaper>
         {/* A short landscape window keeps a line of the editor above the
             caret by putting the switcher and the toolbar in one row. */}
         <View style={compact && styles.bars}>

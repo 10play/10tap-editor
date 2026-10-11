@@ -1,39 +1,58 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 import {
   EditorKeyboardAvoidingView,
   RichText,
   Toolbar,
   useEditorBridge,
 } from '@10play/tentap-editor';
-import { layoutStyles } from '../ui/styles';
+import {
+  EditorPaper,
+  TOP_AND_SIDES,
+  useCompactKeyboardLayout,
+} from '../ui/keyboardLayout';
 import { spacing } from '../ui/theme';
 
 /**
  * Below a navigation header, `EditorKeyboardAvoidingView` keeps the toolbar
  * on the keyboard without a `keyboardVerticalOffset`: it measures how far
- * the keyboard reaches into it.
+ * the keyboard reaches into it. The header hides while a keyboard is up in a
+ * short landscape window, like the other screens' headers; the screen then
+ * keeps clear of the status bar itself.
  */
-export const NavigationHeader = (
-  _props: NativeStackScreenProps<any, any, any>
-) => {
+export const NavigationHeader = ({
+  navigation,
+}: NativeStackScreenProps<any, any, any>) => {
   const editor = useEditorBridge({
     autofocus: true,
     avoidIosKeyboard: true,
   });
+  const compact = useCompactKeyboardLayout();
+
+  useEffect(() => {
+    navigation.setOptions({ headerShown: !compact });
+  }, [compact, navigation]);
 
   return (
-    <EditorKeyboardAvoidingView style={exampleStyles.fullScreen}>
-      <View style={[layoutStyles.paper, exampleStyles.paper]}>
-        <RichText editor={editor} />
-      </View>
-      <View style={exampleStyles.toolbarRow}>
-        <Toolbar editor={editor} />
-      </View>
-    </EditorKeyboardAvoidingView>
+    <SafeAreaView
+      style={exampleStyles.fullScreen}
+      edges={compact ? TOP_AND_SIDES : NO_EDGES}
+    >
+      <EditorKeyboardAvoidingView style={exampleStyles.fullScreen}>
+        <EditorPaper style={exampleStyles.paper}>
+          <RichText editor={editor} />
+        </EditorPaper>
+        <View style={exampleStyles.toolbarRow}>
+          <Toolbar editor={editor} />
+        </View>
+      </EditorKeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
+
+const NO_EDGES: Edge[] = [];
 
 const exampleStyles = StyleSheet.create({
   fullScreen: {

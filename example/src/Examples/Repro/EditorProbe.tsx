@@ -5,11 +5,13 @@ import {
   useKeyboard,
   type EditorBridge,
 } from '@10play/tentap-editor';
+import { useCompactKeyboardLayout } from '../../ui/keyboardLayout';
 import { radii, useTheme } from '../../ui/theme';
 
 /**
  * Test hooks for the E2E flows: the bridge state and keyboard state as text,
- * the document HTML on demand, and a row of screen-specific actions.
+ * the document HTML on demand, and a row of screen-specific actions. Hidden
+ * like the screen header while a keyboard is up in a short landscape window.
  */
 export const EditorProbe = ({
   editor,
@@ -22,7 +24,9 @@ export const EditorProbe = ({
   const { isKeyboardUp } = useKeyboard();
   const [html, setHtml] = useState('');
   const { colors } = useTheme();
+  const compact = useCompactKeyboardLayout();
 
+  if (compact) return null;
   return (
     <View style={[styles.probe, { backgroundColor: colors.surface }]}>
       <Text testID="editor-status" style={{ color: colors.text }}>

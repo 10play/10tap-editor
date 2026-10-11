@@ -7,7 +7,10 @@ import {
   useEditorBridge,
   useScrollToCaret,
 } from '@10play/tentap-editor';
-import { TOP_AND_SIDES } from '../../ui/keyboardLayout';
+import {
+  TOP_AND_SIDES,
+  useCompactKeyboardLayout,
+} from '../../ui/keyboardLayout';
 import { paper, radii, useTheme } from '../../ui/theme';
 import { EditorProbe, ProbeButton } from './EditorProbe';
 
@@ -26,7 +29,8 @@ const MIN_CHANGE = 100;
  * (#342, #336). The second editor is capped by its parent: typing at its end
  * must keep the caret in view instead of jumping to the top (#323). The
  * first one grows in the ScrollView, which `useScrollToCaret` scrolls to keep
- * the line being typed above the keyboard.
+ * the line being typed above the keyboard; it follows the capped editor's
+ * caret too, where the keyboard leaves less room than the cap.
  */
 export const DynamicHeightExample = () => {
   const editor = useEditorBridge({
@@ -42,6 +46,8 @@ export const DynamicHeightExample = () => {
   const scrollViewRef = useRef<ScrollView>(null);
   const { colors } = useTheme();
   useScrollToCaret(editor, scrollViewRef);
+  useScrollToCaret(cappedEditor, scrollViewRef);
+  const compact = useCompactKeyboardLayout();
 
   const passed =
     check &&
@@ -69,10 +75,12 @@ export const DynamicHeightExample = () => {
           onPress={() => resize('shrink')}
         />
       </EditorProbe>
-      <Text
-        testID="dynamic-height-status"
-        style={[styles.status, { color: colors.text }]}
-      >{`height:${Math.round(height)}${status}`}</Text>
+      {!compact && (
+        <Text
+          testID="dynamic-height-status"
+          style={[styles.status, { color: colors.text }]}
+        >{`height:${Math.round(height)}${status}`}</Text>
+      )}
       <EditorKeyboardAvoidingView style={styles.fullScreen}>
         <ScrollView ref={scrollViewRef} keyboardDismissMode="none">
           <View
