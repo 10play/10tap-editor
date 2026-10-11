@@ -10,6 +10,7 @@ import {
   useEditorBridge,
   type KeyboardDriverKind,
 } from '@10play/tentap-editor';
+import { TOP_AND_SIDES } from '../../ui/keyboardLayout';
 import { ScreenHeader } from '../../ui/ScreenHeader';
 import { layoutStyles } from '../../ui/styles';
 import { radii, spacing, type, useTheme } from '../../ui/theme';
@@ -76,7 +77,7 @@ const ModalEditor = ({ onClose }: { onClose: () => void }) => {
   return (
     <SafeAreaView
       style={[styles.fullScreen, { backgroundColor: colors.background }]}
-      edges={['top']}
+      edges={TOP_AND_SIDES}
     >
       <KeyboardDebugBar
         editor={editor}

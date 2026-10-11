@@ -1,7 +1,14 @@
 import React from 'react';
 import { View, useWindowDimensions } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets, type Edge } from 'react-native-safe-area-context';
 import { useKeyboard } from '@10play/tentap-editor';
+
+/**
+ * SafeAreaView edges of screens whose bottom bars follow the keyboard: in
+ * landscape the sides keep controls out of the sensor housing, where iOS
+ * does not deliver touches reliably.
+ */
+export const TOP_AND_SIDES: Edge[] = ['top', 'left', 'right'];
 
 /** Below this window height a landscape screen is too short for chrome over the keyboard. */
 const COMPACT_HEIGHT = 500;

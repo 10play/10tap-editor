@@ -12,7 +12,7 @@ import {
   useEditorBridge,
   type CustomKeyboardComponentProps,
 } from '@10play/tentap-editor';
-import { BottomInsetSpacer } from '../../ui/keyboardLayout';
+import { BottomInsetSpacer, TOP_AND_SIDES } from '../../ui/keyboardLayout';
 import { layoutStyles } from '../../ui/styles';
 import { paper, radii, spacing } from '../../ui/theme';
 import { KeyboardDebugBar } from './KeyboardDebugBar';
@@ -81,7 +81,7 @@ export const CustomKeyboardExample = () => {
   const [activeKeyboard, setActiveKeyboard] = useState<string>();
 
   return (
-    <SafeAreaView style={styles.fullScreen} edges={['top']}>
+    <SafeAreaView style={styles.fullScreen} edges={TOP_AND_SIDES}>
       <KeyboardDebugBar
         editor={editor}
         details={() =>

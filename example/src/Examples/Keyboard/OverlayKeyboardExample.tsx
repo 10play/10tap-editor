@@ -12,6 +12,7 @@ import {
 import {
   BottomInsetSpacer,
   useCompactKeyboardLayout,
+  TOP_AND_SIDES,
 } from '../../ui/keyboardLayout';
 import { layoutStyles } from '../../ui/styles';
 import { KeyboardDebugBar } from './KeyboardDebugBar';
@@ -34,7 +35,7 @@ export const OverlayKeyboardExample = () => {
   const compact = useCompactKeyboardLayout();
 
   return (
-    <SafeAreaView style={styles.fullScreen} edges={['top']}>
+    <SafeAreaView style={styles.fullScreen} edges={TOP_AND_SIDES}>
       <KeyboardDebugBar editor={editor} />
       <EditorKeyboardAvoidingView style={styles.fullScreen}>
         <View style={layoutStyles.paper}>

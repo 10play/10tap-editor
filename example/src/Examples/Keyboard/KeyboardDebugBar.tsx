@@ -1,6 +1,7 @@
 import React, { useState, type ReactElement, type ReactNode } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { EditorBridge } from '@10play/tentap-editor';
+import { useCompactKeyboardLayout } from '../../ui/keyboardLayout';
 import { ScreenHeader } from '../../ui/ScreenHeader';
 import { radii, spacing, type, useTheme } from '../../ui/theme';
 
@@ -28,6 +29,8 @@ export const KeyboardDebugBar = ({
   const { colors } = useTheme();
   const [html, setHtml] = useState('');
   const [detailText, setDetailText] = useState('');
+  // Its output rows take room the editor needs, like the header.
+  const compact = useCompactKeyboardLayout();
   const readButton = (
     <Pressable
       testID="read-editor-state"
@@ -49,23 +52,25 @@ export const KeyboardDebugBar = ({
   return (
     <>
       {header(readButton)}
-      <View style={styles.output}>
-        {details && (
+      {!compact && (
+        <View style={styles.output}>
+          {details && (
+            <Text
+              testID="keyboard-details"
+              style={[styles.details, { color: colors.textSecondary }]}
+            >
+              {detailText}
+            </Text>
+          )}
           <Text
-            testID="keyboard-details"
-            style={[styles.details, { color: colors.textSecondary }]}
+            testID="editor-html"
+            numberOfLines={3}
+            style={[styles.html, { color: colors.textSecondary }]}
           >
-            {detailText}
+            {html}
           </Text>
-        )}
-        <Text
-          testID="editor-html"
-          numberOfLines={3}
-          style={[styles.html, { color: colors.textSecondary }]}
-        >
-          {html}
-        </Text>
-      </View>
+        </View>
+      )}
     </>
   );
 };

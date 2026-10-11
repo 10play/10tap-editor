@@ -7,6 +7,7 @@ import {
   useEditorBridge,
   useScrollToCaret,
 } from '@10play/tentap-editor';
+import { TOP_AND_SIDES } from '../../ui/keyboardLayout';
 import { paper, radii, useTheme } from '../../ui/theme';
 import { EditorProbe, ProbeButton } from './EditorProbe';
 
@@ -55,7 +56,7 @@ export const DynamicHeightExample = () => {
   };
 
   return (
-    <SafeAreaView style={styles.fullScreen} edges={['top']}>
+    <SafeAreaView style={styles.fullScreen} edges={TOP_AND_SIDES}>
       <EditorProbe editor={editor}>
         <ProbeButton
           label="Grow"

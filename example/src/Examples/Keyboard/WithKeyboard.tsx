@@ -12,6 +12,7 @@ import {
   useEditorBridge,
   type EditorBridge,
 } from '@10play/tentap-editor';
+import { TOP_AND_SIDES } from '../../ui/keyboardLayout';
 import { ScreenHeader } from '../../ui/ScreenHeader';
 import { layoutStyles } from '../../ui/styles';
 
@@ -29,7 +30,7 @@ export const WithKeyboard = () => {
   const [activeKeyboard, setActiveKeyboard] = useState<string>();
 
   return (
-    <SafeAreaView style={layoutStyles.fullScreen} edges={['top']}>
+    <SafeAreaView style={layoutStyles.fullScreen} edges={TOP_AND_SIDES}>
       <ScreenHeader />
       <View style={layoutStyles.paper}>
         <RichText editor={editor} testID="keyboard-example-editor" />
