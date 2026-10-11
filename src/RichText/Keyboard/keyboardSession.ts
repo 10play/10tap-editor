@@ -1,5 +1,6 @@
 import type { LayoutAnimation, LayoutAnimationConfig } from 'react-native';
 import {
+  ANDROID_SHOW_SETTLE_MS,
   MIN_KEYBOARD_HEIGHT,
   type CustomKeyboardControls,
   type CustomKeyboardHostHandle,
@@ -503,6 +504,27 @@ export function createKeyboardSession(
     else schedule(SHOW_CONFIRM_TIMEOUT_MS, finishClose);
   };
 
+  /**
+   * Android: hands over to a system keyboard shown while the custom one is
+   * up once the show holds. A window that changes size (a rotation) can
+   * report a keyboard that hides again at once (`ANDROID_SHOW_SETTLE_MS`),
+   * and the platform is asked too where the driver can.
+   */
+  const confirmShow = (event: SystemKeyboardEvent) => {
+    const token = epoch;
+    const pending = () => token === epoch && phase === 'open';
+    schedule(ANDROID_SHOW_SETTLE_MS, () => {
+      if (!pending() || !systemKeyboardUp()) return;
+      const driver = currentDriver();
+      const visible = driver.isSystemKeyboardVisible
+        ? driver.isSystemKeyboardVisible().catch(() => true)
+        : Promise.resolve(true);
+      void visible.then((shown) => {
+        if (shown && pending()) handOver(event);
+      });
+    });
+  };
+
   const onSystemEvent = (event: SystemKeyboardEvent) => {
     switch (phase) {
       case 'opening':
@@ -514,7 +536,9 @@ export function createKeyboardSession(
         break;
       case 'open':
         // Another input took focus, or the suppression stopped working.
-        if (isShowEvent(event)) handOver(event);
+        if (!isShowEvent(event)) break;
+        if (isIOS) handOver(event);
+        else confirmShow(event);
         break;
       case 'closing':
         if (!closingToSystem) break;

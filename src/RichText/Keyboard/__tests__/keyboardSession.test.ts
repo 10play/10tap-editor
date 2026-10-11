@@ -1,4 +1,7 @@
-import { createKeyboardStore } from '../../../native/keyboardStore';
+import {
+  ANDROID_SHOW_SETTLE_MS,
+  createKeyboardStore,
+} from '../../../native/keyboardStore';
 import { PROTOCOL_TYPES } from '../../../shared/protocol';
 import {
   INPUT_MODE_SCRIPT_KEY,
@@ -115,7 +118,11 @@ const setup = ({
     );
     if (platform === 'ios') keyboard.emit('keyboardDidShow', height);
   };
-  if (systemKeyboard) showSystemKeyboard(systemKeyboard);
+  if (systemKeyboard) {
+    showSystemKeyboard(systemKeyboard);
+    // Up long enough to count as a keyboard (`ANDROID_SHOW_SETTLE_MS`).
+    jest.advanceTimersByTime(ANDROID_SHOW_SETTLE_MS);
+  }
   configureNext.mockClear();
 
   return {
@@ -939,6 +946,54 @@ describe('close triggers', () => {
     t.keyboard.emit('keyboardDidShow', 300);
     await flush();
     expect(t.view().phase).toBe('closed');
+  });
+
+  it('Android: hands the area over once the system keyboard holds', async () => {
+    const t = setup({ platform: 'android', systemKeyboard: 280 });
+    await openFully(t);
+    t.keyboard.emit('keyboardDidShow', 280);
+    await flush();
+    expect(t.view().phase).toBe('open');
+    jest.advanceTimersByTime(ANDROID_SHOW_SETTLE_MS);
+    await flush();
+    expect(t.native!.isSystemKeyboardVisible).toHaveBeenCalled();
+    expect(t.view()).toMatchObject({ phase: 'closed', slotHeight: 0 });
+    expect(t.options.onSystemKeyboardReturn).toHaveBeenCalledTimes(1);
+    expect(t.options.onActiveKeyboardChange).toHaveBeenLastCalledWith(
+      undefined
+    );
+  });
+
+  it('Android: stays open through a keyboard reported during a rotation', async () => {
+    const t = setup({ platform: 'android', systemKeyboard: 280 });
+    await openFully(t);
+    // Before API 30 React Native compares the root view with the visible
+    // frame, which disagree while the window changes size.
+    t.keyboard.emit('keyboardDidShow', 232);
+    t.resizeWindow({ width: WINDOW.height, height: WINDOW.width });
+    jest.advanceTimersByTime(21);
+    t.keyboard.emit('keyboardDidHide', 0);
+    jest.advanceTimersByTime(ANDROID_SHOW_SETTLE_MS);
+    await flush();
+    expect(t.view()).toMatchObject({ phase: 'open', activeKeyboardID: 'kb' });
+    expect(t.options.onSystemKeyboardReturn).not.toHaveBeenCalled();
+    expect(t.native!.setSystemKeyboardSuppressed).not.toHaveBeenCalledWith(
+      false
+    );
+    // The bogus height was not taken for the portrait keyboard.
+    t.resizeWindow(WINDOW);
+    expect(t.view().keyboardHeight).toBe(280);
+  });
+
+  it('Android: stays open when the platform shows no system keyboard', async () => {
+    const t = setup({ platform: 'android', systemKeyboard: 280 });
+    await openFully(t);
+    t.native!.isSystemKeyboardVisible.mockResolvedValue(false);
+    t.keyboard.emit('keyboardDidShow', 280);
+    jest.advanceTimersByTime(ANDROID_SHOW_SETTLE_MS);
+    await flush();
+    expect(t.view().phase).toBe('open');
+    expect(t.options.onSystemKeyboardReturn).not.toHaveBeenCalled();
   });
 
   it('Android back dismisses and is consumed only while open', async () => {

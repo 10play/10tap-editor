@@ -27,6 +27,15 @@ export const MIN_KEYBOARD_HEIGHT = 80;
 /** Keyboard height before any system keyboard was seen: this share of the window. */
 export const DEFAULT_KEYBOARD_HEIGHT_RATIO = 0.38;
 
+/**
+ * Android before API 30: React Native finds the keyboard by comparing the
+ * root view with the visible display frame. While the window changes size (a
+ * rotation) the two disagree for a moment, which it reports as a keyboard
+ * that hides again a few milliseconds later. A show answered by a hide this
+ * soon was no keyboard: a real IME takes longer to slide away.
+ */
+export const ANDROID_SHOW_SETTLE_MS = 150;
+
 const KEYBOARD_EVENTS: readonly KeyboardEventName[] = [
   'keyboardWillShow',
   'keyboardDidShow',
@@ -195,6 +204,7 @@ export interface KeyboardStoreOptions {
   readStatusBarHeight?(): Promise<number>;
   /** Screen height in dp, `Dimensions.get('screen').height`. */
   getScreenHeight?(): number;
+  now?(): number;
 }
 
 /** A view measured both in the window and relative to its root view. */
@@ -220,6 +230,7 @@ export function createKeyboardStore({
   getStatusBarHeight = () => 0,
   readStatusBarHeight,
   getScreenHeight = () => getWindowSize().height,
+  now = Date.now,
 }: KeyboardStoreOptions): KeyboardStore {
   const stateListeners = new Set<() => void>();
   const eventListeners = new Set<Listener<SystemKeyboardEvent>>();
@@ -230,6 +241,14 @@ export function createKeyboardStore({
   let systemVisible = false;
   let systemHeight = 0;
   let lastHeight = 0;
+  // Android: the heights a show replaced, until it proves to be a keyboard.
+  let unsettledShow: {
+    at: number;
+    orientation: Orientation;
+    height: number | undefined;
+    bottom: number | undefined;
+    lastHeight: number;
+  } | null = null;
   // The system keyboard's top in screen coordinates.
   let systemScreenTop: number | null = null;
   let statusBarHeight = getStatusBarHeight();
@@ -336,6 +355,20 @@ export function createKeyboardStore({
     }
   };
 
+  /** Forgets the heights of a show that a hide answered too soon to be real. */
+  const dropUnsettledShow = () => {
+    const show = unsettledShow;
+    unsettledShow = null;
+    if (!show || now() - show.at >= ANDROID_SHOW_SETTLE_MS) return;
+    const restore = (cache: typeof heightCache, value: number | undefined) => {
+      if (value === undefined) delete cache[show.orientation];
+      else cache[show.orientation] = value;
+    };
+    restore(heightCache, show.height);
+    restore(bottomCache, show.bottom);
+    lastHeight = show.lastHeight;
+  };
+
   const setNavigationBarInset = (inset: number) => {
     if (inset === navigationBarInset) return;
     navigationBarInset = inset;
@@ -368,11 +401,22 @@ export function createKeyboardStore({
     switch (name) {
       case 'keyboardWillShow':
       case 'keyboardDidShow':
+        if (platform === 'android' && !systemVisible) {
+          const current = orientation();
+          unsettledShow = {
+            at: now(),
+            orientation: current,
+            height: heightCache[current],
+            bottom: bottomCache[current],
+            lastHeight,
+          };
+        }
         recordKeyboard(height, event?.endCoordinates?.screenY);
         if (systemVisible) refreshInsets();
         break;
       case 'keyboardWillHide':
       case 'keyboardDidHide':
+        dropUnsettledShow();
         recordKeyboard(0, undefined);
         break;
       default:

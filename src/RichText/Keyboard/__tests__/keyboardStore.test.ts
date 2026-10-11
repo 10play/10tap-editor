@@ -1,4 +1,5 @@
 import {
+  ANDROID_SHOW_SETTLE_MS,
   MIN_KEYBOARD_HEIGHT,
   createKeyboardStore,
   type CustomKeyboardControls,
@@ -118,6 +119,39 @@ describe('keyboardStore', () => {
     expect(store.getKeyboardHeight()).toBe(209);
     rotate();
     expect(store.getKeyboardHeight()).toBe(336);
+  });
+
+  describe('Android: a keyboard that hides at once', () => {
+    beforeEach(() => jest.useFakeTimers());
+    afterEach(() => jest.useRealTimers());
+
+    it('is not cached', () => {
+      const { store, keyboard, rotate } = setup('android');
+      keyboard.emit('keyboardDidShow', 280);
+      jest.advanceTimersByTime(1000);
+      keyboard.emit('keyboardDidHide', 0);
+      // The window changes size: the root view and the visible frame
+      // disagree for a moment.
+      keyboard.emit('keyboardDidShow', 232);
+      rotate();
+      jest.advanceTimersByTime(ANDROID_SHOW_SETTLE_MS - 1);
+      keyboard.emit('keyboardDidHide', 0);
+      expect(store.getKeyboardHeight()).toBe(Math.round(0.38 * 390));
+      rotate();
+      expect(store.getKeyboardHeight()).toBe(280);
+      expect(store.getSnapshot()).toMatchObject({
+        isKeyboardUp: false,
+        lastKeyboardHeight: 280,
+      });
+    });
+
+    it('is cached once it held', () => {
+      const { store, keyboard } = setup('android');
+      keyboard.emit('keyboardDidShow', 280);
+      jest.advanceTimersByTime(ANDROID_SHOW_SETTLE_MS);
+      keyboard.emit('keyboardDidHide', 0);
+      expect(store.getKeyboardHeight()).toBe(280);
+    });
   });
 
   it('does not cache heights below a real keyboard', () => {
