@@ -63,6 +63,23 @@ describe('keyboardStore', () => {
     });
   });
 
+  it('reads a negative Android height as no keyboard until the real one arrives', () => {
+    const { store, keyboard } = setup('android');
+    // An IME opening with empty insets: React Native subtracts the bars from 0.
+    keyboard.emit('keyboardDidShow', -22);
+    expect(store.getSnapshot()).toMatchObject({
+      isKeyboardUp: false,
+      keyboardHeight: 0,
+      systemKeyboardHeight: 0,
+    });
+    // The native module sends the height the IME reaches.
+    keyboard.emit('keyboardDidShow', 206);
+    expect(store.getSnapshot()).toMatchObject({
+      isKeyboardUp: true,
+      systemKeyboardHeight: 206,
+    });
+  });
+
   it('tracks the system keyboard like the 1.0 hook', () => {
     const { store, keyboard, listener } = setup();
     keyboard.emit('keyboardWillShow', 336, IOS_ANIMATION);

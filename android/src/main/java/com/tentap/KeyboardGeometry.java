@@ -29,12 +29,30 @@ final class KeyboardGeometry {
     return windowBottom - visibleBottom - navigationBarHeight >= minKeyboardHeight;
   }
 
+  /** Keyboard height tracked while the IME is hidden. */
+  static final int HIDDEN = Integer.MIN_VALUE;
+
   /**
-   * Whether a keyboard that went from {@code previousHeight} to {@code height}
-   * changed size while shown. React Native reports showing and hiding itself
-   * (a previous height below 0 means it was hidden).
+   * The keyboard height React Native has reported after a layout that found
+   * the IME shown with {@code height} (bottom inset minus the system bars),
+   * given the one reported before ({@link #HIDDEN} while it was hidden). React
+   * Native reports the height of the first layout that shows the IME, and the
+   * module reports every later positive change; a height of 0 or less shows
+   * nothing.
    */
-  static boolean isKeyboardResize(int previousHeight, int height) {
-    return previousHeight > 0 && height > 0 && previousHeight != height;
+  static int reportedKeyboardHeight(int previousHeight, int height) {
+    if (height > 0) {
+      return height;
+    }
+    return previousHeight == HIDDEN ? 0 : previousHeight;
+  }
+
+  /**
+   * Whether a shown keyboard now has a height React Native did not report:
+   * it changed size (the emoji panel, a suggestion strip), or React Native
+   * saw it open while its insets were still empty.
+   */
+  static boolean isUnreportedKeyboardHeight(int previousHeight, int height) {
+    return previousHeight != HIDDEN && height > 0 && previousHeight != height;
   }
 }

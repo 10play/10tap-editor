@@ -38,7 +38,7 @@ public class TenTapKeyboardModule extends TenTapKeyboardSpec implements Lifecycl
   @Nullable private WeakReference<Window> overlayWindow;
   @Nullable private Integer savedSoftInputMode;
   @Nullable private WeakReference<View> observedDecorView;
-  private int imeHeight = -1;
+  private int imeHeight = KeyboardGeometry.HIDDEN;
   private final ViewTreeObserver.OnGlobalLayoutListener imeListener = this::checkImeHeight;
 
   TenTapKeyboardModule(ReactApplicationContext context) {
@@ -169,6 +169,11 @@ public class TenTapKeyboardModule extends TenTapKeyboardSpec implements Lifecycl
    * shows or hides, not when it changes height while shown (the emoji panel,
    * a suggestion strip), which would leave the toolbar under the taller
    * keyboard. Such a change is sent here as React Native sends a show.
+   *
+   * <p>React Native also reports a keyboard once, when the insets first show
+   * it. An IME that opens with its insets still at 0 (as in landscape) is then
+   * reported with no height and never again, so the height it reaches is
+   * sent here too.
    */
   private void observeIme() {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
@@ -191,7 +196,7 @@ public class TenTapKeyboardModule extends TenTapKeyboardSpec implements Lifecycl
       observed.getViewTreeObserver().removeOnGlobalLayoutListener(imeListener);
     }
     observedDecorView = null;
-    imeHeight = -1;
+    imeHeight = KeyboardGeometry.HIDDEN;
   }
 
   private void checkImeHeight() {
@@ -199,14 +204,14 @@ public class TenTapKeyboardModule extends TenTapKeyboardSpec implements Lifecycl
     WindowInsetsCompat insets =
         decorView != null ? ViewCompat.getRootWindowInsets(decorView) : null;
     if (insets == null || !insets.isVisible(WindowInsetsCompat.Type.ime())) {
-      imeHeight = -1;
+      imeHeight = KeyboardGeometry.HIDDEN;
       return;
     }
     int imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
     int height = imeBottom - insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom;
     int previous = imeHeight;
-    imeHeight = height;
-    if (!KeyboardGeometry.isKeyboardResize(previous, height)
+    imeHeight = KeyboardGeometry.reportedKeyboardHeight(previous, height);
+    if (!KeyboardGeometry.isUnreportedKeyboardHeight(previous, height)
         || !getReactApplicationContext().hasActiveReactInstance()) {
       return;
     }

@@ -362,7 +362,9 @@ export function createKeyboardStore({
   };
 
   const onKeyboardEvent = (name: KeyboardEventName, event: KeyboardEvent) => {
-    const height = event?.endCoordinates?.height ?? 0;
+    // Android reports a negative height for an IME that opens while its
+    // insets are still empty (the system bars are subtracted from 0).
+    const height = Math.max(0, event?.endCoordinates?.height ?? 0);
     switch (name) {
       case 'keyboardWillShow':
       case 'keyboardDidShow':

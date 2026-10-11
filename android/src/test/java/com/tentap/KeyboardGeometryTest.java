@@ -63,10 +63,28 @@ public class KeyboardGeometryTest {
   }
 
   @Test
-  public void onlyAShownKeyboardChangingHeightIsAResize() {
-    assertTrue(KeyboardGeometry.isKeyboardResize(767, 949));
-    assertFalse(KeyboardGeometry.isKeyboardResize(767, 767));
-    assertFalse(KeyboardGeometry.isKeyboardResize(-1, 767));
-    assertFalse(KeyboardGeometry.isKeyboardResize(767, -1));
+  public void aShownKeyboardChangingHeightIsReported() {
+    assertTrue(KeyboardGeometry.isUnreportedKeyboardHeight(767, 949));
+    assertFalse(KeyboardGeometry.isUnreportedKeyboardHeight(767, 767));
+    assertFalse(KeyboardGeometry.isUnreportedKeyboardHeight(767, -66));
+  }
+
+  @Test
+  public void reactNativeReportsTheKeyboardThatOpensWithAHeight() {
+    assertFalse(KeyboardGeometry.isUnreportedKeyboardHeight(KeyboardGeometry.HIDDEN, 767));
+    assertEquals(767, KeyboardGeometry.reportedKeyboardHeight(KeyboardGeometry.HIDDEN, 767));
+  }
+
+  @Test
+  public void aKeyboardThatOpensWithEmptyInsetsIsReportedOnceItHasAHeight() {
+    // React Native sees the IME shown while its bottom inset is still 0.
+    int opened = KeyboardGeometry.reportedKeyboardHeight(KeyboardGeometry.HIDDEN, -66);
+    assertEquals(0, opened);
+    assertTrue(KeyboardGeometry.isUnreportedKeyboardHeight(opened, 617));
+    int reported = KeyboardGeometry.reportedKeyboardHeight(opened, 617);
+    // An empty frame in between does not report the same height again.
+    int between = KeyboardGeometry.reportedKeyboardHeight(reported, -66);
+    assertEquals(617, between);
+    assertFalse(KeyboardGeometry.isUnreportedKeyboardHeight(between, 617));
   }
 }
