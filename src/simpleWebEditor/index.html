@@ -22,9 +22,13 @@
         top: 0;
         bottom: 0;
       }
+      /* A flow root keeps the first block's top margin inside the editor:
+         collapsed through it, the margin left a strip above the editor that
+         blurred it when tapped, and pushed a short document past 100%. */
       #root div .ProseMirror {
         min-height: 100%;
         overflow: visible;
+        display: flow-root;
       }
       /* Dynamic height: the editor sizes to its content, never to the
          viewport, so the reported height can shrink (#336, #342). As a
