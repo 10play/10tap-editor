@@ -40,7 +40,10 @@ const measureMaybe = (view: unknown): Promise<CoverFrame | null> =>
  * Keeps the caret of a `dynamicHeight` editor visible inside the
  * `ScrollView` it grows in: the editor does not scroll itself, so the
  * `ScrollView` is scrolled to keep the line being typed `CARET_MARGIN` clear
- * of the keyboard, the toolbar on it and the `ScrollView`'s own edges.
+ * of the keyboard, the toolbar on it and the `ScrollView`'s own edges. An
+ * editor capped by a `maxHeight` scrolls its content, and the `ScrollView`
+ * follows to keep its caret line in view. Several editors in one
+ * `ScrollView` can each use the hook.
  */
 export const useScrollToCaret = (
   editor: EditorBridge,
@@ -112,12 +115,16 @@ export const useScrollToCaret = (
     };
   }, [editor]);
 
-  // The keyboard came up or changed size over the caret.
+  // The keyboard came up or changed size over the caret. Only the focused
+  // editor's caret counts: another editor in the same ScrollView may keep
+  // an old one.
   useEffect(() => {
     if (!isKeyboardUp) return;
     const timers = COVER_MEASURE_DELAYS_MS.map((ms) =>
-      setTimeout(() => reveal.current(), ms)
+      setTimeout(() => {
+        if (editor.getEditorState().isFocused) reveal.current();
+      }, ms)
     );
     return () => timers.forEach((timer) => clearTimeout(timer));
-  }, [isKeyboardUp, keyboardCoverHeight, keyboardTop]);
+  }, [editor, isKeyboardUp, keyboardCoverHeight, keyboardTop]);
 };

@@ -156,6 +156,34 @@ describe('DynamicHeight scroll policy', () => {
     expect(carets).toEqual([{ top: 80, bottom: 100 }]);
   });
 
+  it('reports where a clamped editor scrolled its caret', async () => {
+    const editor = createEditor();
+    const carets: { top: number; bottom: number }[] = [];
+    const dynamicHeight = new DynamicHeight({
+      onHeight: () => {},
+      onCaret: (rect) => carets.push(rect),
+      now: () => now,
+    });
+    Object.assign(editor.view, {
+      state: {
+        selection: { head: 5 },
+        tr: { scrollIntoView: () => 'scroll-tr' },
+      },
+      coordsAtPos: () => ({ top: 80, bottom: 100, left: 0, right: 0 }),
+    });
+    dynamicHeight.observe(editor.view);
+    editor.setContent(150);
+    now += 1000;
+    dynamicHeight.setContainerHeight(120);
+    editor.wrapper.scrollTop = 40;
+
+    // ProseMirror scrolls, then the caret is read in the WebView.
+    expect(dynamicHeight.handleScrollToSelection()).toBe(false);
+    expect(carets).toEqual([]);
+    await Promise.resolve();
+    expect(carets).toEqual([{ top: 80, bottom: 100 }]);
+  });
+
   it('suppresses selection scrolling for the first new line after a pause', () => {
     const editor = createEditor();
     const dynamicHeight = create();

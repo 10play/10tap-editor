@@ -1534,4 +1534,59 @@ describe('useScrollToCaret', () => {
     });
     mockKeyboard = keyboardDown;
   });
+
+  it('follows only the focused editor when the keyboard comes up', async () => {
+    jest.useFakeTimers();
+    mockKeyboard = keyboardDown;
+    const hook = createEditor({ dynamicHeight: true });
+    const scrollTo = jest.fn();
+    const scrollView = {
+      ...frame(100, 400),
+      scrollTo,
+      getInnerViewRef: () => frame(-200, 2000),
+    };
+    const Screen = () => {
+      useScrollToCaret(hook.result.current, { current: scrollView });
+      return <RichText editor={hook.result.current} />;
+    };
+    const screen = render(<Screen />);
+    const webView = mockWebViews.latest();
+    load(webView);
+    ready(webView, hook.result.current);
+    act(() =>
+      webView.props.onLayout?.({
+        currentTarget: frame(150, 900),
+        nativeEvent: { layout: { x: 0, y: 0, width: 320, height: 900 } },
+      } as unknown as LayoutChangeEvent)
+    );
+    // A caret from an earlier focus.
+    act(() => {
+      webView.simulateMessage(
+        webMessage(PROTOCOL_TYPES.CaretRect, { top: 600, bottom: 620 })
+      );
+      jest.advanceTimersByTime(COVER_MEASURE_DELAYS_MS.at(-1)!);
+    });
+    const keyboardComesUp = async (height: number) => {
+      mockKeyboard = keyboardUp(height, true);
+      screen.rerender(<Screen />);
+      await act(async () => {
+        jest.advanceTimersByTime(COVER_MEASURE_DELAYS_MS.at(-1)!);
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+    };
+
+    // Another editor in the ScrollView has the focus.
+    await keyboardComesUp(300);
+    expect(scrollTo).not.toHaveBeenCalled();
+
+    act(() =>
+      webView.simulateMessage(
+        webMessage(CoreEditorActionType.StateUpdate, { isFocused: true })
+      )
+    );
+    await keyboardComesUp(320);
+    expect(scrollTo).toHaveBeenCalled();
+    mockKeyboard = keyboardDown;
+  });
 });

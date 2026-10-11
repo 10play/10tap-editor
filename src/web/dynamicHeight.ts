@@ -46,8 +46,9 @@ export interface DynamicHeightOptions {
   /** Receives every new content height, rounded up to whole CSS pixels. */
   onHeight: (height: number) => void;
   /**
-   * Receives the caret whenever the editor would scroll to its selection
-   * but leaves it to native, which grows the WebView instead.
+   * Receives the caret, relative to the top of the WebView, whenever the
+   * editor scrolls to its selection: native grows the WebView instead, or
+   * scrolls a clamped one's line into view in its own scroll view.
    */
   onCaret?: (rect: CaretRect) => void;
   now?: () => number;
@@ -192,23 +193,36 @@ export class DynamicHeight {
     return true;
   }
 
-  /** `handleScrollToSelection` prop: true suppresses ProseMirror's scroll. */
+  /**
+   * `handleScrollToSelection` prop: true suppresses ProseMirror's scroll.
+   * A clamped editor scrolls itself, and then reports where in the WebView
+   * the caret ended, so a `ScrollView` it is in can show that line too.
+   */
   handleScrollToSelection(): boolean {
-    if (!this.element || this.isClamped()) return false;
+    if (!this.element) return false;
+    if (this.isClamped()) {
+      void Promise.resolve().then(() => this.reportCaret(false));
+      return false;
+    }
     this.resetScroll();
-    this.reportCaret();
+    this.reportCaret(true);
     return true;
   }
 
-  /** The caret relative to the top of the document, for native to scroll to. */
-  private reportCaret() {
+  /**
+   * The caret relative to the top of the WebView, for native to scroll to.
+   * While native grows the WebView to the document, that is the top of the
+   * document, scrolled or not.
+   */
+  private reportCaret(inDocument: boolean) {
     const view = this.view;
     if (!this.onCaret || !view || view.isDestroyed || !view.hasFocus()) return;
     try {
       const { top, bottom } = view.coordsAtPos(view.state.selection.head);
-      const scrollTop = this.element
-        ? (scrollContainerOf(this.element)?.scrollTop ?? 0)
-        : 0;
+      const scrollTop =
+        inDocument && this.element
+          ? (scrollContainerOf(this.element)?.scrollTop ?? 0)
+          : 0;
       this.onCaret({ top: top + scrollTop, bottom: bottom + scrollTop });
     } catch {
       // No layout for the position (a detached or hidden editor).
