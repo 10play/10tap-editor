@@ -6,6 +6,7 @@ import { CoreEditorActionType } from '../bridges/core';
 import { blueBackgroundPlugin } from '../bridges/HighlightSelection';
 import type { BootConfig } from '../shared/bootConfig';
 import { PROTOCOL_TYPES, type BridgeMessage } from '../shared/protocol';
+import { keepSelectionThroughCollapse } from './collapsedFocus';
 import { DynamicHeight, createDynamicHeightExtension } from './dynamicHeight';
 import {
   resolveBridgeExtensions,
@@ -217,11 +218,13 @@ export const useTenTap = (options?: UseTenTapArgs): Editor | null => {
     document.addEventListener('blur', onFocusChange, true);
     const stopRevealingOnLoad = revealSelectionOnImageLoad(editor.view);
     const stopRevealingOnShrink = revealSelectionOnViewportShrink(editor.view);
+    const stopKeepingSelection = keepSelectionThroughCollapse(editor.view);
     return () => {
       document.removeEventListener('focus', onFocusChange, true);
       document.removeEventListener('blur', onFocusChange, true);
       stopRevealingOnLoad();
       stopRevealingOnShrink();
+      stopKeepingSelection();
     };
   }, [editor, publisher]);
 
