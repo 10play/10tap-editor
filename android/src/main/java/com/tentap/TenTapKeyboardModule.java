@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.SystemClock;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.view.Window;
@@ -33,12 +35,18 @@ import java.lang.ref.WeakReference;
  */
 public class TenTapKeyboardModule extends TenTapKeyboardSpec implements LifecycleEventListener {
   public static final String NAME = "TenTapKeyboard";
+  /**
+   * How long a WebView that lost focus to a collapsed layout may take to get
+   * a size again before it no longer takes the focus back.
+   */
+  private static final long COLLAPSED_FOCUS_TIMEOUT_MS = 1000;
 
   @Nullable private WeakReference<WebView> suppressedWebView;
   @Nullable private WeakReference<Window> overlayWindow;
   @Nullable private Integer savedSoftInputMode;
   @Nullable private WeakReference<View> observedDecorView;
   @Nullable private WeakReference<WebView> collapsedFocus;
+  private long collapsedAt;
   private int imeHeight = KeyboardGeometry.HIDDEN;
   private final ViewTreeObserver.OnGlobalLayoutListener layoutListener = this::checkImeHeight;
   private final ViewTreeObserver.OnGlobalFocusChangeListener focusListener =
@@ -198,20 +206,55 @@ public class TenTapKeyboardModule extends TenTapKeyboardSpec implements Lifecycl
    * inside such a view. A layout that collapses the editor for a frame, as
    * when the window resizes for the IME before React Native padded for it,
    * then leaves the IME bound to a WebView without focus, which drops what is
-   * typed. The WebView that lost focus this way, still served by the IME, gets
-   * it back once it has a size again; focus moved to another view is kept.
-   * React Native lays its views out outside of a window layout pass, so this
-   * is checked before each frame is drawn.
+   * typed. Out of touch mode (a hardware keyboard) the focus moves on to the
+   * first focusable view instead, such as a back button that a key then
+   * presses. The WebView that lost focus this way, still served by the IME,
+   * gets it back once it has a size again, unless another text input took
+   * the focus meanwhile. React Native lays its views out outside of a window
+   * layout pass, so this is checked before each frame is drawn.
    */
   private void onGlobalFocusChanged(@Nullable View oldFocus, @Nullable View newFocus) {
-    if (newFocus != null) {
+    boolean displaced =
+        newFocus == null
+            || (!newFocus.onCheckIsTextEditor() && enclosingWebView(newFocus) == null);
+    if (!displaced) {
       setCollapsedFocus(null);
       return;
     }
+    if (collapsedFocus != null && collapsedFocus.get() != null) {
+      return;
+    }
+    // A focus cleared during a layout pass moves on without reporting the
+    // view that lost it.
     WebView webView = enclosingWebView(oldFocus);
-    if (webView != null && isCollapsed(webView) && inputMethodManager().isActive(webView)) {
+    if (webView == null) {
+      View decorView = observedDecorView != null ? observedDecorView.get() : null;
+      webView = findCollapsedServedWebView(decorView);
+    } else if (!isCollapsed(webView) || !inputMethodManager().isActive(webView)) {
+      webView = null;
+    }
+    if (webView != null) {
       setCollapsedFocus(webView);
     }
+  }
+
+  /** A collapsed WebView in the tree of {@code view} that the IME still serves. */
+  @Nullable
+  private WebView findCollapsedServedWebView(@Nullable View view) {
+    if (view instanceof WebView) {
+      WebView webView = (WebView) view;
+      return isCollapsed(webView) && inputMethodManager().isActive(webView) ? webView : null;
+    }
+    if (view instanceof ViewGroup) {
+      ViewGroup group = (ViewGroup) view;
+      for (int i = 0; i < group.getChildCount(); i++) {
+        WebView found = findCollapsedServedWebView(group.getChildAt(i));
+        if (found != null) {
+          return found;
+        }
+      }
+    }
+    return null;
   }
 
   private void setCollapsedFocus(@Nullable WebView webView) {
@@ -224,6 +267,7 @@ public class TenTapKeyboardModule extends TenTapKeyboardSpec implements Lifecycl
       }
     }
     collapsedFocus = webView != null ? new WeakReference<>(webView) : null;
+    collapsedAt = SystemClock.uptimeMillis();
   }
 
   private void restoreCollapsedFocus() {
@@ -231,7 +275,8 @@ public class TenTapKeyboardModule extends TenTapKeyboardSpec implements Lifecycl
     if (webView == null) {
       return;
     }
-    if (!webView.isAttachedToWindow()) {
+    if (!webView.isAttachedToWindow()
+        || SystemClock.uptimeMillis() - collapsedAt > COLLAPSED_FOCUS_TIMEOUT_MS) {
       setCollapsedFocus(null);
       return;
     }
