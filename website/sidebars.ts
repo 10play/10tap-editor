@@ -5,12 +5,17 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Introduction',
-      items: ['intro', 'mainConcepts'],
+      items: ['intro', 'mainConcepts', 'faq'],
     },
     {
       type: 'category',
       label: 'Setup',
-      items: ['setup/installation', 'setup/advancedSetup', 'setup/expoWeb'],
+      items: [
+        'setup/installation',
+        'setup/keyboard',
+        'setup/advancedSetup',
+        'setup/expoWeb',
+      ],
     },
     {
       type: 'category',

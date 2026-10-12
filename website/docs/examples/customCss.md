@@ -33,7 +33,6 @@ Now let's configure the CodeBridge to use this css
 
 ```tsx
 const editor = useEditorBridge({
-  ...,
   bridgeExtensions: [
     // It is important to spread StarterKit BEFORE our extended plugin,
     // as plugin duplicated will be ignored

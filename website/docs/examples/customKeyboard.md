@@ -5,7 +5,7 @@ sidebar_position: 10
 # Custom Keyboard
 
 In this example we will create and add a custom sticker keyboard 👯‍♀️
-We go through the code in small chunks; the [full solution](#full-solution) is at the end. For the API reference see [Custom Keyboard Utils](../api/CustomKeyboardUtils.md).
+We go through the code in small chunks; the [full solution](#full-solution) is at the end. For the API reference see [Custom Keyboard Utils](../api/CustomKeyboardUtils.md). Runnable versions are in [`example/src/Examples/Keyboard`](https://github.com/10play/10tap-editor/tree/main/example/src/Examples/Keyboard) and [`example-expo/src/screens`](https://github.com/10play/10tap-editor/tree/main/example-expo/src/screens) (inline and overlay layouts).
 
 <div style={{justifyContent: 'center', display: 'flex'}}>
   <img height="400" src="/10tap-editor/img/customkeyboard.gif"/>
@@ -14,7 +14,7 @@ We go through the code in small chunks; the [full solution](#full-solution) is a
 ### First, let's create a new CustomKeyboard
 
 ```tsx
-const StickerKeyboardComp = ({ editor }: { editor: EditorBridge }) => {
+const StickerKeyboardComp = ({ editor }: CustomKeyboardComponentProps) => {
   return (
     <View style={keyboardStyles.keyboardContainer}>
       <StickerRow stickers={stickersTop} editor={editor} />
@@ -30,7 +30,7 @@ export const StickerKeyboard = new CustomKeyboardExtension(
 ```
 
 - `StickerKeyboardComp` is the view that is shown in place of the system keyboard. It is rendered in your app's own React tree, so it can use your context providers and state, and it re-renders like any other component.
-- The keyboard component receives `editor`, `close` and `keyboardHeight` props. Each sticker calls `editor.setImage(sticker)`.
+- The keyboard component receives `editor`, `close` and `keyboardHeight` props, typed as `CustomKeyboardComponentProps`. Each sticker calls `editor.setImage(sticker)`.
 - `CustomKeyboardExtension` gives the keyboard the id `keyboard.sticker`.
 
 ### Now we can use our custom keyboard
@@ -132,6 +132,7 @@ import {
   EditorKeyboardAvoidingView,
   DEFAULT_TOOLBAR_ITEMS,
   Images,
+  type CustomKeyboardComponentProps,
 } from '@10play/tentap-editor';
 
 const stickersTop = [
@@ -167,7 +168,7 @@ const StickerRow = ({
   );
 };
 
-const StickerKeyboardComp = ({ editor }: { editor: EditorBridge }) => {
+const StickerKeyboardComp = ({ editor }: CustomKeyboardComponentProps) => {
   return (
     <View style={keyboardStyles.keyboardContainer}>
       <StickerRow stickers={stickersTop} editor={editor} />
@@ -290,11 +291,14 @@ The layout above: `CustomKeyboard` takes up the keyboard's height under the tool
     <View style={exampleStyles.fullScreen}>
       <RichText editor={editor} />
     </View>
-    <StickerToolbar
-      activeKeyboard={activeKeyboard}
-      setActiveKeyboard={setActiveKeyboard}
-      editor={editor}
-    />
+    {/* In a row, the toolbar's default flex: 1 only fills the width */}
+    <View style={{ flexDirection: 'row' }}>
+      <StickerToolbar
+        activeKeyboard={activeKeyboard}
+        setActiveKeyboard={setActiveKeyboard}
+        editor={editor}
+      />
+    </View>
   </EditorKeyboardAvoidingView>
   <CustomKeyboard
     layout="overlay"
@@ -318,7 +322,11 @@ This is the recommended layout for edge-to-edge Android apps.
 import { KeyboardStickyView } from 'react-native-keyboard-controller';
 import { useCustomKeyboardHeight } from '@10play/tentap-editor';
 
-const ToolbarArea = ({ editor, activeKeyboard, setActiveKeyboard }) => {
+const ToolbarArea = ({
+  editor,
+  activeKeyboard,
+  setActiveKeyboard,
+}: ToolbarWithStickersProps) => {
   const customKeyboardHeight = useCustomKeyboardHeight();
 
   return (

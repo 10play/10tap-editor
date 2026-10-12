@@ -9,6 +9,8 @@ Below a `react-navigation` header, a `KeyboardAvoidingView` needs a `keyboardVer
 `EditorKeyboardAvoidingView` does not need the offset. It measures where it ends in the window and pads its bottom by the part of it the keyboard covers, system or custom, including the navigation bar an edge-to-edge Android keyboard also covers, so it works below any header and above a tab bar:
 
 ```tsx
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
 import {
   EditorKeyboardAvoidingView,
   RichText,
@@ -47,5 +49,7 @@ const styles = StyleSheet.create({
 ```
 
 The editor keeps the line being typed about a line above the toolbar on its own: `RichText` measures how far the keyboard and the `Toolbar` reach into it, so no `paddingBottom` is needed.
+
+The full screen is in [`example/src/Examples/NavigationHeader.tsx`](https://github.com/10play/10tap-editor/tree/main/example/src/Examples/NavigationHeader.tsx).
 
 If you keep React Native's `KeyboardAvoidingView`, take the offset from the navigator instead of a constant, for example `useHeaderHeight()` from `@react-navigation/elements`.

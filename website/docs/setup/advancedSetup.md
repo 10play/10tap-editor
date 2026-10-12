@@ -249,7 +249,7 @@ Add scripts on package.json so it will be easy to run/build editor-web:
 import { editorHtml } from './editor-web/build/editorHtml';
 const editor = useEditorBridge({
   customSource: editorHtml,
-  ...
+  // ...your other options
 });
 ```
 
@@ -268,6 +268,12 @@ You basically done with the advance setup now you have full control of the edito
 `useTenTap` creates the TipTap editor inside the WebView and connects it to React Native.
 
 ```ts
+import { TenTapStartKit, useTenTap } from '@10play/tentap-editor';
+import Document from '@tiptap/extension-document';
+import Paragraph from '@tiptap/extension-paragraph';
+import Text from '@tiptap/extension-text';
+import { CounterBridge } from '../CounterBridge';
+
 const editor = useTenTap({
   bridges: [...TenTapStartKit, CounterBridge],
   tiptapOptions: { extensions: [Document, Paragraph, Text] },
@@ -303,36 +309,36 @@ There is an alternative vite setup that does not require a vite dev server as su
 
 ### Update vite.config.ts
 
-In `vite.config.ts` replace plugins with
+In `vite.config.ts`, add a plugin that runs `editor:post-build` after every build, and set `emptyOutDir: false`:
 
 ```ts title="vite.config.ts"
-const exec =  require('child_process').exec;
+import { exec } from 'child_process';
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { viteSingleFile } from 'vite-plugin-singlefile';
 
-...
-plugins: [
-   react(),
-   viteSingleFile(),
-   {
-     name: 'postbuild-commands',
-     closeBundle: async () => {
-       exec('yarn editor:post-build', (error, stdout, stderr) => {
-         if (error) {
-           console.error(`exec error: ${error}`);
-           return;
-         }
-       });
-     },
-   },
- ],
-```
-
-And add `emptyOutDir: false` to the build options
-
-```ts title="vite.config.ts"
-build: {
-  outDir: 'build',
-  emptyOutDir: false,
-},
+export default defineConfig({
+  root: 'src/editor-web',
+  build: {
+    outDir: 'build',
+    emptyOutDir: false,
+  },
+  resolve: {
+    // the same aliases as above
+  },
+  plugins: [
+    react(),
+    viteSingleFile(),
+    {
+      name: 'postbuild-commands',
+      closeBundle: async () => {
+        exec('yarn editor:post-build', (error) => {
+          if (error) console.error(`exec error: ${error}`);
+        });
+      },
+    },
+  ],
+});
 ```
 
 ### Update package.json

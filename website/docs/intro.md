@@ -32,30 +32,30 @@ See [Installation](./setup/installation.md#requirements) for the supported React
 
 After years of developing rich text editors for mobile, we realized that there is an empty void for open source RichText editors on mobile especially for ReactNative. So we have decided to create this package that incorporates all that we have learned, and that provides the best possible ux. Tentap is designed for getting the best experience of editing rich-text on mobile inspired by state of the art mobile editors like: gdocs, notion, dropbox paper.
 
-## Docs and Examples
-
-[Click Here For Full Documentation](https://10play.github.io/10tap-editor/docs/intro.html)
-
 ## Installation
 
-### React Native
+```bash
+yarn add @10play/tentap-editor react-native-webview
+cd ios && pod install
+```
 
-1. `yarn add @10play/tentap-editor react-native-webview`
-2. `cd ios && pod install`
+With Expo: `npx expo install @10play/tentap-editor react-native-webview`. The editor works in Expo Go; for the native custom keyboard driver use a [development build](https://docs.expo.dev/develop/development-builds/introduction/).
 
-### Expo
-
-`npx expo install @10play/tentap-editor react-native-webview`  
-The editor works in Expo Go. Custom keyboards also work in Expo Go, using a JavaScript-only fallback (see [Expo Go and the fallback driver](./examples/customKeyboard.md#expo-go-and-the-fallback-driver)).  
-For the native keyboard driver and the [advanced setup](./setup/advancedSetup.md) you need an [Expo Dev Client](https://docs.expo.dev/develop/development-builds/introduction/).
-
-Now you ready to add tentap to your app!
-
-Upgrading from an older version? See the [1.1 migration guide](./migrations/v1.1.md).
+See [Installation](./setup/installation.md) for the details and the supported versions. Upgrading from an older version? See the [1.1 migration guide](./migrations/v1.1.md).
 
 ## Usage
 
 ```tsx
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  EditorKeyboardAvoidingView,
+  RichText,
+  Toolbar,
+  useEditorBridge,
+} from '@10play/tentap-editor';
+
 export const Basic = () => {
   const editor = useEditorBridge({
     autofocus: true,
@@ -64,22 +64,35 @@ export const Basic = () => {
   });
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <RichText editor={editor} />
-      <KeyboardAvoidingView
-        behavior={'padding'}
-        style={{
-          position: 'absolute',
-          width: '100%',
-          bottom: 0,
-        }}
-      >
-        <Toolbar editor={editor} />
-      </KeyboardAvoidingView>
+    <SafeAreaView style={styles.fullScreen}>
+      <EditorKeyboardAvoidingView style={styles.fullScreen}>
+        <View style={styles.fullScreen}>
+          <RichText editor={editor} />
+        </View>
+        <View style={styles.toolbarRow}>
+          <Toolbar editor={editor} />
+        </View>
+      </EditorKeyboardAvoidingView>
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  fullScreen: { flex: 1 },
+  toolbarRow: { flexDirection: 'row' },
+});
 ```
+
+`EditorKeyboardAvoidingView` keeps the toolbar on top of the keyboard without a `keyboardVerticalOffset`, also on edge-to-edge Android. See [Keyboard and caret](./setup/keyboard.md).
+
+## Example apps
+
+The repository has two example apps you can run:
+
+- [`example/`](https://github.com/10play/10tap-editor/tree/main/example): a React Native CLI app (React Native 0.81, new and old architecture) with every example in these docs, including custom keyboards, dynamic height, a navigation header and the [advanced setup](./setup/advancedSetup.md).
+- [`example-expo/`](https://github.com/10play/10tap-editor/tree/main/example-expo): an Expo app (development build) with the basic editor, dynamic height, custom keyboards in both layouts and two editors on one screen, in light and dark mode. It also runs on the web.
+
+Questions? Check the [FAQ](./faq.md).
 
 ## Contributing
 

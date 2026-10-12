@@ -198,10 +198,10 @@ a react hook to subscribe to changes on the BridgeState. It takes the `EditorBri
 const editorState = useBridgeState(editor);
 
 <Button
+  title={editorState.isBoldActive ? 'Unbold' : 'Bold'}
   onPress={() => editor.toggleBold()}
   disabled={!editorState.canToggleBold}
-  selected={editorState.isBoldActive}
-/>
+/>;
 ```
 
 Before the editor is ready the core fields already have values (`isReady: false`, `isFocused: false`, `empty: true`, `selection: { from: 0, to: 0 }`, and `editable` from the option), so reading them never throws.

@@ -18,7 +18,7 @@ Switching is done by a **driver**:
 
 ## CustomKeyboard
 
-A react component that renders the active custom keyboard. Render it under your toolbar, as the last child of the same bottom `KeyboardAvoidingView` (see [layout](#layout)). In development on iOS, a warning is logged if the inline keyboard doesn't end at the bottom of the window.
+A react component that renders the active custom keyboard. Render it under your toolbar, as the last child of the same bottom [EditorKeyboardAvoidingView](#editorkeyboardavoidingview), or with `layout="overlay"` after it (see [Layouts](../examples/customKeyboard.md#layouts)). In development on iOS, a warning is logged if the inline keyboard doesn't end at the bottom of the window.
 
 #### keyboards
 
@@ -239,17 +239,19 @@ Views that start above the editor (a static toolbar at the top of the screen) ar
 A `dynamicHeight` editor is as tall as its content and does not scroll itself, so inside a `ScrollView` the line being typed can grow under the keyboard. `useScrollToCaret` scrolls the `ScrollView` to keep the caret about one line clear of the keyboard, the toolbar on it and the `ScrollView`'s edges:
 
 ```tsx
-const editor = useEditorBridge({ dynamicHeight: true });
-const scrollViewRef = useRef<ScrollView>(null);
-useScrollToCaret(editor, scrollViewRef);
+const EditorInScrollView = () => {
+  const editor = useEditorBridge({ dynamicHeight: true });
+  const scrollViewRef = useRef<ScrollView>(null);
+  useScrollToCaret(editor, scrollViewRef);
 
-return (
-  <EditorKeyboardAvoidingView style={{ flex: 1 }}>
-    <ScrollView ref={scrollViewRef}>
-      <RichText editor={editor} />
-    </ScrollView>
-  </EditorKeyboardAvoidingView>
-);
+  return (
+    <EditorKeyboardAvoidingView style={{ flex: 1 }}>
+      <ScrollView ref={scrollViewRef} keyboardShouldPersistTaps="handled">
+        <RichText editor={editor} />
+      </ScrollView>
+    </EditorKeyboardAvoidingView>
+  );
+};
 ```
 
 It needs the web bundle of this version (custom bundles built before 1.1 do not report the caret).

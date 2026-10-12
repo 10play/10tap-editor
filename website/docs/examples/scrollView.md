@@ -4,7 +4,7 @@ sidebar_position: 6
 
 # Editor inside a ScrollView
 
-By default the editor fills its container and scrolls its own content. To place it in a form or a screen that scrolls as a whole, let the editor grow with its content and let your `ScrollView` do the scrolling.
+By default the editor fills its container and scrolls its own content. To place it in a form or a screen that scrolls as a whole, let the editor grow with its content and let your `ScrollView` do the scrolling. See [`example-expo/src/screens/DynamicHeight.tsx`](https://github.com/10play/10tap-editor/tree/main/example-expo/src/screens/DynamicHeight.tsx) for a runnable version.
 
 ## Dynamic height
 

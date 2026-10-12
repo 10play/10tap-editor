@@ -4,7 +4,7 @@ sidebar_position: 9
 
 # Using The ColorKeyboard
 
-In this example we will add the ColorKeyboard, and a custom button to toggle it in the Toolbar
+In this example we will add the ColorKeyboard, and a custom button to toggle it in the Toolbar. The same screen is in [`example/src/Examples/Keyboard/WithKeyboard.tsx`](https://github.com/10play/10tap-editor/tree/main/example/src/Examples/Keyboard/WithKeyboard.tsx) and [`example-expo/src/screens/CustomKeyboard.tsx`](https://github.com/10play/10tap-editor/tree/main/example-expo/src/screens/CustomKeyboard.tsx).
 
 ## Adding CustomKeyboard Component
 
@@ -18,16 +18,14 @@ Then, into an `EditorKeyboardAvoidingView` at the bottom of the screen we add th
 
 ```tsx
 <EditorKeyboardAvoidingView style={exampleStyles.keyboardAvoidingView}>
-  <Toolbar
-    ...
-  />
+  <Toolbar editor={editor} />
   <CustomKeyboard
     activeKeyboardID={activeKeyboard}
     setActiveKeyboardID={setActiveKeyboard}
     keyboards={[ColorKeyboard]} // <-- here we add the color keyboard
     editor={editor}
   />
-</EditorKeyboardAvoidingView>
+</EditorKeyboardAvoidingView>;
 ```
 
 ## Adding Custom Toolbar

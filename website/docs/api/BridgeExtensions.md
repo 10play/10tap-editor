@@ -136,12 +136,37 @@ relevant configuration: https://tiptap.dev/docs/editor/api/nodes/hard-break#sett
 See the [advanced setup](../setup/advancedSetup.md) for building a bridge with its own TipTap extension. `extendEditorInstance` receives the same five arguments as in 1.0, plus an optional sixth `context` argument (type `BridgeContext`). It gives your bridge the same message queue the built-in bridges use, so commands sent before the editor is ready aren't lost:
 
 ```ts
-extendEditorInstance: (sendBridgeMessage, webviewRef, editorState, setEditorState, platform, context) => ({
-  myCommand: () => sendBridgeMessage({ type: 'my-command' }),
-  myQuery: () => context?.rpc<string>({ type: 'my-query' }),
-}),
+import { BridgeExtension } from '@10play/tentap-editor';
+
+type MyMessage = { type: string; payload?: unknown };
+type MyEditorInstance = {
+  myCommand: () => void;
+  myQuery: () => Promise<string>;
+};
+
+declare module '@10play/tentap-editor' {
+  interface EditorBridge extends MyEditorInstance {}
+}
+
+export const MyBridge = new BridgeExtension<{}, MyEditorInstance, MyMessage>({
+  forceName: 'myBridge',
+  extendEditorInstance: (
+    sendBridgeMessage,
+    _webviewRef,
+    _editorState,
+    _setEditorState,
+    _platform,
+    context
+  ) => ({
+    myCommand: () => sendBridgeMessage({ type: 'my-command' }),
+    myQuery: () =>
+      context
+        ? context.rpc<string>({ type: 'my-query' })
+        : Promise.reject(new Error('Needs @10play/tentap-editor 1.1')),
+  }),
+});
 ```
 
 `context.rpc` adds a `messageId` to the message payload and resolves with the `content` of the first reply whose `payload.messageId` matches, so the web side of your bridge answers with `sendMessageBack({ type: 'my-query-back', payload: { content, messageId } })`.
 
-`context.supports(capability)` tells you whether the editor bundle in the WebView supports a feature, which is useful when your app may run against a custom bundle built with an older version. The 1.1 web editor advertises `'insertContent'`, `'selectedText'`, `'parseOptions'`, `'styles'`, `'containerHeight'` and `'inputMode'`; a bundle built with 1.0 or older advertises none. Until the editor is ready, `supports` returns `false`. `rpc` takes an optional second argument: with `{ capability }` it rejects with `TentapUnsupportedError` when the bundle lacks that capability (this is how `getSelectedText` handles older bundles), and `timeoutMs`, which overrides [rpcTimeoutMs](./useEditorBridge.md#rpctimeoutms) for that call. The `BridgeContext`, `RpcOptions`, `SendOptions`, `Capabilities` and `CapabilityName` types are exported from `@10play/tentap-editor`.
+`context.supports(capability)` tells you whether the editor bundle in the WebView supports a feature, which is useful when your app may run against a custom bundle built with an older version. The 1.1 web editor advertises `'insertContent'`, `'selectedText'`, `'parseOptions'`, `'styles'`, `'containerHeight'`, `'setDynamicHeight'` and `'inputMode'`; a bundle built with 1.0 or older advertises none. Until the editor is ready, `supports` returns `false`. `rpc` takes an optional second argument: with `{ capability }` it rejects with `TentapUnsupportedError` when the bundle lacks that capability (this is how `getSelectedText` handles older bundles), and `timeoutMs`, which overrides [rpcTimeoutMs](./useEditorBridge.md#rpctimeoutms) for that call. The `BridgeContext`, `RpcOptions`, `SendOptions`, `Capabilities` and `CapabilityName` types are exported from `@10play/tentap-editor`.

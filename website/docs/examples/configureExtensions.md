@@ -14,15 +14,17 @@ In our case let's extend the placeholder to show custom text, and the link exten
 
 ```tsx
 const editor = useEditorBridge({
-    bridgeExtensions: [
-        ...,
-        PlaceholderBridge.configureExtension({
-          placeholder: 'Type something...',
-        }),
-        LinkBridge.configureExtension({ openOnClick: false }),
-    ],
-  });
+  bridgeExtensions: [
+    ...TenTapStartKit,
+    PlaceholderBridge.configureExtension({
+      placeholder: 'Type something...',
+    }),
+    LinkBridge.configureExtension({ openOnClick: false }),
+  ],
+});
 ```
+
+Bridges are deduplicated by name and the last one wins, so spread `TenTapStartKit` first and the configured bridges after it.
 
 ## Extending Extension and updating Document Schema
 

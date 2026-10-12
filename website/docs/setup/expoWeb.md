@@ -4,11 +4,13 @@ sidebar_position: 3
 
 # Expo Web Setup (Beta)
 
-Some additional steps are necessary for supporting expo web - see working example [here](https://github.com/10play/10tap-web-example)
+Some additional steps are necessary for supporting expo web. The [`example-expo`](https://github.com/10play/10tap-editor/tree/main/example-expo) app in the repository runs on the web with this setup (`yarn example:expo web`); there is also a standalone example [here](https://github.com/10play/10tap-web-example).
 
 ### Step 1 - Install required deps
 
-`npx expo install @10play/react-native-web-webview expo-crypto`
+`npx expo install @10play/react-native-web-webview react-native-web react-dom expo-crypto`
+
+`expo-crypto` and the `crypto` alias below are only needed by older versions of `@10play/react-native-web-webview`; the `example-expo` app runs version 0.0.3 without them. Keeping them does no harm.
 
 Several editors on one page work with any version of `@10play/react-native-web-webview`: the shim delivers every editor's messages to every WebView on the page, so 1.1 tags each message with an editor id and every editor ignores messages meant for another one. A custom `onMessage` on `RichText` only receives its own editor's messages too.
 
@@ -101,4 +103,5 @@ Restart metro for changes to take effect and the editor should load
 ## Notes
 
 - `dynamicHeight` works on web: the height is applied to the iframe's `style`, which is the only style the shim reads.
-- [Custom keyboards](../examples/customKeyboard.md) render under the toolbar, but the browser's own keyboard isn't hidden on web.
+- [Custom keyboards](../examples/customKeyboard.md) render under the toolbar, but the browser's own keyboard isn't hidden on web. They use the JavaScript driver; there is no native module on web.
+- On web the `Toolbar` renders its items without a `FlatList`, so `ListComponent` isn't used.
