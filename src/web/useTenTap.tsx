@@ -14,6 +14,7 @@ import {
   selectHandlerBridges,
 } from './extensions';
 import { getFocusTracker } from './focus';
+import { keepStoredMarksOffRecomposition } from './imeRecomposition';
 import {
   revealSelectionOnImageLoad,
   revealSelectionOnViewportShrink,
@@ -219,12 +220,14 @@ export const useTenTap = (options?: UseTenTapArgs): Editor | null => {
     const stopRevealingOnLoad = revealSelectionOnImageLoad(editor.view);
     const stopRevealingOnShrink = revealSelectionOnViewportShrink(editor.view);
     const stopKeepingSelection = keepSelectionThroughCollapse(editor.view);
+    const stopKeepingMarks = keepStoredMarksOffRecomposition(editor.view);
     return () => {
       document.removeEventListener('focus', onFocusChange, true);
       document.removeEventListener('blur', onFocusChange, true);
       stopRevealingOnLoad();
       stopRevealingOnShrink();
       stopKeepingSelection();
+      stopKeepingMarks();
     };
   }, [editor, publisher]);
 
