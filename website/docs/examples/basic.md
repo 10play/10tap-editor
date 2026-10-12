@@ -1,4 +1,5 @@
 ---
+description: A step-by-step basic editor with all built-in bridge extensions and a toolbar above the keyboard.
 sidebar_position: 1
 ---
 

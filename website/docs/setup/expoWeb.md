@@ -1,4 +1,5 @@
 ---
+description: Running the editor on Expo web with the web WebView, Metro or Webpack configuration.
 sidebar_position: 3
 ---
 

@@ -1,4 +1,5 @@
 ---
+description: Building your own web editor bundle with custom TipTap extensions and loading it into the editor.
 sidebar_position: 2
 ---
 

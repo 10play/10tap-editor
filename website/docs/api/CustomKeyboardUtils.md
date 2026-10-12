@@ -1,4 +1,5 @@
 ---
+description: Reference for CustomKeyboard, ColorKeyboard, EditorKeyboardAvoidingView, useKeyboardAccessory, useScrollToCaret, useKeyboard and the other keyboard APIs.
 sidebar_position: 8
 ---
 

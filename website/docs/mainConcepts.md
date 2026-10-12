@@ -1,4 +1,5 @@
 ---
+description: "The core concepts: EditorBridge, bridge extensions, simple versus advanced usage and custom keyboards."
 sidebar_position: 1
 ---
 

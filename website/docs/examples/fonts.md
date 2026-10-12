@@ -1,4 +1,5 @@
 ---
+description: "Pro example: a toolbar with rich formatting controls."
 sidebar_position: 6
 ---
 

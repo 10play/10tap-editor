@@ -1,4 +1,5 @@
 ---
+description: Keeping the toolbar above the keyboard below a react-navigation header without a keyboardVerticalOffset.
 sidebar_position: 5
 ---
 

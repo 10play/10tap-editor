@@ -1,4 +1,5 @@
 ---
+description: Providing a custom theme for the toolbar, the link bar and the color keyboard.
 sidebar_position: 8
 ---
 

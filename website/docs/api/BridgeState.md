@@ -1,4 +1,5 @@
 ---
+description: Reference for BridgeState, the editor state on the native side, and the useBridgeState hook.
 sidebar_position: 3
 ---
 

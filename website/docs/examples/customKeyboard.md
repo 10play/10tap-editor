@@ -1,4 +1,5 @@
 ---
+description: Building a custom sticker keyboard that replaces the system keyboard while the editor keeps focus.
 sidebar_position: 10
 ---
 

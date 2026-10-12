@@ -1,4 +1,5 @@
 ---
+description: Configuring bridge extensions and extending them, including placeholders, links and inline images.
 sidebar_position: 3
 ---
 

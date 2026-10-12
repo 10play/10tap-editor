@@ -1,4 +1,5 @@
 ---
+description: Installing the package and react-native-webview, autolinking of the native module, Expo builds and supported versions.
 sidebar_position: 1
 pagination_next: setup/keyboard
 ---

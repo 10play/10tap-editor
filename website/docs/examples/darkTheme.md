@@ -1,4 +1,5 @@
 ---
+description: Dark mode for the editor and the toolbar, including following the system appearance.
 sidebar_position: 7
 ---
 

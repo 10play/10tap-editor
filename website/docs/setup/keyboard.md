@@ -1,4 +1,5 @@
 ---
+description: Keeping the toolbar above the keyboard and the caret above the toolbar with EditorKeyboardAvoidingView, on iOS and Android.
 sidebar_position: 2
 ---
 

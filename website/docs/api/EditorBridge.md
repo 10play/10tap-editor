@@ -1,4 +1,5 @@
 ---
+description: Reference for every EditorBridge command and method, and which bridge extension adds it.
 sidebar_position: 2
 ---
 

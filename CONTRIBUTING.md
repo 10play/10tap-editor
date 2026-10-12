@@ -194,6 +194,7 @@ The `package.json` file contains various scripts for common tasks:
 - `yarn example typecheck`: type-check the example app.
 - `yarn example:expo start`: start the Metro server for the Expo example's development build.
 - `yarn example:expo typecheck`: type-check the Expo example.
+- `yarn docs:llms`: regenerate `website/static/llms.txt` and `llms-full.txt` after changing the docs (CI checks them with `yarn check:llms`).
 
 ### Sending a pull request
 

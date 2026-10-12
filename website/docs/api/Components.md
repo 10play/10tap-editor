@@ -1,4 +1,5 @@
 ---
+description: Reference for RichText, Toolbar, ToolbarItem, the link bar and the custom keyboard components.
 sidebar_position: 4
 ---
 

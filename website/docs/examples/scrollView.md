@@ -1,4 +1,5 @@
 ---
+description: Placing the editor in a ScrollView with dynamicHeight, capping its height and following the caret.
 sidebar_position: 6
 ---
 

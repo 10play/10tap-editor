@@ -1,4 +1,5 @@
 ---
+description: What 10tap-editor is, its features, installation and a minimal editor with a toolbar above the keyboard.
 sidebar_position: 1
 ---
 

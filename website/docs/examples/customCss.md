@@ -1,4 +1,5 @@
 ---
+description: Adding or overriding editor CSS and loading custom fonts, including CJK text.
 sidebar_position: 2
 ---
 

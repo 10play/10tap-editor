@@ -1,4 +1,5 @@
 ---
+description: Adding the built-in ColorKeyboard and a toolbar button that toggles it.
 sidebar_position: 9
 ---
 

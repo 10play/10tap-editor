@@ -1,4 +1,5 @@
 ---
+description: Reference for the useEditorBridge hook and all of its options.
 sidebar_position: 1
 ---
 

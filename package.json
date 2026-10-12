@@ -58,6 +58,8 @@
     "lint": "eslint .",
     "check:codegen": "node ./scripts/check-codegen.js",
     "check:bundle": "node ./scripts/check-isolated-bundle.js",
+    "check:llms": "node ./scripts/generate-llms.js --check",
+    "docs:llms": "node ./scripts/generate-llms.js",
     "clean": "rimraf android/build example/android/build example/android/app/build example/ios/build example-expo/android example-expo/ios lib lib-web",
     "prepare": "bob build",
     "prepack": "yarn editor:build && yarn editor:build-web-utils",

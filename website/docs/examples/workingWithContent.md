@@ -1,4 +1,5 @@
 ---
+description: Reading, setting and inserting content, keeping it in state and reading the selected text.
 sidebar_position: 2
 ---
 

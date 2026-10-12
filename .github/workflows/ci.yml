@@ -40,6 +40,9 @@ jobs:
       - name: Check the editor bundle size
         run: node scripts/size-budget.js
 
+      - name: Check that the docs llms.txt files are up to date
+        run: yarn check:llms
+
       - name: Lint workflows
         uses: docker://rhysd/actionlint:1.7.7
         with:

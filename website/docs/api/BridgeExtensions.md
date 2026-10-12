@@ -1,4 +1,5 @@
 ---
+description: Reference for the built-in bridge extensions, the TipTap extensions they wrap and their configuration.
 sidebar_position: 6
 ---
 

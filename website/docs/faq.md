@@ -1,4 +1,5 @@
 ---
+description: Answers to common questions about content, formatting commands, ScrollViews, fonts, the toolbar, the caret, Expo Go and read-only mode.
 sidebar_position: 3
 ---
 

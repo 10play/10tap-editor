@@ -55,3 +55,66 @@ describe('buildEditor', () => {
     expect(result.status).toBe(1);
   });
 });
+
+describe('generate-llms', () => {
+  const llms = require('../generate-llms.js');
+
+  it('links every sidebar page with a description', () => {
+    const index: string = llms.generate()['llms.txt'];
+    const links = index.match(/^- \[.+\]\(https:\/\/\S+\/docs\/\S+\): .+$/gm);
+    expect(index.startsWith('# 10tap-editor\n\n> ')).toBe(true);
+    expect(links).toContain(
+      '- [FAQ](https://10play.github.io/10tap-editor/docs/faq): ' +
+        'Answers to common questions about content, formatting commands, ' +
+        'ScrollViews, fonts, the toolbar, the caret, Expo Go and read-only mode.'
+    );
+  });
+
+  it('turns MDX into plain markdown with absolute links', () => {
+    const site = 'https://example.com/base/';
+    const doc = {
+      file: path.join(root, 'website/docs/api/Page.md'),
+      url: `${site}docs/api/Page`,
+      body: [
+        "import Tabs from '@theme/Tabs';",
+        '',
+        '# Page',
+        '',
+        ':::tip Heads up',
+        'See [the FAQ](../faq.md#top) and [below](#more).',
+        ':::',
+        '',
+        '<div style={{display: "flex"}}>',
+        '  <img src="/base/img/demo.gif"/>',
+        '</div>',
+        '<TabItem value="metro" label="Metro">',
+        '`boolean`<br />Is it on <br /> added by <u>Core</u> `<RichText />`',
+        '<a href="https://x.dev/plans">See plans</a>',
+        '```tsx',
+        'import { RichText } from "@10play/tentap-editor";',
+        '<RichText editor={editor} />',
+        '```',
+      ].join('\n'),
+    };
+
+    expect(llms.cleanBody(doc, new Map(), site)).toBe(
+      [
+        '# Page',
+        '',
+        '> **Tip: Heads up**',
+        `> See [the FAQ](${site}docs/faq#top) and [below](${site}docs/api/Page#more).`,
+        '',
+        '**Metro**',
+        '',
+        '`boolean`',
+        'Is it on',
+        'added by Core `<RichText />`',
+        '[See plans](https://x.dev/plans)',
+        '```tsx',
+        'import { RichText } from "@10play/tentap-editor";',
+        '<RichText editor={editor} />',
+        '```',
+      ].join('\n')
+    );
+  });
+});

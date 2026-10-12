@@ -1,4 +1,5 @@
 ---
+description: Displaying editor HTML outside the editor, for example with react-native-render-html.
 sidebar_position: 7
 ---
 

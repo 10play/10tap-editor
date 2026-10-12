@@ -1,4 +1,5 @@
 ---
+description: Reference for the useEditorContent hook, which reads the content efficiently as HTML, JSON or text.
 sidebar_position: 7
 ---
 
