@@ -72,8 +72,10 @@ const styles = StyleSheet.create({
   toolbarRow: {
     flexDirection: 'row',
   },
+  // The switcher is taller than the toolbar: both end on the keyboard.
   bars: {
     flexDirection: 'row',
+    alignItems: 'flex-end',
   },
   fill: {
     flex: 1,

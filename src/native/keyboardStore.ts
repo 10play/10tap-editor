@@ -162,6 +162,11 @@ export interface KeyboardStore {
    * A custom keyboard ends there too. Undefined before one was seen.
    */
   getKeyboardBottom(): number | undefined;
+  /**
+   * Screen y in dp of the origin of window coordinates, the space
+   * `measureInWindow` reports in. On Android it can be below the status bar.
+   */
+  getWindowOffset(): number;
   registerHost(
     editor: object,
     controls: CustomKeyboardControls,
@@ -484,6 +489,7 @@ export function createKeyboardStore({
       return Math.round(DEFAULT_KEYBOARD_HEIGHT_RATIO * getWindowSize().height);
     },
     getKeyboardBottom,
+    getWindowOffset,
     registerHost(editor, controls, state) {
       const host: MutableHost = { editor, controls, state: { ...state } };
       hosts = [...hosts, host];

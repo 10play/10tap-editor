@@ -92,6 +92,12 @@ export interface OverlayBodyInput {
   /** `keyboardStore.getKeyboardBottom()`. */
   keyboardBottom: number | undefined;
   windowHeight: number;
+  /**
+   * `keyboardStore.getWindowOffset()`: where window coordinates, which
+   * `hostBottom` is in, start on the screen. The window itself starts at
+   * the top of the screen.
+   */
+  windowOffset?: number;
 }
 
 export interface OverlayBodyFrame {
@@ -117,11 +123,14 @@ export const getOverlayBodyFrame = ({
   hostBottom,
   keyboardBottom,
   windowHeight,
+  windowOffset = 0,
 }: OverlayBodyInput): OverlayBodyFrame => {
   if (hostBottom === undefined || keyboardBottom === undefined) {
+    // The bottom of the window, in the coordinates `hostBottom` is in.
+    const windowBottom = windowHeight - windowOffset;
     return {
       top:
-        hostBottom === undefined ? 0 : Math.max(0, windowHeight - hostBottom),
+        hostBottom === undefined ? 0 : Math.max(0, windowBottom - hostBottom),
       height: keyboardHeight + navigationBarInset,
       paddingBottom: navigationBarInset,
     };
@@ -204,6 +213,10 @@ export const CustomKeyboard = (props: CustomKeyboardProps) => {
     keyboardStore.subscribe,
     keyboardStore.getKeyboardBottom
   );
+  const windowOffset = useSyncExternalStore(
+    keyboardStore.subscribe,
+    keyboardStore.getWindowOffset
+  );
   const [hostBottom, setHostBottom] = useState<number>();
   const measureHost = useCallback(() => {
     const host = hostRef.current;
@@ -235,6 +248,7 @@ export const CustomKeyboard = (props: CustomKeyboardProps) => {
           hostBottom,
           keyboardBottom,
           windowHeight,
+          windowOffset,
         })
       : {
           top: 0,

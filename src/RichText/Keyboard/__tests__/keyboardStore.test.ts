@@ -299,6 +299,7 @@ describe('keyboardStore', () => {
       const store = setupAndroid();
       store.reportViewGeometry({ windowY: 0, pageY: 0, height: 843 });
       expect(store.getSnapshot().keyboardTop).toBe(564);
+      expect(store.getWindowOffset()).toBe(24);
     });
 
     it('at the top of the screen for an edge-to-edge root view', () => {
@@ -307,6 +308,7 @@ describe('keyboardStore', () => {
       store.reportViewGeometry({ windowY: 100, pageY: 100, height: 815 });
       expect(store.getSnapshot().keyboardTop).toBe(588);
       expect(store.getKeyboardBottom()).toBe(867);
+      expect(store.getWindowOffset()).toBe(0);
       // A shorter view later does not undo it.
       store.reportViewGeometry({ windowY: 100, pageY: 100, height: 300 });
       expect(store.getSnapshot().keyboardTop).toBe(588);

@@ -164,13 +164,18 @@ describe('CustomKeyboard', () => {
   });
 
   it('pins an overlay body to the bottom of the window before a keyboard was seen', () => {
-    const frame = (hostBottom: number | undefined, windowHeight = 800) =>
+    const frame = (
+      hostBottom: number | undefined,
+      windowHeight = 800,
+      windowOffset?: number
+    ) =>
       getOverlayBodyFrame({
         keyboardHeight: 300,
         navigationBarInset: 24,
         hostBottom,
         keyboardBottom: undefined,
         windowHeight,
+        windowOffset,
       });
     expect(frame(undefined)).toEqual({
       top: 0,
@@ -183,6 +188,12 @@ describe('CustomKeyboard', () => {
     // Edge-to-edge Android: the window height leaves out the navigation bar
     // the host reaches behind, so the body must not move up over the toolbar.
     expect(frame(801.45, 777.45).top).toBe(0);
+    // Window coordinates that start below the status bar (Android after a
+    // rotation, before a keyboard was seen in the new orientation): a host
+    // at the bottom of the screen ends that much short of the window
+    // height, and the body must not be pushed below the screen.
+    expect(frame(368.7, 392.7, 24).top).toBe(0);
+    expect(frame(344.7, 392.7, 24).top).toBe(24);
   });
 
   it('ends an overlay body where the system keyboard ended', () => {
