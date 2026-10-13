@@ -335,6 +335,8 @@ jobs:
           disable-animations: true
           disable-spellchecker: true
           script: |
+            grep -i keyboard "$ANDROID_AVD_HOME/test.avd/config.ini"
+            adb shell am get-config
             adb shell settings put global hide_error_dialogs 1
             adb install -r example/android/app/build/outputs/apk/release/app-release.apk
             sleep 120
