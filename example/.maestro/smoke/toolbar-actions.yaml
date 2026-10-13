@@ -39,9 +39,11 @@ tags:
       - inputText: ' it'
       - tapOn:
           id: read-editor-state
-      - assertVisible:
-          id: editor-html
-          text: '<p>Smoke test<em> it</em></p>'
+      - extendedWaitUntil:
+          visible:
+            id: editor-html
+            text: '<p>Smoke test<em> it</em></p>'
+          timeout: 10000
 
       # Heading sub-toolbar: Aa, H1, close
       - tapOn:
@@ -52,9 +54,11 @@ tags:
           point: '5%,62%'
       - tapOn:
           id: read-editor-state
-      - assertVisible:
-          id: editor-html
-          text: '<h1>Smoke test<em> it</em></h1>'
+      - extendedWaitUntil:
+          visible:
+            id: editor-html
+            text: '<h1>Smoke test<em> it</em></h1>'
+          timeout: 10000
 
       # Scroll to the end of the toolbar: undo, redo, lists
       - swipe:
@@ -69,34 +73,42 @@ tags:
           point: '83%,62%'
       - tapOn:
           id: read-editor-state
-      - assertVisible:
-          id: editor-html
-          text: '<p>Smoke test<em> it</em></p>'
+      - extendedWaitUntil:
+          visible:
+            id: editor-html
+            text: '<p>Smoke test<em> it</em></p>'
+          timeout: 10000
       - tapOn:
           point: '94%,62%'
       - tapOn:
           id: read-editor-state
-      - assertVisible:
-          id: editor-html
-          text: '<h1>Smoke test<em> it</em></h1>'
+      - extendedWaitUntil:
+          visible:
+            id: editor-html
+            text: '<h1>Smoke test<em> it</em></h1>'
+          timeout: 10000
       - tapOn:
           point: '83%,62%'
       - tapOn:
           point: '50%,62%'
       - tapOn:
           id: read-editor-state
-      - assertVisible:
-          id: editor-html
-          text: '<ul><li><p>Smoke test<em> it</em></p></li></ul>'
+      - extendedWaitUntil:
+          visible:
+            id: editor-html
+            text: '<ul><li><p>Smoke test<em> it</em></p></li></ul>'
+          timeout: 10000
       - tapOn:
           point: '50%,62%'
       - tapOn:
           point: '38%,62%'
       - tapOn:
           id: read-editor-state
-      - assertVisible:
-          id: editor-html
-          text: '<ol><li><p>Smoke test<em> it</em></p></li></ol>'
+      - extendedWaitUntil:
+          visible:
+            id: editor-html
+            text: '<ol><li><p>Smoke test<em> it</em></p></li></ol>'
+          timeout: 10000
 
       # Link on a selected word; the https:// protocol is added (#255)
       - swipe:
@@ -116,6 +128,8 @@ tags:
       - tapOn: Insert
       - tapOn:
           id: read-editor-state
-      - assertVisible:
-          id: editor-html
-          text: '.*<a [^>]*href="https://example.com"[^>]*>(Smoke|test)</a>.*'
+      - extendedWaitUntil:
+          visible:
+            id: editor-html
+            text: '.*<a [^>]*href="https://example.com"[^>]*>(Smoke|test)</a>.*'
+          timeout: 10000

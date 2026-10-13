@@ -15,8 +15,16 @@ name: Custom keyboard inside a Modal
     element: 'Keyboard: Modal'
     timeout: 60000
 - tapOn: 'Keyboard: Modal'
+- extendedWaitUntil:
+    visible:
+      id: open-editor-modal
+    timeout: 15000
 - tapOn:
     id: open-editor-modal
+- extendedWaitUntil:
+    visible:
+      id: keyboard-example-editor
+    timeout: 15000
 - tapOn:
     id: keyboard-example-editor
 - waitForAnimationToEnd
@@ -27,9 +35,20 @@ name: Custom keyboard inside a Modal
     visible: 'keyboard-settle-never-shown'
     timeout: 2500
     optional: true
+- extendedWaitUntil:
+    visible:
+      id: toggle-color-keyboard
+    timeout: 15000
 - tapOn:
     id: toggle-color-keyboard
-- assertVisible: Highlight
+# The color keyboard replaces the system one; wait until it is fully up.
+- extendedWaitUntil:
+    visible: Highlight
+    timeout: 15000
+- extendedWaitUntil:
+    visible: Red
+    timeout: 15000
+- waitForAnimationToEnd
 - tapOn:
     text: Red
     index: 0
@@ -38,9 +57,11 @@ name: Custom keyboard inside a Modal
 - inputText: ' modal'
 - tapOn:
     id: read-editor-state
-- assertVisible:
-    id: editor-html
-    text: '.*color.*modal.*'
+- extendedWaitUntil:
+    visible:
+      id: editor-html
+      text: '.*color.*modal.*'
+    timeout: 10000
 - assertNotVisible: '.*driver failed.*'
 - tapOn:
     id: close-editor-modal
