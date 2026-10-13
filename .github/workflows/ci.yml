@@ -321,7 +321,9 @@ jobs:
       # restart, and Android kills the app with them (the WebView uses their
       # font provider), so the flows start once that is over. The warm-up
       # launch takes the first, slowest start off the first flow, and hiding
-      # error dialogs keeps an ANR prompt from covering the app.
+      # error dialogs keeps an ANR prompt from covering the app. The x86_64
+      # emulator reports a hardware keyboard, which a phone does not and
+      # which keeps the soft keyboard up for inputmode="none"; it is detached.
       - name: Run the Maestro flows on API 34
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -335,8 +337,7 @@ jobs:
           disable-animations: true
           disable-spellchecker: true
           script: |
-            grep -i keyboard "$ANDROID_AVD_HOME/test.avd/config.ini"
-            adb shell am get-config
+            .github/scripts/android-detach-hard-keyboard.sh
             adb shell settings put global hide_error_dialogs 1
             adb install -r example/android/app/build/outputs/apk/release/app-release.apk
             sleep 120
