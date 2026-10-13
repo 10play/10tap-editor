@@ -1,0 +1,27 @@
+# Launches the app, clearing its state unless CLEAR_STATE is 'false', and
+# waits for the home screen. On a slow Android emulator the system can kill
+# the new process while it still removes the previous task ("remove task"),
+# which leaves a blank window; the launch is retried then.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+  CLEAR_STATE: ${CLEAR_STATE || 'true'}
+---
+- retry:
+    maxRetries: 2
+    commands:
+      - runFlow:
+          when:
+            true: ${CLEAR_STATE == 'true'}
+          commands:
+            - launchApp:
+                clearState: true
+      - runFlow:
+          when:
+            true: ${CLEAR_STATE != 'true'}
+          commands:
+            - launchApp:
+                stopApp: true
+      - extendedWaitUntil:
+          visible: '10Tap Rich Text Editor!'
+          timeout: 60000

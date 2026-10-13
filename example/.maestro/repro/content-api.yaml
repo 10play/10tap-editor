@@ -8,8 +8,7 @@ name: 'Repro: content and selection APIs'
 tags:
   - repro
 ---
-- launchApp:
-    clearState: true
+- runFlow: ../subflows/launch.yaml
 - scrollUntilVisible:
     element: 'Repro: Content API'
     timeout: 60000

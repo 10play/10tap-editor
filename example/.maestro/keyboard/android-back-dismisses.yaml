@@ -6,8 +6,7 @@ env:
   APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
 name: Android back dismisses the custom keyboard
 ---
-- launchApp:
-    clearState: true
+- runFlow: ../subflows/launch.yaml
 - runFlow:
     when:
       platform: Android

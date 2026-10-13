@@ -7,8 +7,7 @@ name: 'Repro: read-only editor becomes ready'
 tags:
   - repro
 ---
-- launchApp:
-    clearState: true
+- runFlow: ../subflows/launch.yaml
 - scrollUntilVisible:
     element: 'Repro: Readiness'
     timeout: 60000

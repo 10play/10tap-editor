@@ -4,13 +4,10 @@ appId: ${APP_ID}
 env:
   APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
 ---
-- launchApp:
-    stopApp: true
-# A cold start on a slow emulator can take a while to render the list, and
-# scrolling before it is there can scroll the first entries out of view.
-- extendedWaitUntil:
-    visible: '10Tap Rich Text Editor!'
-    timeout: 60000
+- runFlow:
+    file: launch.yaml
+    env:
+      CLEAR_STATE: 'false'
 - scrollUntilVisible:
     element: ${SCREEN}
     timeout: 60000

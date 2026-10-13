@@ -7,8 +7,7 @@ name: 'Repro: autofocus shows the keyboard'
 tags:
   - repro
 ---
-- launchApp:
-    clearState: true
+- runFlow: ../subflows/launch.yaml
 - scrollUntilVisible:
     element: 'Repro: Autofocus'
     timeout: 60000

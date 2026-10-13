@@ -5,11 +5,7 @@ env:
   APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
 name: Custom keyboard inside a Modal
 ---
-- launchApp:
-    clearState: true
-- extendedWaitUntil:
-    visible: '10Tap Rich Text Editor!'
-    timeout: 60000
+- runFlow: ../subflows/launch.yaml
 # The entry can be below the fold on smaller screens.
 - scrollUntilVisible:
     element: 'Keyboard: Modal'

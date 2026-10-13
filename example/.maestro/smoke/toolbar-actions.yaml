@@ -9,8 +9,7 @@ name: Toolbar actions
 tags:
   - smoke
 ---
-- launchApp:
-    clearState: true
+- runFlow: ../subflows/launch.yaml
 - runFlow:
     when:
       platform: Android

@@ -8,8 +8,10 @@ name: 'Repro: editor tap takes focus from another input'
 tags:
   - repro
 ---
-- launchApp:
-    stopApp: true
+- runFlow:
+    file: ../subflows/launch.yaml
+    env:
+      CLEAR_STATE: 'false'
 - scrollUntilVisible:
     element: CustomAndStaticToolbar
     timeout: 60000

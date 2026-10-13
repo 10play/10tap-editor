@@ -8,8 +8,7 @@ name: 'Repro: dynamic height follows the content'
 tags:
   - repro
 ---
-- launchApp:
-    clearState: true
+- runFlow: ../subflows/launch.yaml
 - scrollUntilVisible:
     element: 'Repro: Dynamic height'
     timeout: 60000

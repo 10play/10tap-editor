@@ -7,8 +7,7 @@ name: Editor basics
 tags:
   - smoke
 ---
-- launchApp:
-    clearState: true
+- runFlow: ../subflows/launch.yaml
 - scrollUntilVisible:
     element: 'E2E: Smoke'
     timeout: 60000

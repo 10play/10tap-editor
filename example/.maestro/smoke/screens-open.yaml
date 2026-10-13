@@ -6,8 +6,7 @@ name: Example screens open
 tags:
   - smoke
 ---
-- launchApp:
-    clearState: true
+- runFlow: ../subflows/launch.yaml
 - runFlow:
     file: ../subflows/open-screen.yaml
     env:
