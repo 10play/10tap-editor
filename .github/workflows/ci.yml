@@ -317,9 +317,11 @@ jobs:
       # The flows tap some controls by position and are calibrated for a
       # Pixel 5 screen; the runner's default AVD is a 320x640 mdpi device.
       # Each script line runs on its own (after the action waits for the
-      # boot to complete). The warm-up launch takes the first,
-      # slowest start (ART verification, WebView provider) off the first flow,
-      # and hiding error dialogs keeps an ANR prompt from covering the app.
+      # boot to complete). About a minute after the first boot Play services
+      # restart, and Android kills the app with them (the WebView uses their
+      # font provider), so the flows start once that is over. The warm-up
+      # launch takes the first, slowest start off the first flow, and hiding
+      # error dialogs keeps an ANR prompt from covering the app.
       - name: Run the Maestro flows on API 34
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -335,6 +337,7 @@ jobs:
           script: |
             adb shell settings put global hide_error_dialogs 1
             adb install -r example/android/app/build/outputs/apk/release/app-release.apk
+            sleep 120
             adb shell am start -W -n dev.tenplay.tentapexample/.MainActivity
             sleep 15
             adb shell am force-stop dev.tenplay.tentapexample
