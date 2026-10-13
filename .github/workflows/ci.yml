@@ -211,7 +211,7 @@ jobs:
 
   build-expo:
     name: build-expo (${{ matrix.platform }})
-    runs-on: ${{ matrix.platform == 'ios' && 'macos-15' || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.platform == 'ios' && 'macos-26' || 'ubuntu-latest' }}
     timeout-minutes: 90
     strategy:
       fail-fast: false
@@ -228,11 +228,17 @@ jobs:
         if: matrix.platform == 'android'
         uses: ./.github/actions/setup-android
 
+      # Expo SDK 57's expo-modules-jsi does not compile with Xcode 26.3, the
+      # newest Xcode on the macos-15 image; macos-26 has newer ones.
       - name: Select Xcode
         if: matrix.platform == 'ios'
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: latest-stable
+
+      - name: Show the Xcode in use
+        if: matrix.platform == 'ios'
+        run: xcodebuild -version && ls -d /Applications/Xcode*
 
       - name: Build the editor
         run: yarn editor:build
@@ -308,23 +314,43 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      # The flows tap some controls by position and are calibrated for a
+      # Pixel 5 screen; the runner's default AVD is a 320x640 mdpi device.
+      # Each script line runs on its own (after the action waits for the
+      # boot to complete). The warm-up launch takes the first,
+      # slowest start (ART verification, WebView provider) off the first flow,
+      # and hiding error dialogs keeps an ANR prompt from covering the app.
       - name: Run the Maestro flows on API 34
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
           arch: x86_64
           target: google_apis
+          profile: pixel_5
+          cores: 4
+          ram-size: 4096M
+          heap-size: 576M
           disable-animations: true
+          disable-spellchecker: true
           script: |
+            adb shell settings put global hide_error_dialogs 1
             adb install -r example/android/app/build/outputs/apk/release/app-release.apk
-            maestro test --format junit --output maestro-report.xml example/.maestro
+            adb shell am start -W -n dev.tenplay.tentapexample/.MainActivity
+            sleep 15
+            adb shell am force-stop dev.tenplay.tentapexample
+            maestro test --format junit --output maestro-report.xml --test-output-dir maestro-output --debug-output maestro-debug example/.maestro
+
+      # Maestro names its output folders after the flows, which contain
+      # characters (':') that upload-artifact rejects, so upload an archive.
+      - name: Archive the Maestro output
+        if: always()
+        run: tar -czf maestro-output.tgz --ignore-failed-read maestro-output maestro-debug maestro-report.xml || true
 
       - name: Upload the Maestro results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: maestro-android-newarch-${{ matrix.new-arch }}
-          path: |
-            maestro-report.xml
-            ~/.maestro/tests
+          path: maestro-output.tgz
+          if-no-files-found: ignore
           retention-days: 7
