@@ -3,7 +3,9 @@ import {
   FlatList,
   Image,
   Platform,
+  ScrollView,
   TextInput,
+  TouchableOpacity,
   type FlatListProps,
 } from 'react-native';
 import {
@@ -369,6 +371,35 @@ describe('<Toolbar />', () => {
       expect(icons()).toEqual([Images.close, Images.h1]);
     } finally {
       restorePlatform();
+    }
+  });
+
+  it('web: scrolls the row and keeps the editor focused on a press', () => {
+    const restorePlatform = setPlatform('web');
+    try {
+      const editor = createMockEditor();
+      render(<Toolbar editor={editor} />);
+      const row = screen.UNSAFE_getByType(ScrollView);
+      expect(row.props.horizontal).toBe(true);
+      expect(row.props.keyboardShouldPersistTaps).toBe('always');
+
+      const preventDefault = jest.fn();
+      fireEvent(screen.getByLabelText('Bold'), 'mouseDown', {
+        preventDefault,
+      });
+      expect(preventDefault).toHaveBeenCalled();
+    } finally {
+      restorePlatform();
+    }
+  });
+
+  it('native: toolbar buttons have no mouse handler', () => {
+    const editor = createMockEditor();
+    render(<Toolbar editor={editor} />);
+    const buttons = screen.UNSAFE_getAllByType(TouchableOpacity);
+    expect(buttons.length).toBeGreaterThan(0);
+    for (const button of buttons) {
+      expect(button.props.onMouseDown).toBeUndefined();
     }
   });
 

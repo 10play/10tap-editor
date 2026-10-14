@@ -27,7 +27,7 @@ import { EditLinkBar } from './EditLinkBar';
 import { useKeyboard } from '../../utils';
 import type { EditorBridge } from '../../types';
 import { ToolbarItemComp } from './ToolbarItemComp';
-import { WebToolbar } from './WebToolbar';
+import { WebToolbar, WebToolbarBar } from './WebToolbar';
 
 export interface ToolbarProps {
   editor: EditorBridge;
@@ -138,7 +138,7 @@ export function Toolbar({
   };
 
   if (toolbarContext === ToolbarContext.Link && hidden !== true) {
-    return (
+    const linkBar = (
       <EditLinkBar
         theme={theme}
         initialLink={editorState.activeLink}
@@ -164,6 +164,11 @@ export function Toolbar({
           );
         }}
       />
+    );
+    return Platform.OS === 'web' ? (
+      <WebToolbarBar>{linkBar}</WebToolbarBar>
+    ) : (
+      linkBar
     );
   }
 

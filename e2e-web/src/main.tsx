@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import {
   RichText,
+  Toolbar,
   useBridgeState,
   useEditorBridge,
   type EditorBridge,
@@ -106,7 +107,28 @@ const CappedDynamicHeight = () => {
   );
 };
 
+/**
+ * The Toolbar straight in a column above the editor, as the Expo web docs
+ * place it: it must not overflow a phone-width window, the link bar must not
+ * grow down the column, and toolbar presses must leave the editor focused.
+ */
+const ToolbarScenario = () => {
+  const editor = useEditorBridge({
+    initialContent: '<p>Hello toolbar</p>',
+  });
+  return (
+    <View style={styles.column}>
+      <EditorState editor={editor} testID="toolbar-state" />
+      <Toolbar editor={editor} />
+      <View style={styles.editor} testID="toolbar-editor">
+        <RichText editor={editor} />
+      </View>
+    </View>
+  );
+};
+
 const scenarios = {
+  'toolbar': ToolbarScenario,
   'two-editors': TwoEditors,
   'dynamic-height': DynamicHeight,
   'capped-dynamic-height': CappedDynamicHeight,
@@ -128,6 +150,9 @@ const styles = StyleSheet.create({
   row: {
     flex: 1,
     flexDirection: 'row',
+  },
+  column: {
+    flex: 1,
   },
   panel: {
     flex: 1,

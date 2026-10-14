@@ -52,6 +52,7 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 - Dynamic height ignored outside a `ScrollView`, could not shrink, looped on iOS 26, jumped to the top on new lines, and didn't apply on Expo web (#342, #336, #323, #289, #205).
 - Android: autofocus didn't open the keyboard on the new architecture (#321).
 - Multiple editors on Expo web received each other's messages, in their state and in a custom `onMessage` (#318).
+- On web, the toolbar overflowed narrow windows in one row and scrolled the whole page; it now scrolls its own row. The link bar no longer grows down a column to half the screen, and toolbar buttons no longer take the focus from the editor, so typing continues after the heading buttons.
 - Type errors such as `toggleBold does not exist on type 'EditorBridge'` with deep imports or `moduleResolution: "node"` (#290).
 - Links without a scheme were saved as relative links (#255).
 - The link bar closed before Insert could be pressed, for example inside a `ScrollView` (#252).

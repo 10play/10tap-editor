@@ -1,7 +1,18 @@
 import React from 'react';
-import { Image, TouchableOpacity, View } from 'react-native';
+import { Image, Platform, TouchableOpacity, View } from 'react-native';
 import type { ArgsToolbarCB, ToolbarItem } from './actions';
 import type { EditorBridge } from '../../types';
+
+/**
+ * Web: a mouse press on a button would move the page's focus out of the
+ * editor iframe, so typing after a toolbar press (a heading toggle, the
+ * heading sub-toolbar) went nowhere. Keeping the focus where it is leaves the
+ * editor focused, as native toolbar buttons do. Keyboard users can still tab
+ * to the buttons.
+ */
+const keepEditorFocus = {
+  onMouseDown: (event: { preventDefault(): void }) => event.preventDefault(),
+};
 
 export const ToolbarItemComp = ({
   onPress,
@@ -21,6 +32,7 @@ export const ToolbarItemComp = ({
 
   return (
     <TouchableOpacity
+      {...(Platform.OS === 'web' ? keepEditorFocus : undefined)}
       onPress={onPress(args)}
       disabled={isDisabled}
       style={[toolbar.toolbarButton]}
