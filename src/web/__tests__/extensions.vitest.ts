@@ -78,4 +78,30 @@ describe('resolveBridgeExtensions', () => {
       []
     );
   });
+
+  it('skips undefined entries from a bridge that overrides the 1.0 way', () => {
+    class LegacyBridge extends BridgeExtension {
+      configureTiptapExtensionsOnRunTime(
+        config: unknown,
+        extendConfig: unknown
+      ) {
+        // 1.0.1's body: the extension may be undefined.
+        void config;
+        void extendConfig;
+        return [this.tiptapExtension, ...(this.tiptapExtensionDeps || [])];
+      }
+    }
+    const cssOnly = new LegacyBridge({ forceName: 'legacyCss' });
+    const withDeps = new LegacyBridge({
+      tiptapExtension: ColorBridge.tiptapExtension,
+      tiptapExtensionDeps: [
+        undefined as never,
+        ...ColorBridge.tiptapExtensionDeps!,
+      ],
+    });
+
+    expect(
+      names(resolveBridgeExtensions([cssOnly, withDeps], { bridgeConfigs: {} }))
+    ).toEqual(['color', 'textStyle']);
+  });
 });

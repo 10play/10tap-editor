@@ -6,6 +6,8 @@ import {
   type BridgeConfigEntry,
 } from '../shared/bootConfig';
 
+const isDefined = <V>(value: V | undefined): value is V => value !== undefined;
+
 /**
  * The bridges a bundle should run: those the native side configured (looked
  * up through the `undoRedo`/`history` alias) or whitelisted. A 1.0 native
@@ -45,9 +47,10 @@ function configureBridge(
     entry?.optionsConfig,
     entry?.extendConfig
   );
-  if (!bridge.tiptapExtension) return { deps: extensions };
+  // A subclass written against 1.0 may return `undefined` entries.
+  if (!bridge.tiptapExtension) return { deps: extensions.filter(isDefined) };
   const [main, ...deps] = extensions;
-  return { main, deps };
+  return { main, deps: deps.filter(isDefined) };
 }
 
 /**

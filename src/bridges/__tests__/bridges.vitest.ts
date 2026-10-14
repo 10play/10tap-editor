@@ -29,7 +29,9 @@ const extensionsOf = (bridges: BridgeExtension[]): AnyExtension[] => {
       )
     )
     .forEach((extension) => {
-      if (!byName.has(extension.name)) byName.set(extension.name, extension);
+      if (extension && !byName.has(extension.name)) {
+        byName.set(extension.name, extension);
+      }
     });
   return [...byName.values()];
 };

@@ -116,11 +116,15 @@ class BridgeExtension<T = any, E = any, M = any> {
    * `config`/`extendConfig` applied. Pure: the bridge itself is never
    * modified, so calling it on every render does not stack configurations
    * (#309). CSS-only bridges contribute nothing.
+   *
+   * The signature matches 1.0.1, so subclasses that override it the 1.0 way
+   * (returning `[this.tiptapExtension, ...deps]`, which may hold `undefined`)
+   * keep compiling. Callers must skip `undefined` entries.
    */
   configureTiptapExtensionsOnRunTime(
     config?: unknown,
     extendConfig?: unknown
-  ): AnyExtension[] {
+  ): (AnyExtension | undefined)[] {
     let extension = this.tiptapExtension;
     if (extension && config) {
       extension = extension.configure(config);

@@ -96,6 +96,34 @@ export const CounterBridge = new BridgeExtension<
   extendConfig: { addKeyboardShortcuts: undefined },
 });
 
+// A bridge that overrides the web-side configuration the 1.0.1 way, as
+// 10tap-pro-collaboration does: typed config, and the inferred
+// `(AnyExtension | undefined)[]` return of 1.0.1's own implementation.
+type SyncConfig = { url?: string; name: string };
+
+export class SyncBridge extends BridgeExtension<CounterState> {
+  private done = false;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- 1.0.1 code
+  configureTiptapExtensionsOnRunTime(config: SyncConfig, extendConfig: any) {
+    if (this.done) return [];
+    this.done = true;
+    if (this.tiptapExtension) {
+      if (config) {
+        this.tiptapExtension = this.tiptapExtension?.configure(config);
+      }
+      if (extendConfig) {
+        this.tiptapExtension = this.tiptapExtension?.extend(extendConfig);
+      }
+    }
+    return [this.tiptapExtension, ...(this.tiptapExtensionDeps || [])];
+  }
+}
+
+export const syncBridge: BridgeExtension = new SyncBridge({
+  tiptapExtension: Counter,
+});
+
 export const augmented = (editor: EditorBridge, state: BridgeState) => {
   editor.resetCounter();
   const words: number = state.wordCount;
