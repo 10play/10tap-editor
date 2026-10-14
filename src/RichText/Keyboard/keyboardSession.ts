@@ -407,6 +407,8 @@ export function createKeyboardSession(
     const token = epoch;
     microtask(() => {
       if (token !== epoch || phase !== 'closing') return;
+      // The close's fallback timers would act on the closed session.
+      clearTimers();
       phase = 'closed';
       renderedId = undefined;
       slotHeight = 0;

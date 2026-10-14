@@ -22,7 +22,9 @@ import { EditorHelper } from '../../EditorHelper';
 import { ColorKeyboard } from '../ColorKeyboard';
 import {
   CustomKeyboard,
+  getCurrentHostBottom,
   getOverlayBodyFrame,
+  getWindowShrink,
   type CustomKeyboardProps,
 } from '../CustomKeyboard';
 import {
@@ -33,8 +35,10 @@ import { useCustomKeyboard, useCustomKeyboardHeight } from '../context';
 import { INPUT_MODE_SCRIPT_KEY } from '../drivers';
 import {
   EditorKeyboardAvoidingView,
+  RESIZE_SETTLE_MS,
   getCurrentViewBottom,
   getKeyboardAvoidingPadding,
+  isSettledMeasurement,
 } from '../EditorKeyboardAvoidingView';
 import { defaultColorKeyboardTheme } from '../keyboardTheme';
 import { SLOT_ANIMATION_MS } from '../keyboardSession';
@@ -212,6 +216,62 @@ describe('CustomKeyboard', () => {
     expect(frame(780, 780)).toEqual({ top: 0, height: 279, paddingBottom: 0 });
     // A host that ends above it (a tab bar) has the body moved down.
     expect(frame(730, 780)).toEqual({ top: 50, height: 279, paddingBottom: 0 });
+  });
+
+  describe('overlay body in a window that resizes for the system keyboard', () => {
+    // Galaxy Note 9, Android 10, adjustResize: the window ends at 774dp in
+    // window coordinates, and at 446dp while the 328dp system keyboard is up.
+    const body = (hostBottom: number | undefined, windowShrink: number) =>
+      getOverlayBodyFrame({
+        keyboardHeight: 328,
+        navigationBarInset: 0,
+        hostBottom,
+        keyboardBottom: 774,
+        windowHeight: 798,
+        windowOffset: 24,
+        windowShrink,
+      });
+    const underSystem = { bottom: 446, windowShrink: 328 };
+
+    it('keeps the body below the shrunk window while the system keyboard hides', () => {
+      const hostBottom = getCurrentHostBottom(underSystem, 328);
+      expect(hostBottom).toBe(446);
+      expect(body(hostBottom, 328).top).toBe(328);
+    });
+
+    it('shows the body as soon as the window grows back, before measuring again', () => {
+      // The host measured under the system keyboard no longer holds; the
+      // body was pushed below the window, a blank keyboard area.
+      const hostBottom = getCurrentHostBottom(underSystem, 0);
+      expect(hostBottom).toBeUndefined();
+      expect(body(hostBottom, 0)).toEqual({
+        top: 0,
+        height: 328,
+        paddingBottom: 0,
+      });
+      expect(body(getCurrentHostBottom(undefined, 328), 328).top).toBe(328);
+    });
+
+    it('measures the shrink only where the window resizes', () => {
+      expect(
+        getWindowShrink({
+          windowOverlaysKeyboard: false,
+          systemKeyboardHeight: 328,
+        })
+      ).toBe(328);
+      expect(
+        getWindowShrink({
+          windowOverlaysKeyboard: true,
+          systemKeyboardHeight: 328,
+        })
+      ).toBe(0);
+      expect(
+        getWindowShrink({
+          windowOverlaysKeyboard: false,
+          systemKeyboardHeight: 0,
+        })
+      ).toBe(0);
+    });
   });
 
   it('renders keyboard components written for 0.7.x', async () => {
@@ -491,6 +551,65 @@ describe('EditorKeyboardAvoidingView', () => {
 
     it('is unknown before the first measurement', () => {
       expect(getCurrentViewBottom(null, 1000, 776)).toBeNull();
+    });
+
+    // Galaxy Note 9, Android 10, adjustResize: the custom keyboard ends where
+    // the system keyboard did, so both have their top at 446dp, and the
+    // window ends at 774dp without the system keyboard and 446dp with it.
+    const customTop = 446;
+    const underCustom = { bottom: 774, keyboardTop: customTop, covered: true };
+    const underSystem = { bottom: 446, keyboardTop: customTop, covered: false };
+
+    it('is stale once a custom keyboard hands over to a system keyboard at the same top', () => {
+      // Padding by it pushed the toolbar up by the keyboard's height.
+      expect(getCurrentViewBottom(underCustom, customTop, 0)).toBeNull();
+      expect(getCurrentViewBottom(underSystem, customTop, 0)).toBe(446);
+    });
+
+    it('is stale once a system keyboard the window resized for hands over to a custom one', () => {
+      expect(getCurrentViewBottom(underSystem, customTop, 328)).toBeNull();
+      expect(getCurrentViewBottom(underCustom, customTop, 328)).toBe(774);
+    });
+  });
+
+  describe('settling a measurement', () => {
+    const top = 446;
+    const system = (bottom: number) => ({
+      bottom,
+      keyboardTop: top,
+      covered: false,
+    });
+    const custom = (bottom: number) => ({
+      bottom,
+      keyboardTop: top,
+      covered: true,
+    });
+
+    it('waits out a view measured before the window resized for the system keyboard', () => {
+      // keyboardDidShow arrives first; the view still ends at the bottom of
+      // the full window for a few frames.
+      expect(isSettledMeasurement(system(774), null, 0, true)).toBe(false);
+      const pending = { measured: system(774), since: 0 };
+      expect(isSettledMeasurement(system(774), pending, 16, true)).toBe(false);
+      // The resized layout lands: no padding, at once.
+      expect(isSettledMeasurement(system(446), pending, 32, true)).toBe(true);
+    });
+
+    it('pads a window that does not resize for the keyboard once it holds', () => {
+      const pending = { measured: system(774), since: 0 };
+      expect(
+        isSettledMeasurement(system(774), pending, RESIZE_SETTLE_MS, true)
+      ).toBe(true);
+    });
+
+    it('waits out a view measured before the window grew back for a custom keyboard', () => {
+      expect(isSettledMeasurement(custom(446), null, 0, true)).toBe(false);
+      expect(isSettledMeasurement(custom(774), null, 0, true)).toBe(true);
+    });
+
+    it('takes every measurement where the window overlays the keyboard', () => {
+      expect(isSettledMeasurement(system(774), null, 0, false)).toBe(true);
+      expect(isSettledMeasurement(custom(446), null, 0, false)).toBe(true);
     });
   });
 

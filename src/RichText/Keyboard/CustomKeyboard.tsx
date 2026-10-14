@@ -20,7 +20,11 @@ import {
   useWindowDimensions,
   type ColorValue,
 } from 'react-native';
-import { keyboardStore } from '../../native/keyboardStore';
+import {
+  MIN_KEYBOARD_HEIGHT,
+  keyboardStore,
+  type KeyboardState,
+} from '../../native/keyboardStore';
 import type { EditorBridge } from '../../types';
 import { HiddenFocusInput } from '../HiddenFocusInput';
 import { measureViewGeometry } from '../keyboardAccessories';
@@ -98,6 +102,12 @@ export interface OverlayBodyInput {
    * the top of the screen.
    */
   windowOffset?: number;
+  /**
+   * `getWindowShrink()`: how far a window that resizes for the system
+   * keyboard is shrunk by it now. Places the body before the host was
+   * measured in this state.
+   */
+  windowShrink?: number;
 }
 
 export interface OverlayBodyFrame {
@@ -115,7 +125,9 @@ export interface OverlayBodyFrame {
  * that ends above the keyboard's bottom has the body moved down, never up.
  * Before a system keyboard was seen, the body has the navigation bar inset
  * the native module reports below the content and reaches at least the
- * bottom of the window.
+ * bottom of the window. A host not measured yet is taken to end at the
+ * bottom of the window, and the body is moved below what a system keyboard
+ * shrank the window by, as a measured host would have it.
  */
 export const getOverlayBodyFrame = ({
   keyboardHeight,
@@ -124,13 +136,16 @@ export const getOverlayBodyFrame = ({
   keyboardBottom,
   windowHeight,
   windowOffset = 0,
+  windowShrink = 0,
 }: OverlayBodyInput): OverlayBodyFrame => {
   if (hostBottom === undefined || keyboardBottom === undefined) {
     // The bottom of the window, in the coordinates `hostBottom` is in.
     const windowBottom = windowHeight - windowOffset;
     return {
       top:
-        hostBottom === undefined ? 0 : Math.max(0, windowBottom - hostBottom),
+        hostBottom === undefined
+          ? windowShrink
+          : Math.max(0, windowBottom - hostBottom),
       height: keyboardHeight + navigationBarInset,
       paddingBottom: navigationBarInset,
     };
@@ -142,6 +157,41 @@ export const getOverlayBodyFrame = ({
     paddingBottom: Math.max(0, below),
   };
 };
+
+/**
+ * How far the system keyboard shrinks a window that resizes for it (Android
+ * `adjustResize`), 0 where the window overlays keyboards or none is up.
+ */
+export const getWindowShrink = ({
+  windowOverlaysKeyboard,
+  systemKeyboardHeight,
+}: Pick<KeyboardState, 'windowOverlaysKeyboard' | 'systemKeyboardHeight'>) =>
+  !windowOverlaysKeyboard && systemKeyboardHeight >= MIN_KEYBOARD_HEIGHT
+    ? systemKeyboardHeight
+    : 0;
+
+const readWindowShrink = () => getWindowShrink(keyboardStore.getSnapshot());
+
+/** Where the host ended, and how far the window was shrunk then. */
+interface HostGeometry {
+  bottom: number;
+  windowShrink: number;
+}
+
+/**
+ * The host's measured bottom while the window keeps the size it was measured
+ * at. A window that resizes for the system keyboard grows back as a custom
+ * keyboard replaces it, moving the host before it is measured again: the
+ * old bottom would push the body below the window, leaving the keyboard area
+ * blank until then.
+ */
+export const getCurrentHostBottom = (
+  host: HostGeometry | undefined,
+  windowShrink: number
+): number | undefined =>
+  host !== undefined && Math.abs(host.windowShrink - windowShrink) < 1
+    ? host.bottom
+    : undefined;
 
 export const CustomKeyboard = (props: CustomKeyboardProps) => {
   const {
@@ -217,13 +267,20 @@ export const CustomKeyboard = (props: CustomKeyboardProps) => {
     keyboardStore.subscribe,
     keyboardStore.getWindowOffset
   );
-  const [hostBottom, setHostBottom] = useState<number>();
+  const windowShrink = useSyncExternalStore(
+    keyboardStore.subscribe,
+    readWindowShrink
+  );
+  const [hostGeometry, setHostGeometry] = useState<HostGeometry>();
   const measureHost = useCallback(() => {
     const host = hostRef.current;
     if (!host) return;
     measureViewGeometry(host);
-    host.measureInWindow((_x, y, _width, height) => setHostBottom(y + height));
+    host.measureInWindow((_x, y, _width, height) =>
+      setHostGeometry({ bottom: y + height, windowShrink: readWindowShrink() })
+    );
   }, []);
+  const hostBottom = getCurrentHostBottom(hostGeometry, windowShrink);
 
   usePlacementCheck(
     __DEV__ && Platform.OS === 'ios' && layout === 'inline'
@@ -249,6 +306,7 @@ export const CustomKeyboard = (props: CustomKeyboardProps) => {
           keyboardBottom,
           windowHeight,
           windowOffset,
+          windowShrink,
         })
       : {
           top: 0,

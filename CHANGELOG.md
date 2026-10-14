@@ -8,7 +8,7 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 
 ### Highlights
 
-- **Custom keyboards are back** and work on the new architecture (bridgeless included), the old architecture, Expo dev clients and Expo Go. `CustomKeyboard`, `ColorKeyboard`, `CustomKeyboardExtension`, the `colorKeyboard` theme and the `Color` / `ColorKeyboardTheme` types are exported again with their 0.7.x API. The keyboard is now rendered in your own React tree, while the editor keeps focus, caret and selection (#51, #285, #302). On Android the toolbar stays still while switching keyboards with `androidKeyboardMode="stable"` (Android 11+, not in Expo Go) or in an edge-to-edge app; with the default mode and `adjustResize` it still moves during the switch (#50).
+- **Custom keyboards are back** and work on the new architecture (bridgeless included), the old architecture, Expo dev clients and Expo Go. `CustomKeyboard`, `ColorKeyboard`, `CustomKeyboardExtension`, the `colorKeyboard` theme and the `Color` / `ColorKeyboardTheme` types are exported again with their 0.7.x API. The keyboard is now rendered in your own React tree, while the editor keeps focus, caret and selection (#51, #285, #302). On Android the toolbar stays still while switching keyboards with `androidKeyboardMode="stable"` (Android 11+, not in Expo Go) or in an edge-to-edge app; with the default mode and `adjustResize` it holds still too, except that on Android 10 and older one frame can still be off when Android resizes the window a frame after it reported the keyboard (#50).
 - **Reliable startup.** The editor reports `isReady` as soon as it is created, commands sent before that are queued instead of dropped, and readiness no longer depends on autofocus or editing (#343, #322, #227, #299).
 - **Dynamic height** grows and shrinks in any parent, respects a capped height and keeps the scroll position (#342, #336, #323, #289, #205).
 
@@ -67,6 +67,8 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 - Custom editor bundles built with 0.7.x dropped `HistoryBridge` (undo/redo), which TipTap v3 renamed to `undoRedo`; its config and whitelist entry are now also sent under `history`.
 - On the old Android architecture, TalkBack and UI test tools could see the editor's text at zero size until it was focused. The WebView is now hidden with opacity, not `display: none`, while it loads.
 - Enter did nothing, and the editor's update events were lost, in Android System WebViews older than Chrome 97 (as on Android 10 devices that never updated it): Tiptap uses `Array.prototype.findLast`, which the editor bundle now adds where it is missing, with `findLastIndex` and `at`.
+- On Android with `adjustResize` (the default), the toolbar jumped up to the top of the screen for a few frames, leaving a blank strip above the keyboard, when the system keyboard came back after a custom keyboard and sometimes when the system keyboard opened. `EditorKeyboardAvoidingView` padded by a bottom it had measured under the custom keyboard, or before the resized window was laid out; it now pads only by measurements taken under the keyboard that is up, once the resized layout has landed.
+- An overlay `CustomKeyboard` opened over a system keyboard in a window that resizes for it (Android `adjustResize`, or `androidKeyboardMode="stable"` before Android 11) was drawn below the screen for a few frames, leaving the keyboard area blank, once the system keyboard hid.
 
 ### Changed
 

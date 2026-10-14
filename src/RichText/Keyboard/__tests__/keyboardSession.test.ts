@@ -646,6 +646,39 @@ describe('closing to the system keyboard', () => {
     expect(t.native!.showSystemKeyboard).not.toHaveBeenCalled();
   });
 
+  it('Android: keeps a keyboard up through the handover and stays closed after it', async () => {
+    const t = setup({ platform: 'android', systemKeyboard: 280 });
+    await openFully(t);
+    const listener = jest.fn();
+    t.session.subscribe(listener);
+    t.session.close();
+    await flush();
+    // The body holds the area until the system keyboard is reported up.
+    expect(t.snapshot()).toMatchObject({
+      isKeyboardUp: true,
+      isCustomKeyboardOpen: true,
+      inlineKeyboardHeight: 280,
+    });
+    t.keyboard.emit('keyboardDidShow', 280);
+    expect(t.snapshot()).toMatchObject({
+      isKeyboardUp: true,
+      isCustomKeyboardOpen: false,
+      systemKeyboardHeight: 280,
+    });
+    await flush();
+    expect(t.view().phase).toBe('closed');
+    expect(t.snapshot().inlineKeyboardHeight).toBe(0);
+    listener.mockClear();
+    // The close's fallback timers do not touch the closed session.
+    jest.advanceTimersByTime(SHOW_CONFIRM_TIMEOUT_MS);
+    await flush();
+    expect(listener).not.toHaveBeenCalled();
+    expect(t.snapshot()).toMatchObject({
+      isKeyboardUp: true,
+      isCustomKeyboardOpen: false,
+    });
+  });
+
   it('Android: shows the IME again when no focused WebView was restored', async () => {
     const t = setup({
       platform: 'android',

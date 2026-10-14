@@ -54,29 +54,91 @@ export const getKeyboardAvoidingPadding = ({
   return Math.max(0, Math.round(cover - inlineKeyboardHeight));
 };
 
-/** Where the view ended in the window, and under which keyboard top. */
+/** Where the view ended in the window, and under which keyboard. */
 export interface MeasuredViewBottom {
   bottom: number;
   keyboardTop: number | null;
+  /**
+   * The keyboard covered the window when measured (`keyboardCoverHeight >
+   * 0`): a custom keyboard, or any keyboard where the window overlays it.
+   * Left out, the measurement counts under either.
+   */
+  covered?: boolean;
 }
 
 /**
- * The measured bottom of the view while it still holds, else null. A window
- * that resizes for the system keyboard (it covers nothing) moves the view
- * when the keyboard moves, so a bottom measured under another keyboard top
- * is stale until measured again: padding by it would squeeze the content
- * above to nothing for a frame, and Android takes focus from a view laid
- * out with no height. Where the keyboard covers the window the view stays.
+ * The measured bottom of the view while it still holds, else null. Where the
+ * keyboard covers the window the view stays, whichever keyboard is up. A
+ * window that resizes for the system keyboard (it covers nothing) moves the
+ * view when the keyboard moves, so a bottom measured under another keyboard
+ * top is stale until measured again. So is one measured while a keyboard
+ * covered the window, such as a custom keyboard handing over to a system
+ * keyboard that ends at the same top: the window shrinks under the view.
+ * Padding by a stale bottom would push the content above up by the
+ * keyboard's height for a frame, squeezing it to nothing, and Android takes
+ * focus from a view laid out with no height.
  */
 export const getCurrentViewBottom = (
   measured: MeasuredViewBottom | null,
   keyboardTop: number | null,
   keyboardCoverHeight: number
-): number | null =>
-  measured !== null &&
-  (keyboardCoverHeight > 0 || measured.keyboardTop === keyboardTop)
+): number | null => {
+  if (measured === null) return null;
+  if (keyboardCoverHeight > 0) {
+    return measured.covered === false ? null : measured.bottom;
+  }
+  return measured.covered !== true && measured.keyboardTop === keyboardTop
     ? measured.bottom
     : null;
+};
+
+/**
+ * How long a measurement that disagrees with how the window resizes must
+ * hold before it counts: the resized layout can land a few frames after the
+ * keyboard event.
+ */
+export const RESIZE_SETTLE_MS = 150;
+
+/** A measurement, and since when the measurements have agreed with it. */
+export interface PendingMeasurement {
+  measured: MeasuredViewBottom;
+  since: number;
+}
+
+/**
+ * Whether a new measurement applies. A window that overlays keyboards never
+ * moves the view, so all of them do. One that resizes for the system
+ * keyboard (Android `adjustResize`) shrinks as that keyboard shows, after
+ * Android reported it, and grows back as a custom keyboard takes its place:
+ * a view measured before the resized layout landed ends below the system
+ * keyboard's top, or above the custom keyboard's. Such a measurement counts
+ * only once the measurements agreed for `RESIZE_SETTLE_MS`, as where
+ * `adjustResize` does not take effect or the view ends above the keyboard.
+ */
+export const isSettledMeasurement = (
+  next: MeasuredViewBottom,
+  pending: PendingMeasurement | null,
+  now: number,
+  windowResizes: boolean
+): boolean => {
+  if (!windowResizes || next.keyboardTop === null) return true;
+  const reachesKeyboard = next.bottom > next.keyboardTop + 1;
+  if (reachesKeyboard === (next.covered ?? false)) return true;
+  return (
+    pending !== null &&
+    isSameMeasurement(next, pending.measured) &&
+    now - pending.since >= RESIZE_SETTLE_MS
+  );
+};
+
+export const isSameMeasurement = (
+  a: MeasuredViewBottom,
+  b: MeasuredViewBottom | null
+) =>
+  b !== null &&
+  a.keyboardTop === b.keyboardTop &&
+  a.covered === b.covered &&
+  Math.abs(a.bottom - b.bottom) < 1;
 
 /**
  * Pads its bottom by the part of it whichever keyboard covers, system or
@@ -96,12 +158,19 @@ export const EditorKeyboardAvoidingView = ({
   onLayout,
   ...props
 }: EditorKeyboardAvoidingViewProps) => {
-  const { keyboardTop, keyboardCoverHeight, inlineKeyboardHeight } =
-    useKeyboard();
+  const {
+    keyboardTop,
+    keyboardCoverHeight,
+    inlineKeyboardHeight,
+    windowOverlaysKeyboard,
+  } = useKeyboard();
   const ref = useRef<View>(null);
   const [measured, setMeasured] = useState<MeasuredViewBottom | null>(null);
+  // The last measurement, settled or not.
+  const lastMeasured = useRef<PendingMeasurement | null>(null);
   const [layoutVersion, setLayoutVersion] = useState(0);
   const active = enabled && keyboardTop !== null;
+  const covered = keyboardCoverHeight > 0;
 
   const handleLayout = useCallback(
     (event: LayoutChangeEvent) => {
@@ -113,18 +182,36 @@ export const EditorKeyboardAvoidingView = ({
   );
 
   useEffect(() => {
-    if (!active) return;
+    if (!active) {
+      // The window grows back as the keyboard hides, which can be measured
+      // before the hide is reported, under the old keyboard top: such a
+      // bottom would pad the next show of that keyboard.
+      lastMeasured.current = null;
+      setMeasured((previous) =>
+        previous?.covered === false ? null : previous
+      );
+      return;
+    }
     let cancelled = false;
     const measure = () =>
       ref.current?.measureInWindow((_x, y, _width, height) => {
         if (cancelled || !Number.isFinite(y) || height <= 0) return;
         const bottom = y + height;
+        const next = { bottom, keyboardTop, covered };
+        const now = Date.now();
+        const pending = lastMeasured.current;
+        const settled = isSettledMeasurement(
+          next,
+          pending,
+          now,
+          !windowOverlaysKeyboard
+        );
+        if (pending === null || !isSameMeasurement(next, pending.measured)) {
+          lastMeasured.current = { measured: next, since: now };
+        }
+        if (!settled) return;
         setMeasured((previous) =>
-          previous !== null &&
-          previous.keyboardTop === keyboardTop &&
-          Math.abs(previous.bottom - bottom) < 1
-            ? previous
-            : { bottom, keyboardTop }
+          isSameMeasurement(next, previous) ? previous : next
         );
       });
     measure();
@@ -134,7 +221,7 @@ export const EditorKeyboardAvoidingView = ({
       cancelled = true;
       timers.forEach((timer) => clearTimeout(timer));
     };
-  }, [active, keyboardTop, layoutVersion]);
+  }, [active, covered, keyboardTop, layoutVersion, windowOverlaysKeyboard]);
 
   const paddingBottom = enabled
     ? getKeyboardAvoidingPadding({
