@@ -1,6 +1,7 @@
 import { AutofocusExample } from './AutofocusExample';
 import { ContentApiExample } from './ContentApiExample';
 import { DynamicHeightExample } from './DynamicHeightExample';
+import { FocusKeyboardExample } from './FocusKeyboardExample';
 import { ReadinessExample } from './ReadinessExample';
 import { SmokeExample } from './SmokeExample';
 
@@ -14,4 +15,5 @@ export const reproExamples = [
   { name: 'Repro: Autofocus', component: AutofocusExample },
   { name: 'Repro: Dynamic height', component: DynamicHeightExample },
   { name: 'Repro: Content API', component: ContentApiExample },
+  { name: 'Repro: Focus keyboard', component: FocusKeyboardExample },
 ];

@@ -41,7 +41,8 @@ type Section = { title: string; examples: Example[] };
 
 const [keyboardColor, keyboardCustom, keyboardOverlay, keyboardModal] =
   keyboardExamples;
-const [smoke, readiness, autofocus, dynamicHeight, contentApi] = reproExamples;
+const [smoke, readiness, autofocus, dynamicHeight, contentApi, focusKeyboard] =
+  reproExamples;
 
 // The names are also the Maestro entry points (example/.maestro).
 const sections: Section[] = [
@@ -137,6 +138,11 @@ const sections: Section[] = [
       { ...readiness, description: 'A read-only editor without autofocus' },
       { ...autofocus, description: 'Autofocus opens the keyboard' },
       { ...contentApi, description: 'Content and selection APIs' },
+      {
+        ...focusKeyboard,
+        description:
+          'Android: the keyboard comes back when the editor is focused',
+      },
     ],
   },
 ];
