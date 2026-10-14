@@ -66,6 +66,7 @@ afterEach(() => {
 
 describe('advancedSetup template', () => {
   it('boots from the 1.1 boot script and runs the custom bridge', async () => {
+    const warn = vi.spyOn(console, 'warn');
     window.eval(buildBootScript(await bootConfig()));
     await import(TEMPLATE);
 
@@ -90,6 +91,10 @@ describe('advancedSetup template', () => {
     );
     const html = await waitFor(({ type }) => type === 'send-html-back');
     expect(html.payload).toMatchObject({ content: '<p>one two three</p>' });
+    // The documented extensions don't repeat what the bridges already add.
+    expect(warn).not.toHaveBeenCalledWith(
+      expect.stringContaining('Duplicate extension names')
+    );
   });
 
   it('boots from the globals a 1.0.1 native side injects', async () => {
