@@ -38,6 +38,8 @@ import { Toolbar } from '../Toolbar';
 import { useEditorBridge } from '../useEditorBridge';
 import * as utils from '../utils';
 import { REPLACEMENT_BACKOFF_MS } from '../rendererRecovery';
+import * as nativeModule from '../Keyboard/nativeModule';
+import { FOCUS_KEYBOARD_CHECK_MS } from '../useAndroidFocusKeyboard';
 import { keyboardAccessories } from '../keyboardAccessories';
 import {
   SNAPSHOT_DEBOUNCE_MS,
@@ -120,6 +122,26 @@ const layout = (webView: MockWebView, height: number) =>
       nativeEvent: { layout: { x: 0, y: 0, width: 320, height } },
     } as LayoutChangeEvent)
   );
+
+/** Links a fake TenTapKeyboard native module for the rest of the test. */
+const linkNativeKeyboard = ({
+  show,
+  visible = false,
+}: {
+  show: boolean;
+  visible?: boolean;
+}) => {
+  const native = {
+    setSystemKeyboardSuppressed: jest.fn(async () => true),
+    showSystemKeyboard: jest.fn(async () => show),
+    isSystemKeyboardVisible: jest.fn(async () => visible),
+    setWindowOverlayMode: jest.fn(async () => false),
+    getNavigationBarInset: jest.fn(async () => 0),
+    getStatusBarHeight: jest.fn(async () => 0),
+  };
+  jest.spyOn(nativeModule, 'getNativeKeyboardModule').mockReturnValue(native);
+  return native;
+};
 
 /** Runs timers in small steps, as separate events, so each replacement mounts. */
 const advanceInSteps = (total: number, step = 250) => {
@@ -738,6 +760,112 @@ describe('RichText styles', () => {
       act(() => jest.runAllTimers());
       expect(focusInput).not.toHaveBeenCalled();
       expect(focusCount()).toBe(1);
+    });
+
+    it('tries once, without repeating its own focus call', () => {
+      const { focusInput, focusCount } = autofocused();
+
+      act(() => jest.runAllTimers());
+      act(() => jest.runAllTimers());
+      expect(focusInput).toHaveBeenCalledTimes(1);
+      expect(focusCount()).toBe(2);
+    });
+
+    it('asks the native module first when it is linked', async () => {
+      const native = linkNativeKeyboard({ show: true });
+      const { focusInput } = autofocused();
+
+      await act(async () => {
+        jest.advanceTimersByTime(utils.AUTOFOCUS_KEYBOARD_CHECK_MS);
+      });
+      expect(native.showSystemKeyboard).toHaveBeenCalledTimes(1);
+      expect(focusInput).not.toHaveBeenCalled();
+    });
+
+    it('falls back to the hidden input when no WebView has focus', async () => {
+      linkNativeKeyboard({ show: false });
+      const { focusInput } = autofocused();
+
+      await act(async () => {
+        jest.advanceTimersByTime(utils.AUTOFOCUS_KEYBOARD_CHECK_MS);
+      });
+      expect(focusInput).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("Android IME after the app's editor.focus()", () => {
+    const focusedByApp = (native = linkNativeKeyboard({ show: true })) => {
+      setPlatform('android');
+      jest.useFakeTimers();
+      const { result } = createEditor();
+      const editor = result.current;
+      render(<RichText editor={editor} />);
+      const webView = mockWebViews.latest();
+      load(webView);
+      ready(webView, editor);
+      act(() => editor.focus());
+      return { editor, native };
+    };
+
+    const check = () =>
+      act(async () => {
+        jest.advanceTimersByTime(FOCUS_KEYBOARD_CHECK_MS);
+      });
+
+    it('shows the IME that another input hid while unmounting', async () => {
+      const { native } = focusedByApp();
+      await check();
+      expect(native.isSystemKeyboardVisible).toHaveBeenCalled();
+      expect(native.showSystemKeyboard).toHaveBeenCalledTimes(1);
+    });
+
+    it('leaves an IME that is up', async () => {
+      mockKeyboard = keyboardUp(300, false);
+      const { native } = focusedByApp();
+      await check();
+      expect(native.showSystemKeyboard).not.toHaveBeenCalled();
+    });
+
+    it('leaves an IME the platform reports as showing', async () => {
+      const { native } = focusedByApp(
+        linkNativeKeyboard({ show: true, visible: true })
+      );
+      await check();
+      expect(native.showSystemKeyboard).not.toHaveBeenCalled();
+    });
+
+    it('leaves the IME to another focused input', async () => {
+      const { native } = focusedByApp();
+      jest
+        .spyOn(TextInput.State, 'currentlyFocusedInput')
+        .mockReturnValue({} as never);
+      await check();
+      expect(native.showSystemKeyboard).not.toHaveBeenCalled();
+    });
+
+    it('does nothing once the editor lost focus again', async () => {
+      const { editor, native } = focusedByApp();
+      act(() =>
+        controllerOf(editor).setState({
+          ...editor.getEditorState(),
+          isFocused: false,
+        })
+      );
+      await check();
+      expect(native.showSystemKeyboard).not.toHaveBeenCalled();
+    });
+
+    it('does nothing on iOS', async () => {
+      const native = linkNativeKeyboard({ show: true });
+      jest.useFakeTimers();
+      const { result } = createEditor();
+      render(<RichText editor={result.current} />);
+      const webView = mockWebViews.latest();
+      load(webView);
+      ready(webView, result.current);
+      act(() => result.current.focus());
+      await check();
+      expect(native.isSystemKeyboardVisible).not.toHaveBeenCalled();
     });
   });
 

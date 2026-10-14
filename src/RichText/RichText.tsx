@@ -34,13 +34,12 @@ import { useEditorOptions } from './editorOptions';
 import { useContentSnapshot } from './useContentSnapshot';
 import { useKeyboardCover } from './useKeyboardCover';
 import { HiddenFocusInput } from './HiddenFocusInput';
+import { useAndroidFocusKeyboard } from './useAndroidFocusKeyboard';
 import {
   createRendererRecovery,
   type RendererRecovery,
 } from './rendererRecovery';
-import { REFOCUS_DELAY_MS } from './Keyboard/drivers';
 import {
-  AUTOFOCUS_KEYBOARD_CHECK_MS,
   buildBottomPaddingScript,
   getBootConfig,
   getInjectedJS,
@@ -209,52 +208,6 @@ const createForwardingWebView = () => {
   return { handle, setTarget };
 };
 
-/**
- * Android autofocus shows the IME through a hidden autoFocus TextInput. That
- * request is lost when its window has no focus yet (a Modal) or when the
- * previous screen's editor hides the IME while unmounting, so once the
- * editor autofocused, an IME that is still down is shown again the same way.
- */
-const useAndroidAutofocusKeyboard = (
-  editor: EditorBridge,
-  controller: EditorController,
-  hiddenInput: React.RefObject<TextInput | null>,
-  isKeyboardUp: boolean
-) => {
-  const enabled = Platform.OS === 'android' && editor.autofocus;
-  const keyboardUp = useRef(isKeyboardUp);
-  useLayoutEffect(() => {
-    keyboardUp.current = isKeyboardUp;
-  });
-  useEffect(() => {
-    if (!enabled) return;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const showKeyboard = () => {
-      const input = hiddenInput.current;
-      const focusedInput = TextInput.State.currentlyFocusedInput();
-      if (
-        !input ||
-        keyboardUp.current ||
-        (focusedInput !== null && focusedInput !== input)
-      ) {
-        return;
-      }
-      // Focusing an input that already has focus does not show the IME.
-      if (focusedInput === input) input.blur();
-      input.focus();
-      timer = setTimeout(() => editor.focus?.(), REFOCUS_DELAY_MS);
-    };
-    const unsubscribe = controller.subscribeReady((ready) => {
-      clearTimeout(timer);
-      if (ready) timer = setTimeout(showKeyboard, AUTOFOCUS_KEYBOARD_CHECK_MS);
-    });
-    return () => {
-      unsubscribe();
-      clearTimeout(timer);
-    };
-  }, [controller, editor, enabled, hiddenInput]);
-};
-
 let warnedAboutExclusiveOnMessage = false;
 
 export const RichText = ({
@@ -417,7 +370,7 @@ export const RichText = ({
     keyboardCoverHeight,
     keyboardTop,
   } = useKeyboard();
-  useAndroidAutofocusKeyboard(editor, controller, autofocusInput, isKeyboardUp);
+  useAndroidFocusKeyboard(editor, controller, autofocusInput, isKeyboardUp);
   const cover = useKeyboardCover(
     controller,
     Platform.OS !== 'web' && !dynamicHeight,
