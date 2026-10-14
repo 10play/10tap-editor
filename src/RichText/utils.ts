@@ -12,6 +12,7 @@ import {
   type EditorController,
 } from '../shared/contracts';
 import type { EditorBridge } from '../types';
+import { getWebViewVersion } from './webViewVersion';
 
 /**
  * Script that creates or updates `<style data-tag={styleSheetTag}>` with
@@ -81,21 +82,7 @@ export const getInjectedJSBeforeContentLoad = (editor: EditorBridge) =>
 export const requiresIosRemount = (version: string | undefined): boolean =>
   /^13\.12\.[34](?!\d)/.test(version ?? '');
 
-let webViewVersion: string | null | undefined;
-
-/** The installed react-native-webview version, if its package.json resolves. */
-export const getWebViewVersion = (): string | undefined => {
-  if (webViewVersion === undefined) {
-    try {
-      const pkg: unknown = require('react-native-webview/package.json');
-      const { version } = (pkg ?? {}) as { version?: unknown };
-      webViewVersion = typeof version === 'string' ? version : null;
-    } catch {
-      webViewVersion = null;
-    }
-  }
-  return webViewVersion ?? undefined;
-};
+export { getWebViewVersion };
 
 export const shouldRemountOnFirstLoad = (): boolean =>
   Platform.OS === 'ios' && requiresIosRemount(getWebViewVersion());
