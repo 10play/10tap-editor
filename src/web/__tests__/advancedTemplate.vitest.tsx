@@ -72,7 +72,11 @@ describe('advancedSetup template', () => {
     const ready = await waitFor(({ type }) => type === 'editor-ready');
     expect(ready.editorId).toBe(EDITOR_ID);
     const state = await waitFor(({ type }) => type === 'stateUpdate');
-    expect(state.payload).toMatchObject({ isReady: true, wordCount: 13 });
+    expect(state.payload).toMatchObject({
+      isReady: true,
+      wordCount: 3,
+      characterCount: 13,
+    });
 
     window.dispatchEvent(
       new MessageEvent('message', {
