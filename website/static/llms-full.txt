@@ -902,7 +902,7 @@ Source: https://10play.github.io/10tap-editor/docs/migrations/v1.1
 - The Android package is still `com.tentap.TenTapViewPackage`, now written in Java. The library no longer applies the Kotlin Gradle plugin, which conflicted with AGP 9's built-in Kotlin support.
 - `package.json` declares a `codegenConfig` again (`RNTenTapSpec`, a native module). If a build fails on stale codegen output after upgrading, clean the build folders (`ios/build`, `android/app/build`) and rebuild.
 - `@tiptap/react` and `react-dom` are still dependencies, so a 1.0 advanced setup that imports `EditorContent` from `@tiptap/react` keeps building. Importing it from `@10play/tentap-editor` instead is recommended ([Sharing tiptap](https://10play.github.io/10tap-editor/docs/setup/advancedSetup#sharing-tiptap-with-10playtentap-editorweb)).
-- The `react-dom` dependency accepts React 18 or 19 (`^18.2.0 || ^19.0.0`) instead of only 18, so it can share your app's `react-dom` instead of installing a second copy. If your app targets the web or builds a custom editor bundle, keep a `react-dom` that matches your `react` in your own `package.json`.
+- The `react-dom` dependency range is unchanged (`^18.2.0`), so installing 1.1 resolves the same packages as 1.0.1. In a React 19 app your package manager keeps a nested `react-dom` 18 under `@10play/tentap-editor`, as it did with 1.0.1. The native bundle never includes it. If your app targets the web or builds a custom editor bundle, keep a `react-dom` that matches your `react` in your own `package.json`; Vite with `@vitejs/plugin-react` then bundles only your copy.
 
 ## Optional: the new keyboard layout
 

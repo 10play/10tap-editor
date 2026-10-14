@@ -129,6 +129,12 @@ describe('root entry compatibility with 1.0.1', () => {
     });
     expect(packageJson).not.toHaveProperty('peerDependenciesMeta');
   });
+
+  it('keeps the 1.0.1 react-dom range so installs resolve the same packages', () => {
+    // A wider range makes yarn v1 and npm nest the newest react-dom (and print
+    // peer warnings) in apps that pin their own react-dom.
+    expect(packageJson.dependencies['react-dom']).toBe('^18.2.0');
+  });
 });
 
 describe('root entry compatibility with the 0.7.x keyboard API', () => {
