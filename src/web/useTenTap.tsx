@@ -20,6 +20,7 @@ import {
   revealSelectionOnViewportShrink,
 } from './revealSelection';
 import { boot, type WebRuntime } from './runtime';
+import { holdScrollOnKeyboardClose } from './scrollHold';
 import { createStatePublisher, type StatePublisher } from './statePublisher';
 import {
   DYNAMIC_HEIGHT_CSS,
@@ -219,6 +220,7 @@ export const useTenTap = (options?: UseTenTapArgs): Editor | null => {
     document.addEventListener('blur', onFocusChange, true);
     const stopRevealingOnLoad = revealSelectionOnImageLoad(editor.view);
     const stopRevealingOnShrink = revealSelectionOnViewportShrink(editor.view);
+    const stopHoldingScroll = holdScrollOnKeyboardClose(editor.view);
     const stopKeepingSelection = keepSelectionThroughCollapse(editor.view);
     const stopKeepingMarks = keepStoredMarksOffRecomposition(editor.view);
     return () => {
@@ -226,6 +228,7 @@ export const useTenTap = (options?: UseTenTapArgs): Editor | null => {
       document.removeEventListener('blur', onFocusChange, true);
       stopRevealingOnLoad();
       stopRevealingOnShrink();
+      stopHoldingScroll();
       stopKeepingSelection();
       stopKeepingMarks();
     };
