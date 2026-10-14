@@ -47,9 +47,11 @@ export interface ToolbarProps {
 
 export const toolbarStyles = StyleSheet.create({});
 
-// Android hides the IME if the focused link input unmounts before the editor
-// has taken focus back.
-const ANDROID_LINK_CLOSE_DELAY_MS = 100;
+// Android: React Native blurs a TextInput that unmounts while it still counts
+// as focused, which hides the IME the editor just took over. So after Insert
+// the link bar closes once the link input reported its blur (the editor took
+// the focus), or after this long if it never does.
+export const ANDROID_LINK_CLOSE_TIMEOUT_MS = 1000;
 
 // A tap on Insert can dismiss the keyboard just before it presses, so the
 // link bar closes only once the keyboard has stayed down a moment (#252).
@@ -74,6 +76,8 @@ export function Toolbar({
   const closeLinkTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined
   );
+  // Android: Insert was pressed; close when the link input blurs.
+  const closeLinkOnBlur = useRef(false);
 
   useEffect(() => () => clearTimeout(closeLinkTimer.current), []);
 
@@ -134,6 +138,7 @@ export function Toolbar({
 
   const closeLinkBar = () => {
     clearTimeout(closeLinkTimer.current);
+    closeLinkOnBlur.current = false;
     setToolbarContext(ToolbarContext.Main);
   };
 
@@ -157,11 +162,15 @@ export function Toolbar({
           editor.setSelection(from, to);
           editor.setLink(link);
           editor.focus();
+          closeLinkOnBlur.current = true;
           clearTimeout(closeLinkTimer.current);
           closeLinkTimer.current = setTimeout(
             closeLinkBar,
-            ANDROID_LINK_CLOSE_DELAY_MS
+            ANDROID_LINK_CLOSE_TIMEOUT_MS
           );
+        }}
+        onBlur={() => {
+          if (closeLinkOnBlur.current) closeLinkBar();
         }}
       />
     );

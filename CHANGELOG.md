@@ -52,6 +52,7 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 - Dynamic height ignored outside a `ScrollView`, could not shrink, looped on iOS 26, jumped to the top on new lines, and didn't apply on Expo web (#342, #336, #323, #289, #205).
 - Android: autofocus didn't open the keyboard on the new architecture (#321).
 - Android: `editor.focus()` didn't bring up the keyboard after another `TextInput` had it, for example a search field that unmounts as the editor is focused, and autofocus didn't open it when the device was not in touch mode (after a D-pad or hardware key press). Once the editor is focused, a keyboard that is still down is shown.
+- Android: inserting a link from the toolbar's link bar closed the keyboard. It now stays up with the caret in the editor.
 - Multiple editors on Expo web received each other's messages, in their state and in a custom `onMessage` (#318).
 - On web, the toolbar overflowed narrow windows in one row and scrolled the whole page; it now scrolls its own row. The link bar no longer grows down a column to half the screen, and toolbar buttons no longer take the focus from the editor, so typing continues after the heading buttons.
 - On web, a `CustomKeyboard` opened from a toolbar button closed again at once, because the click blurred the editor.

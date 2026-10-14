@@ -26,7 +26,10 @@ import {
   ToolbarContext,
   type ToolbarItem,
 } from '..';
-import { LINK_BAR_KEYBOARD_CLOSE_DELAY_MS } from '../Toolbar';
+import {
+  ANDROID_LINK_CLOSE_TIMEOUT_MS,
+  LINK_BAR_KEYBOARD_CLOSE_DELAY_MS,
+} from '../Toolbar';
 import { createMockEditor, type MockEditor } from './mockEditor';
 
 jest.mock('../../../utils/useKeyboard', () => ({
@@ -568,10 +571,35 @@ describe('link bar (#252)', () => {
       fireEvent.changeText(linkInput(), 'https://10play.dev');
       fireEvent.press(screen.getByText('Insert'));
       expect(editor.setLink).toHaveBeenCalledWith('https://10play.dev');
+      expect(editor.focus).toHaveBeenCalled();
+      // The input still counts as focused: unmounting it now would blur it
+      // natively and hide the IME the editor took over.
+      act(() => jest.advanceTimersByTime(500));
       expect(screen.getByText('Insert')).toBeTruthy();
 
-      act(() => jest.advanceTimersByTime(100));
+      fireEvent(linkInput(), 'blur');
       expect(screen.queryByText('Insert')).toBeNull();
+    });
+
+    it('closes after a timeout when the link input never blurs', () => {
+      const editor = createMockEditor();
+      openLinkBar(editor);
+      act(() => jest.runOnlyPendingTimers());
+      fireEvent.changeText(linkInput(), 'https://10play.dev');
+      fireEvent.press(screen.getByText('Insert'));
+
+      act(() => jest.advanceTimersByTime(ANDROID_LINK_CLOSE_TIMEOUT_MS - 1));
+      expect(screen.getByText('Insert')).toBeTruthy();
+      act(() => jest.advanceTimersByTime(1));
+      expect(screen.queryByText('Insert')).toBeNull();
+    });
+
+    it('stays open when the link input blurs before Insert', () => {
+      const editor = createMockEditor();
+      openLinkBar(editor);
+      act(() => jest.runOnlyPendingTimers());
+      fireEvent(linkInput(), 'blur');
+      expect(screen.getByText('Insert')).toBeTruthy();
     });
 
     it('applies the link to the selection held when the bar opened', () => {
@@ -631,7 +659,7 @@ describe('link bar (#252)', () => {
       const clearTimeoutSpy = jest.spyOn(global, 'clearTimeout');
       fireEvent.press(screen.getByText('Insert'));
       const closeCall = setTimeoutSpy.mock.calls.findIndex(
-        ([, delay]) => delay === 100
+        ([, delay]) => delay === ANDROID_LINK_CLOSE_TIMEOUT_MS
       );
       const closeTimer = setTimeoutSpy.mock.results[closeCall]?.value;
 
