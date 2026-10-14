@@ -90,10 +90,10 @@ export const shouldRemountOnFirstLoad = (): boolean =>
 /** How long Android autofocus may take to bring up the IME before it is retried. */
 export const AUTOFOCUS_KEYBOARD_CHECK_MS = 1000;
 
-/** How long the first WebView that replaces a crashed renderer may take to become ready. */
-export const REPLACEMENT_READY_TIMEOUT_MS = 5000;
-/** Replacements in a row that may time out before the editor stops retrying. */
-export const MAX_UNREADY_REPLACEMENTS = 3;
+export {
+  MAX_UNREADY_REPLACEMENTS,
+  REPLACEMENT_READY_TIMEOUT_MS,
+} from './rendererRecovery';
 
 /** 1.0 bottom padding while the keyboard is up and the window resizes for it. */
 export const TOOLBAR_HEIGHT = 44;

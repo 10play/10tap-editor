@@ -1,5 +1,6 @@
 import React, { StrictMode, Suspense, use } from 'react';
 import {
+  AppState,
   FlatList,
   Platform,
   StyleSheet,
@@ -36,6 +37,7 @@ import { darkEditorTheme, defaultEditorTheme } from '../theme';
 import { Toolbar } from '../Toolbar';
 import { useEditorBridge } from '../useEditorBridge';
 import * as utils from '../utils';
+import { REPLACEMENT_BACKOFF_MS } from '../rendererRecovery';
 import { keyboardAccessories } from '../keyboardAccessories';
 import {
   SNAPSHOT_DEBOUNCE_MS,
@@ -118,6 +120,21 @@ const layout = (webView: MockWebView, height: number) =>
       nativeEvent: { layout: { x: 0, y: 0, width: 320, height } },
     } as LayoutChangeEvent)
   );
+
+/** Runs timers in small steps, as separate events, so each replacement mounts. */
+const advanceInSteps = (total: number, step = 250) => {
+  for (let elapsed = 0; elapsed < total; elapsed += step) {
+    act(() => jest.advanceTimersByTime(step));
+  }
+};
+
+/** The latest `AppState` change listener RichText registered. */
+const appStateListener = () => {
+  const calls = jest.mocked(AppState.addEventListener).mock.calls;
+  const listener = calls[calls.length - 1]?.[1];
+  if (!listener) throw new Error('no AppState listener');
+  return listener as (state: string) => void;
+};
 
 const setPlatform = (os: typeof Platform.OS) =>
   jest.replaceProperty(Platform, 'OS', os);
@@ -1079,7 +1096,9 @@ describe('RichText lifecycle', () => {
 
     act(() => first.simulateContentProcessDidTerminate());
     const second = mockWebViews.latest();
-    act(() => jest.advanceTimersByTime(utils.REPLACEMENT_READY_TIMEOUT_MS - 1));
+    act(() => jest.advanceTimersByTime(utils.REPLACEMENT_READY_TIMEOUT_MS));
+    // The next one waits out a backoff first.
+    act(() => jest.advanceTimersByTime(REPLACEMENT_BACKOFF_MS - 1));
     expect(mockWebViews.latest()).toBe(second);
     act(() => jest.advanceTimersByTime(1));
     const third = mockWebViews.latest();
@@ -1106,16 +1125,36 @@ describe('RichText lifecycle', () => {
     load(first);
     ready(first, editor);
 
-    act(() => first.simulateContentProcessDidTerminate());
     const mounted = mockWebViews.instances.length;
-    for (let attempt = 0; attempt < 10; attempt += 1) {
-      act(() =>
-        jest.advanceTimersByTime(utils.REPLACEMENT_READY_TIMEOUT_MS * 10)
-      );
-    }
+    act(() => first.simulateContentProcessDidTerminate());
+    advanceInSteps(utils.REPLACEMENT_READY_TIMEOUT_MS * 40);
     expect(mockWebViews.instances).toHaveLength(
       mounted + utils.MAX_UNREADY_REPLACEMENTS
     );
+  });
+
+  it('replaces the WebView again when the app returns to the foreground', () => {
+    jest.useFakeTimers();
+    const { result } = createEditor();
+    const editor = result.current;
+    render(<RichText editor={editor} />);
+    const first = mockWebViews.latest();
+    load(first);
+    ready(first, editor);
+
+    act(() => first.simulateContentProcessDidTerminate());
+    advanceInSteps(utils.REPLACEMENT_READY_TIMEOUT_MS * 40);
+    const givenUp = mockWebViews.latest();
+    const mounted = mockWebViews.instances.length;
+
+    act(() => appStateListener()('background'));
+    expect(mockWebViews.instances).toHaveLength(mounted);
+    act(() => appStateListener()('active'));
+    const revived = mockWebViews.latest();
+    expect(revived).not.toBe(givenUp);
+    load(revived);
+    ready(revived, editor);
+    expect(editor.getEditorState().isReady).toBe(true);
   });
 
   it('does not replace a first WebView that is slow to load', () => {

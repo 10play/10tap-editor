@@ -7,7 +7,7 @@ import React, {
   useState,
   useSyncExternalStore,
 } from 'react';
-import { Platform, TextInput } from 'react-native';
+import { AppState, Platform, TextInput } from 'react-native';
 import {
   WebView,
   type WebViewMessageEvent,
@@ -34,6 +34,10 @@ import { useEditorOptions } from './editorOptions';
 import { useContentSnapshot } from './useContentSnapshot';
 import { useKeyboardCover } from './useKeyboardCover';
 import { HiddenFocusInput } from './HiddenFocusInput';
+import {
+  createRendererRecovery,
+  type RendererRecovery,
+} from './rendererRecovery';
 import { REFOCUS_DELAY_MS } from './Keyboard/drivers';
 import {
   AUTOFOCUS_KEYBOARD_CHECK_MS,
@@ -42,8 +46,6 @@ import {
   getInjectedJS,
   getKeyboardInsets,
   getWebViewStyles,
-  MAX_UNREADY_REPLACEMENTS,
-  REPLACEMENT_READY_TIMEOUT_MS,
   shouldRemountOnFirstLoad,
   type KeyboardInsets,
 } from './utils';
@@ -293,30 +295,27 @@ export const RichText = ({
     setRendererLosses((count) => count + 1);
   }, [controller]);
 
-  // Right after a crash the replacement's renderer can fail to launch
-  // without any further event (iOS), so a replacement that does not become
-  // ready in time is replaced again, waiting longer each time.
-  const unreadyReplacements = useRef(0);
+  // Replaces a lost renderer, retrying with a backoff and, after giving up,
+  // when the app returns to the foreground.
+  const recovery = useRef<RendererRecovery | null>(null);
   useEffect(() => {
-    if (rendererLosses === 0 || controller.isReady()) return;
-    const timer = setTimeout(
-      () => {
-        if (unreadyReplacements.current >= MAX_UNREADY_REPLACEMENTS) return;
-        unreadyReplacements.current += 1;
-        replaceWebView();
-      },
-      REPLACEMENT_READY_TIMEOUT_MS * (unreadyReplacements.current + 1)
-    );
-    const unsubscribe = controller.subscribeReady((ready) => {
-      if (!ready) return;
-      clearTimeout(timer);
-      unreadyReplacements.current = 0;
+    const created = createRendererRecovery({
+      replace: replaceWebView,
+      isReady: () => controller.isReady(),
+      subscribeReady: (listener) => controller.subscribeReady(listener),
+    });
+    recovery.current = created;
+    let appState = AppState.currentState;
+    const subscription = AppState.addEventListener('change', (next) => {
+      if (next === 'active' && appState !== 'active') created.onForeground();
+      appState = next;
     });
     return () => {
-      clearTimeout(timer);
-      unsubscribe();
+      subscription.remove();
+      created.dispose();
+      if (recovery.current === created) recovery.current = null;
     };
-  }, [controller, rendererLosses, replaceWebView]);
+  }, [controller, replaceWebView]);
 
   const webViewKey = [
     page.id,
@@ -575,11 +574,11 @@ export const RichText = ({
           props.onLayout?.(event);
         }}
         onRenderProcessGone={(event) => {
-          replaceWebView();
+          recovery.current?.onRendererLost();
           props.onRenderProcessGone?.(event);
         }}
         onContentProcessDidTerminate={(event) => {
-          replaceWebView();
+          recovery.current?.onRendererLost();
           props.onContentProcessDidTerminate?.(event);
         }}
       />
