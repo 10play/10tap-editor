@@ -79,3 +79,34 @@ test.describe('web toolbar', () => {
     );
   });
 });
+
+test('a toolbar item opens the color keyboard and it stays open', async ({
+  page,
+}) => {
+  await page.goto('/?scenario=color-keyboard');
+  await expect(page.getByTestId('color-state')).toContainText('ready:true');
+  const editor = editorIn(page, 'color-editor');
+
+  await editor.click();
+  await page.keyboard.press('ControlOrMeta+a');
+  await button(page, 'Color keyboard').click();
+
+  const keyboard = page.getByTestId('tentap-custom-keyboard');
+  await expect(keyboard).toBeVisible();
+  await expect(page.getByTestId('active-keyboard')).toHaveText(
+    'active:keyboard.color'
+  );
+  // A blur that arrives after the open must not close it again.
+  await page.waitForTimeout(500);
+  await expect(keyboard).toBeVisible();
+  // Nor does a click inside the keyboard, which moves focus out of the editor.
+  await keyboard.getByText('Highlight').click();
+  await expect(page.getByTestId('color-state')).toContainText('focused:false');
+  await page.waitForTimeout(300);
+  await expect(keyboard).toBeVisible();
+
+  // Pressing the item again closes it.
+  await button(page, 'Color keyboard').click();
+  await expect(keyboard).toHaveCount(0);
+  await expect(page.getByTestId('active-keyboard')).toHaveText('active:-');
+});

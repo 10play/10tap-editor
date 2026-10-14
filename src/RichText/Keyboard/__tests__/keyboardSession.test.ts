@@ -871,6 +871,23 @@ describe('close triggers', () => {
     });
   });
 
+  it('web: an editor blur keeps the keyboard open', async () => {
+    // Clicking the toolbar item that opened it blurs the editor iframe.
+    const t = setup({ platform: 'web', systemKeyboard: 0 });
+    t.session.open('kb');
+    await flush();
+    t.setFocused(false);
+    jest.advanceTimersByTime(ANDROID_BLUR_GRACE_MS);
+    await flush();
+    expect(t.view()).toMatchObject({ phase: 'open', activeKeyboardID: 'kb' });
+    expect(t.options.onActiveKeyboardChange).toHaveBeenLastCalledWith('kb');
+
+    // The app's focus call still closes it.
+    t.editor.focus();
+    await flush();
+    expect(t.view().phase).toBe('closed');
+  });
+
   it('an Android blur the editor recovers from keeps the keyboard open', async () => {
     const t = setup({ platform: 'android', systemKeyboard: 280 });
     await openFully(t);

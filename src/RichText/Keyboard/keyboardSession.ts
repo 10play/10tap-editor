@@ -787,7 +787,11 @@ export function createKeyboardSession(
       unsubscribes = [
         store.subscribeEvents(onSystemEvent),
         channel.onFocusChange((focused) => {
-          if (focused || phase !== 'open') return;
+          // Web: the keyboard is a panel with no system keyboard to hand
+          // back to, and a click on the toolbar or the keyboard itself moves
+          // the page's focus out of the editor iframe. That blur must not
+          // close it; editor presses and app focus calls still do.
+          if (focused || phase !== 'open' || inlineDriver) return;
           if (isIOS || !nativeDriver || deps.forceFallback) {
             dismiss(true);
             return;

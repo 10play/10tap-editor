@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import {
+  ColorKeyboard,
+  CustomKeyboard,
+  DEFAULT_TOOLBAR_ITEMS,
+  Images,
   RichText,
   Toolbar,
   useBridgeState,
@@ -127,8 +131,51 @@ const ToolbarScenario = () => {
   );
 };
 
+/** The docs' ColorKeyboard example: a toolbar item opens the keyboard. */
+const ColorKeyboardScenario = () => {
+  const editor = useEditorBridge({
+    initialContent: '<p>Pick a color</p>',
+  });
+  const [activeKeyboard, setActiveKeyboard] = useState<string>();
+  return (
+    <View style={styles.column}>
+      <EditorState editor={editor} testID="color-state" />
+      <Text testID="active-keyboard">{`active:${activeKeyboard ?? '-'}`}</Text>
+      <View style={styles.editor} testID="color-editor">
+        <RichText editor={editor} />
+      </View>
+      <View style={styles.toolbarRow}>
+        <Toolbar
+          editor={editor}
+          items={[
+            {
+              onPress: () => () => {
+                const isActive = activeKeyboard === ColorKeyboard.id;
+                if (isActive) editor.focus();
+                setActiveKeyboard(isActive ? undefined : ColorKeyboard.id);
+              },
+              active: () => activeKeyboard === ColorKeyboard.id,
+              disabled: () => false,
+              image: () => Images.palette,
+              label: 'Color keyboard',
+            },
+            ...DEFAULT_TOOLBAR_ITEMS,
+          ]}
+        />
+      </View>
+      <CustomKeyboard
+        editor={editor}
+        keyboards={[ColorKeyboard]}
+        activeKeyboardID={activeKeyboard}
+        setActiveKeyboardID={setActiveKeyboard}
+      />
+    </View>
+  );
+};
+
 const scenarios = {
   'toolbar': ToolbarScenario,
+  'color-keyboard': ColorKeyboardScenario,
   'two-editors': TwoEditors,
   'dynamic-height': DynamicHeight,
   'capped-dynamic-height': CappedDynamicHeight,
@@ -153,6 +200,9 @@ const styles = StyleSheet.create({
   },
   column: {
     flex: 1,
+  },
+  toolbarRow: {
+    flexDirection: 'row',
   },
   panel: {
     flex: 1,
