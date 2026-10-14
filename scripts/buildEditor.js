@@ -12,6 +12,21 @@ const createModule = (html) =>
 
 const declaration = 'export declare const editorHtml: string;\n';
 
+// 0.x wrote editorHtml.ts. Bundlers resolve .ts before .js, so a leftover
+// one would be imported instead of the module just built.
+const warnAboutStaleModules = (outputPath) => {
+  const { dir, name, ext: outputExt } = path.parse(outputPath);
+  for (const ext of ['.ts', '.tsx']) {
+    const stale = path.join(dir, name + ext);
+    if (ext !== outputExt && fs.existsSync(stale)) {
+      console.warn(
+        `Warning: ${stale} is left over from an older build and is imported ` +
+          `instead of ${name}${outputExt}. Delete it.`
+      );
+    }
+  }
+};
+
 const build = () => {
   const htmlPath = process.argv[2];
   if (!htmlPath) {
@@ -26,6 +41,7 @@ const build = () => {
   fs.writeFileSync(outputPath, createModule(html));
   fs.writeFileSync(declarationPath, declaration);
   console.log(`Built editor: ${outputPath}`);
+  warnAboutStaleModules(outputPath);
 };
 
 try {

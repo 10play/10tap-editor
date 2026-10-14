@@ -232,7 +232,7 @@ Add scripts on package.json so it will be easy to run/build editor-web:
 
 `editor:dev` - Run the editor web in dev mode  
 `editor:build` - Build the editor web, probably need to add to your deploy/build process  
-`editor:post-build` - This will take your built html file, and paste into a a ts and exports a string `editorHtml`  
+`editor:post-build` - This will take your built html file and write `editorHtml.js` (with `editorHtml.d.ts`), which exports it as the string `editorHtml`  
  which we can then later use as the source of our RichText.  
 `reverse-android` - On android need to reverse ports so it will be able to work with DEV / DEV_SERVER_URL props
 

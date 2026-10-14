@@ -655,7 +655,7 @@ Add scripts on package.json so it will be easy to run/build editor-web:
 
 `editor:dev` - Run the editor web in dev mode  
 `editor:build` - Build the editor web, probably need to add to your deploy/build process  
-`editor:post-build` - This will take your built html file, and paste into a a ts and exports a string `editorHtml`  
+`editor:post-build` - This will take your built html file and write `editorHtml.js` (with `editorHtml.d.ts`), which exports it as the string `editorHtml`  
  which we can then later use as the source of our RichText.  
 `reverse-android` - On android need to reverse ports so it will be able to work with DEV / DEV_SERVER_URL props
 
@@ -886,6 +886,7 @@ Source: https://10play.github.io/10tap-editor/docs/migrations/v1.1
    - Android: a new Gradle build
    - Expo: `npx expo prebuild`, or rebuild your dev client. Expo Go keeps working without a rebuild.
 3. If you use the [advanced setup](https://10play.github.io/10tap-editor/docs/setup/advancedSetup), rebuild your editor bundle and follow [Upgrading your editor-web](https://10play.github.io/10tap-editor/docs/setup/advancedSetup#upgrading-your-editor-web).
+   - Coming from 0.x, delete the old `editorHtml.ts` from your build folder (for example `editor-web/build/editorHtml.ts`). Since 1.0, `buildEditor.js` writes `editorHtml.js` and `editorHtml.d.ts` instead, and a Vite config with `emptyOutDir: false` keeps the old file. Metro resolves `.ts` before `.js`, so `import { editorHtml } from './editor-web/build/editorHtml'` would keep loading the 0.x bundle. `editor:build` prints a warning while such a file exists.
 4. Coming from 0.7.x, also follow the [1.0 migration guide](https://10play.github.io/10tap-editor/docs/migrations/v1.0). In particular, TipTap v3 renamed History to UndoRedo, so `HistoryBridge` is named `undoRedo`; code that looks bridges up by `'history'` must use `'undoRedo'`. 1.1 also sends the bridge's config under `history`, so a custom editor bundle built with 0.7.x still receives it.
 
 ## Requirements

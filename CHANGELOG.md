@@ -99,6 +99,7 @@ A rewrite of the editor core with a backwards-compatible public API, fixes for e
 - Added the `@tiptap/extension-paragraph` and `@tiptap/extension-text` dependencies. All 1.0 dependencies are still installed, including `@tiptap/react` and `react-dom`, so a 1.0 advanced setup that imports `EditorContent` from `@tiptap/react` still builds. The `react-dom` range is still `^18.2.0`, as in 1.0.1, so installs resolve the same way they did with 1.0.1. A React 19 app gets a nested `react-dom` 18 under the library, as before; it is never part of the native bundle. Apps that target the web, or build a custom editor bundle, should keep a `react-dom` that matches their `react` in their own `package.json`.
 - `@10play/tentap-editor/web` can be loaded with `require`.
 - The package ships only `scripts/buildEditor.js` from `scripts/`.
+- `scripts/buildEditor.js` warns when an `editorHtml.ts` left over from a 0.x build sits next to its output, because it would be imported instead of the new `editorHtml.js`.
 - The repository's example apps are now `example/` (bare React Native 0.81, built and tested on both architectures) and `example-expo/` (Expo SDK 57 with a development build). They replace `examplelatest/` and `exampleoldarch/`.
 
 ### Credits

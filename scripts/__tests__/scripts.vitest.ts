@@ -50,6 +50,22 @@ describe('buildEditor', () => {
     fs.rmSync(dir, { recursive: true });
   });
 
+  it('warns about a stale 0.x editorHtml.ts next to the output', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tentap-build-editor-'));
+    const htmlPath = path.join(dir, 'index.html');
+    fs.writeFileSync(htmlPath, '<html></html>');
+    fs.writeFileSync(path.join(dir, 'editorHtml.ts'), 'export {};');
+
+    const result = runScript('buildEditor.js', [htmlPath]);
+
+    expect(result.status).toBe(0);
+    expect(result.stderr).toContain(
+      `${path.join(dir, 'editorHtml.ts')} is left over from an older build`
+    );
+    expect(fs.existsSync(path.join(dir, 'editorHtml.ts'))).toBe(true);
+    fs.rmSync(dir, { recursive: true });
+  });
+
   it('exits with an error for a missing html file', () => {
     const result = runScript('buildEditor.js', ['does/not/exist.html']);
     expect(result.status).toBe(1);
