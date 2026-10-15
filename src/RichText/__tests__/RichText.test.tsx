@@ -988,6 +988,69 @@ describe('RichText keyboard insets', () => {
     act(() => keyboardAccessories.set(toolbarKey, null));
   });
 
+  describe('when the editor gets shorter under the keyboard', () => {
+    const frame = (y: number, height: number) => ({
+      measureInWindow: (
+        callback: (x: number, y: number, w: number, h: number) => void
+      ) => callback(0, y, 320, height),
+    });
+
+    const setup = async () => {
+      setPlatform('android');
+      jest.useFakeTimers();
+      const toolbarKey = {};
+      const mounted = mountReady({ avoidIosKeyboard: true });
+      const layOutEditor = async (height: number) => {
+        act(() =>
+          mounted.webView.props.onLayout?.({
+            currentTarget: frame(100, height),
+            nativeEvent: { layout: { x: 0, y: 0, width: 320, height } },
+          } as unknown as LayoutChangeEvent)
+        );
+        await act(async () => {
+          jest.advanceTimersByTime(COVER_MEASURE_DELAYS_MS.at(-1)!);
+          await Promise.resolve();
+        });
+      };
+      const toolbarAt = (y: number) =>
+        act(() => keyboardAccessories.set(toolbarKey, frame(y, 44)));
+      await layOutEditor(740);
+      toolbarAt(522);
+      mounted.update(keyboardUp(300, false));
+      await layOutEditor(740);
+      const cleanup = () =>
+        act(() => keyboardAccessories.set(toolbarKey, null));
+      return { ...mounted, layOutEditor, toolbarAt, cleanup };
+    };
+
+    it('reveals the caret again when a growing keyboard moved the toolbar with it', async () => {
+      const { webView, layOutEditor, toolbarAt, cleanup } = await setup();
+      const inset = 840 - 522 + utils.CARET_MARGIN;
+      expect(thresholds(webView)).toEqual([inset]);
+
+      // The emoji keyboard takes 50 more: the window, the editor and the
+      // toolbar all move up, so the insets stay the same.
+      toolbarAt(472);
+      await layOutEditor(690);
+
+      expect(thresholds(webView)).toEqual([inset, inset]);
+      cleanup();
+    });
+
+    it('sends only the new insets when the toolbar stayed', async () => {
+      const { webView, layOutEditor, cleanup } = await setup();
+
+      // A keyboard swap at the same top: only the editor got shorter.
+      await layOutEditor(500);
+
+      expect(thresholds(webView)).toEqual([
+        840 - 522 + utils.CARET_MARGIN,
+        600 - 522 + utils.CARET_MARGIN,
+      ]);
+      cleanup();
+    });
+  });
+
   it('keeps scrollBottomOffset as padding in dynamic-height mode (#308)', () => {
     const { webView, update } = mountReady({
       avoidKeyboard: true,

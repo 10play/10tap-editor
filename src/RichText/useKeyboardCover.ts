@@ -49,6 +49,13 @@ export const useKeyboardCover = (
   overlap: number | null;
   /** The keyboard is up and the editor is about to be measured. */
   pending: boolean;
+  /**
+   * Counts the measurements that found the editor shorter with the same
+   * overlap: a keyboard that grew under a toolbar moving with it (the emoji
+   * keyboard, a suggestion bar) in a window that resizes. The insets stay
+   * the same, so nothing else tells the editor to reveal its caret again.
+   */
+  shrinkCount: number;
   onLayout: (event: LayoutChangeEvent) => void;
 } => {
   const editorView = useRef<MeasurableView | null>(null);
@@ -58,6 +65,9 @@ export const useKeyboardCover = (
   const [measurable, setMeasurable] = useState(false);
   const [layoutVersion, setLayoutVersion] = useState(0);
   const [accessoryVersion, setAccessoryVersion] = useState(0);
+  const [shrinkCount, setShrinkCount] = useState(0);
+  // The editor's height and overlap at the last measurement with this keyboard up.
+  const lastMeasured = useRef<{ height: number; overlap: number } | null>(null);
   const active = enabled && isKeyboardUp;
 
   const onLayout = useCallback(
@@ -86,6 +96,7 @@ export const useKeyboardCover = (
     if (!active) {
       setOverlap(null);
       setSettled(false);
+      lastMeasured.current = null;
       return;
     }
     let cancelled = false;
@@ -106,6 +117,16 @@ export const useKeyboardCover = (
       setOverlap((previous) =>
         previous !== null && Math.abs(previous - next) < 1 ? previous : next
       );
+      const height = editor.bottom - editor.top;
+      const before = lastMeasured.current;
+      lastMeasured.current = { height, overlap: next };
+      if (
+        before !== null &&
+        height < before.height - 0.5 &&
+        Math.abs(next - before.overlap) < 1
+      ) {
+        setShrinkCount((count) => count + 1);
+      }
     };
     const timers = COVER_MEASURE_DELAYS_MS.map((ms, index) =>
       setTimeout(
@@ -134,6 +155,7 @@ export const useKeyboardCover = (
   return {
     overlap: active ? overlap : null,
     pending: active && measurable && overlap === null && !settled,
+    shrinkCount,
     onLayout,
   };
 };

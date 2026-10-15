@@ -446,6 +446,18 @@ export const RichText = ({
     coverPending,
   ]);
 
+  // The editor got shorter under a keyboard that grew, with the same insets:
+  // re-send them so the editor reveals its caret with them. The web runtime
+  // reveals only what the shrink itself hid, since its insets may be stale.
+  const shrinkCount = cover.shrinkCount;
+  useEffect(() => {
+    if (shrinkCount === 0) return;
+    const applied = appliedInsets.get(controller);
+    if (applied && applied.scrollThreshold > 0) {
+      editor.updateScrollThresholdAndMargin?.(applied.scrollThreshold);
+    }
+  }, [controller, editor, shrinkCount]);
+
   const bridgeStyleSheets = useMemo(
     () => getInjectedJS(editor.bridgeExtensions ?? []),
     [editor.bridgeExtensions]

@@ -159,7 +159,7 @@ const isScrollContainer = (element: Element): boolean => {
 };
 
 /** The element the editor scrolls in: its nearest scroll container. */
-const findScroller = (dom: HTMLElement): HTMLElement | null => {
+export const findScroller = (dom: HTMLElement): HTMLElement | null => {
   for (
     let element = dom.parentElement;
     element !== null && element !== document.body;
