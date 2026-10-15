@@ -1,0 +1,17 @@
+# Screenshot named ${LABEL}; with CARET_PROBE set, also asserts that the
+# caret is above everything drawn over the editor (CARET_SOFT=true records
+# the result without failing the flow).
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+---
+- waitForAnimationToEnd:
+    timeout: 1500
+- takeScreenshot: ${LABEL}
+- runScript:
+    file: ../probe.js
+    env:
+      LABEL: ${LABEL}
+      CARET_PROBE: ${CARET_PROBE || ''}
+      CARET_SOFT: ${CARET_SOFT || 'false'}
+- assertTrue: ${output.caretOk}

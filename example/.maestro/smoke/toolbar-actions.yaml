@@ -1,0 +1,134 @@
+# The default Toolbar: italic, heading (#298), lists, undo/redo and a link
+# without a protocol (#255). Toolbar items have no test ids, so the flow taps
+# them by position and is calibrated for a Pixel 5 emulator with Gboard
+# (toolbar row at 62% of the height, items 11.2% apart); Android only.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+name: Toolbar actions
+tags:
+  - smoke
+---
+- runFlow: ../subflows/launch.yaml
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - scrollUntilVisible:
+          element: 'E2E: Smoke'
+          timeout: 60000
+      - tapOn: 'E2E: Smoke'
+      - extendedWaitUntil:
+          visible:
+            id: editor-status
+            text: 'ready:true editable:true.*'
+          timeout: 15000
+      - tapOn:
+          id: smoke-editor
+      - extendedWaitUntil:
+          visible:
+            id: editor-status
+            text: '.*keyboard:up'
+          timeout: 15000
+      - waitForAnimationToEnd
+
+      # Italic
+      - tapOn:
+          point: '16%,62%'
+      - inputText: ' it'
+      - tapOn:
+          id: read-editor-state
+      - extendedWaitUntil:
+          visible:
+            id: editor-html
+            text: '<p>Smoke test<em> it</em></p>'
+          timeout: 10000
+
+      # Heading sub-toolbar: Aa, H1, close
+      - tapOn:
+          point: '50%,62%'
+      - tapOn:
+          point: '16%,62%'
+      - tapOn:
+          point: '5%,62%'
+      - tapOn:
+          id: read-editor-state
+      - extendedWaitUntil:
+          visible:
+            id: editor-html
+            text: '<h1>Smoke test<em> it</em></h1>'
+          timeout: 10000
+
+      # Scroll to the end of the toolbar: undo, redo, lists
+      - swipe:
+          start: '90%,62%'
+          end: '10%,62%'
+          duration: 1500
+      - swipe:
+          start: '90%,62%'
+          end: '10%,62%'
+          duration: 1500
+      - tapOn:
+          point: '83%,62%'
+      - tapOn:
+          id: read-editor-state
+      - extendedWaitUntil:
+          visible:
+            id: editor-html
+            text: '<p>Smoke test<em> it</em></p>'
+          timeout: 10000
+      - tapOn:
+          point: '94%,62%'
+      - tapOn:
+          id: read-editor-state
+      - extendedWaitUntil:
+          visible:
+            id: editor-html
+            text: '<h1>Smoke test<em> it</em></h1>'
+          timeout: 10000
+      - tapOn:
+          point: '83%,62%'
+      - tapOn:
+          point: '50%,62%'
+      - tapOn:
+          id: read-editor-state
+      - extendedWaitUntil:
+          visible:
+            id: editor-html
+            text: '<ul><li><p>Smoke test<em> it</em></p></li></ul>'
+          timeout: 10000
+      - tapOn:
+          point: '50%,62%'
+      - tapOn:
+          point: '38%,62%'
+      - tapOn:
+          id: read-editor-state
+      - extendedWaitUntil:
+          visible:
+            id: editor-html
+            text: '<ol><li><p>Smoke test<em> it</em></p></li></ol>'
+          timeout: 10000
+
+      # Link on a selected word; the https:// protocol is added (#255)
+      - swipe:
+          start: '10%,62%'
+          end: '90%,62%'
+          duration: 1500
+      - swipe:
+          start: '10%,62%'
+          end: '90%,62%'
+          duration: 1500
+      # Selects the word "Smoke" in the ordered list item.
+      - longPressOn:
+          point: '14%,18%'
+      - tapOn:
+          point: '28%,62%'
+      - inputText: 'example.com'
+      - tapOn: Insert
+      - tapOn:
+          id: read-editor-state
+      - extendedWaitUntil:
+          visible:
+            id: editor-html
+            text: '.*<a [^>]*href="https://example.com"[^>]*>(Smoke|test)</a>.*'
+          timeout: 10000

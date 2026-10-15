@@ -1,4 +1,5 @@
 ---
+description: Adding or overriding editor CSS and loading custom fonts, including CJK text.
 sidebar_position: 2
 ---
 
@@ -33,7 +34,6 @@ Now let's configure the CodeBridge to use this css
 
 ```tsx
 const editor = useEditorBridge({
-  ...,
   bridgeExtensions: [
     // It is important to spread StarterKit BEFORE our extended plugin,
     // as plugin duplicated will be ignored
@@ -48,7 +48,7 @@ const editor = useEditorBridge({
 ## Dynamically Updating CSS
 
 Let's say we want to dynamically update css after the editor is initialized.
-We can do this with [injectCSS](../api/EditorBridge/#injectcss).
+We can do this with [injectCSS](../api/EditorBridge.md#injectcss).
 `injectCSS` receives two parameters:
 
 - `css`: the css to inject
@@ -72,9 +72,63 @@ editor.injectCSS(ourCustomCSS, 'our-custom-tag');
 
 This will create a new stylesheet with `our-custom-tag` and it will not override any bridge's custom css.
 
+`injectCSS` can be called at any time: calls made before the editor has loaded are queued, and the stylesheet is applied again if the WebView reloads.
+
 ## Adding Custom Fonts
 
-Let's add a custom font to our Editor (we can also add custom css)
+There are two ways to load a font into the editor: from a file (recommended), or embedded as base64 in the CSS.
+
+In both cases pass the CSS through `configureCSS` rather than `injectCSS`, so the font is part of the editor from the first paint.
+
+### Loading fonts from a file
+
+Loading the font from a local file avoids sending and parsing a large base64 string every time the editor loads.
+
+1. Get a local file URI for the font. With Expo, use `expo-asset`; in a bare app, copy the font into your app bundle and build the path yourself.
+2. Reference it from an `@font-face` rule and pass the CSS to `CoreBridge.configureCSS`.
+3. Allow the WebView to read local files. On iOS, also set [webviewBaseURL](../api/useEditorBridge.md#webviewbaseurl) to a `file://` directory that contains the font.
+4. Create the editor only once the URI is known, because bridge CSS is read when the editor is created.
+
+```tsx
+import { useAssets } from 'expo-asset';
+
+export const EditorWithFont = () => {
+  const [assets] = useAssets([require('./assets/Rubik-Regular.ttf')]);
+  const fontUri = assets?.[0]?.localUri;
+  if (!fontUri) return null;
+  return <Editor fontUri={fontUri} />;
+};
+
+const Editor = ({ fontUri }: { fontUri: string }) => {
+  const editor = useEditorBridge({
+    webviewBaseURL: fontUri.substring(0, fontUri.lastIndexOf('/') + 1),
+    bridgeExtensions: [
+      ...TenTapStartKit,
+      CoreBridge.configureCSS(`
+        @font-face {
+          font-family: 'Rubik';
+          src: url('${fontUri}');
+        }
+        * {
+          font-family: 'Rubik', sans-serif;
+        }
+      `),
+    ],
+  });
+
+  return (
+    <RichText
+      editor={editor}
+      allowFileAccess
+      allowFileAccessFromFileURLs
+    />
+  );
+};
+```
+
+### Embedding fonts as base64
+
+This needs no setup, at the cost of a larger editor HTML that is parsed on every load.
 
 So first we need to download and convert our font, so we can inject it into the webview:
 
@@ -112,3 +166,24 @@ const editor = useEditorBridge({
   ],
 });
 ```
+
+## Chinese, Japanese and Korean text
+
+The default editor doesn't set a font, so the WebView uses its default serif font. For CJK characters it then falls back to a system font that may have no bold or italic variant, and bold or italic text looks unchanged even though the marks are applied. Set a font stack that has CJK weights and let the WebView synthesize the missing styles:
+
+```tsx
+const editor = useEditorBridge({
+  bridgeExtensions: [
+    ...TenTapStartKit,
+    CoreBridge.configureCSS(`
+      .ProseMirror {
+        font-family: -apple-system, system-ui, 'PingFang SC', 'Hiragino Sans GB',
+          'Noto Sans CJK SC', 'Microsoft YaHei', sans-serif;
+        font-synthesis: weight style;
+      }
+    `),
+  ],
+});
+```
+
+The default font is unchanged in 1.x so existing editors look the same.

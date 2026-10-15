@@ -9,7 +9,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "jsx": "react",
-    "lib": ["esnext"],
+    "lib": ["esnext", "dom"],
     "module": "esnext",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
@@ -23,14 +23,17 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "esnext",
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": true
   },
   "exclude": [
+    "./lib",
+    "./lib-web",
     "./src/simpleWebEditor",
-    "./website",
-    "examplelatest",
-    "examplelatest/src/Examples/Advanced/editor-web",
     "./src/webEditorUtils",
-    "./src/webEditorUtils/vite.config.ts"
+    "./test",
+    "./website",
+    "./example",
+    "./example-expo",
+    "./e2e-web"
   ]
 }

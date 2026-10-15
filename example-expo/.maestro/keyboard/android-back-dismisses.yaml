@@ -1,0 +1,24 @@
+# Android back closes ColorKeyboard instead of leaving the screen.
+appId: dev.tenplay.tentapexampleexpo
+name: Android back closes the custom keyboard
+tags:
+  - keyboard
+---
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - runFlow:
+          file: ../common/open-example.yaml
+          env:
+            EXAMPLE: Custom Keyboard
+      - extendedWaitUntil:
+          visible: '.*open ColorKeyboard\.'
+          timeout: 20000
+      - waitForAnimationToEnd
+      - tapOn: Color keyboard
+      - assertVisible: Highlight
+      - back
+      - waitForAnimationToEnd
+      - assertNotVisible: Highlight
+      - assertVisible: Custom Keyboard

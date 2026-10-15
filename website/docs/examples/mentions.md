@@ -1,4 +1,5 @@
 ---
+description: "Pro example: @mentions in the editor."
 sidebar_position: 6
 ---
 

@@ -1,0 +1,9 @@
+# Taps the element with testID ID, e.g. a custom keyboard toggle.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+name: 'Caret: tap'
+---
+- tapOn:
+    id: ${ID}
+- waitForAnimationToEnd

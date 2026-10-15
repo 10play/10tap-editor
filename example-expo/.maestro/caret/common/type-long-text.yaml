@@ -1,0 +1,48 @@
+# ~40 lines in chunks of five, a long paragraph, a run of Enters, a line
+# after them and a pasted block, with a checkpoint after each chunk.
+# Screenshots are prefixed with PREFIX.
+appId: dev.tenplay.tentapexampleexpo
+---
+- evalScript: ${output.line = 0}
+- repeat:
+    times: 8
+    commands:
+      - runFlow:
+          file: type-lines.yaml
+          env:
+            LINES: 5
+      - runFlow:
+          file: checkpoint.yaml
+          env:
+            SHOT: ${PREFIX}-lines-${output.line}
+- inputText: 'A long paragraph that wraps over several lines of the editor so that the caret moves down while no Enter is pressed at all, and keeps going with more words, more words and more words until it fills the width a few times over. '
+- inputText: 'It goes on with a second sentence of the same paragraph, again long enough to wrap two or three times on a phone screen in portrait. '
+- runFlow:
+    file: checkpoint.yaml
+    env:
+      SHOT: ${PREFIX}-paragraph
+- repeat:
+    times: 12
+    commands:
+      - pressKey: Enter
+- runFlow:
+    file: checkpoint.yaml
+    env:
+      SHOT: ${PREFIX}-enters
+- inputText: 'After the Enters'
+- runFlow:
+    file: checkpoint.yaml
+    env:
+      SHOT: ${PREFIX}-after-enters
+# A 30-paragraph block pasted at the caret (only with CARET_PROBE, which
+# dispatches the paste in the editor page).
+- runScript:
+    file: ../../../../example/.maestro/caret/probe.js
+    env:
+      ACTION: paste
+      LABEL: ${PREFIX}-paste
+      CARET_PROBE: ${CARET_PROBE || ''}
+- runFlow:
+    file: checkpoint.yaml
+    env:
+      SHOT: ${PREFIX}-pasted

@@ -1,0 +1,37 @@
+# dynamicHeight editors in a ScrollView, no toolbar: the caret must stay
+# above the keyboard while ~40 lines and a paragraph are typed. EDITOR_ID
+# picks the editor: capped by its parent (maxHeight 150, the default) or
+# dynamic-height-editor, which grows and is followed by useScrollToCaret.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+  RUN: ${RUN || 'dynamic'}
+  EDITOR_ID: ${EDITOR_ID || 'capped-dynamic-editor'}
+name: 'Caret: dynamic-height editor'
+tags:
+  - caret
+---
+- runFlow:
+    file: open.yaml
+    env:
+      SCREEN: 'Repro: Dynamic height'
+- scrollUntilVisible:
+    element:
+      id: ${EDITOR_ID}
+- tapOn:
+    id: ${EDITOR_ID}
+- waitForAnimationToEnd
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-00-focused'}
+- runFlow:
+    file: subflows/lines-40.yaml
+    env:
+      LABEL: ${RUN}
+- runFlow:
+    file: subflows/paragraph.yaml
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-50-paragraph'}

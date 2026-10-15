@@ -1,0 +1,967 @@
+{
+  "package": "@10play/tentap-editor",
+  "version": "1.0.1",
+  "commit": "562f738",
+  "entry": "./web",
+  "runtime": {
+    "AllSelection": {
+      "type": "function"
+    },
+    "BlockquoteBridge": {
+      "type": "bridge",
+      "name": "blockquote",
+      "tiptapExtension": [
+        {
+          "type": "tiptapExtension",
+          "name": "blockquote",
+          "kind": "node",
+          "options": {
+            "HTMLAttributes": {}
+          }
+        }
+      ],
+      "tiptapExtensionDeps": [],
+      "hasCSS": true
+    },
+    "BoldBridge": {
+      "type": "bridge",
+      "name": "bold",
+      "tiptapExtension": [
+        {
+          "type": "tiptapExtension",
+          "name": "bold",
+          "kind": "mark",
+          "options": {
+            "HTMLAttributes": {}
+          }
+        }
+      ],
+      "tiptapExtensionDeps": [],
+      "hasCSS": false
+    },
+    "BridgeExtension": {
+      "type": "function"
+    },
+    "BulletListBridge": {
+      "type": "bridge",
+      "name": "bulletList",
+      "tiptapExtension": [
+        {
+          "type": "tiptapExtension",
+          "name": "bulletList",
+          "kind": "node",
+          "options": {
+            "HTMLAttributes": {},
+            "itemTypeName": "listItem",
+            "keepAttributes": false,
+            "keepMarks": false
+          }
+        }
+      ],
+      "tiptapExtensionDeps": [
+        {
+          "type": "tiptapExtension",
+          "name": "listItem",
+          "kind": "node",
+          "options": {
+            "HTMLAttributes": {},
+            "bulletListTypeName": "bulletList",
+            "orderedListTypeName": "orderedList"
+          }
+        }
+      ],
+      "hasCSS": false
+    },
+    "CodeBridge": {
+      "type": "bridge",
+      "name": "code",
+      "tiptapExtension": [
+        {
+          "type": "tiptapExtension",
+          "name": "code",
+          "kind": "mark",
+          "options": {
+            "HTMLAttributes": {}
+          }
+        }
+      ],
+      "tiptapExtensionDeps": [],
+      "hasCSS": true
+    },
+    "ColorBridge": {
+      "type": "bridge",
+      "name": "color",
+      "tiptapExtension": [
+        {
+          "type": "tiptapExtension",
+          "name": "color",
+          "kind": "extension",
+          "options": {
+            "types": [
+              "textStyle"
+            ]
+          }
+        }
+      ],
+      "tiptapExtensionDeps": [
+        {
+          "type": "tiptapExtension",
+          "name": "textStyle",
+          "kind": "mark",
+          "options": {
+            "HTMLAttributes": {},
+            "mergeNestedSpanStyles": true
+          }
+        }
+      ],
+      "hasCSS": false
+    },
+    "CoreBridge": {
+      "type": "bridge",
+      "name": "doc",
+      "tiptapExtension": [
+        {
+          "type": "tiptapExtension",
+          "name": "doc",
+          "kind": "node",
+          "options": {}
+        }
+      ],
+      "tiptapExtensionDeps": [
+        {
+          "type": "tiptapExtension",
+          "name": "paragraph",
+          "kind": "node",
+          "options": {
+            "HTMLAttributes": {}
+          }
+        },
+        {
+          "type": "tiptapExtension",
+          "name": "text",
+          "kind": "node",
+          "options": {}
+        }
+      ],
+      "hasCSS": false
+    },
+    "Decoration": {
+      "type": "function"
+    },
+    "DecorationSet": {
+      "type": "function"
+    },
+    "EditorState": {
+      "type": "function"
+    },
+    "EditorView": {
+      "type": "function"
+    },
+    "HardBreakBridge": {
+      "type": "bridge",
+      "name": "hardBreak",
+      "tiptapExtension": [
+        {
+          "type": "tiptapExtension",
+          "name": "hardBreak",
+          "kind": "node",
+          "options": {
+            "HTMLAttributes": {},
+            "keepMarks": true
+          }
+        }
+      ],
+      "tiptapExtensionDeps": [],
+      "hasCSS": false
+    },
+    "HeadingBridge": {
+      "type": "bridge",
+      "name": "heading",
+      "tiptapExtension": [
+        {
+          "type": "tiptapExtension",
+          "name": "heading",
+          "kind": "node",
+          "options": {
+            "HTMLAttributes": {},
+            "levels": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6
+            ]
+          }
+        }
+      ],
+      "tiptapExtensionDeps": [],
+      "hasCSS": false
+    },
+    "HighlightBridge": {
+      "type": "bridge",
+      "name": "highlight",
+      "tiptapExtension": [
+        {
+          "type": "tiptapExtension",
+          "name": "highlight",
+          "kind": "mark",
+          "options": {
+            "HTMLAttributes": {},
+            "multicolor": true
+          }
+        }
+      ],
+      "tiptapExtensionDeps": [
+        {
+          "type": "tiptapExtension",
+          "name": "textStyle",
+          "kind": "mark",
+          "options": {
+            "HTMLAttributes": {},
+            "mergeNestedSpanStyles": true
+          }
+        }
+      ],
+      "hasCSS": false
+    },
+    "HistoryBridge": {
+      "type": "bridge",
+      "name": "undoRedo",
+      "tiptapExtension": [
+        {
+          "type": "tiptapExtension",
+          "name": "undoRedo",
+          "kind": "extension",
+          "options": {
+            "depth": 100,
+            "newGroupDelay": 500
+          }
+        }
+      ],
+      "tiptapExtensionDeps": [],
+      "hasCSS": false
+    },
+    "ImageBridge": {
+      "type": "bridge",
+      "name": "image",
+      "tiptapExtension": [
+        {
+          "type": "tiptapExtension",
+          "name": "image",
+          "kind": "node",
+          "options": {
+            "HTMLAttributes": {},
+            "allowBase64": true,
+            "inline": false,
+            "resize": false
+          }
+        }
+      ],
+      "tiptapExtensionDeps": [],
+      "hasCSS": true
+    },
+    "ItalicBridge": {
+      "type": "bridge",
+      "name": "italic",
+      "tiptapExtension": [
+        {
+          "type": "tiptapExtension",
+          "name": "italic",
+          "kind": "mark",
+          "options": {
+            "HTMLAttributes": {}
+          }
+        }
+      ],
+      "tiptapExtensionDeps": [],
+      "hasCSS": false
+    },
+    "LinkBridge": {
+      "type": "bridge",
+      "name": "link",
+      "tiptapExtension": [
+        {
+          "type": "tiptapExtension",
+          "name": "link",
+          "kind": "mark",
+          "options": {
+            "HTMLAttributes": {
+              "class": null,
+              "rel": "noopener noreferrer nofollow",
+              "target": "_blank"
+            },
+            "autolink": true,
+            "defaultProtocol": "http",
+            "enableClickSelection": false,
+            "isAllowedUri": "[function]",
+            "linkOnPaste": true,
+            "openOnClick": false,
+            "protocols": [],
+            "shouldAutoLink": "[function]",
+            "validate": "[function]"
+          }
+        }
+      ],
+      "tiptapExtensionDeps": [],
+      "hasCSS": false
+    },
+    "ListItemBridge": {
+      "type": "bridge",
+      "name": "listItem",
+      "tiptapExtension": [
+        {
+          "type": "tiptapExtension",
+          "name": "listItem",
+          "kind": "node",
+          "options": {
+            "HTMLAttributes": {},
+            "bulletListTypeName": "bulletList",
+            "orderedListTypeName": "orderedList"
+          }
+        }
+      ],
+      "tiptapExtensionDeps": [],
+      "hasCSS": false
+    },
+    "NodeSelection": {
+      "type": "function"
+    },
+    "OrderedListBridge": {
+      "type": "bridge",
+      "name": "orderedList",
+      "tiptapExtension": [
+        {
+          "type": "tiptapExtension",
+          "name": "orderedList",
+          "kind": "node",
+          "options": {
+            "HTMLAttributes": {},
+            "itemTypeName": "listItem",
+            "keepAttributes": false,
+            "keepMarks": false
+          }
+        }
+      ],
+      "tiptapExtensionDeps": [
+        {
+          "type": "tiptapExtension",
+          "name": "listItem",
+          "kind": "node",
+          "options": {
+            "HTMLAttributes": {},
+            "bulletListTypeName": "bulletList",
+            "orderedListTypeName": "orderedList"
+          }
+        }
+      ],
+      "hasCSS": false
+    },
+    "PlaceholderBridge": {
+      "type": "bridge",
+      "name": "placeholder",
+      "tiptapExtension": [
+        {
+          "type": "tiptapExtension",
+          "name": "placeholder",
+          "kind": "extension",
+          "options": {
+            "emptyEditorClass": "is-editor-empty",
+            "emptyNodeClass": "is-empty",
+            "includeChildren": false,
+            "placeholder": "Write something …",
+            "showOnlyCurrent": true,
+            "showOnlyWhenEditable": true
+          }
+        }
+      ],
+      "tiptapExtensionDeps": [],
+      "hasCSS": true
+    },
+    "Plugin": {
+      "type": "function"
+    },
+    "PluginKey": {
+      "type": "function"
+    },
+    "Selection": {
+      "type": "function"
+    },
+    "SelectionRange": {
+      "type": "function"
+    },
+    "StrikeBridge": {
+      "type": "bridge",
+      "name": "strike",
+      "tiptapExtension": [
+        {
+          "type": "tiptapExtension",
+          "name": "strike",
+          "kind": "mark",
+          "options": {
+            "HTMLAttributes": {}
+          }
+        }
+      ],
+      "tiptapExtensionDeps": [],
+      "hasCSS": false
+    },
+    "TaskListBridge": {
+      "type": "bridge",
+      "name": "taskList",
+      "tiptapExtension": [
+        {
+          "type": "tiptapExtension",
+          "name": "taskList",
+          "kind": "node",
+          "options": {
+            "HTMLAttributes": {},
+            "itemTypeName": "taskItem"
+          }
+        }
+      ],
+      "tiptapExtensionDeps": [
+        {
+          "type": "tiptapExtension",
+          "name": "taskItem",
+          "kind": "node",
+          "options": {
+            "HTMLAttributes": {},
+            "nested": true,
+            "taskListTypeName": "taskList"
+          }
+        }
+      ],
+      "hasCSS": true
+    },
+    "TenTapStartKit": {
+      "type": "array",
+      "items": [
+        {
+          "type": "bridge",
+          "name": "bold",
+          "tiptapExtension": [
+            {
+              "type": "tiptapExtension",
+              "name": "bold",
+              "kind": "mark",
+              "options": {
+                "HTMLAttributes": {}
+              }
+            }
+          ],
+          "tiptapExtensionDeps": [],
+          "hasCSS": false
+        },
+        {
+          "type": "bridge",
+          "name": "undoRedo",
+          "tiptapExtension": [
+            {
+              "type": "tiptapExtension",
+              "name": "undoRedo",
+              "kind": "extension",
+              "options": {
+                "depth": 100,
+                "newGroupDelay": 500
+              }
+            }
+          ],
+          "tiptapExtensionDeps": [],
+          "hasCSS": false
+        },
+        {
+          "type": "bridge",
+          "name": "code",
+          "tiptapExtension": [
+            {
+              "type": "tiptapExtension",
+              "name": "code",
+              "kind": "mark",
+              "options": {
+                "HTMLAttributes": {}
+              }
+            }
+          ],
+          "tiptapExtensionDeps": [],
+          "hasCSS": true
+        },
+        {
+          "type": "bridge",
+          "name": "italic",
+          "tiptapExtension": [
+            {
+              "type": "tiptapExtension",
+              "name": "italic",
+              "kind": "mark",
+              "options": {
+                "HTMLAttributes": {}
+              }
+            }
+          ],
+          "tiptapExtensionDeps": [],
+          "hasCSS": false
+        },
+        {
+          "type": "bridge",
+          "name": "strike",
+          "tiptapExtension": [
+            {
+              "type": "tiptapExtension",
+              "name": "strike",
+              "kind": "mark",
+              "options": {
+                "HTMLAttributes": {}
+              }
+            }
+          ],
+          "tiptapExtensionDeps": [],
+          "hasCSS": false
+        },
+        {
+          "type": "bridge",
+          "name": "underline",
+          "tiptapExtension": [
+            {
+              "type": "tiptapExtension",
+              "name": "underline",
+              "kind": "mark",
+              "options": {
+                "HTMLAttributes": {}
+              }
+            }
+          ],
+          "tiptapExtensionDeps": [],
+          "hasCSS": false
+        },
+        {
+          "type": "bridge",
+          "name": "orderedList",
+          "tiptapExtension": [
+            {
+              "type": "tiptapExtension",
+              "name": "orderedList",
+              "kind": "node",
+              "options": {
+                "HTMLAttributes": {},
+                "itemTypeName": "listItem",
+                "keepAttributes": false,
+                "keepMarks": false
+              }
+            }
+          ],
+          "tiptapExtensionDeps": [
+            {
+              "type": "tiptapExtension",
+              "name": "listItem",
+              "kind": "node",
+              "options": {
+                "HTMLAttributes": {},
+                "bulletListTypeName": "bulletList",
+                "orderedListTypeName": "orderedList"
+              }
+            }
+          ],
+          "hasCSS": false
+        },
+        {
+          "type": "bridge",
+          "name": "heading",
+          "tiptapExtension": [
+            {
+              "type": "tiptapExtension",
+              "name": "heading",
+              "kind": "node",
+              "options": {
+                "HTMLAttributes": {},
+                "levels": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6
+                ]
+              }
+            }
+          ],
+          "tiptapExtensionDeps": [],
+          "hasCSS": false
+        },
+        {
+          "type": "bridge",
+          "name": "image",
+          "tiptapExtension": [
+            {
+              "type": "tiptapExtension",
+              "name": "image",
+              "kind": "node",
+              "options": {
+                "HTMLAttributes": {},
+                "allowBase64": true,
+                "inline": false,
+                "resize": false
+              }
+            }
+          ],
+          "tiptapExtensionDeps": [],
+          "hasCSS": true
+        },
+        {
+          "type": "bridge",
+          "name": "bulletList",
+          "tiptapExtension": [
+            {
+              "type": "tiptapExtension",
+              "name": "bulletList",
+              "kind": "node",
+              "options": {
+                "HTMLAttributes": {},
+                "itemTypeName": "listItem",
+                "keepAttributes": false,
+                "keepMarks": false
+              }
+            }
+          ],
+          "tiptapExtensionDeps": [
+            {
+              "type": "tiptapExtension",
+              "name": "listItem",
+              "kind": "node",
+              "options": {
+                "HTMLAttributes": {},
+                "bulletListTypeName": "bulletList",
+                "orderedListTypeName": "orderedList"
+              }
+            }
+          ],
+          "hasCSS": false
+        },
+        {
+          "type": "bridge",
+          "name": "blockquote",
+          "tiptapExtension": [
+            {
+              "type": "tiptapExtension",
+              "name": "blockquote",
+              "kind": "node",
+              "options": {
+                "HTMLAttributes": {}
+              }
+            }
+          ],
+          "tiptapExtensionDeps": [],
+          "hasCSS": true
+        },
+        {
+          "type": "bridge",
+          "name": "taskList",
+          "tiptapExtension": [
+            {
+              "type": "tiptapExtension",
+              "name": "taskList",
+              "kind": "node",
+              "options": {
+                "HTMLAttributes": {},
+                "itemTypeName": "taskItem"
+              }
+            }
+          ],
+          "tiptapExtensionDeps": [
+            {
+              "type": "tiptapExtension",
+              "name": "taskItem",
+              "kind": "node",
+              "options": {
+                "HTMLAttributes": {},
+                "nested": true,
+                "taskListTypeName": "taskList"
+              }
+            }
+          ],
+          "hasCSS": true
+        },
+        {
+          "type": "bridge",
+          "name": "link",
+          "tiptapExtension": [
+            {
+              "type": "tiptapExtension",
+              "name": "link",
+              "kind": "mark",
+              "options": {
+                "HTMLAttributes": {
+                  "class": null,
+                  "rel": "noopener noreferrer nofollow",
+                  "target": "_blank"
+                },
+                "autolink": true,
+                "defaultProtocol": "http",
+                "enableClickSelection": false,
+                "isAllowedUri": "[function]",
+                "linkOnPaste": true,
+                "openOnClick": false,
+                "protocols": [],
+                "shouldAutoLink": "[function]",
+                "validate": "[function]"
+              }
+            }
+          ],
+          "tiptapExtensionDeps": [],
+          "hasCSS": false
+        },
+        {
+          "type": "bridge",
+          "name": "color",
+          "tiptapExtension": [
+            {
+              "type": "tiptapExtension",
+              "name": "color",
+              "kind": "extension",
+              "options": {
+                "types": [
+                  "textStyle"
+                ]
+              }
+            }
+          ],
+          "tiptapExtensionDeps": [
+            {
+              "type": "tiptapExtension",
+              "name": "textStyle",
+              "kind": "mark",
+              "options": {
+                "HTMLAttributes": {},
+                "mergeNestedSpanStyles": true
+              }
+            }
+          ],
+          "hasCSS": false
+        },
+        {
+          "type": "bridge",
+          "name": "highlight",
+          "tiptapExtension": [
+            {
+              "type": "tiptapExtension",
+              "name": "highlight",
+              "kind": "mark",
+              "options": {
+                "HTMLAttributes": {},
+                "multicolor": true
+              }
+            }
+          ],
+          "tiptapExtensionDeps": [
+            {
+              "type": "tiptapExtension",
+              "name": "textStyle",
+              "kind": "mark",
+              "options": {
+                "HTMLAttributes": {},
+                "mergeNestedSpanStyles": true
+              }
+            }
+          ],
+          "hasCSS": false
+        },
+        {
+          "type": "bridge",
+          "name": "doc",
+          "tiptapExtension": [
+            {
+              "type": "tiptapExtension",
+              "name": "doc",
+              "kind": "node",
+              "options": {}
+            }
+          ],
+          "tiptapExtensionDeps": [
+            {
+              "type": "tiptapExtension",
+              "name": "paragraph",
+              "kind": "node",
+              "options": {
+                "HTMLAttributes": {}
+              }
+            },
+            {
+              "type": "tiptapExtension",
+              "name": "text",
+              "kind": "node",
+              "options": {}
+            }
+          ],
+          "hasCSS": false
+        },
+        {
+          "type": "bridge",
+          "name": "placeholder",
+          "tiptapExtension": [
+            {
+              "type": "tiptapExtension",
+              "name": "placeholder",
+              "kind": "extension",
+              "options": {
+                "emptyEditorClass": "is-editor-empty",
+                "emptyNodeClass": "is-empty",
+                "includeChildren": false,
+                "placeholder": "Write something …",
+                "showOnlyCurrent": true,
+                "showOnlyWhenEditable": true
+              }
+            }
+          ],
+          "tiptapExtensionDeps": [],
+          "hasCSS": true
+        },
+        {
+          "type": "bridge",
+          "name": "listItem",
+          "tiptapExtension": [
+            {
+              "type": "tiptapExtension",
+              "name": "listItem",
+              "kind": "node",
+              "options": {
+                "HTMLAttributes": {},
+                "bulletListTypeName": "bulletList",
+                "orderedListTypeName": "orderedList"
+              }
+            }
+          ],
+          "tiptapExtensionDeps": [],
+          "hasCSS": false
+        },
+        {
+          "type": "bridge",
+          "name": "dropCursor",
+          "tiptapExtension": [
+            {
+              "type": "tiptapExtension",
+              "name": "dropCursor",
+              "kind": "extension",
+              "options": {
+                "color": "currentColor",
+                "width": 1
+              }
+            }
+          ],
+          "tiptapExtensionDeps": [],
+          "hasCSS": false
+        },
+        {
+          "type": "bridge",
+          "name": "hardBreak",
+          "tiptapExtension": [
+            {
+              "type": "tiptapExtension",
+              "name": "hardBreak",
+              "kind": "node",
+              "options": {
+                "HTMLAttributes": {},
+                "keepMarks": true
+              }
+            }
+          ],
+          "tiptapExtensionDeps": [],
+          "hasCSS": false
+        }
+      ]
+    },
+    "TextSelection": {
+      "type": "function"
+    },
+    "Transaction": {
+      "type": "function"
+    },
+    "UnderlineBridge": {
+      "type": "bridge",
+      "name": "underline",
+      "tiptapExtension": [
+        {
+          "type": "tiptapExtension",
+          "name": "underline",
+          "kind": "mark",
+          "options": {
+            "HTMLAttributes": {}
+          }
+        }
+      ],
+      "tiptapExtensionDeps": [],
+      "hasCSS": false
+    },
+    "__endComposition": {
+      "type": "function"
+    },
+    "__parseFromClipboard": {
+      "type": "function"
+    },
+    "blueBackgroundPlugin": {
+      "type": "tiptapExtension",
+      "name": "eventHandler",
+      "kind": "extension",
+      "options": {}
+    },
+    "sendMessage": {
+      "type": "function"
+    },
+    "useTenTap": {
+      "type": "function"
+    }
+  },
+  "types": {
+    "AllSelection": "value+type",
+    "BlockquoteBridge": "value",
+    "blueBackgroundPlugin": "value",
+    "BoldBridge": "value",
+    "BridgeExtension": "value+type",
+    "BulletListBridge": "value",
+    "CodeBridge": "value",
+    "ColorBridge": "value",
+    "Command": "type",
+    "CoreBridge": "value",
+    "Decoration": "value+type",
+    "DecorationAttrs": "type",
+    "DecorationSet": "value+type",
+    "DecorationSource": "type",
+    "DirectEditorProps": "type",
+    "DOMEventMap": "type",
+    "EditorProps": "type",
+    "EditorState": "value+type",
+    "EditorStateConfig": "type",
+    "EditorView": "value+type",
+    "HardBreakBridge": "value",
+    "HeadingBridge": "value",
+    "HighlightBridge": "value",
+    "HistoryBridge": "value",
+    "ImageBridge": "value",
+    "ItalicBridge": "value",
+    "LinkBridge": "value",
+    "ListItemBridge": "value",
+    "MarkView": "type",
+    "MarkViewConstructor": "type",
+    "NodeSelection": "value+type",
+    "NodeView": "type",
+    "NodeViewConstructor": "type",
+    "OrderedListBridge": "value",
+    "PlaceholderBridge": "value",
+    "Plugin": "value+type",
+    "PluginKey": "value+type",
+    "PluginSpec": "type",
+    "PluginView": "type",
+    "Selection": "value+type",
+    "SelectionBookmark": "type",
+    "SelectionRange": "value+type",
+    "sendMessage": "value",
+    "StateField": "type",
+    "StrikeBridge": "value",
+    "TaskListBridge": "value",
+    "TenTapStartKit": "value",
+    "TextSelection": "value+type",
+    "Transaction": "value+type",
+    "UnderlineBridge": "value",
+    "useTenTap": "value",
+    "ViewMutationRecord": "type"
+  }
+}

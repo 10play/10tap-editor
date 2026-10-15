@@ -1,0 +1,17 @@
+# Dismisses the keyboard: Android back. The examples offer no dismiss
+# control on iOS, where Maestro's hideKeyboard is tried as a best effort.
+appId: dev.tenplay.tentapexampleexpo
+---
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - back
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - hideKeyboard:
+          optional: true
+- waitForAnimationToEnd:
+    timeout: 3000

@@ -1,0 +1,33 @@
+# CustomAndStaticToolbar: while the autofocused "To" field has the keyboard,
+# a tap on the editor focuses it (the toolbar's keyboard padding used to
+# swallow it on Android's old architecture).
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+name: 'Repro: editor tap takes focus from another input'
+tags:
+  - repro
+---
+- runFlow:
+    file: ../subflows/launch.yaml
+    env:
+      CLEAR_STATE: 'false'
+- scrollUntilVisible:
+    element: CustomAndStaticToolbar
+    timeout: 60000
+- tapOn: CustomAndStaticToolbar
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    notVisible: Formatting
+    timeout: 3000
+- tapOn:
+    point: '50%,50%'
+- extendedWaitUntil:
+    visible: Formatting
+    timeout: 10000
+- inputText: 'TappedIn'
+- tapOn: Send
+- extendedWaitUntil:
+    visible: '.*TappedIn.*'
+    timeout: 10000
+- tapOn: OK

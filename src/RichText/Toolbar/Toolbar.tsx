@@ -1,122 +1,209 @@
-import { FlatList, StyleSheet, Platform } from 'react-native';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ComponentType,
+} from 'react';
+import {
+  FlatList,
+  Platform,
+  StyleSheet,
+  type FlatListProps,
+  type ListRenderItem,
+} from 'react-native';
+import { useKeyboardAccessory } from '../keyboardAccessories';
+import { useEditorOptions } from '../editorOptions';
 import { useBridgeState } from '../useBridgeState';
-import React from 'react';
 import {
   DEFAULT_TOOLBAR_ITEMS,
   HEADING_ITEMS,
   ToolbarContext,
+  type ArgsToolbarCB,
   type ToolbarItem,
 } from './actions';
 import { EditLinkBar } from './EditLinkBar';
 import { useKeyboard } from '../../utils';
 import type { EditorBridge } from '../../types';
 import { ToolbarItemComp } from './ToolbarItemComp';
-import { WebToolbar } from './WebToolbar';
+import { WebToolbar, WebToolbarBar } from './WebToolbar';
 
-interface ToolbarProps {
+export interface ToolbarProps {
   editor: EditorBridge;
+  /** Defaults to hidden while the keyboard is down or the editor is blurred. */
   hidden?: boolean;
   items?: ToolbarItem[];
+  /** Items of the heading sub-toolbar, `HEADING_ITEMS` by default. */
+  headingItems?: ToolbarItem[];
+  /** Hides disabled items in both the main and the heading toolbar. */
   shouldHideDisabledToolbarItems?: boolean;
+  /**
+   * Renders the main and heading toolbars, `FlatList` by default. Use it to
+   * plug in a list such as a bottom-sheet `FlatList`.
+   */
+  ListComponent?: ComponentType<FlatListProps<ToolbarItem>>;
 }
 
 export const toolbarStyles = StyleSheet.create({});
+
+// Android: React Native blurs a TextInput that unmounts while it still counts
+// as focused, which hides the IME the editor just took over. So after Insert
+// the link bar closes once the link input reported its blur (the editor took
+// the focus), or after this long if it never does.
+export const ANDROID_LINK_CLOSE_TIMEOUT_MS = 1000;
+
+// A tap on Insert can dismiss the keyboard just before it presses, so the
+// link bar closes only once the keyboard has stayed down a moment (#252).
+export const LINK_BAR_KEYBOARD_CLOSE_DELAY_MS = 300;
+
+const keyExtractor = (_item: ToolbarItem, index: number) => String(index);
 
 export function Toolbar({
   editor,
   hidden = undefined,
   items = DEFAULT_TOOLBAR_ITEMS,
+  headingItems = HEADING_ITEMS,
   shouldHideDisabledToolbarItems = false,
+  ListComponent = FlatList,
 }: ToolbarProps) {
+  useEditorOptions(editor);
   const editorState = useBridgeState(editor);
   const { isKeyboardUp } = useKeyboard();
-  const [toolbarContext, setToolbarContext] = React.useState<ToolbarContext>(
+  const [toolbarContext, setToolbarContext] = useState<ToolbarContext>(
     ToolbarContext.Main
   );
+  const closeLinkTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  );
+  // Android: Insert was pressed; close when the link input blurs.
+  const closeLinkOnBlur = useRef(false);
+
+  useEffect(() => () => clearTimeout(closeLinkTimer.current), []);
+
+  // Android can collapse the editor selection when the link input takes
+  // focus, so the link is applied to the last range selected in the editor,
+  // which the user may change while the bar stays open.
+  const linkSelection = useRef(editorState.selection);
+  const { selection, isFocused } = editorState;
+  useEffect(() => {
+    const reselected = isFocused && selection.from !== selection.to;
+    if (toolbarContext !== ToolbarContext.Link || reselected) {
+      linkSelection.current = selection;
+    }
+  }, [selection, isFocused, toolbarContext]);
+
+  // Like the 1.0 blur close: dismissing the keyboard returns to the main
+  // toolbar and its hide rules.
+  const wasKeyboardUp = useRef(isKeyboardUp);
+  useEffect(() => {
+    const dismissed = wasKeyboardUp.current && !isKeyboardUp;
+    wasKeyboardUp.current = isKeyboardUp;
+    if (!dismissed || toolbarContext !== ToolbarContext.Link) return;
+    const timer = setTimeout(
+      () => setToolbarContext(ToolbarContext.Main),
+      LINK_BAR_KEYBOARD_CLOSE_DELAY_MS
+    );
+    return () => clearTimeout(timer);
+  }, [isKeyboardUp, toolbarContext]);
 
   const hideToolbar =
     hidden === undefined ? !isKeyboardUp || !editorState.isFocused : hidden;
 
-  const args = {
-    editor,
-    editorState,
-    setToolbarContext,
-    toolbarContext,
+  // While shown, the editor keeps its caret above the toolbar.
+  const accessory = useKeyboardAccessory(
+    !hideToolbar && toolbarContext !== ToolbarContext.Link
+  );
+
+  const args = useMemo<ArgsToolbarCB>(
+    () => ({ editor, editorState, setToolbarContext, toolbarContext }),
+    [editor, editorState, toolbarContext]
+  );
+
+  const contextItems =
+    toolbarContext === ToolbarContext.Heading ? headingItems : items;
+  const visibleItems = useMemo(
+    () =>
+      shouldHideDisabledToolbarItems
+        ? contextItems.filter((item) => !item.disabled(args))
+        : contextItems,
+    [contextItems, shouldHideDisabledToolbarItems, args]
+  );
+
+  const { theme } = editor;
+  const renderItem = useCallback<ListRenderItem<ToolbarItem>>(
+    ({ item }) => <ToolbarItemComp {...item} args={args} editor={editor} />,
+    [args, editor]
+  );
+
+  const closeLinkBar = () => {
+    clearTimeout(closeLinkTimer.current);
+    closeLinkOnBlur.current = false;
+    setToolbarContext(ToolbarContext.Main);
   };
 
-  const filteredItems = shouldHideDisabledToolbarItems
-    ? items.filter((item) => !item.disabled(args))
-    : items;
-
-  switch (toolbarContext) {
-    case ToolbarContext.Main:
-    case ToolbarContext.Heading:
-      if (Platform.OS === 'web') {
-        return (
-          <WebToolbar
-            items={
-              toolbarContext === ToolbarContext.Main
-                ? filteredItems
-                : HEADING_ITEMS
-            }
-            args={args}
-            editor={editor}
-            hidden={hidden}
-          />
-        );
-      }
-      return (
-        <FlatList
-          data={
-            toolbarContext === ToolbarContext.Main
-              ? filteredItems
-              : HEADING_ITEMS
-          }
-          style={[
-            editor.theme.toolbar.toolbarBody,
-            hideToolbar ? editor.theme.toolbar.hidden : undefined,
-          ]}
-          renderItem={({ item }) => {
-            return <ToolbarItemComp {...item} args={args} editor={editor} />;
-          }}
-          horizontal
-        />
-      );
-    case ToolbarContext.Link:
-      return (
-        <EditLinkBar
-          theme={editor.theme}
-          initialLink={editorState.activeLink}
-          onBlur={() => {
-            if (Platform.OS === 'web') {
-              // On web blur is called before onEditLink. This isn't an ideal fix however this is going to be change soon when we
-              // add the new api for toolbar where we will have more control. This is a temporary fix for now.
-              setTimeout(() => {
-                setToolbarContext(ToolbarContext.Main);
-              }, 100);
-            } else {
-              setToolbarContext(ToolbarContext.Main);
-            }
-          }}
-          onLinkIconClick={() => {
-            setToolbarContext(ToolbarContext.Main);
-            editor.focus();
-          }}
-          onEditLink={(link) => {
+  if (toolbarContext === ToolbarContext.Link && hidden !== true) {
+    const linkBar = (
+      <EditLinkBar
+        theme={theme}
+        initialLink={editorState.activeLink}
+        onLinkIconClick={() => {
+          closeLinkBar();
+          editor.focus();
+        }}
+        onEditLink={(link) => {
+          if (Platform.OS !== 'android') {
             editor.setLink(link);
             editor.focus();
-
-            if (Platform.OS === 'android') {
-              // On android we dont want to hide the link input before we finished focus on editor
-              // Add here 100ms and we can try to find better solution later
-              setTimeout(() => {
-                setToolbarContext(ToolbarContext.Main);
-              }, 100);
-            } else {
-              setToolbarContext(ToolbarContext.Main);
-            }
-          }}
-        />
-      );
+            closeLinkBar();
+            return;
+          }
+          const { from, to } = linkSelection.current;
+          editor.setSelection(from, to);
+          editor.setLink(link);
+          editor.focus();
+          closeLinkOnBlur.current = true;
+          clearTimeout(closeLinkTimer.current);
+          closeLinkTimer.current = setTimeout(
+            closeLinkBar,
+            ANDROID_LINK_CLOSE_TIMEOUT_MS
+          );
+        }}
+        onBlur={() => {
+          if (closeLinkOnBlur.current) closeLinkBar();
+        }}
+      />
+    );
+    return Platform.OS === 'web' ? (
+      <WebToolbarBar>{linkBar}</WebToolbarBar>
+    ) : (
+      linkBar
+    );
   }
+
+  if (Platform.OS === 'web') {
+    return (
+      <WebToolbar
+        items={visibleItems}
+        args={args}
+        editor={editor}
+        hidden={hidden}
+      />
+    );
+  }
+
+  return (
+    <ListComponent
+      // A fresh list per context starts scrolled to the beginning (#298).
+      key={toolbarContext}
+      data={visibleItems}
+      style={[theme.toolbar.toolbarBody, hideToolbar && theme.toolbar.hidden]}
+      renderItem={renderItem}
+      // Items read their styles from the editor theme.
+      extraData={theme}
+      keyExtractor={keyExtractor}
+      horizontal
+      onLayout={accessory.onLayout}
+    />
+  );
 }

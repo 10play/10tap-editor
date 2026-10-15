@@ -1,0 +1,36 @@
+# Launches the development build on the Metro bundle and opens the example
+# named by EXAMPLE.
+appId: dev.tenplay.tentapexampleexpo
+env:
+  METRO_URL: ${METRO_URL || 'http://localhost:8081'}
+---
+- launchApp:
+    stopApp: true
+- openLink: exp+tentap-example-expo://expo-development-client/?url=${encodeURIComponent(METRO_URL)}
+# iOS asks before a link opens the app, sometimes twice.
+- extendedWaitUntil:
+    visible: 'Open in .*|10Tap Rich Text Editor|Continue|Close'
+    timeout: 120000
+- repeat:
+    while:
+      visible: 'Open in .*'
+    times: 3
+    commands:
+      - tapOn: '^Open$'
+      - waitForAnimationToEnd
+# A fresh install greets with the dev menu sheet, which hides the list.
+- extendedWaitUntil:
+    visible: 10Tap Rich Text Editor|Continue|Close
+    timeout: 120000
+- runFlow:
+    when:
+      visible: Continue
+    commands:
+      - tapOn: Continue
+- runFlow:
+    when:
+      visible: Close
+    commands:
+      - tapOn: Close
+- assertVisible: 10Tap Rich Text Editor
+- tapOn: ${EXAMPLE}

@@ -1,0 +1,18 @@
+# The editor loads its initial content, takes focus on its own (autofocus,
+# Android #321) and receives typing.
+appId: dev.tenplay.tentapexampleexpo
+name: Basic editor
+tags:
+  - smoke
+---
+- runFlow:
+    file: ../common/open-example.yaml
+    env:
+      EXAMPLE: Basic
+- extendedWaitUntil:
+    visible: This is a basic example
+    timeout: 20000
+- waitForAnimationToEnd
+- inputText: ' typed'
+- assertVisible: 'This is a basic example typed'
+- takeScreenshot: basic

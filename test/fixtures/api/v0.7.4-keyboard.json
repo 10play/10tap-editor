@@ -1,0 +1,1415 @@
+{
+  "package": "@10play/tentap-editor",
+  "version": "0.7.4",
+  "commit": "cb804b7",
+  "entry": ".",
+  "manifest": {
+    "main": "lib/commonjs/index.js",
+    "module": "lib/module/index.js",
+    "types": "lib/typescript/src/index.d.ts",
+    "react-native": "src/index.tsx",
+    "source": "src/index",
+    "exports": {
+      ".": {
+        "import": "./lib/module/index.js",
+        "require": "./lib/commonjs/index.js",
+        "types": "./lib/typescript/src/index.d.ts"
+      },
+      "./web": {
+        "import": "./lib-web/index.mjs",
+        "require": "./lib-web/index.umd.cjs",
+        "types": "./lib-web/typescript/webEditorUtils/index.d.ts"
+      },
+      "./package.json": "./package.json"
+    }
+  },
+  "runtime": {
+    "ColorKeyboard": {
+      "type": "object",
+      "members": {
+        "comp": {
+          "type": "function"
+        },
+        "id": {
+          "type": "string",
+          "value": "keyboard.color"
+        }
+      }
+    },
+    "CustomKeyboard": {
+      "type": "function"
+    },
+    "CustomKeyboardExtension": {
+      "type": "function"
+    },
+    "TenTapView": {
+      "type": "function"
+    },
+    "darkEditorCss": {
+      "type": "string",
+      "value": "\n  * {\n    background-color: #1C1C1E;\n    color: white;\n  }\n  blockquote {\n    border-left: 3px solid #babaca;\n    padding-left: 1rem;\n  }\n  .highlight-background {\n    background-color: #474749;\n  }\n"
+    },
+    "darkEditorTheme": {
+      "type": "object",
+      "members": {
+        "colorKeyboard": {
+          "type": "object",
+          "members": {
+            "activeButton": {
+              "type": "object",
+              "members": {
+                "borderColor": {
+                  "type": "string",
+                  "value": "white"
+                }
+              }
+            },
+            "colorButton": {
+              "type": "object",
+              "members": {
+                "backgroundColor": {
+                  "type": "string",
+                  "value": "#4B4B4C"
+                },
+                "borderColor": {
+                  "type": "string",
+                  "value": "#4B4B4C"
+                }
+              }
+            },
+            "colorSelection": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "members": {
+                    "displayColor": {
+                      "type": "string",
+                      "value": "white"
+                    },
+                    "name": {
+                      "type": "string",
+                      "value": "Default"
+                    },
+                    "value": {
+                      "type": "undefined"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Red"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#E5112B"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Yellow"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#FFEE32"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Orange"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#F18200"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Blue"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#006ED3"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Green"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#07CE61"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Purple"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#9D4EDD"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Pink"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#FF77A1"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Black"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#000000"
+                    }
+                  }
+                }
+              ]
+            },
+            "colorText": {
+              "type": "object",
+              "members": {
+                "color": {
+                  "type": "string",
+                  "value": "white"
+                }
+              }
+            },
+            "highlightSelection": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "members": {
+                    "displayColor": {
+                      "type": "string",
+                      "value": "#E5E5E580"
+                    },
+                    "name": {
+                      "type": "string",
+                      "value": "Default"
+                    },
+                    "value": {
+                      "type": "undefined"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Red"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#E5112B4D"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Yellow"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#FFEE324D"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Orange"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#F182004D"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Blue"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#006ED34D"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Green"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#07CE614D"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Purple"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#9D4EDD4D"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Pink"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#FF77A14D"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Black"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#0000004D"
+                    }
+                  }
+                }
+              ]
+            },
+            "iconContainer": {
+              "type": "object",
+              "members": {
+                "backgroundColor": {
+                  "type": "string",
+                  "value": "#8C8C8D"
+                },
+                "shadowColor": {
+                  "type": "string",
+                  "value": "#898989"
+                }
+              }
+            },
+            "keyboardRootColor": {
+              "type": "string",
+              "value": "#313132"
+            },
+            "scrollViewContainer": {
+              "type": "object",
+              "members": {
+                "backgroundColor": {
+                  "type": "string",
+                  "value": "#313132"
+                }
+              }
+            },
+            "sectionTitle": {
+              "type": "object",
+              "members": {
+                "color": {
+                  "type": "string",
+                  "value": "#CACACA"
+                }
+              }
+            }
+          }
+        },
+        "toolbar": {
+          "type": "object",
+          "members": {
+            "hidden": {
+              "type": "object",
+              "members": {
+                "display": {
+                  "type": "string",
+                  "value": "none"
+                }
+              }
+            },
+            "icon": {
+              "type": "object",
+              "members": {
+                "tintColor": {
+                  "type": "string",
+                  "value": "white"
+                }
+              }
+            },
+            "iconDisabled": {
+              "type": "object",
+              "members": {
+                "tintColor": {
+                  "type": "string",
+                  "value": "#CACACA"
+                }
+              }
+            },
+            "iconWrapper": {
+              "type": "object",
+              "members": {
+                "backgroundColor": {
+                  "type": "string",
+                  "value": "#474747"
+                },
+                "borderRadius": {
+                  "type": "number",
+                  "value": 4
+                }
+              }
+            },
+            "iconWrapperActive": {
+              "type": "object",
+              "members": {
+                "backgroundColor": {
+                  "type": "string",
+                  "value": "#8E8E93"
+                }
+              }
+            },
+            "linkBarTheme": {
+              "type": "object",
+              "members": {
+                "addLinkContainer": {
+                  "type": "object",
+                  "members": {
+                    "backgroundColor": {
+                      "type": "string",
+                      "value": "#474747"
+                    },
+                    "borderBottomColor": {
+                      "type": "string",
+                      "value": "#939394"
+                    },
+                    "borderTopColor": {
+                      "type": "string",
+                      "value": "#939394"
+                    }
+                  }
+                },
+                "doneButton": {
+                  "type": "object",
+                  "members": {
+                    "backgroundColor": {
+                      "type": "string",
+                      "value": "#0085FF"
+                    }
+                  }
+                },
+                "doneButtonText": {
+                  "type": "object",
+                  "members": {
+                    "color": {
+                      "type": "string",
+                      "value": "white"
+                    }
+                  }
+                },
+                "linkInput": {
+                  "type": "object",
+                  "members": {
+                    "backgroundColor": {
+                      "type": "string",
+                      "value": "#474747"
+                    },
+                    "color": {
+                      "type": "string",
+                      "value": "white"
+                    }
+                  }
+                },
+                "linkToolbarButton": {
+                  "type": "object",
+                  "members": {}
+                },
+                "placeholderTextColor": {
+                  "type": "string",
+                  "value": "#B2B2B8"
+                }
+              }
+            },
+            "toolbarBody": {
+              "type": "object",
+              "members": {
+                "backgroundColor": {
+                  "type": "string",
+                  "value": "#474747"
+                },
+                "borderBottomColor": {
+                  "type": "string",
+                  "value": "#C6C6C6B3"
+                },
+                "borderTopColor": {
+                  "type": "string",
+                  "value": "#C6C6C6B3"
+                }
+              }
+            },
+            "toolbarButton": {
+              "type": "object",
+              "members": {
+                "backgroundColor": {
+                  "type": "string",
+                  "value": "#474747"
+                }
+              }
+            }
+          }
+        },
+        "webview": {
+          "type": "object",
+          "members": {
+            "backgroundColor": {
+              "type": "string",
+              "value": "#1C1C1E"
+            }
+          }
+        },
+        "webviewContainer": {
+          "type": "object",
+          "members": {}
+        }
+      }
+    },
+    "defaultEditorTheme": {
+      "type": "object",
+      "members": {
+        "colorKeyboard": {
+          "type": "object",
+          "members": {
+            "activeButton": {
+              "type": "object",
+              "members": {
+                "borderColor": {
+                  "type": "string",
+                  "value": "#C8C8C9"
+                },
+                "borderWidth": {
+                  "type": "number",
+                  "value": 1
+                }
+              }
+            },
+            "bottomSpacer": {
+              "type": "object",
+              "members": {
+                "height": {
+                  "type": "number",
+                  "value": 30
+                }
+              }
+            },
+            "colorButton": {
+              "type": "object",
+              "members": {
+                "alignItems": {
+                  "type": "string",
+                  "value": "center"
+                },
+                "backgroundColor": {
+                  "type": "string",
+                  "value": "white"
+                },
+                "borderColor": {
+                  "type": "string",
+                  "value": "#DEE0E3"
+                },
+                "borderRadius": {
+                  "type": "number",
+                  "value": 10
+                },
+                "borderStyle": {
+                  "type": "string",
+                  "value": "solid"
+                },
+                "borderWidth": {
+                  "type": "number",
+                  "value": 0.5
+                },
+                "flexDirection": {
+                  "type": "string",
+                  "value": "row"
+                },
+                "gap": {
+                  "type": "number",
+                  "value": 16
+                },
+                "height": {
+                  "type": "number",
+                  "value": 46
+                },
+                "padding": {
+                  "type": "number",
+                  "value": 12
+                },
+                "width": {
+                  "type": "number",
+                  "value": 114
+                }
+              }
+            },
+            "colorRow": {
+              "type": "object",
+              "members": {
+                "flex": {
+                  "type": "number",
+                  "value": 1
+                },
+                "flexDirection": {
+                  "type": "string",
+                  "value": "row"
+                },
+                "gap": {
+                  "type": "number",
+                  "value": 10
+                },
+                "justifyContent": {
+                  "type": "string",
+                  "value": "space-between"
+                }
+              }
+            },
+            "colorSelection": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "members": {
+                    "displayColor": {
+                      "type": "string",
+                      "value": "#898989"
+                    },
+                    "name": {
+                      "type": "string",
+                      "value": "Default"
+                    },
+                    "value": {
+                      "type": "undefined"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Red"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#EF233C"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Yellow"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#FFEE32"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Orange"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#FB8500"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Blue"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#0085FF"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Green"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#00A896"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Purple"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#A463F2"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Pink"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#FF5D8F"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Black"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#000000"
+                    }
+                  }
+                }
+              ]
+            },
+            "colorText": {
+              "type": "object",
+              "members": {
+                "color": {
+                  "type": "string",
+                  "value": "#898989"
+                }
+              }
+            },
+            "highlight": {
+              "type": "object",
+              "members": {
+                "borderRadius": {
+                  "type": "number",
+                  "value": 4
+                },
+                "height": {
+                  "type": "number",
+                  "value": 20
+                },
+                "width": {
+                  "type": "number",
+                  "value": 20
+                }
+              }
+            },
+            "highlightSelection": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "members": {
+                    "displayColor": {
+                      "type": "string",
+                      "value": "#8989894D"
+                    },
+                    "name": {
+                      "type": "string",
+                      "value": "Default"
+                    },
+                    "value": {
+                      "type": "undefined"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Red"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#EF233C4D"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Yellow"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#FFEE324D"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Orange"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#FB85004D"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Blue"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#0085FF4D"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Green"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#00A8964D"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Purple"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#A463F24D"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Pink"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#FF5D8F4D"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "members": {
+                    "name": {
+                      "type": "string",
+                      "value": "Black"
+                    },
+                    "value": {
+                      "type": "string",
+                      "value": "#0000004D"
+                    }
+                  }
+                }
+              ]
+            },
+            "iconContainer": {
+              "type": "object",
+              "members": {
+                "alignItems": {
+                  "type": "string",
+                  "value": "center"
+                },
+                "backgroundColor": {
+                  "type": "string",
+                  "value": "white"
+                },
+                "borderRadius": {
+                  "type": "number",
+                  "value": 4
+                },
+                "borderStyle": {
+                  "type": "string",
+                  "value": "solid"
+                },
+                "height": {
+                  "type": "number",
+                  "value": 20
+                },
+                "justifyContent": {
+                  "type": "string",
+                  "value": "center"
+                },
+                "shadowColor": {
+                  "type": "string",
+                  "value": "#898989"
+                },
+                "shadowOffset": {
+                  "type": "object",
+                  "members": {
+                    "height": {
+                      "type": "number",
+                      "value": 0
+                    },
+                    "width": {
+                      "type": "number",
+                      "value": 0
+                    }
+                  }
+                },
+                "shadowOpacity": {
+                  "type": "number",
+                  "value": 0.2
+                },
+                "shadowRadius": {
+                  "type": "number",
+                  "value": 2
+                },
+                "width": {
+                  "type": "number",
+                  "value": 20
+                }
+              }
+            },
+            "keyboardContainer": {
+              "type": "object",
+              "members": {
+                "flex": {
+                  "type": "number",
+                  "value": 1
+                },
+                "gap": {
+                  "type": "number",
+                  "value": 8
+                }
+              }
+            },
+            "keyboardRootColor": {
+              "type": "string",
+              "value": "#F5F5F5"
+            },
+            "scrollViewContainer": {
+              "type": "object",
+              "members": {
+                "backgroundColor": {
+                  "type": "string",
+                  "value": "#F5F5F5"
+                },
+                "flex": {
+                  "type": "number",
+                  "value": 1
+                },
+                "height": {
+                  "type": "string",
+                  "value": "100%"
+                },
+                "padding": {
+                  "type": "number",
+                  "value": 8
+                },
+                "width": {
+                  "type": "string",
+                  "value": "100%"
+                }
+              }
+            },
+            "sectionTitle": {
+              "type": "object",
+              "members": {
+                "alignSelf": {
+                  "type": "string",
+                  "value": "flex-start"
+                },
+                "color": {
+                  "type": "string",
+                  "value": "#CACACA"
+                },
+                "fontSize": {
+                  "type": "number",
+                  "value": 14
+                },
+                "marginLeft": {
+                  "type": "number",
+                  "value": 20
+                },
+                "marginTop": {
+                  "type": "number",
+                  "value": 15
+                }
+              }
+            },
+            "textIcon": {
+              "type": "object",
+              "members": {
+                "height": {
+                  "type": "number",
+                  "value": 14
+                }
+              }
+            }
+          }
+        },
+        "toolbar": {
+          "type": "object",
+          "members": {
+            "hidden": {
+              "type": "object",
+              "members": {
+                "display": {
+                  "type": "string",
+                  "value": "none"
+                }
+              }
+            },
+            "icon": {
+              "type": "object",
+              "members": {
+                "height": {
+                  "type": "number",
+                  "value": 28
+                },
+                "tintColor": {
+                  "type": "string",
+                  "value": "#898989"
+                },
+                "width": {
+                  "type": "number",
+                  "value": 28
+                }
+              }
+            },
+            "iconActive": {
+              "type": "object",
+              "members": {}
+            },
+            "iconDisabled": {
+              "type": "object",
+              "members": {
+                "tintColor": {
+                  "type": "string",
+                  "value": "#CACACA"
+                }
+              }
+            },
+            "iconWrapper": {
+              "type": "object",
+              "members": {
+                "backgroundColor": {
+                  "type": "string",
+                  "value": "white"
+                },
+                "borderRadius": {
+                  "type": "number",
+                  "value": 4
+                }
+              }
+            },
+            "iconWrapperActive": {
+              "type": "object",
+              "members": {
+                "backgroundColor": {
+                  "type": "string",
+                  "value": "#E5E5E5"
+                }
+              }
+            },
+            "iconWrapperDisabled": {
+              "type": "object",
+              "members": {
+                "opacity": {
+                  "type": "number",
+                  "value": 0.3
+                }
+              }
+            },
+            "keyboardAvoidingView": {
+              "type": "object",
+              "members": {
+                "bottom": {
+                  "type": "number",
+                  "value": 0
+                },
+                "position": {
+                  "type": "string",
+                  "value": "absolute"
+                },
+                "width": {
+                  "type": "string",
+                  "value": "100%"
+                }
+              }
+            },
+            "linkBarTheme": {
+              "type": "object",
+              "members": {
+                "addLinkContainer": {
+                  "type": "object",
+                  "members": {
+                    "alignItems": {
+                      "type": "string",
+                      "value": "center"
+                    },
+                    "backgroundColor": {
+                      "type": "string",
+                      "value": "white"
+                    },
+                    "borderBottomColor": {
+                      "type": "string",
+                      "value": "#e0e0e0"
+                    },
+                    "borderBottomWidth": {
+                      "type": "number",
+                      "value": 0.5
+                    },
+                    "borderTopColor": {
+                      "type": "string",
+                      "value": "#e0e0e0"
+                    },
+                    "borderTopWidth": {
+                      "type": "number",
+                      "value": 0.5
+                    },
+                    "flex": {
+                      "type": "number",
+                      "value": 1
+                    },
+                    "flexDirection": {
+                      "type": "string",
+                      "value": "row"
+                    },
+                    "height": {
+                      "type": "number",
+                      "value": 44
+                    },
+                    "justifyContent": {
+                      "type": "string",
+                      "value": "center"
+                    },
+                    "padding": {
+                      "type": "number",
+                      "value": 4
+                    },
+                    "paddingHorizontal": {
+                      "type": "number",
+                      "value": 8
+                    }
+                  }
+                },
+                "doneButton": {
+                  "type": "object",
+                  "members": {
+                    "backgroundColor": {
+                      "type": "string",
+                      "value": "#F5F5F5"
+                    },
+                    "borderRadius": {
+                      "type": "number",
+                      "value": 4
+                    },
+                    "height": {
+                      "type": "number",
+                      "value": 32
+                    },
+                    "justifyContent": {
+                      "type": "string",
+                      "value": "center"
+                    },
+                    "padding": {
+                      "type": "number",
+                      "value": 8
+                    }
+                  }
+                },
+                "doneButtonText": {
+                  "type": "object",
+                  "members": {
+                    "color": {
+                      "type": "string",
+                      "value": "#0085FF"
+                    }
+                  }
+                },
+                "linkInput": {
+                  "type": "object",
+                  "members": {
+                    "flex": {
+                      "type": "number",
+                      "value": 1
+                    },
+                    "paddingBottom": {
+                      "type": "number",
+                      "value": 1
+                    },
+                    "paddingLeft": {
+                      "type": "number",
+                      "value": 12
+                    },
+                    "paddingRight": {
+                      "type": "number",
+                      "value": 12
+                    },
+                    "paddingTop": {
+                      "type": "number",
+                      "value": 1
+                    }
+                  }
+                },
+                "linkToolbarButton": {
+                  "type": "object",
+                  "members": {
+                    "paddingHorizontal": {
+                      "type": "number",
+                      "value": 0
+                    }
+                  }
+                }
+              }
+            },
+            "toolbarBody": {
+              "type": "object",
+              "members": {
+                "backgroundColor": {
+                  "type": "string",
+                  "value": "white"
+                },
+                "borderBottomColor": {
+                  "type": "string",
+                  "value": "#DEE0E3"
+                },
+                "borderBottomWidth": {
+                  "type": "number",
+                  "value": 0.5
+                },
+                "borderTopColor": {
+                  "type": "string",
+                  "value": "#DEE0E3"
+                },
+                "borderTopWidth": {
+                  "type": "number",
+                  "value": 0.5
+                },
+                "flex": {
+                  "type": "number",
+                  "value": 1
+                },
+                "height": {
+                  "type": "number",
+                  "value": 44
+                },
+                "minWidth": {
+                  "type": "string",
+                  "value": "100%"
+                }
+              }
+            },
+            "toolbarButton": {
+              "type": "object",
+              "members": {
+                "alignItems": {
+                  "type": "string",
+                  "value": "center"
+                },
+                "backgroundColor": {
+                  "type": "string",
+                  "value": "white"
+                },
+                "justifyContent": {
+                  "type": "string",
+                  "value": "center"
+                },
+                "paddingHorizontal": {
+                  "type": "number",
+                  "value": 8
+                }
+              }
+            }
+          }
+        },
+        "webview": {
+          "type": "object",
+          "members": {
+            "backgroundColor": {
+              "type": "string",
+              "value": "white"
+            }
+          }
+        },
+        "webviewContainer": {
+          "type": "object",
+          "members": {}
+        }
+      }
+    }
+  },
+  "types": {
+    "BlockquoteBridge": "value",
+    "BlockquoteEditorActionType": "value+type",
+    "BoldBridge": "value",
+    "BoldEditorActionType": "value+type",
+    "BridgeExtension": "value+type",
+    "BridgeState": "type",
+    "BulletListBridge": "value",
+    "BulletListEditorActionType": "value+type",
+    "CodeBridge": "value",
+    "CodeEditorActionType": "value+type",
+    "Color": "type",
+    "ColorBridge": "value",
+    "ColorEditorActionType": "value+type",
+    "ColorKeyboard": "value",
+    "ColorKeyboardTheme": "type",
+    "CoreBridge": "value",
+    "CoreEditorActionType": "value+type",
+    "CoreMessages": "type",
+    "CustomKeyboard": "value",
+    "CustomKeyboardExtension": "value+type",
+    "darkEditorCss": "value",
+    "darkEditorTheme": "value",
+    "DEFAULT_TOOLBAR_ITEMS": "value",
+    "defaultEditorTheme": "value",
+    "DropCursorBridge": "value",
+    "EditorActionMessage": "type",
+    "EditorActionType": "value+type",
+    "EditorBridge": "type",
+    "EditorContentType": "type",
+    "EditorHelper": "value",
+    "editorHtml": "value",
+    "EditorMessage": "type",
+    "EditorMessageType": "value+type",
+    "EditorTheme": "type",
+    "EditorUpdateSettings": "value+type",
+    "HardBreakBridge": "value",
+    "HardBreakEditorActionType": "value+type",
+    "HeadingBridge": "value",
+    "HeadingEditorActionType": "value+type",
+    "HighlightBridge": "value",
+    "HighlightEditorActionType": "value+type",
+    "HistoryBridge": "value",
+    "HistoryEditorActionType": "value+type",
+    "ImageBridge": "value",
+    "ImageEditorActionType": "value+type",
+    "Images": "value",
+    "ItalicBridge": "value",
+    "ItalicEditorActionType": "value+type",
+    "LinkBarTheme": "type",
+    "LinkBridge": "value",
+    "LinkEditorActionType": "value+type",
+    "ListItemBridge": "value",
+    "ListItemEditorActionType": "value+type",
+    "ListItemMessage": "type",
+    "OrderedListBridge": "value",
+    "OrderedListEditorActionType": "value+type",
+    "PlaceholderBridge": "value",
+    "PlaceholderEditorActionType": "value+type",
+    "PlaceholderMessage": "type",
+    "RecursivePartial": "type",
+    "RegularAction": "type",
+    "RichText": "value",
+    "StrikeBridge": "value",
+    "StrikeEditorActionType": "value+type",
+    "TaskListBridge": "value",
+    "TaskListEditorActionType": "value+type",
+    "TenTapStartKit": "value",
+    "TenTapView": "value",
+    "Toolbar": "value",
+    "ToolbarItem": "type",
+    "ToolbarItems": "value",
+    "ToolbarTheme": "type",
+    "UnderlineBridge": "value",
+    "UnderlineEditorActionType": "value+type",
+    "uniqueBy": "value",
+    "useBridgeState": "value",
+    "useEditorBridge": "value",
+    "useEditorContent": "value",
+    "useKeyboard": "value"
+  }
+}

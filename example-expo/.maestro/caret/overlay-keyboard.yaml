@@ -1,0 +1,12 @@
+# Overlay Keyboard screen: ColorKeyboard with layout="overlay" and the
+# toolbar in an EditorKeyboardAvoidingView.
+appId: dev.tenplay.tentapexampleexpo
+name: 'Caret: custom keyboard (overlay)'
+tags:
+  - caret
+---
+- runFlow:
+    file: common/custom-keyboard-session.yaml
+    env:
+      EXAMPLE: Overlay Keyboard
+      PREFIX: overlay

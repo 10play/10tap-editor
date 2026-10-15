@@ -1,0 +1,70 @@
+# Basic editor with a long document (pasted, needs CARET_PROBE): typing and
+# Enter in the middle after scrolling up; then the keyboard is closed and a
+# line low on the screen is tapped, so the keyboard and toolbar open over it.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+  RUN: ${RUN || 'refocus'}
+name: 'Caret: basic editor, focus low on the screen'
+tags:
+  - caret
+---
+- runFlow:
+    file: open.yaml
+    env:
+      SCREEN: Basic
+- extendedWaitUntil:
+    visible: '.*This is a basic example.*'
+    timeout: 20000
+- runFlow:
+    file: subflows/paste.yaml
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-00-pasted'}
+- swipe:
+    start: 50%,25%
+    end: 50%,55%
+- tapOn:
+    point: 50%,35%
+- inputText: ' middle'
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-01-middle'}
+- runFlow:
+    file: type-lines.yaml
+    env:
+      COUNT: '12'
+      TAG: Mid
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-02-middle-enter'}
+- runFlow:
+    file: subflows/dismiss.yaml
+    env:
+      LABEL: ${RUN + '-03-dismissed'}
+- swipe:
+    start: 50%,30%
+    end: 50%,70%
+- tapOn:
+    point: 50%,80%
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-10-tapped-low'}
+- inputText: ' typed'
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-11-typed'}
+- runFlow:
+    file: type-lines.yaml
+    env:
+      COUNT: '3'
+      TAG: Low
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-12-enter'}

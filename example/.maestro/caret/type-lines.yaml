@@ -1,0 +1,18 @@
+# Types COUNT short paragraphs ("<TAG> <n> ends", n from START), each after
+# an Enter, so the caret ends on the last one.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+  START: ${START || '1'}
+  COUNT: ${COUNT || '8'}
+  TAG: ${TAG || 'Line'}
+name: 'Caret: type lines'
+---
+- evalScript: ${output.line = Number(START)}
+- repeat:
+    times: ${COUNT}
+    commands:
+      - pressKey: Enter
+      - inputText: ${TAG + ' ' + output.line + ' ends'}
+      - evalScript: ${output.line = output.line + 1}
+- waitForAnimationToEnd

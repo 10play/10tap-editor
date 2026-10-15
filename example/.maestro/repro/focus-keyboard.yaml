@@ -1,0 +1,89 @@
+# Android: focusing the editor brings the soft keyboard back
+# - after a search input that had it unmounts in the same tick
+#   (`setSearchOpen(false); editor.focus()`),
+# - after inserting a link from the toolbar's link bar,
+# - when autofocus runs while the device is not in touch mode.
+# The status line reads the keyboard events, so `keyboard:up` means the IME
+# is on screen.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+name: 'Repro: the keyboard comes back when the editor is focused'
+tags:
+  - repro
+---
+- runFlow: ../subflows/launch.yaml
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - scrollUntilVisible:
+          element: 'Repro: Focus keyboard'
+          timeout: 60000
+      - tapOn: 'Repro: Focus keyboard'
+      - extendedWaitUntil:
+          visible:
+            id: editor-status
+            text: 'ready:true .*keyboard:up'
+          timeout: 15000
+
+      # A search input takes the keyboard, then unmounts as the editor is focused.
+      - tapOn:
+          id: open-search
+      - extendedWaitUntil:
+          visible:
+            id: search-input
+          timeout: 5000
+      - tapOn:
+          id: close-search
+      - extendedWaitUntil:
+          notVisible:
+            id: search-input
+          timeout: 5000
+      # Long enough for a hide to be reported and the keyboard to come back.
+      - extendedWaitUntil:
+          visible: 'focus-keyboard-never-shown'
+          timeout: 2000
+          optional: true
+      - extendedWaitUntil:
+          visible:
+            id: editor-status
+            text: '.*keyboard:up'
+          timeout: 5000
+
+      # A link inserted from the link bar keeps the keyboard up.
+      - tapOn:
+          id: select-word
+      - tapOn: 'Link'
+      - inputText: 'example.com'
+      - tapOn: 'Insert'
+      - extendedWaitUntil:
+          visible: 'focus-keyboard-never-shown'
+          timeout: 2000
+          optional: true
+      - assertVisible:
+          id: editor-status
+          text: '.*keyboard:up'
+      - tapOn:
+          id: read-editor-state
+      - extendedWaitUntil:
+          visible:
+            id: editor-html
+            text: '.*<a [^>]*href="https://example.com"[^>]*>Focus</a>.*'
+          timeout: 10000
+
+      # Autofocus after a D-pad key press took the device out of touch mode.
+      - hideKeyboard
+      - extendedWaitUntil:
+          visible:
+            id: editor-status
+            text: '.*keyboard:down'
+          timeout: 5000
+      - tapOn:
+          id: remount-editor
+      - pressKey: Remote Dpad Down
+      - extendedWaitUntil:
+          visible:
+            id: editor-status
+            text: 'ready:true .*keyboard:up'
+          timeout: 15000

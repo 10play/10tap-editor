@@ -1,5 +1,7 @@
+import type { Editor } from '@tiptap/core';
 import Link from '@tiptap/extension-link';
 import BridgeExtension from './base';
+import { normalizeHref } from './normalizeHref';
 
 type LinkEditorState = {
   isLinkActive: boolean;
@@ -25,61 +27,65 @@ type LinkMessage = {
   payload: null | string;
 };
 
+/** Link option holding a `defaultProtocol` set with `configureExtension`. */
+const CONFIGURED_PROTOCOL = 'tentapConfiguredProtocol';
+
+/**
+ * TipTap's Link defaults `defaultProtocol` to 'http', which autolinks keep
+ * using as in 1.0, while typed links default to https. The merged options
+ * cannot tell a configured 'http' from that default, so `configure` also
+ * records an explicit protocol under its own key.
+ */
+const linkExtension = Link.configure({ openOnClick: false, autolink: true });
+const configureLink = linkExtension.configure.bind(linkExtension);
+linkExtension.configure = (options = {}) =>
+  configureLink(
+    typeof options.defaultProtocol === 'string'
+      ? Object.assign(
+          { [CONFIGURED_PROTOCOL]: options.defaultProtocol },
+          options
+        )
+      : options
+  );
+
+/** The `defaultProtocol` configured with `LinkBridge.configureExtension`. */
+const configuredProtocolOf = (editor: Editor): string | undefined => {
+  const link = editor.extensionManager.extensions.find(
+    (extension) => extension.name === Link.name
+  );
+  const configured: unknown = link?.options[CONFIGURED_PROTOCOL];
+  return typeof configured === 'string' ? configured : undefined;
+};
+
 export const LinkBridge = new BridgeExtension<
   LinkEditorState,
   LinkEditorInstance,
   LinkMessage
 >({
-  tiptapExtension: Link.configure({
-    openOnClick: false,
-    autolink: true,
-  }),
+  tiptapExtension: linkExtension,
   onBridgeMessage: (editor, { type, payload }) => {
-    if (type === LinkEditorActionType.SetLink) {
-      // cancelled
-      if (payload === null) {
-        return false;
-      }
-
-      // empty
-      if (payload === '') {
-        editor
-          .chain()
-          .focus()
-          .extendMarkRange('link')
-          .unsetLink()
-          .setTextSelection(editor.state.selection.from)
-          .run();
-
-        return false;
-      }
-
-      // update link
-      editor
-        .chain()
-        .focus()
-        .extendMarkRange('link')
-        .setLink({ href: payload })
-        .setTextSelection(editor.state.selection.from)
-        .run();
+    // null means the user cancelled.
+    if (type !== LinkEditorActionType.SetLink || payload === null) {
+      return false;
     }
 
+    const href = normalizeHref(payload, configuredProtocolOf(editor));
+    const chain = editor.chain().focus().extendMarkRange('link');
+    (href === '' ? chain.unsetLink() : chain.setLink({ href }))
+      .setTextSelection(editor.state.selection.from)
+      .run();
     return false;
   },
-  extendEditorInstance: (sendBridgeMessage) => {
-    return {
-      setLink: (link) =>
-        sendBridgeMessage({
-          type: LinkEditorActionType.SetLink,
-          payload: link,
-        }),
-    };
-  },
-  extendEditorState: (editor) => {
-    return {
-      canSetLink: !editor.state.selection.empty,
-      isLinkActive: editor.isActive('link'),
-      activeLink: editor.getAttributes('link').href,
-    };
-  },
+  extendEditorInstance: (sendBridgeMessage) => ({
+    setLink: (link) =>
+      sendBridgeMessage({
+        type: LinkEditorActionType.SetLink,
+        payload: link,
+      }),
+  }),
+  extendEditorState: (editor) => ({
+    canSetLink: !editor.state.selection.empty,
+    isLinkActive: editor.isActive('link'),
+    activeLink: editor.getAttributes('link').href,
+  }),
 });

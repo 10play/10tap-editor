@@ -11,7 +11,11 @@ Open issues for things to work on!
 This project is a monorepo managed using [Yarn workspaces](https://yarnpkg.com/features/workspaces). It contains the following packages:
 
 - The library package in the root directory.
-- An example app in the `examplelatest/` directory.
+- A bare React Native example app in the `example/` directory (React Native 0.81, runs on both the new and the old architecture).
+- An Expo example app in the `example-expo/` directory (Expo SDK 57 with a dev client, new architecture only).
+- The web E2E app in the `e2e-web/` directory and the docs website in the `website/` directory.
+
+Development needs Node.js 20.19 or newer (the version in `.nvmrc` is used in CI), although the published package supports Node.js 18.
 
 To get started with the project, run `yarn` in the root directory to install the required dependencies for each package:
 
@@ -21,13 +25,13 @@ yarn
 
 > Since the project relies on Yarn workspaces, you cannot use [`npm`](https://github.com/npm/cli) for development.
 
-The [example app](/examplelatest/) demonstrates usage of the library. You need to run it to test any changes you make.
+The [example app](/example/) demonstrates usage of the library. You need to run it to test any changes you make.
 
-It is configured to use the local version of the library, so any changes you make to the library's source code will be reflected in the example app. Changes to the library's JavaScript code will be reflected in the example app without a rebuild, but native code changes will require a rebuild of the example app.
+Both example apps are configured to use the local version of the library, so any changes you make to the library's source code will be reflected in them. Changes to the library's JavaScript code will be reflected without a rebuild, but native code changes will require a rebuild of the app.
 
-If you want to use Android Studio or XCode to edit the native code, you can open the `examplelatest/android` or `examplelatest/ios` directories respectively in those editors. To edit the Objective-C or Swift files, open `examplelatest/ios/examplelatest.xcworkspace` in XCode and find the source files at `Pods > Development Pods > tentap`.
+If you want to use Android Studio or Xcode to edit the native code, you can open the `example/android` or `example/ios` directories respectively in those editors. To edit the Objective-C files, open `example/ios/TenTapExample.xcworkspace` in Xcode and find the source files at `Pods > Development Pods > tentap`.
 
-To edit the Java or Kotlin files, open `examplelatest/android` in Android studio and find the source files at `tentap` under `Android`.
+To edit the Java or Kotlin files, open `example/android` in Android Studio and find the source files at `tentap` under `Android`.
 
 You can use various commands from the root directory to work with the project.
 
@@ -36,6 +40,13 @@ To build the editor:
 
 ```sh
 yarn editor:build
+```
+
+The example's Advanced screen loads its own editor bundle. Build it once with:
+
+```sh
+yarn editor:build-web-utils
+yarn example editor:build
 ```
 
 If you are working on the web side of the editor and you want to have hot reload enabled you need to do the following
@@ -50,37 +61,45 @@ const editor = useEditorBridge({
 });
 ```
 
+Install the iOS pods once (and again after native changes):
+
+```sh
+yarn example pods
+```
+
 To start the packager:
 
 ```sh
-yarn examplelatest start
+yarn example start
 ```
 
 To run the example app on Android:
 
 ```sh
-yarn examplelatest android
+yarn example android
 ```
 
 To run the example app on iOS:
 
 ```sh
-yarn examplelatest ios
+yarn example ios
 ```
 
-By default, the example is configured to build with the old architecture. To run the example with the new architecture, you can do the following:
+The example builds with the new architecture by default. To try the old architecture:
 
 1. For Android, run:
 
    ```sh
-   ORG_GRADLE_PROJECT_newArchEnabled=true yarn examplelatest android
+   yarn example build:android:oldarch
    ```
 
-2. For iOS, run:
+   or pass `-PnewArchEnabled=false` to Gradle when running from Android Studio.
+
+2. For iOS, reinstall the pods with the old architecture and run the app again:
 
    ```sh
-   RCT_NEW_ARCH_ENABLED=1 yarn pod-install examplelatest/ios
-   yarn examplelatest ios
+   yarn example pods:oldarch
+   yarn example ios
    ```
 
 If you are building for a different architecture than your previous build, make sure to remove the build folders first. You can run the following command to cleanup all build folders:
@@ -89,13 +108,23 @@ If you are building for a different architecture than your previous build, make 
 yarn clean
 ```
 
-To confirm that the app is running with the new architecture, you can check the Metro logs for a message like this:
+The example's home screen shows which architecture it is running on.
+
+The Maestro flows in `example/.maestro` cover the editor and the custom keyboard. With a build installed on a simulator or emulator, run them with:
 
 ```sh
-Running "tentap-example-latest" with {"fabric":true,"initialProps":{"concurrentRoot":true},"rootTag":1}
+yarn example e2e
 ```
 
-Note the `"fabric":true` and `"concurrentRoot":true` properties.
+The Expo example uses a development build, so it can't run in Expo Go. To run it:
+
+```sh
+yarn example:expo ios
+yarn example:expo android
+yarn example:expo web
+```
+
+`yarn example:expo prebuild` regenerates its native projects; `example-expo/ios` and `example-expo/android` are not committed.
 
 Make sure your code passes TypeScript and ESLint. Run the following to verify:
 
@@ -157,9 +186,15 @@ The `package.json` file contains various scripts for common tasks:
 - `yarn typecheck`: type-check files with TypeScript.
 - `yarn lint`: lint files with ESLint.
 - `yarn test`: run unit tests with Jest.
-- `yarn examplelatest start`: start the Metro server for the example app.
-- `yarn examplelatest android`: run the example app on Android.
-- `yarn examplelatest ios`: run the example app on iOS.
+- `yarn test:web`: run the web-side unit tests with Vitest.
+- `yarn e2e:web`: run the web E2E tests with Playwright.
+- `yarn example start`: start the Metro server for the example app.
+- `yarn example android`: run the example app on Android.
+- `yarn example ios`: run the example app on iOS.
+- `yarn example typecheck`: type-check the example app.
+- `yarn example:expo start`: start the Metro server for the Expo example's development build.
+- `yarn example:expo typecheck`: type-check the Expo example.
+- `yarn docs:llms`: regenerate `website/static/llms.txt` and `llms-full.txt` after changing the docs (CI checks them with `yarn check:llms`).
 
 ### Sending a pull request
 

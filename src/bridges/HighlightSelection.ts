@@ -1,7 +1,8 @@
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Decoration, DecorationSet } from '@tiptap/pm/view';
-import { Extension } from '@tiptap/react';
+import { Extension } from '@tiptap/core';
 
+/** Marks the selected range with `.highlight-background`. */
 export const blueBackgroundPlugin = Extension.create({
   name: 'eventHandler',
 
@@ -14,20 +15,11 @@ export const blueBackgroundPlugin = Extension.create({
             return DecorationSet.empty;
           },
           apply(tr, _oldState, _oldEditorState, newEditorState) {
-            if (tr.selection.empty) {
-              // If there is no selection, return the old state
-              return DecorationSet.empty;
-            } else {
-              // If there is a selection, create a decoration
-              const decorations = [];
-              const { from, to } = tr.selection;
-              decorations.push(
-                Decoration.inline(from, to, {
-                  class: 'highlight-background',
-                })
-              );
-              return DecorationSet.create(newEditorState.doc, decorations);
-            }
+            if (tr.selection.empty) return DecorationSet.empty;
+            const { from, to } = tr.selection;
+            return DecorationSet.create(newEditorState.doc, [
+              Decoration.inline(from, to, { class: 'highlight-background' }),
+            ]);
           },
         },
         props: {

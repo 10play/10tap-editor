@@ -1,0 +1,38 @@
+# Taps the paragraph matching TEXT (scrolling the editor to it first; on
+# Android a line in the upper part of the editor after scrolling up) and
+# types "<TAG> mid ends" there.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+  TAG: ${TAG || 'Middle'}
+name: 'Caret: type in the middle'
+---
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - scrollUntilVisible:
+          element:
+            text: ${TEXT}
+          direction: UP
+          visibilityPercentage: 100
+          centerElement: true
+      - tapOn:
+          text: ${TEXT}
+# The Android WebView exposes the editor's paragraphs as one element, so
+# scroll up and tap by position there.
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - swipe:
+          start: 50%,25%
+          end: 50%,55%
+      - swipe:
+          start: 50%,25%
+          end: 50%,55%
+      - tapOn:
+          point: 50%,35%
+- waitForAnimationToEnd
+- inputText: ${' ' + TAG + ' mid ends'}
+- waitForAnimationToEnd

@@ -1,0 +1,66 @@
+# 10tap-editor
+
+> Rich text editor for React Native, built on TipTap and ProseMirror running in a WebView. Typed, works out of the box with a toolbar, and is extended through bridge extensions.
+
+- npm package: `@10play/tentap-editor`; install it with `react-native-webview`.
+- Runs on iOS and Android (new and old architecture) and in Expo; Expo web is in beta.
+- Core API: `useEditorBridge` creates the editor, `RichText` renders it, `Toolbar` formats it, `EditorKeyboardAvoidingView` keeps the toolbar above the keyboard.
+- Content is read asynchronously (`await editor.getHTML()`, `getJSON()`, `getText()`) or with `useEditorContent`; `onChange` does not pass the content.
+- UI state such as `isBoldActive` comes from `useBridgeState(editor)`.
+- Formatting commands come from bridge extensions; `TenTapStartKit` includes all of them.
+- 1.1 is backwards compatible with 1.0: no code changes are needed to upgrade.
+
+The full text of every page below is in [llms-full.txt](https://10play.github.io/10tap-editor/llms-full.txt).
+
+## Introduction
+
+- [10tap-editor](https://10play.github.io/10tap-editor/docs/intro): What 10tap-editor is, its features, installation and a minimal editor with a toolbar above the keyboard.
+- [Main Concept](https://10play.github.io/10tap-editor/docs/mainConcepts): The core concepts: EditorBridge, bridge extensions, simple versus advanced usage and custom keyboards.
+- [FAQ](https://10play.github.io/10tap-editor/docs/faq): Answers to common questions about content, formatting commands, ScrollViews, fonts, the toolbar, the caret, Expo Go and read-only mode.
+
+## Setup
+
+- [Installation](https://10play.github.io/10tap-editor/docs/setup/installation): Installing the package and react-native-webview, autolinking of the native module, Expo builds and supported versions.
+- [Keyboard and caret](https://10play.github.io/10tap-editor/docs/setup/keyboard): Keeping the toolbar above the keyboard and the caret above the toolbar with EditorKeyboardAvoidingView, on iOS and Android.
+- [Advanced Setup](https://10play.github.io/10tap-editor/docs/setup/advancedSetup): Building your own web editor bundle with custom TipTap extensions and loading it into the editor.
+- [Expo Web Setup (Beta)](https://10play.github.io/10tap-editor/docs/setup/expoWeb): Running the editor on Expo web with the web WebView, Metro or Webpack configuration.
+
+## Migration Guides
+
+- [Migrating to v1.1](https://10play.github.io/10tap-editor/docs/migrations/v1.1): Upgrading from 1.0 to 1.1: no code changes required, plus the optional new keyboard layout and behaviour changes.
+- [Migrating to v1.0](https://10play.github.io/10tap-editor/docs/migrations/v1.0): Upgrading from pre-1.0 versions to 1.0 and its breaking changes.
+
+## API
+
+- [useEditorBridge](https://10play.github.io/10tap-editor/docs/api/useEditorBridge): Reference for the useEditorBridge hook and all of its options.
+- [EditorBridge](https://10play.github.io/10tap-editor/docs/api/EditorBridge): Reference for every EditorBridge command and method, and which bridge extension adds it.
+- [BridgeState](https://10play.github.io/10tap-editor/docs/api/BridgeState): Reference for BridgeState, the editor state on the native side, and the useBridgeState hook.
+- [Components](https://10play.github.io/10tap-editor/docs/api/Components): Reference for RichText, Toolbar, ToolbarItem, the link bar and the custom keyboard components.
+- [Built-in BridgeExtensions](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions): Reference for the built-in bridge extensions, the TipTap extensions they wrap and their configuration.
+- [useEditorContent](https://10play.github.io/10tap-editor/docs/api/useEditorContent): Reference for the useEditorContent hook, which reads the content efficiently as HTML, JSON or text.
+- [Custom Keyboard Utils](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils): Reference for CustomKeyboard, ColorKeyboard, EditorKeyboardAvoidingView, useKeyboardAccessory, useScrollToCaret, useKeyboard and the other keyboard APIs.
+
+## Examples
+
+- [Basic example](https://10play.github.io/10tap-editor/docs/examples/basic): A step-by-step basic editor with all built-in bridge extensions and a toolbar above the keyboard.
+- [Working with content](https://10play.github.io/10tap-editor/docs/examples/workingWithContent): Reading, setting and inserting content, keeping it in state and reading the selected text.
+- [Custom CSS and Fonts](https://10play.github.io/10tap-editor/docs/examples/customCss): Adding or overriding editor CSS and loading custom fonts, including CJK text.
+- [Formatting](https://10play.github.io/10tap-editor/docs/examples/fonts): Pro example: a toolbar with rich formatting controls.
+- [Configuring and Extending Extensions](https://10play.github.io/10tap-editor/docs/examples/configureExtensions): Configuring bridge extensions and extending them, including placeholders, links and inline images.
+- [Keyboard Avoiding Toolbar with Navigation Header](https://10play.github.io/10tap-editor/docs/examples/navHeader): Keeping the toolbar above the keyboard below a react-navigation header without a keyboardVerticalOffset.
+- [Editor inside a ScrollView](https://10play.github.io/10tap-editor/docs/examples/scrollView): Placing the editor in a ScrollView with dynamicHeight, capping its height and following the caret.
+- [Rendering editor HTML](https://10play.github.io/10tap-editor/docs/examples/renderHtml): Displaying editor HTML outside the editor, for example with react-native-render-html.
+- [Using The ColorKeyboard](https://10play.github.io/10tap-editor/docs/examples/colorKeyboard): Adding the built-in ColorKeyboard and a toolbar button that toggles it.
+- [Custom Keyboard](https://10play.github.io/10tap-editor/docs/examples/customKeyboard): Building a custom sticker keyboard that replaces the system keyboard while the editor keeps focus.
+- [Mentions](https://10play.github.io/10tap-editor/docs/examples/mentions): Pro example: @mentions in the editor.
+- [Search](https://10play.github.io/10tap-editor/docs/examples/search): Pro example: searching text in the editor.
+- [DarkMode](https://10play.github.io/10tap-editor/docs/examples/darkTheme): Dark mode for the editor and the toolbar, including following the system appearance.
+- [Custom Theme](https://10play.github.io/10tap-editor/docs/examples/customTheme): Providing a custom theme for the toolbar, the link bar and the color keyboard.
+- [Real-time collaboration](https://10play.github.io/10tap-editor/docs/examples/realtimeCollab): Pro example: real-time collaborative editing.
+- [Comments](https://10play.github.io/10tap-editor/docs/examples/comments): Pro example: comments on selected text.
+
+## Optional
+
+- [GitHub repository](https://github.com/10play/10tap-editor): source code, example apps and issues
+- [Changelog](https://github.com/10play/10tap-editor/blob/main/CHANGELOG.md): release notes
+- [1.0 docs](https://10play.github.io/10tap-editor/docs/1.0/intro): documentation of the previous version

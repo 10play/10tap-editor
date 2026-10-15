@@ -70,9 +70,13 @@ inject custom javascript into the editor's webview <br /> extended by [CoreBridg
 `(offset: number) => void`<br />
 a function that gets offset in px and changes [scrollThreshold](https://prosemirror.net/docs/ref/#view.EditorProps.scrollThreshold) [scrollMargin](https://prosemirror.net/docs/ref/#view.EditorProps.scrollMargin) <br /> extended by [CoreBridge](./BridgeExtensions#coreextension)
 
+#### toggleBold
+
+`() => void` <br />will toggle bold on the editor if possible <br /> extended by [BoldBridge](./BridgeExtensions#boldbridge)
+
 #### toggleBlockquote
 
-`() => void` <br />will toggle bold on the editor if possible <br /> extended by [BlockquoteBridge](./BridgeExtensions#blockquotebridge)
+`() => void` <br />will toggle blockquote on the editor if possible <br /> extended by [BlockquoteBridge](./BridgeExtensions#blockquotebridge)
 
 #### toggleCode
 
@@ -82,7 +86,7 @@ a function that gets offset in px and changes [scrollThreshold](https://prosemir
 
 `() => void` <br />will toggle italic on the editor if possible <br /> extended by [ItalicBridge](./BridgeExtensions#italicbridge)
 
-#### toggleStrikethrough
+#### toggleStrike
 
 `() => void` <br />will toggle strikethrough on the editor if possible <br /> extended by [StrikeBridge](./BridgeExtensions#strikebridge)
 
@@ -132,7 +136,7 @@ a function that gets offset in px and changes [scrollThreshold](https://prosemir
 
 #### unsetHighlight
 
-`(color: string) => void` <br />un-sets text highlight<br /> extended by [HighlightBridge](./BridgeExtensions#highlightbridge)
+`() => void` <br />un-sets text highlight<br /> extended by [HighlightBridge](./BridgeExtensions#highlightbridge)
 
 #### setImage
 
@@ -154,4 +158,14 @@ a function that gets offset in px and changes [scrollThreshold](https://prosemir
 
 `(newPlaceholder: string) => void` <br />will change the placeholder on run time <br /> extended by [PlaceholderBridge](./BridgeExtensions#placeholderbridge)
 
-<!-- toggleUnderline: () => void; -->
+#### setHardBreak
+
+`() => void` <br />inserts a line break at the cursor <br /> extended by [HardBreakBridge](./BridgeExtensions)
+
+#### liftTaskListItem
+
+`() => void` <br />will lift the task list item on the editor if possible <br /> extended by [TaskListBridge](./BridgeExtensions#tasklistbridge)
+
+#### sinkTaskListItem
+
+`() => void` <br />will sink the task list item on the editor if possible <br /> extended by [TaskListBridge](./BridgeExtensions#tasklistbridge)

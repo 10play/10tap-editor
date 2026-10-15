@@ -1,0 +1,7 @@
+# Swaps ColorKeyboard back for the system keyboard on the open example.
+appId: dev.tenplay.tentapexampleexpo
+---
+- tapOn: Color keyboard
+- assertNotVisible: Highlight
+- waitForAnimationToEnd:
+    timeout: 3000

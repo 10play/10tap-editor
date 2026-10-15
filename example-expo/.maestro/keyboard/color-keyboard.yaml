@@ -1,0 +1,25 @@
+# The palette item swaps the system keyboard for ColorKeyboard, a color pick
+# closes it and typing goes on at the caret in that color.
+appId: dev.tenplay.tentapexampleexpo
+name: Color keyboard
+tags:
+  - keyboard
+---
+- runFlow:
+    file: ../common/open-example.yaml
+    env:
+      EXAMPLE: Custom Keyboard
+- extendedWaitUntil:
+    visible: '.*open ColorKeyboard\.'
+    timeout: 20000
+- waitForAnimationToEnd
+- tapOn: Color keyboard
+- assertVisible: Highlight
+- takeScreenshot: color-keyboard-open
+- tapOn:
+    text: Red
+    index: 0
+- waitForAnimationToEnd
+- assertNotVisible: Highlight
+- inputText: ' typed'
+- assertVisible: '.*ColorKeyboard\. typed'

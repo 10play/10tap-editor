@@ -1,4 +1,5 @@
 ---
+description: Building your own web editor bundle with custom TipTap extensions and loading it into the editor.
 sidebar_position: 2
 ---
 
@@ -87,7 +88,9 @@ Add the following files
       overflow: visible;
     }
     #root div.dynamic-height .ProseMirror {
-      height: unset;
+      height: auto;
+      min-height: 0;
+      display: flow-root;
     }
     .ProseMirror:focus {
       outline: none;
@@ -105,12 +108,8 @@ Add the following files
 
 ```tsx title="AdvancedEditor.tsx"
 import React from 'react';
-import { EditorContent } from '@tiptap/react';
-import { useTenTap, TenTapStartKit } from '@10play/tentap-editor';
+import { EditorContent, useTenTap, TenTapStartKit } from '@10play/tentap-editor';
 import { CounterBridge } from '../CounterBridge';
-import Document from '@tiptap/extension-document';
-import Paragraph from '@tiptap/extension-paragraph';
-import Text from '@tiptap/extension-text';
 
 /**
  * Here we control the web side of our custom editor
@@ -118,9 +117,6 @@ import Text from '@tiptap/extension-text';
 export const AdvancedEditor = () => {
   const editor = useTenTap({
     bridges: [...TenTapStartKit, CounterBridge],
-    tiptapOptions: {
-      extensions: [Document, Paragraph, Text],
-    },
   });
   return (
     <EditorContent
@@ -212,6 +208,14 @@ export default defineConfig({
 
 > <strong>It's important to have the `alias` configuration so vite will not load react-native code</strong>
 
+#### Sharing tiptap with `@10play/tentap-editor/web`
+
+`@10play/tentap-editor/web` is a prebuilt bundle with its own copy of tiptap and ProseMirror inlined. Code you import from `@tiptap/*` in your editor-web, such as extra extensions, is bundled separately, and the two copies don't recognize each other's objects. Bundler options such as vite's `resolve.dedupe` cannot merge them, because the copy inside `@10play/tentap-editor/web` is not a package in `node_modules`.
+
+- Import `EditorContent` (and `useEditor` if you need it) from `@10play/tentap-editor`, not from `@tiptap/react`, so the editor and the component that renders it come from the same copy.
+- Keep the `@tiptap/pm/view` and `@tiptap/pm/state` aliases above, so extensions share ProseMirror's view and state classes with the bundled editor.
+- Install extra `@tiptap/*` extensions at the same version that `@10play/tentap-editor` uses (`npm ls @tiptap/core` shows it).
+
 ### Step 6 - adding build scripts
 
 Add scripts on package.json so it will be easy to run/build editor-web:
@@ -228,7 +232,7 @@ Add scripts on package.json so it will be easy to run/build editor-web:
 
 `editor:dev` - Run the editor web in dev mode  
 `editor:build` - Build the editor web, probably need to add to your deploy/build process  
-`editor:post-build` - This will take your built html file, and paste into a a ts and exports a string `editorHtml`  
+`editor:post-build` - This will take your built html file and write `editorHtml.js` (with `editorHtml.d.ts`), which exports it as the string `editorHtml`  
  which we can then later use as the source of our RichText.  
 `reverse-android` - On android need to reverse ports so it will be able to work with DEV / DEV_SERVER_URL props
 
@@ -240,7 +244,7 @@ Add scripts on package.json so it will be easy to run/build editor-web:
 import { editorHtml } from './editor-web/build/editorHtml';
 const editor = useEditorBridge({
   customSource: editorHtml,
-  ...
+  // ...your other options
 });
 ```
 
@@ -250,7 +254,42 @@ const editor = useEditorBridge({
 
 `yarn add -D @types/react-dom`
 
+Install the `react-dom` version that matches your `react`.
+
 You basically done with the advance setup now you have full control of the editor-web you can write your own bridgeExtensions add additional tiptapExtensions
+
+## useTenTap
+
+`useTenTap` creates the TipTap editor inside the WebView and connects it to React Native.
+
+```ts
+import { TenTapStartKit, useTenTap } from '@10play/tentap-editor';
+import { CounterBridge } from '../CounterBridge';
+
+const editor = useTenTap({
+  bridges: [...TenTapStartKit, CounterBridge],
+  tiptapOptions: {
+    editorProps: { attributes: { spellcheck: 'false' } },
+  },
+});
+```
+
+- `bridges`: the bridges the editor-web knows about. A bridge with a TipTap extension is enabled when the native side's `bridgeExtensions` contains a bridge with the same name. A bridge without one, such as a bridge that only adds to the editor state or handles your own messages, always runs. Bridges and extensions are resolved once, when the editor is created.
+- `tiptapOptions`: options passed to TipTap's `useEditor`. Its `extensions` are added after the bridges' extensions, so pass only extensions that none of your bridges adds. `CoreBridge` (part of `TenTapStartKit`) already adds `Document`, `Paragraph` and `Text`; passing them again makes TipTap warn about duplicate extension names. The event handlers `onUpdate`, `onSelectionUpdate` and `onTransaction` run **after** tentap's own handlers instead of replacing them, and `onCreate` is yours alone (tentap no longer uses it to announce the editor), so none of them can break the connection to React Native. Every other option, such as `content`, `editable`, `parseOptions`, `editorProps` or `shouldRerenderOnTransaction`, overrides tentap's default.
+- `stateUpdateDebounceMs`: how long editor state updates are debounced before they are sent to React Native. <u>default</u>: `10`. The first state update after the editor is created is always sent right away.
+
+`useTenTap` returns the TipTap `Editor` (or `null` before it exists). Its options type is exported as `UseTenTapArgs`.
+
+## Upgrading your editor-web
+
+Rebuild your editor bundle (`yarn editor:build`) whenever you upgrade `@10play/tentap-editor`. Bundles built with an older version keep working, but miss the newer web-side features: `insertContent`, `getSelectedText`, `parseOptions`, and the dynamic height and readiness fixes. `getSelectedText` rejects with `TentapUnsupportedError` on such a bundle.
+
+When upgrading from 1.0, also:
+
+- change `#root div.dynamic-height .ProseMirror` in your `index.html` to `height: auto; min-height: 0; display: flow-root;` as shown above, so dynamic height can shrink, doesn't loop on iOS and includes the first and last paragraph margins (1.1 also injects this rule, so a bundle that wasn't rebuilt yet gets it too);
+- preferably import `EditorContent` from `@10play/tentap-editor` instead of `@tiptap/react`, and follow [Sharing tiptap](#sharing-tiptap-with-10playtentap-editorweb).
+
+The `contentInjected` polling in `index.tsx` still works. In 1.1 the configuration is written into the `customSource` HTML before your script runs, so the first check already passes.
 
 ## Alternative Setup
 
@@ -264,36 +303,36 @@ There is an alternative vite setup that does not require a vite dev server as su
 
 ### Update vite.config.ts
 
-In `vite.config.ts` replace plugins with
+In `vite.config.ts`, add a plugin that runs `editor:post-build` after every build, and set `emptyOutDir: false`:
 
 ```ts title="vite.config.ts"
-const exec =  require('child_process').exec;
+import { exec } from 'child_process';
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { viteSingleFile } from 'vite-plugin-singlefile';
 
-...
-plugins: [
-   react(),
-   viteSingleFile(),
-   {
-     name: 'postbuild-commands',
-     closeBundle: async () => {
-       exec('yarn editor:post-build', (error, stdout, stderr) => {
-         if (error) {
-           console.error(`exec error: ${error}`);
-           return;
-         }
-       });
-     },
-   },
- ],
-```
-
-And add `emptyOutDir: false` to the build options
-
-```ts title="vite.config.ts"
-build: {
-  outDir: 'build',
-  emptyOutDir: false,
-},
+export default defineConfig({
+  root: 'src/editor-web',
+  build: {
+    outDir: 'build',
+    emptyOutDir: false,
+  },
+  resolve: {
+    // the same aliases as above
+  },
+  plugins: [
+    react(),
+    viteSingleFile(),
+    {
+      name: 'postbuild-commands',
+      closeBundle: async () => {
+        exec('yarn editor:post-build', (error) => {
+          if (error) console.error(`exec error: ${error}`);
+        });
+      },
+    },
+  ],
+});
 ```
 
 ### Update package.json

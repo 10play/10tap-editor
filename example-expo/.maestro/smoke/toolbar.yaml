@@ -1,0 +1,67 @@
+# The default toolbar buttons, found by their accessibility labels, toggle
+# marks and blocks at the caret and report it through their selected state.
+# Typed words avoid the button labels, which Maestro matches case-insensitively.
+# The toolbar scrolls; it sits at 62% of the screen height over the keyboard
+# on both reference devices (iPhone 17 Pro Max, Medium Phone API 34).
+appId: dev.tenplay.tentapexampleexpo
+name: Toolbar actions
+tags:
+  - smoke
+---
+- runFlow:
+    file: ../common/open-example.yaml
+    env:
+      EXAMPLE: Basic
+- extendedWaitUntil:
+    visible: This is a basic example
+    timeout: 20000
+- waitForAnimationToEnd
+- tapOn: Bold
+- assertVisible:
+    text: Bold
+    selected: true
+- inputText: ' Qb'
+- waitForAnimationToEnd
+- tapOn: Bold
+- assertVisible:
+    text: Bold
+    selected: false
+- tapOn: Italic
+- assertVisible:
+    text: Italic
+    selected: true
+- inputText: ' Qi'
+- waitForAnimationToEnd
+- tapOn: Italic
+- tapOn: Heading
+- tapOn: Heading 1
+- assertVisible:
+    text: Heading 1
+    selected: true
+- tapOn: Close headings
+- swipe:
+    start: 90%,62%
+    end: 10%,62%
+- tapOn: Undo
+- swipe:
+    start: 10%,62%
+    end: 90%,62%
+- tapOn: Heading
+- assertVisible:
+    text: Heading 1
+    selected: false
+- tapOn: Close headings
+- swipe:
+    start: 90%,62%
+    end: 10%,62%
+- tapOn: Redo
+- swipe:
+    start: 10%,62%
+    end: 90%,62%
+- tapOn: Heading
+- assertVisible:
+    text: Heading 1
+    selected: true
+- tapOn: Close headings
+- assertVisible: '.*basic example Qb Qi'
+- takeScreenshot: toolbar

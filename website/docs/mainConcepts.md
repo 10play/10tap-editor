@@ -1,4 +1,5 @@
 ---
+description: "The core concepts: EditorBridge, bridge extensions, simple versus advanced usage and custom keyboards."
 sidebar_position: 1
 ---
 
@@ -8,7 +9,7 @@ sidebar_position: 1
 
 `bridgeExtension` - a typed class that helps us communicate between the native part and the webview part
 
-There are two different ways to work with this lib: [simple](./mainConcepts#simple-usage) and [advanced](./mainConcepts#advanced-usage), simple should be good enough for most of the cases, we tried to make the API as simple as possible so people will be able to plug and play, on the other hand advanced usage requires a longer setup.
+There are two different ways to work with this lib: [simple](./mainConcepts.md#simple-usage) and [advanced](./mainConcepts.md#advanced-usage), simple should be good enough for most of the cases, we tried to make the API as simple as possible so people will be able to plug and play, on the other hand advanced usage requires a longer setup.
 
 ## Simple usage
 
@@ -24,9 +25,11 @@ With the simple usage you get all the standard rich text abilities as you can ge
 - color/highlight
 - and more...
 
-With the simple usage you have all of [these](./api/BridgeExtensions) bridgeExtensions available.
+With the simple usage you have all of [these](./api/BridgeExtensions.md) bridgeExtensions available.
 
 With tentap you can also control the scheme of your editor by passing the useBridgeEditor list of bridgeExtensions you want, so in case you build a chat app and you don't want to let users underline you should not pass the Underline bridgeExtension, that will make sure that even if the user will copy paste some text with underline, when pasted the underline will not be parsed.
+
+Custom keyboards - custom keyboards let you swap the system keyboard for a React Native view, for example a color picker or a sticker panel, while the editor keeps its focus, caret and selection. See the [color keyboard example](./examples/colorKeyboard.md) and the [custom keyboard example](./examples/customKeyboard.md).
 
 ## Advanced usage
 
@@ -34,6 +37,6 @@ In case you want to add your own tiptap extension / build your own bridgeExtensi
 
 In this case we provide utils/components/hooks that can help you customize the editor but still get all the features and exp fixes tentap can offer.
 
-See the [advanced setup](./setup/advancedSetup)
+See the [advanced setup](./setup/advancedSetup.md)
 
-You can also see an example in `./examplelatest/src/Examples/Advanced`
+You can also see an example in [`example/src/Examples/Advanced`](https://github.com/10play/10tap-editor/tree/main/example/src/Examples/Advanced).

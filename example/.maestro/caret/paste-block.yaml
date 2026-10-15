@@ -1,0 +1,29 @@
+# Copies the whole document and pastes it back over the selection from the
+# edit menu, so the caret lands at the end of a large paste, then types
+# "<TAG> paste ends" there. TAP_TEXT is any visible paragraph. Maestro's
+# setClipboard does not reach the system pasteboard, so the block comes from
+# the editor itself.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+  TAG: ${TAG || 'Block'}
+name: 'Caret: paste a block'
+---
+- runFlow:
+    file: subflows/edit-menu.yaml
+- tapOn: Select All
+- waitForAnimationToEnd
+- tapOn: Copy
+- waitForAnimationToEnd
+# A tap on the selection brings the menu back.
+- tapOn:
+    text: ${TAP_TEXT}
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      notVisible: Paste
+    file: subflows/edit-menu.yaml
+- tapOn: Paste
+- waitForAnimationToEnd
+- inputText: ${' ' + TAG + ' paste ends'}
+- waitForAnimationToEnd

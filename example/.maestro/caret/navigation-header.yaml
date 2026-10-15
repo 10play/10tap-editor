@@ -1,0 +1,42 @@
+# Editor under a react-navigation header ('NavigationHeader': Toolbar in a
+# KeyboardAvoidingView with keyboardVerticalOffset): ~40 lines, a long
+# paragraph and typing in the middle after scrolling up.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+  RUN: ${RUN || 'header'}
+name: 'Caret: navigation header'
+tags:
+  - caret
+---
+- runFlow:
+    file: open.yaml
+    env:
+      SCREEN: NavigationHeader
+- runFlow:
+    file: subflows/lines-40.yaml
+    env:
+      LABEL: ${RUN}
+- runFlow:
+    file: type-paragraph.yaml
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-50-paragraph'}
+- runFlow:
+    file: tap-text.yaml
+    env:
+      TEXT: 'Line 12 ends'
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-60-middle'}
+- runFlow:
+    file: type-lines.yaml
+    env:
+      COUNT: '6'
+      TAG: Mid
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-61-middle-enter'}

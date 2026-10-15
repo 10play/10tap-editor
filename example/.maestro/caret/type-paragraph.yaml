@@ -1,0 +1,17 @@
+# Types one long paragraph that wraps over several lines and ends with
+# "<TAG> para ends".
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+  TAG: ${TAG || 'Long'}
+name: 'Caret: type a long paragraph'
+---
+- pressKey: Enter
+- inputText: >-
+    The quick brown fox jumps over the lazy dog while the editor keeps the
+    caret in view. Typing a long paragraph wraps it over several lines, and
+    every new line must stay above the toolbar and the keyboard. Lorem ipsum
+    dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+    incididunt ut labore et dolore magna aliqua.
+- inputText: ${' ' + TAG + ' para ends'}
+- waitForAnimationToEnd

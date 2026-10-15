@@ -1,14 +1,13 @@
 import Blockquote from '@tiptap/extension-blockquote';
-import BridgeExtension from './base';
+import {
+  createToggleBridge,
+  type ToggleInstance,
+  type ToggleState,
+} from './factories';
 
-type BlockquoteEditorState = {
-  isBlockquoteActive: boolean;
-  canToggleBlockquote: boolean;
-};
+type BlockquoteEditorState = ToggleState<'Blockquote'>;
 
-type BlockquoteEditorInstance = {
-  toggleBlockquote: () => void;
-};
+type BlockquoteEditorInstance = ToggleInstance<'Blockquote'>;
 
 declare module '../types/EditorBridge' {
   interface BridgeState extends BlockquoteEditorState {}
@@ -19,38 +18,12 @@ export enum BlockquoteEditorActionType {
   ToggleBlockquote = 'toggle-blockquote',
 }
 
-type BlockquoteMessage = {
-  type: BlockquoteEditorActionType.ToggleBlockquote;
-  payload?: undefined;
-};
-
-export const BlockquoteBridge = new BridgeExtension<
-  BlockquoteEditorState,
-  BlockquoteEditorInstance,
-  BlockquoteMessage
->({
+export const BlockquoteBridge = createToggleBridge({
+  label: 'Blockquote',
+  type: BlockquoteEditorActionType.ToggleBlockquote,
   tiptapExtension: Blockquote,
-  onBridgeMessage: (editor, message) => {
-    if (message.type === BlockquoteEditorActionType.ToggleBlockquote) {
-      editor.chain().focus().toggleBlockquote().run();
-    }
-
-    return false;
-  },
-  extendEditorInstance: (sendBridgeMessage) => {
-    return {
-      toggleBlockquote: () =>
-        sendBridgeMessage({
-          type: BlockquoteEditorActionType.ToggleBlockquote,
-        }),
-    };
-  },
-  extendEditorState: (editor) => {
-    return {
-      canToggleBlockquote: editor.can().toggleBlockquote(),
-      isBlockquoteActive: editor.isActive('blockquote'),
-    };
-  },
+  activeName: 'blockquote',
+  toggle: (chain) => chain.toggleBlockquote(),
   extendCSS: `
     blockquote {
         border-left: 3px solid #0d0d0d1a;

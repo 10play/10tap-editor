@@ -1,0 +1,46 @@
+# Basic editor (toolbar in a bottom KeyboardAvoidingView): long typing at the
+# end of the document, then typing in the middle after scrolling up.
+appId: dev.tenplay.tentapexampleexpo
+name: 'Caret: basic editor'
+tags:
+  - caret
+---
+- runFlow:
+    file: ../common/open-example.yaml
+    env:
+      EXAMPLE: Basic
+- extendedWaitUntil:
+    visible: '.*This is a basic example.*'
+    timeout: 20000
+- waitForAnimationToEnd
+- runFlow:
+    file: common/checkpoint.yaml
+    env:
+      SHOT: basic-open
+- pressKey: Enter
+- runFlow:
+    file: common/type-long-text.yaml
+    env:
+      PREFIX: basic
+- swipe:
+    start: 50%,25%
+    end: 50%,55%
+- swipe:
+    start: 50%,25%
+    end: 50%,55%
+- tapOn:
+    point: 50%,45%
+- inputText: ' middle'
+- runFlow:
+    file: common/checkpoint.yaml
+    env:
+      SHOT: basic-middle
+- repeat:
+    times: 6
+    commands:
+      - pressKey: Enter
+      - inputText: 'Inserted in the middle'
+- runFlow:
+    file: common/checkpoint.yaml
+    env:
+      SHOT: basic-middle-lines

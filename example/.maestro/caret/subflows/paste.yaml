@@ -1,0 +1,13 @@
+# Pastes 30 paragraphs at the caret in one paste event. The probe dispatches
+# the event in the WebView, so without CARET_PROBE this step does nothing.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+---
+- runScript:
+    file: ../probe.js
+    env:
+      ACTION: paste
+      LABEL: paste
+      CARET_PROBE: ${CARET_PROBE || ''}
+- waitForAnimationToEnd

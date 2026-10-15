@@ -1,4 +1,5 @@
 ---
+description: "Pro example: comments on selected text."
 sidebar_position: 8
 ---
 

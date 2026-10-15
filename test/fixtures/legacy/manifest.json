@@ -1,0 +1,14 @@
+{
+  "1.0.1": {
+    "file": "editorHtml-1.0.1.html",
+    "tarball": "10play-tentap-editor-1.0.1.tgz",
+    "integrity": "sha512-tqBN0gqSxku50jk50e+rnB4DQdubRTdbgBrkMu7XE3kvHSbavCB5zJgrFjNhnU9A9dVRcBoEtZk3YJFnfDm9Ug==",
+    "sha256": "484e68995d3a152e2945310409225187b1d9d236aeda3962ebca8cba5a38e838"
+  },
+  "0.7.5-alpha.0": {
+    "file": "editorHtml-0.7.5-alpha.0.html",
+    "tarball": "10play-tentap-editor-0.7.5-alpha.0.tgz",
+    "integrity": "sha512-xgO3mnYC5quyJISVPT/FoxKlRR8Np5JMrVGXf7NzM12nKTT3qjKSECzKb9Os0whr/mqwKJFAIMaKZt6GCIHanA==",
+    "sha256": "eff30176ed27915d547423bac5fcaa35e0dc058b4ac04e083958718d2418db5f"
+  }
+}

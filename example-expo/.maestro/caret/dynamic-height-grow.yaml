@@ -1,0 +1,34 @@
+# Dynamic Height screen: long typing into the editor that grows with its
+# content inside the screen's ScrollView. The typed line has to stay above
+# the keyboard.
+appId: dev.tenplay.tentapexampleexpo
+name: 'Caret: growing dynamicHeight editor'
+tags:
+  - caret
+---
+- runFlow:
+    file: ../common/open-example.yaml
+    env:
+      EXAMPLE: Dynamic Height
+- extendedWaitUntil:
+    visible: '.*Type here.*'
+    timeout: 20000
+- tapOn: '.*Type here.*'
+- waitForAnimationToEnd
+- runFlow:
+    file: common/checkpoint.yaml
+    env:
+      SHOT: grow-focused
+- pressKey: Enter
+- evalScript: ${output.line = 0}
+- repeat:
+    times: 4
+    commands:
+      - runFlow:
+          file: common/type-lines.yaml
+          env:
+            LINES: 5
+      - runFlow:
+          file: common/checkpoint.yaml
+          env:
+            SHOT: grow-lines-${output.line}

@@ -1,0 +1,40 @@
+# Dynamic Height screen: typing many lines into the dynamicHeight editor
+# capped at 150pt by its parent. It has to scroll inside its frame so the
+# typed line stays visible (there is no toolbar on this screen).
+appId: dev.tenplay.tentapexampleexpo
+name: 'Caret: capped dynamicHeight editor'
+tags:
+  - caret
+---
+- runFlow:
+    file: ../common/open-example.yaml
+    env:
+      EXAMPLE: Dynamic Height
+- extendedWaitUntil:
+    visible: 'Line 1(\s[\s\S]*)?'
+    timeout: 20000
+# Android WebView exposes the capped editor's paragraphs as one node.
+- tapOn: 'Line 1(\s[\s\S]*)?'
+- waitForAnimationToEnd
+- runFlow:
+    file: common/checkpoint.yaml
+    env:
+      SHOT: capped-focused
+- evalScript: ${output.line = 100}
+- repeat:
+    times: 4
+    commands:
+      - pressKey: Enter
+      - runFlow:
+          file: common/type-lines.yaml
+          env:
+            LINES: 5
+      - runFlow:
+          file: common/checkpoint.yaml
+          env:
+            SHOT: capped-lines-${output.line}
+- inputText: 'A long paragraph typed into the capped editor that wraps several times, so the caret moves down inside the frame without any Enter key at all. '
+- runFlow:
+    file: common/checkpoint.yaml
+    env:
+      SHOT: capped-paragraph

@@ -20,7 +20,8 @@ const config: Config = {
   trailingSlash: false,
 
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
+  onBrokenMarkdownLinks: 'throw',
+  onBrokenAnchors: 'throw',
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -36,9 +37,12 @@ const config: Config = {
       {
         docs: {
           sidebarPath: './sidebars.ts',
-          lastVersion: '1.0',
-          includeCurrentVersion: false,
+          lastVersion: 'current',
           versions: {
+            current: {
+              label: '1.1',
+              badge: true,
+            },
             '1.0': {
               label: '1.0',
               badge: true,

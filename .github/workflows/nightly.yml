@@ -1,0 +1,149 @@
+name: Nightly
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: nightly
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ios:
+    name: ios (newArch=${{ matrix.new-arch }})
+    runs-on: macos-15
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - new-arch: true
+            pods: pods
+          - new-arch: false
+            pods: pods:oldarch
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Build the editor and web utils
+        run: yarn editor:build && yarn editor:build-web-utils
+
+      - name: Build the advanced example's editor
+        run: yarn example editor:build
+
+      - name: Install pods
+        run: yarn example ${{ matrix.pods }}
+
+      - name: Build a release simulator app with the JS bundle
+        run: yarn example build:ios:release
+
+      - name: Install Maestro
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+      - name: Boot a simulator and install the app
+        run: .github/scripts/boot-ios-simulator.sh example/ios/build/Build/Products/Release-iphonesimulator/TenTapExample.app
+
+      - name: Run the Maestro flows
+        run: maestro test --format junit --output maestro-report.xml example/.maestro
+
+      - name: Upload the Maestro results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-ios-newarch-${{ matrix.new-arch }}
+          path: |
+            maestro-report.xml
+            ~/.maestro/tests
+          retention-days: 7
+
+  expo-prebuild:
+    name: expo-prebuild (SDK ${{ matrix.sdk }}, ${{ matrix.platform }})
+    runs-on: ${{ matrix.platform == 'ios' && 'macos-15' || 'ubuntu-latest' }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [52, 53, 54]
+        platform: [android, ios]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Setup Android toolchain
+        if: matrix.platform == 'android'
+        uses: ./.github/actions/setup-android
+
+      - name: Select Xcode
+        if: matrix.platform == 'ios'
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Pack the library
+        run: npm pack --pack-destination "$RUNNER_TEMP"
+
+      - name: Prebuild and build an Expo SDK ${{ matrix.sdk }} app
+        run: .github/scripts/expo-smoke.sh ${{ matrix.sdk }} ${{ matrix.platform }} "$RUNNER_TEMP"
+
+  rn-floor:
+    name: rn-floor (RN 0.74, newArch=${{ matrix.new-arch }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        new-arch: [false, true]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Setup Android toolchain
+        uses: ./.github/actions/setup-android
+
+      - name: Pack the library
+        run: npm pack --pack-destination "$RUNNER_TEMP"
+
+      - name: Build a React Native 0.74 app with the library
+        run: .github/scripts/rn-smoke.sh 0.74.7 "$RUNNER_TEMP" -PnewArchEnabled=${{ matrix.new-arch }}
+
+  rn-nightly:
+    name: rn-nightly (canary)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Setup Android toolchain
+        uses: ./.github/actions/setup-android
+
+      - name: Pack the library
+        run: npm pack --pack-destination "$RUNNER_TEMP"
+
+      - name: Build a React Native nightly app with the library
+        run: .github/scripts/rn-smoke.sh nightly "$RUNNER_TEMP" -PnewArchEnabled=true
+
+      - name: Check the keyboard events the custom keyboard relies on
+        run: .github/scripts/check-kav-events.sh "$RUNNER_TEMP/RNSmoke/node_modules/react-native"

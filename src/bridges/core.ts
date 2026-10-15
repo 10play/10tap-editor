@@ -1,16 +1,31 @@
-import BridgeExtension from './base';
-import { asyncMessages } from '../RichText/AsyncMessages';
-import type { BridgeState, EditorTheme } from '../types';
-import { focusListener } from '../webEditorUtils/focusListener';
+import {
+  createDocument,
+  getTextSerializersFromSchema,
+  type Content,
+  type Editor,
+} from '@tiptap/core';
 import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
-import type { Content } from '@tiptap/react';
+import BridgeExtension from './base';
+import { resolveBridgeContext, resolveFallbackReply } from './context';
+import type { SerializableParseOptions } from '../shared/bootConfig';
+import { CAPABILITIES } from '../shared/capabilities';
+import { getEditorController } from '../shared/contracts';
+import type {
+  BridgeState as EditorState,
+  ColorKeyboardTheme,
+  EditorTheme,
+} from '../types';
+import { getFocusTracker } from '../web/focus';
 
 export type EditorContentType = 'html' | 'text' | 'json';
 
+/** A range of ProseMirror document positions (as in `BridgeState.selection`). */
+export type SelectionRange = { from: number; to: number };
+
 type CoreEditorState = {
-  selection: { from: number; to: number };
+  selection: SelectionRange;
   isFocused: boolean;
   isReady: boolean;
   editable: boolean;
@@ -19,11 +34,28 @@ type CoreEditorState = {
 
 type FocusArgs = 'start' | 'end' | 'all' | number | boolean | null;
 
+export interface SetContentOptions {
+  /**
+   * How HTML is parsed, e.g. `{ preserveWhitespace: 'full' }` to keep runs
+   * of spaces (#327). Defaults to the editor's `parseOptions`.
+   */
+  parseOptions?: SerializableParseOptions;
+  /** Whether the change fires `onChange` / `content-update`. Defaults to true. */
+  emitUpdate?: boolean;
+}
+
 type CoreEditorInstance = {
   getHTML: () => Promise<string>;
   getJSON: () => Promise<object>;
   getText: () => Promise<string>;
-  setContent: (content: Content) => void;
+  /**
+   * Plain text between two document positions, the current selection by
+   * default. Blocks are separated by `\n` (#338).
+   */
+  getSelectedText: (range?: SelectionRange) => Promise<string>;
+  setContent: (content: Content, options?: SetContentOptions) => void;
+  /** Inserts HTML, text or JSON at the cursor, replacing the selection (#62). */
+  insertContent: (content: Content) => void;
   setSelection: (from: number, to: number) => void;
   updateScrollThresholdAndMargin: (offset: number) => void;
   focus: (pos: FocusArgs) => void;
@@ -31,7 +63,8 @@ type CoreEditorInstance = {
   injectJS: (js: string) => void;
   injectCSS: (css: string, tag?: string) => void;
   setEditable: (editable: boolean) => void;
-  theme: EditorTheme;
+  /** The resolved theme, merged over the default one. */
+  theme: EditorTheme & { colorKeyboard: ColorKeyboardTheme };
 };
 
 declare module '../types/EditorBridge' {
@@ -56,60 +89,53 @@ export enum CoreEditorActionType {
   ContentUpdate = 'content-update',
   DocumentHeight = 'document-height',
   SetEditable = 'set-editable',
+  InsertContent = 'insert-content',
+  GetSelectedText = 'get-selected-text',
+  SendSelectedTextToNative = 'send-selected-text-back',
 }
 
+type RpcReply<T extends CoreEditorActionType, C> = {
+  type: T;
+  payload: {
+    content: C;
+    messageId: string;
+  };
+};
+
 type MessageToNative =
-  | {
-      type: CoreEditorActionType.SendHTMLToNative;
-      payload: {
-        content: string;
-        messageId: string;
-      };
-    }
-  | {
-      type: CoreEditorActionType.SendTextToNative;
-      payload: {
-        content: string;
-        messageId: string;
-      };
-    }
-  | {
-      type: CoreEditorActionType.SendJSONToNative;
-      payload: {
-        content: object;
-        messageId: string;
-      };
-    };
+  | RpcReply<CoreEditorActionType.SendHTMLToNative, string>
+  | RpcReply<CoreEditorActionType.SendTextToNative, string>
+  | RpcReply<CoreEditorActionType.SendJSONToNative, object>
+  | RpcReply<CoreEditorActionType.SendSelectedTextToNative, string>;
+
+type RpcRequest<T extends CoreEditorActionType, P = {}> = {
+  type: T;
+  payload: P & { messageId: string };
+};
 
 export type CoreMessages =
   | MessageToNative
-  | {
-      type: CoreEditorActionType.GetHTML;
-      payload: {
-        messageId: string;
-      };
-    }
-  | {
-      type: CoreEditorActionType.GetJSON;
-      payload: {
-        messageId: string;
-      };
-    }
-  | {
-      type: CoreEditorActionType.GetText;
-      payload: {
-        messageId: string;
-      };
-    }
+  | RpcRequest<CoreEditorActionType.GetHTML>
+  | RpcRequest<CoreEditorActionType.GetJSON>
+  | RpcRequest<CoreEditorActionType.GetText>
+  | RpcRequest<CoreEditorActionType.GetSelectedText, { range?: SelectionRange }>
   | {
       type: CoreEditorActionType.SetContent;
+      payload: {
+        content: Content;
+        parseOptions?: SerializableParseOptions;
+        emitUpdate?: boolean;
+      };
+    }
+  | {
+      type: CoreEditorActionType.InsertContent;
       payload: {
         content: Content;
       };
     }
   | {
       type: CoreEditorActionType.StateUpdate;
-      payload: BridgeState;
+      payload: EditorState;
     }
   | {
       type: CoreEditorActionType.EditorReady;
@@ -129,10 +155,7 @@ export type CoreMessages =
     }
   | {
       type: CoreEditorActionType.SetSelection;
-      payload: {
-        from: number;
-        to: number;
-      };
+      payload: SelectionRange;
     }
   | {
       type: CoreEditorActionType.ContentUpdate;
@@ -147,6 +170,46 @@ export type CoreMessages =
       payload: boolean;
     };
 
+const clampRange = (editor: Editor, range: SelectionRange | undefined) => {
+  const { from, to } = range ?? editor.state.selection;
+  const size = editor.state.doc.content.size;
+  const clamp = (pos: number) =>
+    Math.min(Math.max(Math.round(pos) || 0, 0), size);
+  return { from: clamp(Math.min(from, to)), to: clamp(Math.max(from, to)) };
+};
+
+/**
+ * The text in `from..to` with one newline between blocks, as the system Copy
+ * gives it. TipTap's getTextBetween also separates at every wrapper (list
+ * item, blockquote), which doubles the newlines inside nested blocks.
+ */
+const selectedText = (editor: Editor, from: number, to: number) => {
+  const serializers = getTextSerializersFromSchema(editor.schema);
+  let text = '';
+  let first = true;
+  editor.state.doc.nodesBetween(from, to, (node, pos, parent, index) => {
+    const serializer = serializers[node.type.name];
+    if (node.isBlock && (node.isTextblock || node.isLeaf)) {
+      if (!first) text += '\n';
+      first = false;
+    }
+    if (serializer) {
+      if (parent) {
+        text += serializer({ node, pos, parent, index, range: { from, to } });
+      }
+      return false;
+    }
+    if (node.isText) {
+      text += node.text?.slice(Math.max(from, pos) - pos, to - pos) ?? '';
+    }
+    return true;
+  });
+  return text;
+};
+
+/** Android needs a moment after load before `requestFocus` sticks (react-native-webview#1172). */
+const ANDROID_FOCUS_DELAY_MS = 100;
+
 export const CoreBridge = new BridgeExtension<
   CoreEditorState,
   Omit<CoreEditorInstance, 'theme' | 'injectCSS'>,
@@ -156,206 +219,222 @@ export const CoreBridge = new BridgeExtension<
   tiptapExtension: Document,
   tiptapExtensionDeps: [Paragraph, Text],
   onBridgeMessage: (editor, message, sendMessageBack) => {
-    if (message.type === CoreEditorActionType.SetContent) {
-      editor.commands.setContent(message.payload.content);
-      return true;
-    }
-    if (message.type === CoreEditorActionType.GetHTML) {
-      sendMessageBack({
-        type: CoreEditorActionType.SendHTMLToNative,
-        payload: {
-          content: editor.getHTML(),
-          messageId: message.payload.messageId,
-        },
-      });
-    }
-    if (message.type === CoreEditorActionType.GetJSON) {
-      sendMessageBack({
-        type: CoreEditorActionType.SendJSONToNative,
-        payload: {
-          content: editor.getJSON(),
-          messageId: message.payload.messageId,
-        },
-      });
-    }
-    if (message.type === CoreEditorActionType.GetText) {
-      sendMessageBack({
-        type: CoreEditorActionType.SendTextToNative,
-        payload: {
-          content: editor.getText(),
-          messageId: message.payload.messageId,
-        },
-      });
-    }
-    if (message.type === CoreEditorActionType.SetSelection) {
-      editor.commands.setTextSelection({
-        from: message.payload.from,
-        to: message.payload.to,
-      });
-      return true;
-    }
-    if (message.type === CoreEditorActionType.Focus) {
-      editor.commands.focus(message.payload);
-      return true;
-    }
-    if (message.type === CoreEditorActionType.Blur) {
-      editor.commands.blur();
-      return true;
-    }
-    if (message.type === CoreEditorActionType.UpdateScrollThresholdAndMargin) {
-      editor.setOptions({
-        editorProps: {
-          scrollThreshold: {
-            top: 0,
-            bottom: message.payload,
-            right: 0,
-            left: 0,
-          },
-          scrollMargin: { top: 0, bottom: message.payload, right: 0, left: 0 },
-        },
-      });
-      return true;
-    }
-    if (message.type === CoreEditorActionType.SetEditable) {
-      editor.setEditable(message.payload);
-      return true;
-    }
-
-    return false;
-  },
-  onEditorMessage: ({ type, payload }, editorBridge) => {
-    if (type === CoreEditorActionType.SendHTMLToNative) {
-      asyncMessages.onMessage(payload.messageId, payload.content);
-      return true;
-    }
-    if (type === CoreEditorActionType.SendTextToNative) {
-      asyncMessages.onMessage(payload.messageId, payload.content);
-      return true;
-    }
-    if (type === CoreEditorActionType.SendJSONToNative) {
-      asyncMessages.onMessage(payload.messageId, payload.content);
-      return true;
-    }
-
-    if (type === CoreEditorActionType.EditorReady) {
-      if (editorBridge.autofocus) {
-        editorBridge.focus('end');
+    switch (message.type) {
+      case CoreEditorActionType.SetContent: {
+        const { content, parseOptions, emitUpdate } = message.payload;
+        // TipTap's setContent inserts plain inline HTML as literal text when
+        // preserveWhitespace is 'full', so the document is built here.
+        editor.commands.command(({ tr, dispatch }) => {
+          const doc = createDocument(
+            content,
+            editor.schema,
+            parseOptions ?? editor.options.parseOptions,
+            { errorOnInvalidContent: editor.options.enableContentCheck }
+          );
+          if (dispatch) {
+            tr.replaceWith(0, tr.doc.content.size, doc).setMeta(
+              'preventUpdate',
+              !(emitUpdate ?? true)
+            );
+          }
+          return true;
+        });
+        return true;
       }
+      case CoreEditorActionType.InsertContent:
+        editor
+          .chain()
+          .focus()
+          .insertContent(message.payload.content, {
+            parseOptions: editor.options.parseOptions,
+          })
+          .run();
+        return true;
+      case CoreEditorActionType.GetHTML:
+        sendMessageBack({
+          type: CoreEditorActionType.SendHTMLToNative,
+          payload: {
+            content: editor.getHTML(),
+            messageId: message.payload.messageId,
+          },
+        });
+        return true;
+      case CoreEditorActionType.GetJSON:
+        sendMessageBack({
+          type: CoreEditorActionType.SendJSONToNative,
+          payload: {
+            content: editor.getJSON(),
+            messageId: message.payload.messageId,
+          },
+        });
+        return true;
+      case CoreEditorActionType.GetText:
+        sendMessageBack({
+          type: CoreEditorActionType.SendTextToNative,
+          payload: {
+            content: editor.getText(),
+            messageId: message.payload.messageId,
+          },
+        });
+        return true;
+      case CoreEditorActionType.GetSelectedText: {
+        const { from, to } = clampRange(editor, message.payload.range);
+        sendMessageBack({
+          type: CoreEditorActionType.SendSelectedTextToNative,
+          payload: {
+            content: selectedText(editor, from, to),
+            messageId: message.payload.messageId,
+          },
+        });
+        return true;
+      }
+      case CoreEditorActionType.SetSelection:
+        editor.commands.setTextSelection(message.payload);
+        return true;
+      case CoreEditorActionType.Focus:
+        editor.commands.focus(message.payload);
+        return true;
+      case CoreEditorActionType.Blur:
+        editor.commands.blur();
+        return true;
+      case CoreEditorActionType.UpdateScrollThresholdAndMargin: {
+        const bottom = message.payload;
+        const edges = { top: 0, bottom, right: 0, left: 0 };
+        // setOptions replaces editorProps, so keep the runtime's handlers.
+        editor.setOptions({
+          editorProps: {
+            ...editor.options.editorProps,
+            scrollThreshold: edges,
+            scrollMargin: edges,
+          },
+        });
+        // The keyboard or toolbar moved over the caret: bring it back.
+        if (editor.view.hasFocus()) {
+          editor.view.dispatch(editor.state.tr.scrollIntoView());
+        }
+        return true;
+      }
+      case CoreEditorActionType.SetEditable:
+        editor.setEditable(message.payload);
+        return true;
+      default:
+        return false;
     }
-    if (type === CoreEditorActionType.StateUpdate) {
-      editorBridge._updateEditorState(payload);
+  },
+  onEditorMessage: (message, editorBridge) => {
+    if (resolveFallbackReply(message)) return true;
+    switch (message.type) {
+      case CoreEditorActionType.EditorReady:
+        // With an EditorController attached, it owns autofocus (onReady).
+        if (!getEditorController(editorBridge) && editorBridge.autofocus) {
+          editorBridge.focus('end');
+        }
+        return false;
+      case CoreEditorActionType.StateUpdate:
+        // An attached EditorController has already applied it.
+        if (!getEditorController(editorBridge)) {
+          editorBridge._updateEditorState(message.payload);
+        }
+        return false;
+      case CoreEditorActionType.ContentUpdate:
+        editorBridge._onContentUpdate();
+        return false;
+      default:
+        return false;
     }
-    if (type === CoreEditorActionType.ContentUpdate) {
-      editorBridge._onContentUpdate();
-    }
-    return false;
   },
   extendEditorInstance: (
     sendBridgeMessage,
     webviewRef,
-    editorStateRef,
-    _updateEditorState,
-    platform
+    editorState,
+    setEditorState,
+    platform,
+    bridgeContext
   ) => {
+    const context = resolveBridgeContext(
+      sendBridgeMessage,
+      webviewRef,
+      editorState,
+      setEditorState,
+      platform,
+      bridgeContext
+    );
+    const send = (message: CoreMessages, coalesce = false) =>
+      context.send(
+        message,
+        coalesce ? { coalesceKey: message.type } : undefined
+      );
+    const request = <T>(
+      type:
+        | CoreEditorActionType.GetHTML
+        | CoreEditorActionType.GetJSON
+        | CoreEditorActionType.GetText
+    ) => context.rpc<T>({ type });
+
     return {
-      updateScrollThresholdAndMargin: (bottom: number) =>
-        sendBridgeMessage({
-          type: CoreEditorActionType.UpdateScrollThresholdAndMargin,
-          payload: bottom,
-        }),
-      setSelection: (from, to) => {
-        sendBridgeMessage({
+      updateScrollThresholdAndMargin: (bottom) =>
+        send(
+          {
+            type: CoreEditorActionType.UpdateScrollThresholdAndMargin,
+            payload: bottom,
+          },
+          true
+        ),
+      setSelection: (from, to) =>
+        send({
           type: CoreEditorActionType.SetSelection,
-          payload: {
-            from,
-            to,
-          },
-        });
-      },
-      setContent: (content: Content) => {
-        sendBridgeMessage({
+          payload: { from, to },
+        }),
+      setContent: (content, options) =>
+        send({
           type: CoreEditorActionType.SetContent,
-          payload: {
-            content,
-          },
-        });
-      },
-      getHTML: async () => {
-        const html = await asyncMessages.sendAsyncMessage<string>(
+          payload: { content, ...options },
+        }),
+      insertContent: (content) =>
+        send({
+          type: CoreEditorActionType.InsertContent,
+          payload: { content },
+        }),
+      getHTML: () => request<string>(CoreEditorActionType.GetHTML),
+      getText: () => request<string>(CoreEditorActionType.GetText),
+      getJSON: () => request<object>(CoreEditorActionType.GetJSON),
+      getSelectedText: (range) =>
+        context.rpc<string>(
           {
-            type: CoreEditorActionType.GetHTML,
+            type: CoreEditorActionType.GetSelectedText,
+            payload: range ? { range } : {},
           },
-          sendBridgeMessage
-        );
-        return html;
-      },
-      getText: async () => {
-        const text = await asyncMessages.sendAsyncMessage<string>(
-          {
-            type: CoreEditorActionType.GetText,
-          },
-          sendBridgeMessage
-        );
-        return text;
-      },
-      getJSON: async () => {
-        const json = await asyncMessages.sendAsyncMessage<object>(
-          {
-            type: CoreEditorActionType.GetJSON,
-          },
-          sendBridgeMessage
-        );
-        return json;
-      },
-      focus: (pos: FocusArgs) => {
-        if (platform === 'android') {
-          setTimeout(() => {
-            webviewRef?.current?.requestFocus();
-            // Adding this for android, there is a race where the focus is not set if it's too close to Load
-            // https://github.com/react-native-webview/react-native-webview/issues/1172
-          }, 100);
+          { capability: CAPABILITIES.SelectedText }
+        ),
+      focus: (pos) => {
+        if (context.platform === 'android') {
+          setTimeout(
+            () => context.getWebView()?.requestFocus(),
+            ANDROID_FOCUS_DELAY_MS
+          );
         } else {
-          webviewRef?.current?.requestFocus();
+          context.getWebView()?.requestFocus();
         }
-        if (editorStateRef && editorStateRef.current) {
-          _updateEditorState &&
-            _updateEditorState({
-              ...(editorStateRef.current as BridgeState),
-              isFocused: true,
-            });
-        }
-        sendBridgeMessage({
-          type: CoreEditorActionType.Focus,
-          payload: pos,
-        });
+        context.setState({ ...context.getState(), isFocused: true });
+        send({ type: CoreEditorActionType.Focus, payload: pos });
       },
-      blur: () => {
-        sendBridgeMessage({
-          type: CoreEditorActionType.Blur,
-          payload: undefined,
-        });
-      },
-      injectJS: (js: string) => {
-        webviewRef?.current?.injectJavaScript(js);
-      },
-      setEditable: (editable: boolean) => {
-        sendBridgeMessage({
-          type: CoreEditorActionType.SetEditable,
-          payload: editable,
-        });
-      },
+      blur: () => send({ type: CoreEditorActionType.Blur, payload: undefined }),
+      injectJS: (js) => context.injectJS(js),
+      setEditable: (editable) =>
+        send(
+          { type: CoreEditorActionType.SetEditable, payload: editable },
+          true
+        ),
     };
   },
-  extendEditorState: (editor) => {
-    return {
-      isFocused: focusListener.isFocused,
-      isReady: true,
-      selection: {
-        from: editor.state.selection.from,
-        to: editor.state.selection.to,
-      },
-      editable: editor.isEditable,
-      empty: editor.isEmpty,
-    };
-  },
+  extendEditorState: (editor) => ({
+    isFocused: getFocusTracker().isFocused,
+    isReady: true,
+    selection: {
+      from: editor.state.selection.from,
+      to: editor.state.selection.to,
+    },
+    editable: editor.isEditable,
+    empty: editor.isEmpty,
+  }),
 });

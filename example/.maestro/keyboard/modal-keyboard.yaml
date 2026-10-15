@@ -1,0 +1,63 @@
+# An editor inside a Modal. On Android the Modal is its own window, so the
+# keyboard runs on the fallback driver there; the flow is the same.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+name: Custom keyboard inside a Modal
+---
+- runFlow: ../subflows/launch.yaml
+# The entry can be below the fold on smaller screens.
+- scrollUntilVisible:
+    element: 'Keyboard: Modal'
+    timeout: 60000
+- tapOn: 'Keyboard: Modal'
+- extendedWaitUntil:
+    visible:
+      id: open-editor-modal
+    timeout: 15000
+- tapOn:
+    id: open-editor-modal
+- extendedWaitUntil:
+    visible:
+      id: keyboard-example-editor
+    timeout: 15000
+- tapOn:
+    id: keyboard-example-editor
+- waitForAnimationToEnd
+# On a cold start the keyboard can begin rising after the wait above
+# returns, and the switcher rides up with it; give it time to arrive so
+# the toggle tap is not aimed at where the switcher was.
+- extendedWaitUntil:
+    visible: 'keyboard-settle-never-shown'
+    timeout: 2500
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: toggle-color-keyboard
+    timeout: 15000
+- tapOn:
+    id: toggle-color-keyboard
+# The color keyboard replaces the system one; wait until it is fully up.
+- extendedWaitUntil:
+    visible: Highlight
+    timeout: 15000
+- extendedWaitUntil:
+    visible: Red
+    timeout: 15000
+- waitForAnimationToEnd
+- tapOn:
+    text: Red
+    index: 0
+- waitForAnimationToEnd
+- assertNotVisible: Highlight
+- inputText: ' modal'
+- tapOn:
+    id: read-editor-state
+- extendedWaitUntil:
+    visible:
+      id: editor-html
+      text: '.*color.*modal.*'
+    timeout: 10000
+- assertNotVisible: '.*driver failed.*'
+- tapOn:
+    id: close-editor-modal
