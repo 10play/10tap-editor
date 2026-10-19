@@ -1,0 +1,193 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  View,
+  KeyboardAvoidingView,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
+import {
+  RichText,
+  useBridgeState,
+  useKeyboardAccessory,
+} from '../../../../src/RichText';
+import type { EditorBridge } from '../../../../src/types';
+import { icons } from '../../assets';
+import { Icon } from '../Icon';
+import { useKeyboard } from '../../../../src/utils';
+import { paper } from '../../ui/theme';
+
+interface ComposeRichTextProps {
+  editor: EditorBridge;
+  onSendClick: () => void;
+}
+export const ComposeRichText = ({
+  editor,
+  onSendClick,
+}: ComposeRichTextProps) => {
+  return (
+    <>
+      <View style={composeStyles.compose}>
+        <RichText editor={editor} />
+      </View>
+      {/* Only the toolbar takes touches; the keyboard padding below it can
+          cover the editor while another input has the keyboard. */}
+      <KeyboardAvoidingView
+        behavior={'padding'}
+        pointerEvents="box-none"
+        style={composeStyles.keyboardAvoidingView}
+      >
+        <ComposeToolbar editor={editor} onSendClick={onSendClick} />
+      </KeyboardAvoidingView>
+    </>
+  );
+};
+
+interface ComposeToolbarProps {
+  editor: EditorBridge;
+  onSendClick: () => void;
+}
+interface CustomToolbarAction {
+  isActive: boolean;
+  isDisabled: boolean;
+  onPress: () => void;
+  icon: keyof typeof icons;
+}
+enum ToolbarType {
+  Main,
+  Link,
+  Formatting,
+}
+const ComposeToolbar = ({ editor, onSendClick }: ComposeToolbarProps) => {
+  const editorState = useBridgeState(editor);
+  const { isKeyboardUp } = useKeyboard();
+  const [toolbarType, setToolbar] = useState<ToolbarType>(ToolbarType.Main);
+
+  const hideToolbar = !isKeyboardUp || !editorState.isFocused;
+  // The editor keeps the caret above this toolbar while it is shown.
+  const accessory = useKeyboardAccessory(!hideToolbar);
+
+  useEffect(() => {
+    if (hideToolbar) {
+      setToolbar(ToolbarType.Main);
+    }
+  }, [hideToolbar]);
+
+  const formattingOptions: CustomToolbarAction[] = useMemo(
+    () => [
+      {
+        isActive: true,
+        isDisabled: false,
+        onPress: () => {
+          setToolbar(ToolbarType.Main);
+        },
+        icon: 'formatting',
+      },
+      {
+        isActive: editorState.isBoldActive,
+        isDisabled: !editorState.canToggleBold,
+        onPress: editor.toggleBold,
+        icon: 'bold',
+      },
+      {
+        isActive: editorState.headingLevel === 1,
+        isDisabled: !editorState.canToggleHeading,
+        onPress: () => editor.toggleHeading(1),
+        icon: 'h1',
+      },
+    ],
+    [editor, editorState]
+  );
+
+  if (toolbarType === ToolbarType.Main) {
+    return (
+      <View
+        onLayout={accessory.onLayout}
+        style={[hideToolbar && composeStyles.hidden, composeStyles.mainToolbar]}
+      >
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Formatting"
+          onPress={() => setToolbar(ToolbarType.Formatting)}
+        >
+          <Icon name={'formatting'} style={composeStyles.button} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Send"
+          onPress={onSendClick}
+        >
+          <Icon name={'send'} style={composeStyles.button} />
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  return (
+    <View
+      onLayout={accessory.onLayout}
+      style={[
+        hideToolbar && composeStyles.hidden,
+        composeStyles.formattingToolbar,
+      ]}
+    >
+      {formattingOptions.map(({ isDisabled, isActive, icon, onPress }) => (
+        <TouchableOpacity
+          onPress={onPress}
+          disabled={isDisabled}
+          style={isActive ? composeStyles.activeButton : undefined}
+          key={icon}
+        >
+          <Icon
+            name={icon}
+            fill={isDisabled ? 'gray' : 'black'}
+            style={composeStyles.button}
+          />
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+};
+
+const composeStyles = StyleSheet.create({
+  compose: {
+    flex: 1,
+    paddingHorizontal: 14,
+    backgroundColor: 'white',
+  },
+  keyboardAvoidingView: {
+    position: 'absolute',
+    width: '100%',
+    bottom: 0,
+  },
+  mainToolbar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    backgroundColor: 'white',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: paper.border,
+  },
+  formattingToolbar: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    backgroundColor: 'white',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    gap: 4,
+    borderTopColor: paper.border,
+  },
+  button: {
+    width: 24,
+    margin: 4,
+    padding: 5,
+  },
+  activeButton: {
+    backgroundColor: paper.chipActive,
+    borderRadius: 10,
+  },
+  hidden: {
+    display: 'none',
+  },
+});

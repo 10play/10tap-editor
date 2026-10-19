@@ -1,4 +1,5 @@
 ---
+description: "Pro example: searching text in the editor."
 sidebar_position: 6
 ---
 

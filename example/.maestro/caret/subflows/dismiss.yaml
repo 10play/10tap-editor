@@ -1,0 +1,26 @@
+# Dismisses the keyboard and takes a screenshot named ${LABEL}. On iOS
+# hideKeyboard cannot dismiss the keyboard of a WKWebView, so with
+# CARET_PROBE the probe calls editor.blur(), as an app's done button would.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+  CARET_PROBE: ${CARET_PROBE || ''}
+---
+- runFlow:
+    when:
+      platform: iOS
+      true: ${CARET_PROBE != ''}
+    commands:
+      - runScript:
+          file: ../probe.js
+          env:
+            ACTION: blur
+            LABEL: ${LABEL}
+            CARET_PROBE: ${CARET_PROBE}
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard
+- waitForAnimationToEnd
+- takeScreenshot: ${LABEL}

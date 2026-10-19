@@ -1,0 +1,39 @@
+# Tapping the editor while a custom keyboard is open brings the system
+# keyboard back (closeOnEditorPress).
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+name: Editor tap closes the custom keyboard
+---
+- runFlow: ../subflows/launch.yaml
+# The entry can be below the fold on smaller screens.
+- scrollUntilVisible:
+    element: 'Keyboard: Custom'
+    timeout: 60000
+- tapOn: 'Keyboard: Custom'
+- tapOn:
+    id: keyboard-example-editor
+- waitForAnimationToEnd
+# On a cold start the keyboard can begin rising after the wait above
+# returns, and the switcher rides up with it; give it time to arrive so
+# the toggle tap is not aimed at where the switcher was.
+- extendedWaitUntil:
+    visible: 'keyboard-settle-never-shown'
+    timeout: 2500
+    optional: true
+- tapOn:
+    id: toggle-sticker-keyboard
+- assertVisible:
+    id: sticker-0
+# The editor view reaches under the custom keyboard, so its center can land on
+# the keyboard switcher; tap the text instead.
+- tapOn: 'Pick a sticker or a color.'
+- waitForAnimationToEnd
+- assertNotVisible:
+    id: sticker-0
+- inputText: 'x'
+- tapOn:
+    id: read-editor-state
+- assertVisible:
+    id: editor-html
+    text: '.*x.*'

@@ -1,0 +1,6 @@
+# `yarn example e2e` (maestro test example/.maestro) runs every flow below.
+# Android and iOS share the app id; pass -e APP_ID=... to drive another build.
+flows:
+  - smoke/*
+  - repro/*
+  - keyboard/*

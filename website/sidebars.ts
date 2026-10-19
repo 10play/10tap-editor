@@ -5,17 +5,22 @@ const sidebars: SidebarsConfig = {
     {
       type: 'category',
       label: 'Introduction',
-      items: ['intro', 'mainConcepts'],
+      items: ['intro', 'mainConcepts', 'faq'],
     },
     {
       type: 'category',
       label: 'Setup',
-      items: ['setup/installation', 'setup/advancedSetup', 'setup/expoWeb'],
+      items: [
+        'setup/installation',
+        'setup/keyboard',
+        'setup/advancedSetup',
+        'setup/expoWeb',
+      ],
     },
     {
       type: 'category',
       label: 'Migration Guides',
-      items: ['migrations/v1.0'],
+      items: ['migrations/v1.1', 'migrations/v1.0'],
     },
     {
       type: 'category',
@@ -27,6 +32,7 @@ const sidebars: SidebarsConfig = {
         'api/Components',
         'api/BridgeExtensions',
         'api/useEditorContent',
+        'api/CustomKeyboardUtils',
       ],
     },
     {
@@ -35,6 +41,7 @@ const sidebars: SidebarsConfig = {
       collapsed: false, // Ensure the Examples category is open by default
       items: [
         'examples/basic',
+        'examples/workingWithContent',
         'examples/customCss',
         {
           type: 'doc',
@@ -44,6 +51,10 @@ const sidebars: SidebarsConfig = {
         },
         'examples/configureExtensions',
         'examples/navHeader',
+        'examples/scrollView',
+        'examples/renderHtml',
+        'examples/colorKeyboard',
+        'examples/customKeyboard',
         {
           type: 'doc',
           id: 'examples/mentions',

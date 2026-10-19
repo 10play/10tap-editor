@@ -1,0 +1,63 @@
+import {
+  INPUT_MODE_RESTORE_SCRIPT,
+  INPUT_MODE_SUPPRESS_SCRIPT,
+  PRESS_LISTENER_GLOBAL,
+  pressListenerScript,
+} from '../webSnippets';
+import { createFakePage as createPage } from './fakes';
+
+describe('inputmode scripts', () => {
+  it('toggle the attribute on legacy bundles', () => {
+    const page = createPage();
+    page.run(INPUT_MODE_SUPPRESS_SCRIPT);
+    expect(page.attributes.get('inputmode')).toBe('none');
+    page.run(INPUT_MODE_RESTORE_SCRIPT);
+    expect(page.attributes.has('inputmode')).toBe(false);
+  });
+
+  it('use the 1.1 web runtime when present', () => {
+    const page = createPage({ runtime: true });
+    page.run(INPUT_MODE_SUPPRESS_SCRIPT);
+    page.run(INPUT_MODE_RESTORE_SCRIPT);
+    expect(page.setInputMode.mock.calls).toEqual([['none'], [null]]);
+    expect(page.attributes.size).toBe(0);
+  });
+});
+
+describe('press listener script', () => {
+  it('posts a press for a tap without movement', () => {
+    const page = createPage();
+    page.run(pressListenerScript(true));
+    page.tap();
+    expect(page.postMessage).toHaveBeenCalledWith(
+      JSON.stringify({ type: 'tentap-editor-press' })
+    );
+    page.tap(true);
+    expect(page.postMessage).toHaveBeenCalledTimes(1);
+  });
+
+  it('tags the press with the editor id of the web runtime', () => {
+    const page = createPage({ runtime: true, editorId: 'tt-42' });
+    page.run(pressListenerScript(true));
+    page.tap();
+    expect(JSON.parse(page.postMessage.mock.calls[0]![0])).toEqual({
+      type: 'tentap-editor-press',
+      editorId: 'tt-42',
+      v: 2,
+    });
+  });
+
+  it('installs once and can be switched off', () => {
+    const page = createPage();
+    page.run(pressListenerScript(true));
+    page.run(pressListenerScript(true));
+    expect(page.handlers.get('touchend')).toHaveLength(1);
+    page.run(pressListenerScript(false));
+    page.tap();
+    expect(page.postMessage).not.toHaveBeenCalled();
+    expect(page.window[PRESS_LISTENER_GLOBAL]).toEqual({
+      on: false,
+      moved: false,
+    });
+  });
+});

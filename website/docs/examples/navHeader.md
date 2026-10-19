@@ -1,46 +1,56 @@
 ---
+description: Keeping the toolbar above the keyboard below a react-navigation header without a keyboardVerticalOffset.
 sidebar_position: 5
 ---
 
-# IOS Keyboard Avoiding Toolbar with Navigation Header
+# Keyboard Avoiding Toolbar with Navigation Header
 
-In this example we will be making the toolbar on IOS be exactly over the keyboard when using `react-navigation`'s header.
-If we were to just use the avoiding view like in our [basic example](./basic.md) then the toolbar would be under the keyboard.
-We can fix this by adding the [keyboardVerticalOffset](https://reactnative.dev/docs/keyboardavoidingview#keyboardverticaloffset) to our `KeyboardAvoidingView`.
-The `keyboardVerticalOffset` needs to be the top area inset + the headers height which on IOS is 38.
+Below a `react-navigation` header, a `KeyboardAvoidingView` needs a `keyboardVerticalOffset` equal to the header height plus the top inset, and that height changes between platforms and OS versions. A hard-coded value leaves the toolbar partly behind the keyboard.
 
-Additionally, we need to add `paddingBottom` to the RichText container (on iOS only) to prevent text from going under the toolbar when typing.
+`EditorKeyboardAvoidingView` does not need the offset. It measures where it ends in the window and pads its bottom by the part of it the keyboard covers, system or custom, including the navigation bar an edge-to-edge Android keyboard also covers, so it works below any header and above a tab bar:
 
 ```tsx
-const HEADER_HEIGHT = 38; // IOS Only
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import {
+  EditorKeyboardAvoidingView,
+  RichText,
+  Toolbar,
+  useEditorBridge,
+} from '@10play/tentap-editor';
 
-const { top } = useSafeAreaInsets();
-const keyboardVerticalOffset = HEADER_HEIGHT + top;
-...
-...
-...
-<View style={exampleStyles.contentContainer}>
-  <RichText editor={editor} />
-</View>
-<KeyboardAvoidingView
-  behavior={'padding'}
-  style={exampleStyles.keyboardAvoidingView}
-  keyboardVerticalOffset={Platform.OS === 'ios' ? keyboardVerticalOffset : undefined}
->
-  <Toolbar editor={editor} />
-</KeyboardAvoidingView>
-...
-...
-...
-const exampleStyles = StyleSheet.create({
-  contentContainer: {
+export const NavigationHeader = () => {
+  const editor = useEditorBridge({
+    autofocus: true,
+    avoidIosKeyboard: true,
+  });
+
+  return (
+    <EditorKeyboardAvoidingView style={styles.fullScreen}>
+      <View style={styles.fullScreen}>
+        <RichText editor={editor} />
+      </View>
+      <View style={styles.toolbarRow}>
+        <Toolbar editor={editor} />
+      </View>
+    </EditorKeyboardAvoidingView>
+  );
+};
+
+const styles = StyleSheet.create({
+  fullScreen: {
     flex: 1,
-    paddingBottom: Platform.OS === 'ios' ? HEADER_HEIGHT : 0,
   },
-  keyboardAvoidingView: {
-    position: 'absolute',
-    width: '100%',
-    bottom: 0,
+  // The toolbar's default flex: 1 would share the column with the editor;
+  // in a row it only fills the width.
+  toolbarRow: {
+    flexDirection: 'row',
   },
 });
 ```
+
+The editor keeps the line being typed about a line above the toolbar on its own: `RichText` measures how far the keyboard and the `Toolbar` reach into it, so no `paddingBottom` is needed.
+
+The full screen is in [`example/src/Examples/NavigationHeader.tsx`](https://github.com/10play/10tap-editor/tree/main/example/src/Examples/NavigationHeader.tsx).
+
+If you keep React Native's `KeyboardAvoidingView`, take the offset from the navigator instead of a constant, for example `useHeaderHeight()` from `@react-navigation/elements`.

@@ -1,0 +1,22 @@
+# Opens the example screen named ${SCREEN} from a fresh launch and checks
+# that it rendered without a render error.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+---
+- runFlow:
+    file: launch.yaml
+    env:
+      CLEAR_STATE: 'false'
+- scrollUntilVisible:
+    element: ${SCREEN}
+    timeout: 60000
+- tapOn: ${SCREEN}
+# The tap is lost if it lands during a transition; wait for the push.
+- extendedWaitUntil:
+    notVisible: '10Tap Rich Text Editor!'
+    timeout: 15000
+- waitForAnimationToEnd
+- assertNotVisible: 'Render Error'
+- assertNotVisible: '.*isn.t ready yet.*'
+- takeScreenshot: ${SCREEN}

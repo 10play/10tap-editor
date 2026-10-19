@@ -1,4 +1,5 @@
 ---
+description: "Pro example: real-time collaborative editing."
 sidebar_position: 8
 ---
 

@@ -1,0 +1,245 @@
+{
+  "description": "CoreBridge messages. RPC requests carry the transport-assigned payload.messageId (FIXTURE_MESSAGE_ID); replies echo it.",
+  "fixtures": [
+    {
+      "id": "core.set-selection",
+      "direction": "native-to-web",
+      "enum": "CoreEditorActionType",
+      "member": "SetSelection",
+      "call": { "method": "setSelection", "args": [1, 5] },
+      "message": { "type": "set-selection", "payload": { "from": 1, "to": 5 } }
+    },
+    {
+      "id": "core.get-html",
+      "direction": "native-to-web",
+      "enum": "CoreEditorActionType",
+      "member": "GetHTML",
+      "rpc": true,
+      "call": { "method": "getHTML", "args": [] },
+      "message": {
+        "type": "get-html",
+        "payload": { "messageId": "tt-fixture.1" }
+      }
+    },
+    {
+      "id": "core.get-json",
+      "direction": "native-to-web",
+      "enum": "CoreEditorActionType",
+      "member": "GetJSON",
+      "rpc": true,
+      "call": { "method": "getJSON", "args": [] },
+      "message": {
+        "type": "get-json",
+        "payload": { "messageId": "tt-fixture.1" }
+      }
+    },
+    {
+      "id": "core.get-text",
+      "direction": "native-to-web",
+      "enum": "CoreEditorActionType",
+      "member": "GetText",
+      "rpc": true,
+      "call": { "method": "getText", "args": [] },
+      "message": {
+        "type": "get-text",
+        "payload": { "messageId": "tt-fixture.1" }
+      }
+    },
+    {
+      "id": "core.send-html-back",
+      "direction": "web-to-native",
+      "enum": "CoreEditorActionType",
+      "member": "SendHTMLToNative",
+      "message": {
+        "type": "send-html-back",
+        "payload": { "content": "<p>Hello</p>", "messageId": "tt-fixture.1" }
+      }
+    },
+    {
+      "id": "core.send-text-back",
+      "direction": "web-to-native",
+      "enum": "CoreEditorActionType",
+      "member": "SendTextToNative",
+      "message": {
+        "type": "send-text-back",
+        "payload": { "content": "Hello", "messageId": "tt-fixture.1" }
+      }
+    },
+    {
+      "id": "core.send-json-back",
+      "direction": "web-to-native",
+      "enum": "CoreEditorActionType",
+      "member": "SendJSONToNative",
+      "message": {
+        "type": "send-json-back",
+        "payload": {
+          "content": {
+            "type": "doc",
+            "content": [
+              {
+                "type": "paragraph",
+                "content": [{ "type": "text", "text": "Hello" }]
+              }
+            ]
+          },
+          "messageId": "tt-fixture.1"
+        }
+      }
+    },
+    {
+      "id": "core.set-content",
+      "direction": "native-to-web",
+      "enum": "CoreEditorActionType",
+      "member": "SetContent",
+      "call": { "method": "setContent", "args": ["<p>Hello</p>"] },
+      "message": {
+        "type": "set-content",
+        "payload": { "content": "<p>Hello</p>" }
+      }
+    },
+    {
+      "id": "core.set-content.options",
+      "direction": "native-to-web",
+      "enum": "CoreEditorActionType",
+      "member": "SetContent",
+      "call": {
+        "method": "setContent",
+        "args": [
+          "<p>  two  spaces  </p>",
+          {
+            "parseOptions": { "preserveWhitespace": "full" },
+            "emitUpdate": false
+          }
+        ]
+      },
+      "message": {
+        "type": "set-content",
+        "payload": {
+          "content": "<p>  two  spaces  </p>",
+          "parseOptions": { "preserveWhitespace": "full" },
+          "emitUpdate": false
+        }
+      }
+    },
+    {
+      "id": "core.state-update",
+      "direction": "web-to-native",
+      "enum": "CoreEditorActionType",
+      "member": "StateUpdate",
+      "message": {
+        "type": "stateUpdate",
+        "payload": {
+          "isFocused": false,
+          "isReady": true,
+          "selection": { "from": 1, "to": 1 },
+          "editable": true,
+          "empty": false
+        }
+      }
+    },
+    {
+      "id": "core.focus",
+      "direction": "native-to-web",
+      "enum": "CoreEditorActionType",
+      "member": "Focus",
+      "call": { "method": "focus", "args": ["end"] },
+      "message": { "type": "focus", "payload": "end" }
+    },
+    {
+      "id": "core.blur",
+      "direction": "native-to-web",
+      "enum": "CoreEditorActionType",
+      "member": "Blur",
+      "call": { "method": "blur", "args": [] },
+      "message": { "type": "blur" }
+    },
+    {
+      "id": "core.editor-ready.legacy",
+      "direction": "web-to-native",
+      "enum": "CoreEditorActionType",
+      "member": "EditorReady",
+      "message": { "type": "editor-ready" }
+    },
+    {
+      "id": "core.update-scroll-threshold-and-margin",
+      "direction": "native-to-web",
+      "enum": "CoreEditorActionType",
+      "member": "UpdateScrollThresholdAndMargin",
+      "call": { "method": "updateScrollThresholdAndMargin", "args": [44] },
+      "message": { "type": "update-scroll-threshold-and-margin", "payload": 44 }
+    },
+    {
+      "id": "core.content-update",
+      "direction": "web-to-native",
+      "enum": "CoreEditorActionType",
+      "member": "ContentUpdate",
+      "message": { "type": "content-update" }
+    },
+    {
+      "id": "core.document-height",
+      "direction": "web-to-native",
+      "enum": "CoreEditorActionType",
+      "member": "DocumentHeight",
+      "message": { "type": "document-height", "payload": 320 }
+    },
+    {
+      "id": "core.set-editable",
+      "direction": "native-to-web",
+      "enum": "CoreEditorActionType",
+      "member": "SetEditable",
+      "call": { "method": "setEditable", "args": [false] },
+      "message": { "type": "set-editable", "payload": false }
+    },
+    {
+      "id": "core.insert-content",
+      "direction": "native-to-web",
+      "enum": "CoreEditorActionType",
+      "member": "InsertContent",
+      "capability": "insertContent",
+      "call": { "method": "insertContent", "args": ["<p>Inserted</p>"] },
+      "message": {
+        "type": "insert-content",
+        "payload": { "content": "<p>Inserted</p>" }
+      }
+    },
+    {
+      "id": "core.get-selected-text",
+      "direction": "native-to-web",
+      "enum": "CoreEditorActionType",
+      "member": "GetSelectedText",
+      "capability": "selectedText",
+      "rpc": true,
+      "call": { "method": "getSelectedText", "args": [] },
+      "message": {
+        "type": "get-selected-text",
+        "payload": { "messageId": "tt-fixture.1" }
+      }
+    },
+    {
+      "id": "core.get-selected-text.range",
+      "direction": "native-to-web",
+      "enum": "CoreEditorActionType",
+      "member": "GetSelectedText",
+      "capability": "selectedText",
+      "rpc": true,
+      "call": { "method": "getSelectedText", "args": [{ "from": 1, "to": 5 }] },
+      "message": {
+        "type": "get-selected-text",
+        "payload": {
+          "range": { "from": 1, "to": 5 },
+          "messageId": "tt-fixture.1"
+        }
+      }
+    },
+    {
+      "id": "core.send-selected-text-back",
+      "direction": "web-to-native",
+      "enum": "CoreEditorActionType",
+      "member": "SendSelectedTextToNative",
+      "message": {
+        "type": "send-selected-text-back",
+        "payload": { "content": "Hell", "messageId": "tt-fixture.1" }
+      }
+    }
+  ]
+}

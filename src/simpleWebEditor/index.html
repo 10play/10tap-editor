@@ -2,43 +2,54 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!--TENTAP_BOOT-->
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
     />
     <title>RichTextEditor</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      .tentap-root,
+      #root > div:nth-of-type(1) {
+        position: absolute;
+        height: 100%;
+        overflow: auto;
+        width: 100%;
+        top: 0;
+        bottom: 0;
+      }
+      /* A flow root keeps the first block's top margin inside the editor:
+         collapsed through it, the margin left a strip above the editor that
+         blurred it when tapped, and pushed a short document past 100%. */
+      #root div .ProseMirror {
+        min-height: 100%;
+        overflow: visible;
+        display: flow-root;
+      }
+      /* Dynamic height: the editor sizes to its content, never to the
+         viewport, so the reported height can shrink (#336, #342). As a
+         flow root it keeps its children's margins inside the measured box.
+         The wrapper stays a scroll container for clamped WebViews (#323). */
+      #root > div.dynamic-height {
+        height: unset;
+      }
+      #root div.dynamic-height .ProseMirror {
+        height: auto;
+        min-height: 0;
+        display: flow-root;
+      }
+      .ProseMirror:focus {
+        outline: none;
+      }
+      .highlight-background {
+        background-color: #e6e6ff;
+      }
+    </style>
   </head>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-    }
-    #root > div:nth-of-type(1) {
-      position: absolute;
-      height: 100%;
-      overflow: auto;
-      width: 100%;
-      top: 0;
-      bottom: 0;
-    }
-    #root > div.dynamic-height {
-      height: unset;
-    }
-
-    #root div .ProseMirror {
-      min-height: 100%;
-      overflow: visible;
-    }
-    #root div.dynamic-height .ProseMirror {
-      height: unset;
-    }
-    .ProseMirror:focus {
-      outline: none;
-    }
-    .highlight-background {
-      background-color: #e6e6ff;
-    }
-  </style>
   <body>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>

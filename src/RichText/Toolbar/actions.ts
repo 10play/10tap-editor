@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import type { Level } from '@tiptap/extension-heading';
 import { Images } from '../../assets';
 import { EditorActionType } from '../../types/Actions';
 import type { EditorBridge } from '../../types';
@@ -20,7 +21,7 @@ export const ToolbarItems = {
   ToggleH6: 'toggle-h6',
 } as const;
 
-type ArgsToolbarCB = {
+export type ArgsToolbarCB = {
   editor: EditorBridge;
   editorState: BridgeState;
   setToolbarContext: (
@@ -33,6 +34,8 @@ export interface ToolbarItem {
   active: ({ editor, editorState }: ArgsToolbarCB) => boolean;
   disabled: ({ editor, editorState }: ArgsToolbarCB) => boolean;
   image: ({ editor, editorState }: ArgsToolbarCB) => any;
+  /** Accessibility label of the button, read by screen readers and UI tests. */
+  label?: string;
 }
 
 export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
@@ -44,6 +47,7 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     active: ({ editorState }) => editorState.isBoldActive,
     disabled: ({ editorState }) => !editorState.canToggleBold,
     image: () => Images.bold,
+    label: 'Bold',
   },
   {
     onPress:
@@ -53,6 +57,7 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     active: ({ editorState }) => editorState.isItalicActive,
     disabled: ({ editorState }) => !editorState.canToggleItalic,
     image: () => Images.italic,
+    label: 'Italic',
   },
   {
     onPress:
@@ -73,6 +78,7 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     disabled: ({ editorState }) =>
       !editorState.isLinkActive && !editorState.canSetLink,
     image: () => Images.link,
+    label: 'Link',
   },
   {
     onPress:
@@ -82,6 +88,7 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     active: ({ editorState }) => editorState.isTaskListActive,
     disabled: ({ editorState }) => !editorState.canToggleTaskList,
     image: () => Images.checkList,
+    label: 'Task list',
   },
   {
     onPress:
@@ -91,6 +98,7 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     active: () => false,
     disabled: ({ editorState }) => !editorState.canToggleHeading,
     image: () => Images.Aa,
+    label: 'Heading',
   },
   {
     onPress:
@@ -100,6 +108,7 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     active: ({ editorState }) => editorState.isCodeActive,
     disabled: ({ editorState }) => !editorState.canToggleCode,
     image: () => Images.code,
+    label: 'Code',
   },
   {
     onPress:
@@ -109,6 +118,7 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     active: ({ editorState }) => editorState.isUnderlineActive,
     disabled: ({ editorState }) => !editorState.canToggleUnderline,
     image: () => Images.underline,
+    label: 'Underline',
   },
   {
     onPress:
@@ -118,6 +128,7 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     active: ({ editorState }) => editorState.isStrikeActive,
     disabled: ({ editorState }) => !editorState.canToggleStrike,
     image: () => Images.strikethrough,
+    label: 'Strikethrough',
   },
   {
     onPress:
@@ -127,6 +138,7 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     active: ({ editorState }) => editorState.isBlockquoteActive,
     disabled: ({ editorState }) => !editorState.canToggleBlockquote,
     image: () => Images.quote,
+    label: 'Quote',
   },
   {
     onPress:
@@ -136,6 +148,7 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     active: ({ editorState }) => editorState.isOrderedListActive,
     disabled: ({ editorState }) => !editorState.canToggleOrderedList,
     image: () => Images.orderedList,
+    label: 'Ordered list',
   },
   {
     onPress:
@@ -145,6 +158,7 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     active: ({ editorState }) => editorState.isBulletListActive,
     disabled: ({ editorState }) => !editorState.canToggleBulletList,
     image: () => Images.bulletList,
+    label: 'Bullet list',
   },
   {
     // Regular list items (li) and task list items both use the
@@ -157,6 +171,7 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     disabled: ({ editorState }) =>
       !editorState.canSink && !editorState.canSinkTaskListItem,
     image: () => Images.indent,
+    label: 'Indent',
   },
   {
     // Regular list items (li) and task list items both use the
@@ -169,6 +184,7 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     disabled: ({ editorState }) =>
       !editorState.canLift && !editorState.canLiftTaskListItem,
     image: () => Images.outdent,
+    label: 'Outdent',
   },
   {
     onPress:
@@ -178,6 +194,7 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     active: () => false,
     disabled: ({ editorState }) => !editorState.canUndo,
     image: () => Images.undo,
+    label: 'Undo',
   },
   {
     onPress:
@@ -187,9 +204,27 @@ export const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
     active: () => false,
     disabled: ({ editorState }) => !editorState.canRedo,
     image: () => Images.redo,
+    label: 'Redo',
   },
 ];
 
+const HEADING_LEVELS: readonly Level[] = [1, 2, 3, 4, 5, 6];
+
+const headingItem = (level: Level): ToolbarItem => ({
+  onPress:
+    ({ editor }) =>
+    () =>
+      editor.toggleHeading(level),
+  active: ({ editorState }) => editorState.headingLevel === level,
+  disabled: ({ editorState }) => !editorState.canToggleHeading,
+  image: () => Images[`h${level}`],
+  label: `Heading ${level}`,
+});
+
+/**
+ * The heading sub-toolbar: a close item back to the main toolbar, then H1-H6.
+ * Replace it with `<Toolbar headingItems={...} />`.
+ */
 export const HEADING_ITEMS: ToolbarItem[] = [
   {
     onPress:
@@ -199,59 +234,7 @@ export const HEADING_ITEMS: ToolbarItem[] = [
     active: () => false,
     disabled: () => false,
     image: () => Images.close,
+    label: 'Close headings',
   },
-  {
-    onPress:
-      ({ editor }) =>
-      () =>
-        editor.toggleHeading(1),
-    active: ({ editorState }) => editorState.headingLevel === 1,
-    disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.h1,
-  },
-  {
-    onPress:
-      ({ editor }) =>
-      () =>
-        editor.toggleHeading(2),
-    active: ({ editorState }) => editorState.headingLevel === 2,
-    disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.h2,
-  },
-  {
-    onPress:
-      ({ editor }) =>
-      () =>
-        editor.toggleHeading(3),
-    active: ({ editorState }) => editorState.headingLevel === 3,
-    disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.h3,
-  },
-  {
-    onPress:
-      ({ editor }) =>
-      () =>
-        editor.toggleHeading(4),
-    active: ({ editorState }) => editorState.headingLevel === 4,
-    disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.h4,
-  },
-  {
-    onPress:
-      ({ editor }) =>
-      () =>
-        editor.toggleHeading(5),
-    active: ({ editorState }) => editorState.headingLevel === 5,
-    disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.h5,
-  },
-  {
-    onPress:
-      ({ editor }) =>
-      () =>
-        editor.toggleHeading(6),
-    active: ({ editorState }) => editorState.headingLevel === 6,
-    disabled: ({ editorState }) => !editorState.canToggleHeading,
-    image: () => Images.h6,
-  },
+  ...HEADING_LEVELS.map(headingItem),
 ];

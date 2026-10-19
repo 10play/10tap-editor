@@ -1,0 +1,42 @@
+# 20 custom/system swaps: every open mounts the keyboard and every close
+# unmounts it (#51), and typing afterwards still reaches the editor.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+name: Toggle the custom keyboard 20 times
+---
+- runFlow: ../subflows/launch.yaml
+# The entry can be below the fold on smaller screens.
+- scrollUntilVisible:
+    element: 'Keyboard: Custom'
+    timeout: 60000
+- tapOn: 'Keyboard: Custom'
+- tapOn:
+    id: keyboard-example-editor
+- waitForAnimationToEnd
+# On a cold start the keyboard can begin rising after the wait above
+# returns, and the switcher rides up with it; give it time to arrive so
+# the toggle tap is not aimed at where the switcher was.
+- extendedWaitUntil:
+    visible: 'keyboard-settle-never-shown'
+    timeout: 2500
+    optional: true
+- repeat:
+    times: 20
+    commands:
+      - tapOn:
+          id: toggle-sticker-keyboard
+      - assertVisible:
+          id: sticker-0
+      - tapOn:
+          id: toggle-sticker-keyboard
+      - waitForAnimationToEnd
+      - assertNotVisible:
+          id: sticker-0
+- inputText: 'after swaps'
+- tapOn:
+    id: read-editor-state
+- assertVisible: 'mounts:20 unmounts:20'
+- assertVisible:
+    id: editor-html
+    text: '.*after swaps.*'

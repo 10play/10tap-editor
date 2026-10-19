@@ -1,0 +1,17 @@
+# #342, #336, #323: dynamicHeight editors show their whole content, and the
+# one capped at 150pt by its parent shows its first lines.
+appId: dev.tenplay.tentapexampleexpo
+name: 'Repro: dynamic height'
+tags:
+  - repro
+---
+- runFlow:
+    file: ../common/open-example.yaml
+    env:
+      EXAMPLE: Dynamic Height
+- extendedWaitUntil:
+    visible: 'Type here: the editor grows with its content.'
+    timeout: 20000
+# Android WebView exposes the capped editor's paragraphs as one node.
+- assertVisible: 'Line 1(\s[\s\S]*)?'
+- takeScreenshot: dynamic-height

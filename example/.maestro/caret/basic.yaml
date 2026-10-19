@@ -1,0 +1,69 @@
+# Basic editor (Toolbar in a bottom KeyboardAvoidingView, autofocus at the
+# end): ~40 lines, long paragraphs and a pasted block (with CARET_PROBE) at
+# the end of the document, then typing and Enter in the middle after
+# scrolling up.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+  RUN: ${RUN || 'basic'}
+name: 'Caret: basic editor'
+tags:
+  - caret
+---
+- runFlow:
+    file: open.yaml
+    env:
+      SCREEN: Basic
+- extendedWaitUntil:
+    visible: '.*This is a basic example.*'
+    timeout: 20000
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-00-open'}
+- runFlow:
+    file: subflows/lines-40.yaml
+    env:
+      LABEL: ${RUN}
+- runFlow:
+    file: subflows/paragraph.yaml
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-50-paragraph-1'}
+- runFlow:
+    file: subflows/paragraph.yaml
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-51-paragraph-2'}
+- runFlow:
+    file: subflows/paste.yaml
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-60-paste'}
+# The editor's paragraphs are not separate elements on Android, so scroll
+# and tap by position.
+- swipe:
+    start: 50%,25%
+    end: 50%,55%
+- swipe:
+    start: 50%,25%
+    end: 50%,55%
+- tapOn:
+    point: 50%,35%
+- inputText: ' middle'
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-70-middle'}
+- runFlow:
+    file: type-lines.yaml
+    env:
+      COUNT: '6'
+      TAG: Mid
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-71-middle-enter'}

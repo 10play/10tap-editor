@@ -1,37 +1,12 @@
-import React from 'react';
-import { useEffect } from 'react';
-import type { KeyboardEventName } from 'react-native';
-import { Keyboard, Platform } from 'react-native';
+import { useSyncExternalStore } from 'react';
+import { keyboardStore, type KeyboardState } from '../native/keyboardStore';
 
-const hideEvent: KeyboardEventName =
-  Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+export type { KeyboardState };
 
-export const useKeyboard = () => {
-  const [isKeyboardUp, setIsKeyboardUp] = React.useState(false);
-  const [keyboardHeight, setKeyboardHeight] = React.useState(0);
-
-  useEffect(() => {
-    const willShowSubscription = Keyboard.addListener(
-      'keyboardWillShow',
-      () => {
-        setIsKeyboardUp(true);
-      }
-    );
-    const didShowSubscription = Keyboard.addListener('keyboardDidShow', (e) => {
-      setIsKeyboardUp(true);
-      setKeyboardHeight(e.endCoordinates.height);
-    });
-    const hideSubscription = Keyboard.addListener(hideEvent, () => {
-      setIsKeyboardUp(false);
-      setKeyboardHeight(0);
-    });
-
-    return () => {
-      willShowSubscription.remove();
-      didShowSubscription.remove();
-      hideSubscription.remove();
-    };
-  }, []);
-
-  return { isKeyboardUp, keyboardHeight };
-};
+/**
+ * System and custom keyboard state. `isKeyboardUp` and `keyboardHeight` cover
+ * both keyboards, so the height holds steady while a custom keyboard and the
+ * system keyboard swap.
+ */
+export const useKeyboard = (): KeyboardState =>
+  useSyncExternalStore(keyboardStore.subscribe, keyboardStore.getSnapshot);

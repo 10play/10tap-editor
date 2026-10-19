@@ -1,0 +1,147 @@
+# The default Toolbar on iOS, driven by the buttons' accessibility labels:
+# link without a protocol (#255), italic, heading on and off (#298), bullet
+# list and toolbar undo/redo. The probe row comes first and has its own
+# "Undo" button, so the toolbar's is the second match.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+name: Toolbar actions (iOS)
+tags:
+  - smoke
+---
+- runFlow: ../subflows/launch.yaml
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - scrollUntilVisible:
+          element: 'E2E: Smoke'
+          timeout: 60000
+      - tapOn: 'E2E: Smoke'
+      # A tap during the push transition is lost on a cold old-arch start.
+      - extendedWaitUntil:
+          notVisible: '10Tap Rich Text Editor!'
+          timeout: 10000
+      - waitForAnimationToEnd
+      - extendedWaitUntil:
+          visible:
+            id: editor-status
+            text: 'ready:true editable:true.*'
+          timeout: 15000
+      - tapOn:
+          id: smoke-editor
+      - extendedWaitUntil:
+          visible: 'Italic'
+          timeout: 15000
+      - waitForAnimationToEnd
+
+      # Link on the selected word "Smoke"; the https:// protocol is added (#255)
+      - doubleTapOn: 'Smoke test'
+      - waitForAnimationToEnd
+      - runFlow:
+          when:
+            visible: '^Select$'
+          commands:
+            - tapOn: '^Select$'
+      # The toolbar rides up with a keyboard that can start rising late on a
+      # cold start; let it arrive before aiming at Link.
+      - extendedWaitUntil:
+          visible: 'keyboard-settle-never-shown'
+          timeout: 2500
+          optional: true
+      - tapOn: 'Link'
+      - inputText: 'example.com'
+      - tapOn: 'Insert'
+      - tapOn:
+          id: read-editor-state
+      - assertVisible:
+          id: editor-html
+          text: '.*<a [^>]*href="https://example\.com"[^>]*>(Smoke|test)</a>.*'
+
+      # Italic at the end of the document (the empty editor area). The
+      # editor view reaches under the keyboard, so on short screens its
+      # center can be the toolbar; tap just below the text instead.
+      - tapOn:
+          point: 50%,35%
+      - waitForAnimationToEnd
+      - tapOn: 'Italic'
+      - inputText: ' ital'
+      - tapOn: 'Italic'
+      - tapOn:
+          id: read-editor-state
+      - assertVisible:
+          id: editor-html
+          text: '.*<em>.*ital</em>.*'
+
+      # Bold; the probe row has its own "Bold" button, so the toolbar's is
+      # the second match.
+      - tapOn:
+          text: 'Bold'
+          index: 1
+      - inputText: ' bld'
+      - tapOn:
+          text: 'Bold'
+          index: 1
+      - tapOn:
+          id: read-editor-state
+      - assertVisible:
+          id: editor-html
+          text: '.*<strong>.*bld</strong>.*'
+
+      # Heading sub-toolbar: Heading, Heading 1, close; then toggle it off
+      - tapOn: 'Heading'
+      - tapOn: 'Heading 1'
+      - tapOn: 'Close headings'
+      - tapOn:
+          id: read-editor-state
+      - assertVisible:
+          id: editor-html
+          text: '<h1>.*ital</em>.*bld</strong></h1>'
+      - tapOn: 'Heading'
+      - tapOn: 'Heading 1'
+      - tapOn: 'Close headings'
+      - tapOn:
+          id: read-editor-state
+      - assertVisible:
+          id: editor-html
+          text: '<p>.*ital</em>.*bld</strong></p>'
+
+      # Bullet list, then toolbar undo and redo
+      - repeat:
+          while:
+            notVisible: 'Bullet list'
+          times: 4
+          commands:
+            - swipe:
+                from: 'Quote|Ordered list'
+                direction: LEFT
+            - waitForAnimationToEnd
+      - tapOn: 'Bullet list'
+      - tapOn:
+          id: read-editor-state
+      - assertVisible:
+          id: editor-html
+          text: '<ul><li>.*</li></ul>'
+      - repeat:
+          while:
+            notVisible: 'Redo'
+          times: 3
+          commands:
+            - swipe:
+                from: 'Quote|Ordered list|Bullet list|Indent|Outdent'
+                direction: LEFT
+            - waitForAnimationToEnd
+      - tapOn:
+          text: 'Undo'
+          index: 1
+      - tapOn:
+          id: read-editor-state
+      - assertVisible:
+          id: editor-html
+          text: '<p>.*ital</em>.*bld</strong></p>'
+      - tapOn: 'Redo'
+      - tapOn:
+          id: read-editor-state
+      - assertVisible:
+          id: editor-html
+          text: '<ul><li>.*</li></ul>'

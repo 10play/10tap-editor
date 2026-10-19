@@ -1,0 +1,49 @@
+# Every example screen without its own flow opens and renders.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+name: Example screens open
+tags:
+  - smoke
+---
+- runFlow: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/open-screen.yaml
+    env:
+      SCREEN: Basic
+- runFlow:
+    file: ../subflows/open-screen.yaml
+    env:
+      SCREEN: Custom CSS
+- runFlow:
+    file: ../subflows/open-screen.yaml
+    env:
+      SCREEN: Configure Extensions
+- runFlow:
+    file: ../subflows/open-screen.yaml
+    env:
+      SCREEN: Dark Editor
+- runFlow:
+    file: ../subflows/open-screen.yaml
+    env:
+      SCREEN: EditorStickToKeyboardExample
+- runFlow:
+    file: ../subflows/open-screen.yaml
+    env:
+      SCREEN: NavigationHeader
+- runFlow:
+    file: ../subflows/open-screen.yaml
+    env:
+      SCREEN: CustomAndStaticToolbar
+- runFlow:
+    file: ../subflows/open-screen.yaml
+    env:
+      SCREEN: Advanced
+# The custom web bundle booted: CounterBridge state reached native.
+- extendedWaitUntil:
+    visible: '[1-9][0-9]* \|\| [1-9][0-9]*'
+    timeout: 15000
+- runFlow:
+    file: ../subflows/open-screen.yaml
+    env:
+      SCREEN: 'Keyboard: Color'

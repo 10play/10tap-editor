@@ -1,0 +1,26 @@
+{
+  "name": "tentap-e2e-web",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Playwright checks for the editor on react-native-web (Expo web setup)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "vite build && playwright test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@10play/react-native-web-webview": "0.0.3",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "react-native-web": "0.21.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/react": "^19.1.1",
+    "@types/react-dom": "^19.1.1",
+    "@vitejs/plugin-react": "^4.7.0",
+    "typescript": "~5.9.3",
+    "vite": "^6.3.6"
+  }
+}

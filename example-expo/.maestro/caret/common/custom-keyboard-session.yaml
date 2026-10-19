@@ -1,0 +1,83 @@
+# Long typing on the screen named EXAMPLE, whose toolbar's "Color keyboard"
+# item swaps the system keyboard for ColorKeyboard. The caret stays at the
+# end of the document while the keyboards swap back and forth.
+appId: dev.tenplay.tentapexampleexpo
+---
+- runFlow:
+    file: ../../common/open-example.yaml
+    env:
+      EXAMPLE: ${EXAMPLE}
+- extendedWaitUntil:
+    visible: Color keyboard
+    timeout: 20000
+- waitForAnimationToEnd
+# The keyboard that autofocus opens, before anything is typed: the toolbar
+# has to sit fully on top of it already.
+- runFlow:
+    file: checkpoint.yaml
+    env:
+      SHOT: ${PREFIX}-open
+- pressKey: Enter
+- runFlow:
+    file: type-long-text.yaml
+    env:
+      PREFIX: ${PREFIX}
+- tapOn: Color keyboard
+- assertVisible: Highlight
+- runFlow:
+    file: checkpoint.yaml
+    env:
+      SHOT: ${PREFIX}-custom-open
+- tapOn: Color keyboard
+- assertNotVisible: Highlight
+- runFlow:
+    file: checkpoint.yaml
+    env:
+      SHOT: ${PREFIX}-system-again
+- pressKey: Enter
+- runFlow:
+    file: type-lines.yaml
+    env:
+      LINES: 5
+- runFlow:
+    file: checkpoint.yaml
+    env:
+      SHOT: ${PREFIX}-lines-${output.line}
+- tapOn: Color keyboard
+- assertVisible: Highlight
+- runFlow:
+    file: checkpoint.yaml
+    env:
+      SHOT: ${PREFIX}-custom-open-2
+- tapOn:
+    text: Red
+    index: 0
+- assertNotVisible: Highlight
+- runFlow:
+    file: checkpoint.yaml
+    env:
+      SHOT: ${PREFIX}-color-picked
+- runFlow:
+    file: type-lines.yaml
+    env:
+      LINES: 5
+- runFlow:
+    file: checkpoint.yaml
+    env:
+      SHOT: ${PREFIX}-lines-${output.line}
+# The toolbar is still on the keyboard after a pick, so ColorKeyboard can be
+# opened again and closed with it.
+- assertVisible: Color keyboard
+- tapOn: Color keyboard
+- assertVisible: Highlight
+- runFlow:
+    file: checkpoint.yaml
+    env:
+      SHOT: ${PREFIX}-custom-after-pick
+- tapOn: Color keyboard
+- assertNotVisible: Highlight
+- inputText: 'Typed after the round trip'
+- runFlow:
+    file: checkpoint.yaml
+    env:
+      SHOT: ${PREFIX}-after-round-trip

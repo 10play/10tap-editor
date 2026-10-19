@@ -1,0 +1,110 @@
+# Any example screen with a toolbar or keyboard: opens ${SCREEN} (OPEN_ID
+# taps a button first, e.g. to show a modal), taps the editor (FOCUS_ID, or
+# the point FOCUS_POINT), types LINES lines and checks the system keyboard
+# geometry, then pastes a 30 paragraph block (with CARET_PROBE) and types on
+# below it. With TOGGLE_ID the custom keyboard opens, closes back to the
+# system keyboard and typing goes on; then the keyboard is dismissed.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+  RUN: ${RUN || 'screen'}
+  OPEN_ID: ${OPEN_ID || ''}
+  FOCUS_ID: ${FOCUS_ID || ''}
+  FOCUS_POINT: ${FOCUS_POINT || '50%,30%'}
+  TOGGLE_ID: ${TOGGLE_ID || ''}
+  LINES: ${LINES || '4'}
+name: 'Caret: example screen'
+tags:
+  - caret
+---
+- runFlow:
+    file: open.yaml
+    env:
+      SCREEN: ${SCREEN}
+      # Focused below, after OPEN_ID.
+      FOCUS_ID: ''
+- runFlow:
+    when:
+      true: ${OPEN_ID != ''}
+    commands:
+      - runFlow:
+          file: tap-id.yaml
+          env:
+            ID: ${OPEN_ID}
+- runFlow:
+    when:
+      true: ${FOCUS_ID != ''}
+    commands:
+      - runFlow:
+          file: tap-id.yaml
+          env:
+            ID: ${FOCUS_ID}
+- runFlow:
+    when:
+      true: ${FOCUS_ID == ''}
+    commands:
+      - tapOn:
+          point: ${FOCUS_POINT}
+- waitForAnimationToEnd
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-00-focused'}
+- runFlow:
+    file: type-lines.yaml
+    env:
+      COUNT: ${LINES}
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-10-lines'}
+- runFlow:
+    file: subflows/paste.yaml
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-11-paste'}
+- runFlow:
+    file: type-lines.yaml
+    env:
+      COUNT: '2'
+      TAG: Tail
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-12-typed-after-paste'}
+- runFlow:
+    when:
+      true: ${TOGGLE_ID != ''}
+    commands:
+      - runFlow:
+          file: subflows/dismiss-logbox.yaml
+      - runFlow:
+          file: tap-id.yaml
+          env:
+            ID: ${TOGGLE_ID}
+      - runFlow:
+          file: subflows/checkpoint.yaml
+          env:
+            LABEL: ${RUN + '-20-custom-open'}
+      - runFlow:
+          file: tap-id.yaml
+          env:
+            ID: ${TOGGLE_ID}
+      - runFlow:
+          file: subflows/checkpoint.yaml
+          env:
+            LABEL: ${RUN + '-21-system-again'}
+      - runFlow:
+          file: type-lines.yaml
+          env:
+            COUNT: '3'
+            TAG: After
+      - runFlow:
+          file: subflows/checkpoint.yaml
+          env:
+            LABEL: ${RUN + '-22-typed-after-switch'}
+- runFlow:
+    file: subflows/dismiss.yaml
+    env:
+      LABEL: ${RUN + '-90-dismissed'}

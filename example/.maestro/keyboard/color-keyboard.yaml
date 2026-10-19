@@ -1,0 +1,37 @@
+# ColorKeyboard applies a color, closes back to the system keyboard and the
+# caret stays where it was (G-ALL-1).
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+name: Color keyboard
+---
+- runFlow: ../subflows/launch.yaml
+# The entry can be below the fold on smaller screens.
+- scrollUntilVisible:
+    element: 'Keyboard: Custom'
+    timeout: 60000
+- tapOn: 'Keyboard: Custom'
+- tapOn:
+    id: keyboard-example-editor
+- waitForAnimationToEnd
+# On a cold start the keyboard can begin rising after the wait above
+# returns, and the switcher rides up with it; give it time to arrive so
+# the toggle tap is not aimed at where the switcher was.
+- extendedWaitUntil:
+    visible: 'keyboard-settle-never-shown'
+    timeout: 2500
+    optional: true
+- tapOn:
+    id: toggle-color-keyboard
+- assertVisible: Highlight
+- tapOn:
+    text: Red
+    index: 0
+- waitForAnimationToEnd
+- assertNotVisible: Highlight
+- inputText: ' typed'
+- tapOn:
+    id: read-editor-state
+- assertVisible:
+    id: editor-html
+    text: '.*color.*typed.*'

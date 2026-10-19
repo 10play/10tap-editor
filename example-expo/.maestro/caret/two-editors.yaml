@@ -1,0 +1,25 @@
+# Two Editors screen: long typing into the second editor, whose frame ends
+# under the shared toolbar in the bottom KeyboardAvoidingView.
+appId: dev.tenplay.tentapexampleexpo
+name: 'Caret: two editors'
+tags:
+  - caret
+---
+- runFlow:
+    file: ../common/open-example.yaml
+    env:
+      EXAMPLE: Two Editors
+- extendedWaitUntil:
+    visible: '.*Second editor.*'
+    timeout: 20000
+- tapOn: '.*Second editor.*'
+- waitForAnimationToEnd
+- runFlow:
+    file: common/checkpoint.yaml
+    env:
+      SHOT: two-focused
+- pressKey: Enter
+- runFlow:
+    file: common/type-long-text.yaml
+    env:
+      PREFIX: two

@@ -1,0 +1,50 @@
+# The documented ColorKeyboard setup ('Keyboard: Color': Toolbar with a
+# palette item and an inline CustomKeyboard in a bottom
+# KeyboardAvoidingView): ~40 lines, then the color keyboard opens from the
+# toolbar, a color is picked and typing goes on with the system keyboard.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+  RUN: ${RUN || 'color'}
+name: 'Caret: toolbar color keyboard'
+tags:
+  - caret
+---
+- runFlow:
+    file: open.yaml
+    env:
+      SCREEN: 'Keyboard: Color'
+      FOCUS_ID: keyboard-example-editor
+- runFlow:
+    file: subflows/lines-40.yaml
+    env:
+      LABEL: ${RUN}
+- tapOn: Colors
+- assertVisible: Highlight
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-50-color-open'}
+- tapOn:
+    text: Red
+    index: 0
+- waitForAnimationToEnd
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-51-color-picked'}
+- runFlow:
+    file: type-lines.yaml
+    env:
+      START: '41'
+      COUNT: '8'
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-52-lines-after-pick'}
+- runFlow:
+    file: type-paragraph.yaml
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-53-paragraph'}

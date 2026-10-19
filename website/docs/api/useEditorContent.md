@@ -1,4 +1,5 @@
 ---
+description: Reference for the useEditorContent hook, which reads the content efficiently as HTML, JSON or text.
 sidebar_position: 7
 ---
 
@@ -14,7 +15,8 @@ The useEditorContent hook is designed to efficiently retrieve the content. It mo
 
 #### type
 
-`EditorContentType`
+`EditorContentType`  
+<u>default</u>: `'html'`<br />
 The type of content to return, `html` and `text` return strings, `json` returns an object.
 
 #### debounceInterval
@@ -35,4 +37,8 @@ useEffect(() => {
 Internally `useEditorContent` will get the content by calling `editor.getHTML` (or text/json depending on the `type` option). To reduce
 traffic it is called within a `debounce` with a default interval of `10`ms. This can be modified changing the `debounceInterval` option.
 
+The content is fetched once when the editor is ready and then again only when the content changes, not when the selection moves. If responses arrive out of order, an older one never overwrites a newer one, and nothing is fetched after the component unmounts.
+
 In addition we can also get the content as text or as a json.
+
+If you display the HTML outside the editor, for example with `react-native-render-html`, see [Rendering editor HTML](../examples/renderHtml.md).

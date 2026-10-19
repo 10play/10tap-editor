@@ -1,0 +1,2 @@
+# Published bundles, byte-for-byte; never format or edit them.
+*.html -diff linguist-generated=true

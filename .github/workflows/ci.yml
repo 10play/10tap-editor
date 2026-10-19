@@ -6,13 +6,21 @@ on:
   pull_request:
     branches:
       - main
+  workflow_call:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Setup
         uses: ./.github/actions/setup
@@ -26,23 +34,28 @@ jobs:
       - name: Typecheck files
         run: yarn typecheck
 
+      - name: Check codegen spec and the old-architecture Java spec
+        run: yarn check:codegen
+
+      - name: Check the editor bundle size
+        run: node scripts/size-budget.js
+
+      - name: Check that the docs llms.txt files are up to date
+        run: yarn check:llms
+
+      - name: Lint workflows
+        uses: docker://rhysd/actionlint:1.7.7
+        with:
+          args: -color
+
+      - name: Check that the Maestro flows target existing elements
+        run: node .github/scripts/check-maestro-flows.mjs
+
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Setup
-        uses: ./.github/actions/setup
-
-      - name: Run unit tests
-        run: yarn test --maxWorkers=2 --coverage
-
-  build-library:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Setup
         uses: ./.github/actions/setup
@@ -50,108 +63,300 @@ jobs:
       - name: Build editor
         run: yarn editor:build
 
-      - name: Build package
-        run: yarn prepare
+      - name: Run unit tests
+        run: yarn test --maxWorkers=2 --coverage
+
+      - name: Run web tests
+        run: yarn test:web
+
+  build-library:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      # npm pack runs prepack and prepare once each and lists the packed files.
+      - name: Build and pack the library
+        run: npm pack --pack-destination "$RUNNER_TEMP"
+
+      - name: Bundle the packed library with Metro (no react-dom)
+        run: yarn check:bundle --tarball "$RUNNER_TEMP"/10play-tentap-editor-*.tgz
+
+  typecheck-examples:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Build the editor and web utils
+        run: yarn editor:build && yarn editor:build-web-utils
+
+      - name: Build the advanced example's editor
+        run: yarn example editor:build
+
+      - name: Typecheck the bare example
+        run: yarn example typecheck
+
+      - name: Typecheck the Expo example
+        run: yarn example:expo typecheck
+
+      - name: Typecheck the web E2E app
+        run: yarn workspace tentap-e2e-web typecheck
+
+  e2e-web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Build editor
+        run: yarn editor:build
+
+      - name: Install Chromium
+        run: yarn workspace tentap-e2e-web playwright install --with-deps chromium
+
+      - name: Run Playwright
+        run: yarn e2e:web
+        env:
+          CI: true
+
+      - name: Upload the Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-web-results
+          path: e2e-web/test-results
+          retention-days: 7
 
   build-android:
+    name: build-android (newArch=${{ matrix.new-arch }})
     runs-on: ubuntu-latest
-    env:
-      TURBO_CACHE_DIR: .turbo/android
+    strategy:
+      fail-fast: false
+      matrix:
+        new-arch: [true, false]
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Setup
         uses: ./.github/actions/setup
 
-      - name: Cache turborepo for Android
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.TURBO_CACHE_DIR }}
-          key: ${{ runner.os }}-turborepo-android-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-turborepo-android-
+      - name: Setup Android toolchain
+        uses: ./.github/actions/setup-android
 
-      - name: Check turborepo cache for Android
-        run: |
-          TURBO_CACHE_STATUS=$(node -p "($(yarn turbo run build:android --cache-dir="${{ env.TURBO_CACHE_DIR }}" --dry=json)).tasks.find(t => t.task === 'build:android').cache.status")
+      - name: Build the editor
+        run: yarn editor:build
 
-          if [[ $TURBO_CACHE_STATUS == "HIT" ]]; then
-            echo "turbo_cache_hit=1" >> $GITHUB_ENV
-          fi
+      - name: Build the example
+        run: >
+          yarn example build:android
+          -PreactNativeArchitectures=x86_64
+          -PnewArchEnabled=${{ matrix.new-arch }}
 
-      - name: Install JDK
-        if: env.turbo_cache_hit != 1
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '17'
+      - name: Check that the library is autolinked
+        run: .github/scripts/check-autolinking.sh example/android
 
-      - name: Finalize Android SDK
-        if: env.turbo_cache_hit != 1
-        run: |
-          /bin/bash -c "yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null"
-
-      - name: Cache Gradle
-        if: env.turbo_cache_hit != 1
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/wrapper
-            ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('examplelatest/android/gradle/wrapper/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      - name: Build example for Android
-        run: |
-          yarn turbo run build:android --cache-dir="${{ env.TURBO_CACHE_DIR }}"
+      - name: Run the library's Android unit tests
+        working-directory: example/android
+        run: >
+          ./gradlew :10play_tentap-editor:testDebugUnitTest --console=plain
+          -PreactNativeArchitectures=x86_64
+          -PnewArchEnabled=${{ matrix.new-arch }}
 
   build-ios:
-    runs-on: macos-latest
-    env:
-      TURBO_CACHE_DIR: .turbo/ios
+    name: build-ios (newArch=${{ matrix.new-arch }})
+    runs-on: macos-15
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - new-arch: true
+            pods: pods
+          - new-arch: false
+            pods: pods:oldarch
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Setup
         uses: ./.github/actions/setup
 
-      - name: Cache turborepo for iOS
-        uses: actions/cache@v3
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
         with:
-          path: ${{ env.TURBO_CACHE_DIR }}
-          key: ${{ runner.os }}-turborepo-ios-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-turborepo-ios-
+          xcode-version: latest-stable
 
-      - name: Check turborepo cache for iOS
-        run: |
-          TURBO_CACHE_STATUS=$(node -p "($(yarn turbo run build:ios --cache-dir="${{ env.TURBO_CACHE_DIR }}" --dry=json)).tasks.find(t => t.task === 'build:ios').cache.status")
+      - name: Build the editor
+        run: yarn editor:build
 
-          if [[ $TURBO_CACHE_STATUS == "HIT" ]]; then
-            echo "turbo_cache_hit=1" >> $GITHUB_ENV
-          fi
+      - name: Install pods
+        run: yarn example ${{ matrix.pods }}
 
-      - name: Cache cocoapods
-        if: env.turbo_cache_hit != 1
-        id: cocoapods-cache
-        uses: actions/cache@v3
+      - name: Check that the tentap pod is autolinked
+        run: grep -q '^  - tentap ' example/ios/Podfile.lock
+
+      - name: Build the example
+        run: yarn example build:ios
+
+  build-expo:
+    name: build-expo (${{ matrix.platform }})
+    runs-on: ${{ matrix.platform == 'ios' && 'macos-26' || 'ubuntu-latest' }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [android, ios]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Setup Android toolchain
+        if: matrix.platform == 'android'
+        uses: ./.github/actions/setup-android
+
+      # Expo SDK 57's expo-modules-jsi does not compile with Xcode 26.3, the
+      # newest Xcode on the macos-15 image; macos-26 has newer ones.
+      - name: Select Xcode
+        if: matrix.platform == 'ios'
+        uses: maxim-lobanov/setup-xcode@v1
         with:
-          path: |
-            **/ios/Pods
-          key: ${{ runner.os }}-cocoapods-v3-${{ hashFiles('examplelatest/ios/Podfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cocoapods-v3-
+          xcode-version: latest-stable
 
-      - name: Install cocoapods
-        if: env.turbo_cache_hit != 1 && steps.cocoapods-cache.outputs.cache-hit != 'true'
-        run: |
-          yarn pod-install examplelatest/ios
-        env:
-          NO_FLIPPER: 1
+      - name: Show the Xcode in use
+        if: matrix.platform == 'ios'
+        run: xcodebuild -version && ls -d /Applications/Xcode*
 
-      - name: Build example for iOS
+      - name: Build the editor
+        run: yarn editor:build
+
+      - name: Prebuild the Expo example
+        run: yarn example:expo prebuild --platform ${{ matrix.platform }} --no-install
+
+      - name: Build the Android app
+        if: matrix.platform == 'android'
+        working-directory: example-expo/android
+        run: ./gradlew assembleDebug --console=plain -PreactNativeArchitectures=x86_64
+
+      - name: Check that the library is autolinked on Android
+        if: matrix.platform == 'android'
+        run: .github/scripts/check-autolinking.sh example-expo/android
+
+      - name: Install pods
+        if: matrix.platform == 'ios'
+        working-directory: example-expo/ios
+        run: pod install
+
+      - name: Check that the tentap pod is autolinked
+        if: matrix.platform == 'ios'
+        run: grep -q '^  - tentap ' example-expo/ios/Podfile.lock
+
+      - name: Build the iOS app
+        if: matrix.platform == 'ios'
+        working-directory: example-expo/ios
+        run: >
+          xcodebuild -workspace TenTapExpoExample.xcworkspace
+          -scheme TenTapExpoExample -configuration Debug
+          -sdk iphonesimulator -destination 'generic/platform=iOS Simulator'
+          CODE_SIGNING_ALLOWED=NO -quiet build
+
+  e2e-android:
+    name: e2e-android (newArch=${{ matrix.new-arch }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        new-arch: [true, false]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Setup Android toolchain
+        uses: ./.github/actions/setup-android
+
+      - name: Build the editor and web utils
+        run: yarn editor:build && yarn editor:build-web-utils
+
+      - name: Build the advanced example's editor
+        run: yarn example editor:build
+
+      - name: Build a release APK with the JS bundle
+        run: >
+          yarn example build:android:release
+          -PreactNativeArchitectures=x86_64
+          -PnewArchEnabled=${{ matrix.new-arch }}
+
+      - name: Install Maestro
         run: |
-          yarn turbo run build:ios --cache-dir="${{ env.TURBO_CACHE_DIR }}"
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      # The flows tap some controls by position and are calibrated for a
+      # Pixel 5 screen; the runner's default AVD is a 320x640 mdpi device.
+      # Each script line runs on its own (after the action waits for the
+      # boot to complete). About a minute after the first boot Play services
+      # restart, and Android kills the app with them (the WebView uses their
+      # font provider), so the flows start once that is over. The warm-up
+      # launch takes the first, slowest start off the first flow, and hiding
+      # error dialogs keeps an ANR prompt from covering the app. The x86_64
+      # emulator reports a hardware keyboard, which a phone does not and
+      # which keeps the soft keyboard up for inputmode="none"; it is detached.
+      - name: Run the Maestro flows on API 34
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          cores: 4
+          ram-size: 4096M
+          heap-size: 576M
+          disable-animations: true
+          disable-spellchecker: true
+          script: |
+            .github/scripts/android-detach-hard-keyboard.sh
+            adb shell settings put global hide_error_dialogs 1
+            adb install -r example/android/app/build/outputs/apk/release/app-release.apk
+            sleep 120
+            adb shell am start -W -n dev.tenplay.tentapexample/.MainActivity
+            sleep 15
+            adb shell am force-stop dev.tenplay.tentapexample
+            maestro test --format junit --output maestro-report.xml --test-output-dir maestro-output --debug-output maestro-debug example/.maestro
+
+      # Maestro names its output folders after the flows, which contain
+      # characters (':') that upload-artifact rejects, so upload an archive.
+      - name: Archive the Maestro output
+        if: always()
+        run: tar -czf maestro-output.tgz --ignore-failed-read maestro-output maestro-debug maestro-report.xml || true
+
+      - name: Upload the Maestro results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-android-newarch-${{ matrix.new-arch }}
+          path: maestro-output.tgz
+          if-no-files-found: ignore
+          retention-days: 7

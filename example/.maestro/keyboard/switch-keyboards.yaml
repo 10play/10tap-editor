@@ -1,0 +1,43 @@
+# Switching from one custom keyboard to another swaps the body only, and
+# closing afterwards still brings the system keyboard back to the editor.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+name: Switch between custom keyboards
+---
+- runFlow: ../subflows/launch.yaml
+# The entry can be below the fold on smaller screens.
+- scrollUntilVisible:
+    element: 'Keyboard: Custom'
+    timeout: 60000
+- tapOn: 'Keyboard: Custom'
+- tapOn:
+    id: keyboard-example-editor
+- waitForAnimationToEnd
+# On a cold start the keyboard can begin rising after the wait above
+# returns, and the switcher rides up with it; give it time to arrive so
+# the toggle tap is not aimed at where the switcher was.
+- extendedWaitUntil:
+    visible: 'keyboard-settle-never-shown'
+    timeout: 2500
+    optional: true
+- tapOn:
+    id: toggle-sticker-keyboard
+- assertVisible:
+    id: sticker-0
+- tapOn:
+    id: toggle-color-keyboard
+- assertVisible: Highlight
+- assertNotVisible:
+    id: sticker-0
+- tapOn:
+    id: toggle-color-keyboard
+- waitForAnimationToEnd
+- assertNotVisible: Highlight
+- inputText: 'switched'
+- tapOn:
+    id: read-editor-state
+- assertVisible: 'mounts:1 unmounts:1'
+- assertVisible:
+    id: editor-html
+    text: '.*switched.*'

@@ -1,0 +1,53 @@
+# iOS: the system keyboard changes height while the editor is focused. A
+# 30 paragraph block is pasted (with CARET_PROBE) on ${SCREEN}, then the
+# keyboard switches to the taller emoji keyboard and back to ABC by their
+# keys' positions, and typing goes on. The toolbar must follow the keyboard
+# and the caret must stay above it at every checkpoint.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+  RUN: ${RUN || 'emoji'}
+  FOCUS_ID: ${FOCUS_ID || ''}
+  # The emoji (globe) key and the ABC key on the emoji keyboard; the defaults
+  # fit Face ID phones, home-button phones have them lower (about 96%).
+  EMOJI_POINT: ${EMOJI_POINT || '19%,89%'}
+  ABC_POINT: ${ABC_POINT || '8%,89%'}
+name: 'Caret: emoji keyboard switch'
+tags:
+  - caret
+---
+- runFlow:
+    file: open.yaml
+    env:
+      SCREEN: ${SCREEN}
+      FOCUS_ID: ${FOCUS_ID}
+- runFlow:
+    when:
+      true: ${FOCUS_ID == ''}
+    commands:
+      - tapOn:
+          point: 50%,30%
+- runFlow:
+    file: subflows/paste.yaml
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-10-pasted'}
+# The emoji key, then ABC on the emoji keyboard.
+- tapOn:
+    point: ${EMOJI_POINT}
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-20-emoji'}
+- tapOn:
+    point: ${ABC_POINT}
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-30-abc-again'}
+- inputText: ' more'
+- runFlow:
+    file: subflows/checkpoint.yaml
+    env:
+      LABEL: ${RUN + '-40-typed'}

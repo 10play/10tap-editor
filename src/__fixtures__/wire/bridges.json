@@ -1,0 +1,224 @@
+{
+  "description": "Commands sent by the built-in bridges other than CoreBridge. Each entry is the inner bridge message as it appears on the wire (inside an action envelope).",
+  "fixtures": [
+    {
+      "id": "bold.toggle",
+      "direction": "native-to-web",
+      "enum": "BoldEditorActionType",
+      "member": "ToggleBold",
+      "call": { "method": "toggleBold", "args": [] },
+      "message": { "type": "toggle-bold" }
+    },
+    {
+      "id": "italic.toggle",
+      "direction": "native-to-web",
+      "enum": "ItalicEditorActionType",
+      "member": "ToggleItalic",
+      "call": { "method": "toggleItalic", "args": [] },
+      "message": { "type": "toggle-italic" }
+    },
+    {
+      "id": "strike.toggle",
+      "direction": "native-to-web",
+      "enum": "StrikeEditorActionType",
+      "member": "ToggleStrike",
+      "call": { "method": "toggleStrike", "args": [] },
+      "message": { "type": "toggle-strike" }
+    },
+    {
+      "id": "underline.toggle",
+      "direction": "native-to-web",
+      "enum": "UnderlineEditorActionType",
+      "member": "ToggleUnderline",
+      "call": { "method": "toggleUnderline", "args": [] },
+      "message": { "type": "toggle-underline" }
+    },
+    {
+      "id": "code.toggle",
+      "direction": "native-to-web",
+      "enum": "CodeEditorActionType",
+      "member": "ToggleCode",
+      "call": { "method": "toggleCode", "args": [] },
+      "message": { "type": "toggle-code" }
+    },
+    {
+      "id": "blockquote.toggle",
+      "direction": "native-to-web",
+      "enum": "BlockquoteEditorActionType",
+      "member": "ToggleBlockquote",
+      "call": { "method": "toggleBlockquote", "args": [] },
+      "message": { "type": "toggle-blockquote" }
+    },
+    {
+      "id": "heading.toggle",
+      "direction": "native-to-web",
+      "enum": "HeadingEditorActionType",
+      "member": "ToggleHeading",
+      "call": { "method": "toggleHeading", "args": [2] },
+      "message": { "type": "toggle-heading", "payload": 2 }
+    },
+    {
+      "id": "bulletList.toggle",
+      "direction": "native-to-web",
+      "enum": "BulletListEditorActionType",
+      "member": "ToggleBulletList",
+      "call": { "method": "toggleBulletList", "args": [] },
+      "message": { "type": "toggle-bulletList" }
+    },
+    {
+      "id": "orderedList.toggle",
+      "direction": "native-to-web",
+      "enum": "OrderedListEditorActionType",
+      "member": "ToggleOrderedList",
+      "call": { "method": "toggleOrderedList", "args": [] },
+      "message": { "type": "toggle-orderedList" }
+    },
+    {
+      "id": "listItem.lift",
+      "direction": "native-to-web",
+      "enum": "ListItemEditorActionType",
+      "member": "Lift",
+      "call": { "method": "lift", "args": [] },
+      "message": { "type": "lift" }
+    },
+    {
+      "id": "listItem.sink",
+      "direction": "native-to-web",
+      "enum": "ListItemEditorActionType",
+      "member": "Sink",
+      "call": { "method": "sink", "args": [] },
+      "message": { "type": "sink" }
+    },
+    {
+      "id": "taskList.toggle",
+      "direction": "native-to-web",
+      "enum": "TaskListEditorActionType",
+      "member": "ToggleTaskList",
+      "call": { "method": "toggleTaskList", "args": [] },
+      "message": { "type": "toggle-task-list" }
+    },
+    {
+      "id": "taskList.lift",
+      "direction": "native-to-web",
+      "enum": "TaskListEditorActionType",
+      "member": "LiftTaskListItem",
+      "call": { "method": "liftTaskListItem", "args": [] },
+      "message": { "type": "lift-task-list-item" }
+    },
+    {
+      "id": "taskList.sink",
+      "direction": "native-to-web",
+      "enum": "TaskListEditorActionType",
+      "member": "SinkTaskListItem",
+      "call": { "method": "sinkTaskListItem", "args": [] },
+      "message": { "type": "sink-task-list-item" }
+    },
+    {
+      "id": "history.undo",
+      "direction": "native-to-web",
+      "enum": "HistoryEditorActionType",
+      "member": "Undo",
+      "call": { "method": "undo", "args": [] },
+      "message": { "type": "undo" }
+    },
+    {
+      "id": "history.redo",
+      "direction": "native-to-web",
+      "enum": "HistoryEditorActionType",
+      "member": "Redo",
+      "call": { "method": "redo", "args": [] },
+      "message": { "type": "redo" }
+    },
+    {
+      "id": "link.set",
+      "direction": "native-to-web",
+      "enum": "LinkEditorActionType",
+      "member": "SetLink",
+      "call": { "method": "setLink", "args": ["https://10play.dev"] },
+      "message": { "type": "set-link", "payload": "https://10play.dev" }
+    },
+    {
+      "id": "link.unset",
+      "direction": "native-to-web",
+      "enum": "LinkEditorActionType",
+      "member": "SetLink",
+      "call": { "method": "setLink", "args": [""] },
+      "message": { "type": "set-link", "payload": "" }
+    },
+    {
+      "id": "link.cancel",
+      "direction": "native-to-web",
+      "enum": "LinkEditorActionType",
+      "member": "SetLink",
+      "call": { "method": "setLink", "args": [null] },
+      "message": { "type": "set-link", "payload": null }
+    },
+    {
+      "id": "color.set",
+      "direction": "native-to-web",
+      "enum": "ColorEditorActionType",
+      "member": "SetColor",
+      "call": { "method": "setColor", "args": ["#EF233C"] },
+      "message": { "type": "set-color", "payload": "#EF233C" }
+    },
+    {
+      "id": "color.unset",
+      "direction": "native-to-web",
+      "enum": "ColorEditorActionType",
+      "member": "UnsetColor",
+      "call": { "method": "unsetColor", "args": [] },
+      "message": { "type": "unset-color" }
+    },
+    {
+      "id": "highlight.set",
+      "direction": "native-to-web",
+      "enum": "HighlightEditorActionType",
+      "member": "SetHighlight",
+      "call": { "method": "setHighlight", "args": ["#FFEE324D"] },
+      "message": { "type": "set-highlight", "payload": "#FFEE324D" }
+    },
+    {
+      "id": "highlight.toggle",
+      "direction": "native-to-web",
+      "enum": "HighlightEditorActionType",
+      "member": "ToggleHighlight",
+      "call": { "method": "toggleHighlight", "args": ["#FFEE324D"] },
+      "message": { "type": "toggle-highlight", "payload": "#FFEE324D" }
+    },
+    {
+      "id": "highlight.unset",
+      "direction": "native-to-web",
+      "enum": "HighlightEditorActionType",
+      "member": "UnsetHighlight",
+      "call": { "method": "unsetHighlight", "args": [] },
+      "message": { "type": "unset-highlight" }
+    },
+    {
+      "id": "image.set",
+      "direction": "native-to-web",
+      "enum": "ImageEditorActionType",
+      "member": "SetImage",
+      "call": { "method": "setImage", "args": ["https://10play.dev/logo.png"] },
+      "message": {
+        "type": "set-image",
+        "payload": "https://10play.dev/logo.png"
+      }
+    },
+    {
+      "id": "placeholder.set",
+      "direction": "native-to-web",
+      "enum": "PlaceholderEditorActionType",
+      "member": "setPlaceholder",
+      "call": { "method": "setPlaceholder", "args": ["Write it's \"here\""] },
+      "message": { "type": "set-placeholder", "payload": "Write it's \"here\"" }
+    },
+    {
+      "id": "hardBreak.set",
+      "direction": "native-to-web",
+      "enum": "HardBreakEditorActionType",
+      "member": "setHardBreak",
+      "call": { "method": "setHardBreak", "args": [] },
+      "message": { "type": "set-hard-break" }
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+# Opens ${SCREEN} from a fresh launch and focuses the editor. FOCUS_ID taps
+# an editor by testID first; otherwise the screen's autofocus is used.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+  FOCUS_ID: ${FOCUS_ID || ''}
+name: 'Caret: open screen'
+---
+- launchApp:
+    stopApp: true
+# Debug builds load the bundle from Metro, which can take a while.
+- extendedWaitUntil:
+    visible: '10Tap Rich Text Editor!'
+    timeout: 180000
+# A LogBox toast at the bottom would take the tap on the last screens.
+- runFlow:
+    file: subflows/dismiss-logbox.yaml
+- scrollUntilVisible:
+    element: ${SCREEN}
+    timeout: 60000
+- tapOn: ${SCREEN}
+# A tap during the push transition is lost on a cold old-arch iOS start.
+- extendedWaitUntil:
+    notVisible: '10Tap Rich Text Editor!'
+    timeout: 10000
+- waitForAnimationToEnd
+- assertNotVisible: 'Render Error'
+- runFlow:
+    when:
+      true: ${FOCUS_ID != ''}
+    commands:
+      - tapOn:
+          id: ${FOCUS_ID}
+- waitForAnimationToEnd

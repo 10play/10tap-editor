@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "paths": {
+      "@10play/tentap-editor": ["../../../src/webEditorUtils/index.ts"]
+    },
+    "moduleResolution": "bundler",
+    "target": "es2015",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true
+  },
+  "include": ["./**/*", "../typeAssert.ts"]
+}

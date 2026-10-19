@@ -16,11 +16,10 @@ TenTap is a typed, easy to use, customizable, and extendable Rich Text editor fo
 - ➕ Extendable
 - ⚙️ Support dynamic scheme
 - 🛠️ Native toolbar
+- 🎹 Custom keyboards
 - 💅 Customizable styles
 - 🌒 Darkmode and custom theme support
-- 🏗️ supports new architecture\*
-
-\* new arch supported on react-native version 0.73.5 and above
+- 🏗️ Supports the new architecture (including bridgeless) and the old architecture
 
 ## Why?
 
@@ -37,13 +36,18 @@ After years of developing rich text editors for mobile, we realized that there i
 1. `yarn add @10play/tentap-editor react-native-webview`
 2. `cd ios && pod install`
 
+The package includes a small native module (`TenTapKeyboard`) used by custom keyboards. It is autolinked, so you only need to rebuild your app after installing or upgrading. The editor itself works without it.
+
 ## Expo
 
-`npx expo install @10play/tentap-editor react-native-webview`  
-Only basic usage is supported by Expo Go (see [basic example](https://10play.github.io/10tap-editor/docs/examples/basic)).  
-Otherwise you will need to setup [Expo Dev Client](https://docs.expo.dev/develop/development-builds/introduction/).
+`npx expo install @10play/tentap-editor react-native-webview`
 
-Now you ready to add tentap to your app!
+- **Dev client / prebuild:** everything works, including the native keyboard driver. No config plugin is needed; rebuild your [development build](https://docs.expo.dev/develop/development-builds/introduction/) after installing or upgrading. The advanced setup also needs a dev client.
+- **Expo Go:** the editor works, and custom keyboards use a JavaScript fallback (see [Expo Go and the fallback driver](https://10play.github.io/10tap-editor/docs/examples/customKeyboard#expo-go-and-the-fallback-driver)).
+
+### Requirements
+
+react-native-webview 13.7+. The native module needs React Native 0.74+ (Expo SDK 51+), old or new architecture. The `react-native` peer dependency is `*`, so this isn't checked on install. See [requirements](https://10play.github.io/10tap-editor/docs/setup/installation#requirements).
 
 ### Expo Web
 
@@ -54,14 +58,14 @@ See setup [here](https://10play.github.io/10tap-editor/docs/setup/expoWeb)
 
 ```tsx
 import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  SafeAreaView,
-  View,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-} from 'react-native';
-import { RichText, Toolbar, useEditorBridge } from '@10play/tentap-editor';
+  EditorKeyboardAvoidingView,
+  RichText,
+  Toolbar,
+  useEditorBridge,
+} from '@10play/tentap-editor';
 
 export const Basic = () => {
   const editor = useEditorBridge({
@@ -71,22 +75,37 @@ export const Basic = () => {
   });
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <RichText editor={editor} />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{
-          position: 'absolute',
-          width: '100%',
-          bottom: 0,
-        }}
-      >
-        <Toolbar editor={editor} />
-      </KeyboardAvoidingView>
+    <SafeAreaView style={styles.fullScreen}>
+      <EditorKeyboardAvoidingView style={styles.fullScreen}>
+        <View style={styles.fullScreen}>
+          <RichText editor={editor} />
+        </View>
+        <View style={styles.toolbarRow}>
+          <Toolbar editor={editor} />
+        </View>
+      </EditorKeyboardAvoidingView>
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  fullScreen: { flex: 1 },
+  toolbarRow: { flexDirection: 'row' },
+});
 ```
+
+`EditorKeyboardAvoidingView` keeps the toolbar on top of the keyboard without a `keyboardVerticalOffset`, also on edge-to-edge Android. See [Keyboard and caret](https://10play.github.io/10tap-editor/docs/setup/keyboard).
+
+## Examples
+
+- [`example/`](example): a React Native CLI app (React Native 0.81, new and old architecture) with every example, including custom keyboards, dynamic height and the advanced setup.
+- [`example-expo/`](example-expo): an Expo app (development build) with the basic editor, dynamic height, custom keyboards and two editors on one screen. It also runs on the web.
+
+Common questions (lists in `react-native-render-html`, reading content in `onChange`, fonts, inline images, the editor inside a `ScrollView`) are answered in the [FAQ](https://10play.github.io/10tap-editor/docs/faq).
+
+## Upgrading
+
+- From 1.0 or 0.7.x to 1.1: see the [1.1 migration guide](https://10play.github.io/10tap-editor/docs/migrations/v1.1) and the [changelog](CHANGELOG.md).
 
 ## Contributing
 

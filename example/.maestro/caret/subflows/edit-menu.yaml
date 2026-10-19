@@ -1,0 +1,16 @@
+# Opens the edit menu on the paragraph matching TAP_TEXT: the first long
+# press may only move the caret.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+---
+- longPressOn:
+    text: ${TAP_TEXT}
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      notVisible: Paste
+    commands:
+      - longPressOn:
+          text: ${TAP_TEXT}
+      - waitForAnimationToEnd

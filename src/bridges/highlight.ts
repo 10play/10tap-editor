@@ -37,9 +37,7 @@ type UnsetHighlightMessage = {
 };
 
 type HighlightMessage =
-  | SetHighlightMessage
-  | ToggleHighlightMessage
-  | UnsetHighlightMessage;
+  SetHighlightMessage | ToggleHighlightMessage | UnsetHighlightMessage;
 
 export const HighlightBridge = new BridgeExtension<
   HighlightEditorState,

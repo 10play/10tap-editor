@@ -1,0 +1,13 @@
+# Types one long paragraph that wraps over several lines, in short chunks:
+# a single long inputText stalls on Android WebViews.
+appId: ${APP_ID}
+env:
+  APP_ID: ${APP_ID || 'dev.tenplay.tentapexample'}
+---
+- pressKey: Enter
+- repeat:
+    times: 8
+    commands:
+      - inputText: 'The quick brown fox jumps over the lazy dog. '
+- inputText: 'Paragraph ends'
+- waitForAnimationToEnd

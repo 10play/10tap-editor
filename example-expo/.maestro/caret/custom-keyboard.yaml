@@ -1,0 +1,12 @@
+# Custom Keyboard screen: ColorKeyboard in the default inline layout, in the
+# bottom KeyboardAvoidingView under the toolbar.
+appId: dev.tenplay.tentapexampleexpo
+name: 'Caret: custom keyboard (inline)'
+tags:
+  - caret
+---
+- runFlow:
+    file: common/custom-keyboard-session.yaml
+    env:
+      EXAMPLE: Custom Keyboard
+      PREFIX: inline

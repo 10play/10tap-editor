@@ -1,14 +1,13 @@
 import Italic from '@tiptap/extension-italic';
-import BridgeExtension from './base';
+import {
+  createToggleBridge,
+  type ToggleInstance,
+  type ToggleState,
+} from './factories';
 
-type ItalicEditorState = {
-  isItalicActive: boolean;
-  canToggleItalic: boolean;
-};
+type ItalicEditorState = ToggleState<'Italic'>;
 
-type ItalicEditorInstance = {
-  toggleItalic: () => void;
-};
+type ItalicEditorInstance = ToggleInstance<'Italic'>;
 
 declare module '../types/EditorBridge' {
   interface BridgeState extends ItalicEditorState {}
@@ -19,34 +18,10 @@ export enum ItalicEditorActionType {
   ToggleItalic = 'toggle-italic',
 }
 
-type ItalicMessage = {
-  type: ItalicEditorActionType.ToggleItalic;
-  payload?: undefined;
-};
-
-export const ItalicBridge = new BridgeExtension<
-  ItalicEditorState,
-  ItalicEditorInstance,
-  ItalicMessage
->({
+export const ItalicBridge = createToggleBridge({
+  label: 'Italic',
+  type: ItalicEditorActionType.ToggleItalic,
   tiptapExtension: Italic,
-  onBridgeMessage: (editor, message) => {
-    if (message.type === ItalicEditorActionType.ToggleItalic) {
-      editor.chain().focus().toggleItalic().run();
-    }
-
-    return false;
-  },
-  extendEditorInstance: (sendBridgeMessage) => {
-    return {
-      toggleItalic: () =>
-        sendBridgeMessage({ type: ItalicEditorActionType.ToggleItalic }),
-    };
-  },
-  extendEditorState: (editor) => {
-    return {
-      canToggleItalic: editor.can().toggleItalic(),
-      isItalicActive: editor.isActive('italic'),
-    };
-  },
+  activeName: 'italic',
+  toggle: (chain) => chain.toggleItalic(),
 });

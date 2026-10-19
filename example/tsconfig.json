@@ -1,0 +1,19 @@
+{
+  "extends": "@react-native/typescript-config",
+  "compilerOptions": {
+    "lib": ["esnext", "dom"],
+    "paths": {
+      "@10play/tentap-editor": ["../src/index"],
+      "react": ["./node_modules/@types/react"],
+      "react/*": ["./node_modules/@types/react/*"],
+      "react-native": ["./node_modules/react-native"],
+      "react-native-*": ["./node_modules/react-native-*"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": [
+    "**/node_modules",
+    "**/Pods",
+    "src/Examples/Advanced/editor-web"
+  ]
+}

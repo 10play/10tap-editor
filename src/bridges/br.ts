@@ -29,7 +29,6 @@ export const HardBreakBridge = new BridgeExtension<
   tiptapExtension: HardBreak,
   onBridgeMessage: (editor, message) => {
     if (message.type === HardBreakEditorActionType.setHardBreak) {
-      console.log('setting hard break');
       editor.chain().focus().setHardBreak().run();
     }
 

@@ -1,0 +1,47 @@
+{
+  "description": "Exported legacy enums whose values are public but never sent by the library itself.",
+  "fixtures": [
+    {
+      "id": "legacy.change-highlight",
+      "kind": "constant",
+      "enum": "EditorActionType",
+      "member": "ChangeHighlight",
+      "message": { "type": "change-highlight" }
+    },
+    {
+      "id": "legacy.change-color",
+      "kind": "constant",
+      "enum": "EditorActionType",
+      "member": "ChangeColor",
+      "message": { "type": "change-color" }
+    },
+    {
+      "id": "legacy.link",
+      "kind": "constant",
+      "enum": "EditorActionType",
+      "member": "Link",
+      "message": { "type": "link" }
+    },
+    {
+      "id": "legacy.toggle-underline",
+      "kind": "constant",
+      "enum": "EditorActionType",
+      "member": "ToggleUnderline",
+      "message": { "type": "toggle-underline" }
+    },
+    {
+      "id": "legacy.set-hard-break",
+      "kind": "constant",
+      "enum": "EditorActionType",
+      "member": "SetHardBreak",
+      "message": { "type": "set-hard-break" }
+    },
+    {
+      "id": "legacy.settings-focus",
+      "kind": "constant",
+      "enum": "EditorUpdateSettings",
+      "member": "Focus",
+      "message": { "type": "focus" }
+    }
+  ]
+}

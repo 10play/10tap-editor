@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM"],
+    "jsx": "react",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "types": ["node"],
+    "paths": {
+      "@10play/tentap-editor": ["../src/index"]
+    }
+  },
+  "include": ["src", "tests", "*.config.ts"]
+}
