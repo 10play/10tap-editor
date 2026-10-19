@@ -1,9 +1,21 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Dimensions,
+  Platform,
+  StyleSheet,
   View,
+  useWindowDimensions,
   type LayoutChangeEvent,
+  type StyleProp,
   type ViewProps,
+  type ViewStyle,
 } from 'react-native';
 import { useKeyboard } from '../../utils/useKeyboard';
 import { measureViewGeometry } from '../keyboardAccessories';
@@ -141,6 +153,86 @@ export const isSameMeasurement = (
   Math.abs(a.bottom - b.bottom) < 1;
 
 /**
+ * Where the view sat on the keyboard: the `top` in its parent at which its
+ * content ended on `keyboardTop`, in a window of this size.
+ */
+export interface KeyboardAnchor {
+  top: number;
+  keyboardTop: number;
+  windowWidth: number;
+  windowHeight: number;
+}
+
+/**
+ * How long the view stays anchored after a custom keyboard closed, at most,
+ * waiting for a layout that sits on the keyboard again.
+ */
+export const ANCHOR_HOLD_MS = 1000;
+
+/**
+ * Whether the view is placed by its bottom alone: absolutely positioned
+ * with a `bottom` and no `top` or `height`, its content laid out from the
+ * top. Such a view can be anchored by its top instead without moving.
+ */
+export const isBottomAnchoredStyle = (style: StyleProp<ViewStyle>): boolean => {
+  const flat = StyleSheet.flatten(style) ?? {};
+  const unset = (value: unknown) => value === undefined || value === null;
+  return (
+    flat.position === 'absolute' &&
+    !unset(flat.bottom) &&
+    unset(flat.top) &&
+    unset(flat.inset) &&
+    unset(flat.insetBlock) &&
+    unset(flat.insetBlockStart) &&
+    unset(flat.height) &&
+    (unset(flat.flexDirection) || flat.flexDirection === 'column') &&
+    (unset(flat.justifyContent) || flat.justifyContent === 'flex-start')
+  );
+};
+
+export interface SitsOnKeyboardInput {
+  /** Measured bottom of the view in window coordinates. */
+  viewBottom: number;
+  paddingBottom: number;
+  inlineKeyboardHeight: number;
+  keyboardTop: number | null;
+}
+
+/**
+ * Whether the content of the view (above its padding and an inline
+ * keyboard) ends on the keyboard: a layout that the keyboard's current
+ * position already landed in.
+ */
+export const sitsOnKeyboard = ({
+  viewBottom,
+  paddingBottom,
+  inlineKeyboardHeight,
+  keyboardTop,
+}: SitsOnKeyboardInput): boolean =>
+  keyboardTop !== null &&
+  Math.abs(viewBottom - paddingBottom - inlineKeyboardHeight - keyboardTop) < 1;
+
+/**
+ * `top` that keeps the content of an anchored view ending on the keyboard:
+ * where it sat on it, moved by how far the keyboard's top moved since.
+ * Undefined without an anchor from this window size or a keyboard.
+ */
+export const getAnchoredTop = (
+  anchor: KeyboardAnchor | null,
+  keyboardTop: number | null,
+  window: { width: number; height: number }
+): number | undefined => {
+  if (anchor === null || keyboardTop === null) return undefined;
+  if (
+    Math.abs(anchor.windowWidth - window.width) >= 1 ||
+    Math.abs(anchor.windowHeight - window.height) >= 1
+  ) {
+    return undefined;
+  }
+  return anchor.top + keyboardTop - anchor.keyboardTop;
+};
+
+/**
  * Pads its bottom by the part of it whichever keyboard covers, system or
  * custom, so the toolbar at its bottom sits fully on top of the keyboard.
  * It measures where it ends in the window against the keyboard's top
@@ -150,6 +242,16 @@ export const isSameMeasurement = (
  * swaps, so content above does not move when a `CustomKeyboard` replaces
  * the system keyboard. An inline `CustomKeyboard` inside it takes its own
  * space, so the padding leaves that out.
+ *
+ * Where the window resizes for the system keyboard (Android
+ * `adjustResize`), a swap between a custom keyboard and the system keyboard
+ * resizes the window too. React Native applies the new window size in a
+ * commit of its own, which can be drawn a frame or more before or after the
+ * keyboard area changes, moving the toolbar off the keyboard for those
+ * frames. While a custom keyboard is open, until the view sits on the
+ * keyboard again after it closed, a view placed by its bottom alone is
+ * placed by its top instead, where it already is, so the toolbar stays put
+ * whichever lands first.
  */
 export const EditorKeyboardAvoidingView = ({
   keyboardVerticalOffset = 0,
@@ -163,8 +265,32 @@ export const EditorKeyboardAvoidingView = ({
     keyboardCoverHeight,
     inlineKeyboardHeight,
     windowOverlaysKeyboard,
+    isCustomKeyboardOpen,
   } = useKeyboard();
+  const windowSize = useWindowDimensions();
   const ref = useRef<View>(null);
+  // `onLayout` y: the top of the view in its parent.
+  const layoutTop = useRef<number | null>(null);
+  const [anchor, setAnchor] = useState<KeyboardAnchor | null>(null);
+  // Anchored after the custom keyboard closed, until it sits on the keyboard.
+  const [holding, setHolding] = useState(false);
+  // What the last render laid out, for measurements taken after it.
+  const rendered = useRef({
+    paddingBottom: 0,
+    inlineKeyboardHeight,
+    isCustomKeyboardOpen,
+    windowSize,
+  });
+  const bottomAnchored = useMemo(() => isBottomAnchoredStyle(style), [style]);
+  const anchorable =
+    Platform.OS === 'android' &&
+    enabled &&
+    !windowOverlaysKeyboard &&
+    bottomAnchored;
+  const anchoredTop =
+    anchorable && (isCustomKeyboardOpen || holding)
+      ? getAnchoredTop(anchor, keyboardTop, windowSize)
+      : undefined;
   const [measured, setMeasured] = useState<MeasuredViewBottom | null>(null);
   // The last measurement, settled or not.
   const lastMeasured = useRef<PendingMeasurement | null>(null);
@@ -174,6 +300,7 @@ export const EditorKeyboardAvoidingView = ({
 
   const handleLayout = useCallback(
     (event: LayoutChangeEvent) => {
+      layoutTop.current = event.nativeEvent.layout.y;
       if (ref.current) measureViewGeometry(ref.current);
       setLayoutVersion((version) => version + 1);
       onLayout?.(event);
@@ -209,6 +336,37 @@ export const EditorKeyboardAvoidingView = ({
         if (pending === null || !isSameMeasurement(next, pending.measured)) {
           lastMeasured.current = { measured: next, since: now };
         }
+        const latest = rendered.current;
+        const top = layoutTop.current;
+        // Content ends on the keyboard, or the window itself shrank onto it.
+        // The padding still applied is from the previous layout: after a
+        // custom keyboard closes it can be the whole keyboard, which would
+        // hide that the shrunk window is already in place.
+        const windowShrunkOntoKeyboard =
+          !latest.isCustomKeyboardOpen && Math.abs(bottom - keyboardTop) < 1;
+        if (
+          top !== null &&
+          (sitsOnKeyboard({
+            viewBottom: bottom,
+            paddingBottom: latest.paddingBottom,
+            inlineKeyboardHeight: latest.inlineKeyboardHeight,
+            keyboardTop,
+          }) ||
+            windowShrunkOntoKeyboard)
+        ) {
+          const { width: windowWidth, height: windowHeight } =
+            latest.windowSize;
+          setAnchor((previous) =>
+            previous !== null &&
+            previous.keyboardTop === keyboardTop &&
+            Math.abs(previous.top - top) < 0.5 &&
+            previous.windowWidth === windowWidth &&
+            previous.windowHeight === windowHeight
+              ? previous
+              : { top, keyboardTop, windowWidth, windowHeight }
+          );
+          if (!latest.isCustomKeyboardOpen) setHolding(false);
+        }
         if (!settled) return;
         setMeasured((previous) =>
           isSameMeasurement(next, previous) ? previous : next
@@ -222,6 +380,22 @@ export const EditorKeyboardAvoidingView = ({
       timers.forEach((timer) => clearTimeout(timer));
     };
   }, [active, covered, keyboardTop, layoutVersion, windowOverlaysKeyboard]);
+
+  // Anchored while a custom keyboard is open, and held after it closed
+  // until a layout sits on the keyboard again.
+  useEffect(() => {
+    if (keyboardTop === null) {
+      setHolding(false);
+      return;
+    }
+    if (isCustomKeyboardOpen) {
+      if (anchoredTop !== undefined) setHolding(true);
+      return;
+    }
+    if (!holding) return;
+    const timer = setTimeout(() => setHolding(false), ANCHOR_HOLD_MS);
+    return () => clearTimeout(timer);
+  }, [anchoredTop, holding, isCustomKeyboardOpen, keyboardTop]);
 
   const paddingBottom = enabled
     ? getKeyboardAvoidingPadding({
@@ -237,10 +411,22 @@ export const EditorKeyboardAvoidingView = ({
         screenHeight: Dimensions.get('screen').height,
       })
     : 0;
+  useLayoutEffect(() => {
+    rendered.current = {
+      paddingBottom,
+      inlineKeyboardHeight,
+      isCustomKeyboardOpen,
+      windowSize,
+    };
+  });
   return (
     <View
       ref={ref}
-      style={[style, { paddingBottom }]}
+      style={[
+        style,
+        { paddingBottom },
+        anchoredTop !== undefined && { top: anchoredTop },
+      ]}
       onLayout={handleLayout}
       {...props}
     />
