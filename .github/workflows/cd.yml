@@ -46,9 +46,18 @@ jobs:
       - name: Install npm for trusted publishing
         run: npm install --global npm@^11.5.1
 
+      # The hoisted conventional-changelog-conventionalcommits 7.x preset never
+      # calls the callback release-it's 3.x loader waits on, so release-it exits
+      # before it publishes. 4.6.3, nested under conventional-changelog, still does.
+      - name: Use the changelog preset release-it can finish
+        run: |
+          mkdir -p node_modules/conventional-changelog-preset-loader/node_modules
+          ln -sfn ../../conventional-changelog/node_modules/conventional-changelog-conventionalcommits \
+            node_modules/conventional-changelog-preset-loader/node_modules/conventional-changelog-conventionalcommits
+
       # npm publish runs prepack (editor and web utils) and then prepare (lib).
       - name: Release
-        run: yarn release --ci --npm.skipChecks
+        run: node ./node_modules/release-it/bin/release-it.js --ci --npm.skipChecks
         env:
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}

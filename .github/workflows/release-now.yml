@@ -12,6 +12,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          token: ${{ secrets.GH_PAT }}
 
       - name: Configure git
         run: |
@@ -26,9 +27,30 @@ jobs:
       - name: Install npm for trusted publishing
         run: npm install --global npm@^11.5.1
 
-      # package.json is already 1.1.0, so do not bump it again.
+      # The hoisted conventional-changelog-conventionalcommits 7.x preset never
+      # calls the callback release-it's 3.x loader waits on, so release-it exits
+      # before it publishes. 4.6.3, nested under conventional-changelog, still does.
+      - name: Use the changelog preset release-it can finish
+        run: |
+          mkdir -p node_modules/conventional-changelog-preset-loader/node_modules
+          ln -sfn ../../conventional-changelog/node_modules/conventional-changelog-conventionalcommits \
+            node_modules/conventional-changelog-preset-loader/node_modules/conventional-changelog-conventionalcommits
+
+      # package.json is already 1.1.0. Pass that version so this stays 1.1.0
+      # instead of the recommended minor bump to 1.2.0.
       - name: Release
-        run: yarn release --ci --no-increment --npm.skipChecks
+        run: |
+          node ./node_modules/release-it/bin/release-it.js --ci 1.1.0 --npm.skipChecks --npm.allowSameVersion
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            v=$(npm view @10play/tentap-editor version --cache "$RUNNER_TEMP/npm-view-$i")
+            echo "registry version: $v"
+            if [ "$v" = "1.1.0" ]; then
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "npm is still ${v}"
+          exit 1
         env:
           NPM_CONFIG_PROVENANCE: true
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
