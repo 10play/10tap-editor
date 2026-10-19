@@ -11,7 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          token: ${{ secrets.GH_PAT }}
           fetch-depth: 0
 
       - name: Configure git
@@ -32,4 +31,4 @@ jobs:
         run: yarn release --ci --no-increment
         env:
           NPM_CONFIG_PROVENANCE: true
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
