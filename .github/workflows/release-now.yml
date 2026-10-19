@@ -26,12 +26,6 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Check npm auth
-        run: |
-          token="$(npm config get //registry.npmjs.org/:_authToken || true)"
-          echo "npm token length: ${#token}"
-          npm whoami --registry https://registry.npmjs.org
-
       # package.json is already 1.1.0, so do not bump it again.
       - name: Release
         run: yarn release --ci --no-increment
