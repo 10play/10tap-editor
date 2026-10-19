@@ -1,0 +1,3891 @@
+# 10tap-editor documentation
+
+> Rich text editor for React Native, built on TipTap and ProseMirror running in a WebView. Typed, works out of the box with a toolbar, and is extended through bridge extensions.
+
+Every page of https://10play.github.io/10tap-editor/docs/intro, in sidebar order. Each page starts with its URL.
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/intro
+
+# 10tap-editor
+
+TenTap is a typed, easy to use, customizable, and extendable Rich Text editor for React-Native based on Tiptap and Prosemirror. It offers a "plug and play" experience and comes with many essential features out of the box that can be incorporated into your apps quickly. Additionally, TenTap allows you the developers to tailor the editor to your applications specific needs.
+
+# Features
+
+- 💁 Based on tiptap
+- ➕ Extendable
+- ⚙️ Support dynamic scheme
+- 🛠️ Native toolbar
+- 🎹 Custom keyboards
+- 💅 Customizable styles
+- 🌒 Darkmode and custom theme support
+- 🏗️ Supports the new architecture (including bridgeless) and the old architecture
+
+See [Installation](https://10play.github.io/10tap-editor/docs/setup/installation#requirements) for the supported React Native versions.
+
+## Why?
+
+After years of developing rich text editors for mobile, we realized that there is an empty void for open source RichText editors on mobile especially for ReactNative. So we have decided to create this package that incorporates all that we have learned, and that provides the best possible ux. Tentap is designed for getting the best experience of editing rich-text on mobile inspired by state of the art mobile editors like: gdocs, notion, dropbox paper.
+
+## Installation
+
+```bash
+yarn add @10play/tentap-editor react-native-webview
+cd ios && pod install
+```
+
+With Expo: `npx expo install @10play/tentap-editor react-native-webview`. The editor works in Expo Go; for the native custom keyboard driver use a [development build](https://docs.expo.dev/develop/development-builds/introduction/).
+
+See [Installation](https://10play.github.io/10tap-editor/docs/setup/installation) for the details and the supported versions. Upgrading from an older version? See the [1.1 migration guide](https://10play.github.io/10tap-editor/docs/migrations/v1.1).
+
+## Usage
+
+```tsx
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  EditorKeyboardAvoidingView,
+  RichText,
+  Toolbar,
+  useEditorBridge,
+} from '@10play/tentap-editor';
+
+export const Basic = () => {
+  const editor = useEditorBridge({
+    autofocus: true,
+    avoidIosKeyboard: true,
+    initialContent: 'Start editing!',
+  });
+
+  return (
+    <SafeAreaView style={styles.fullScreen}>
+      <EditorKeyboardAvoidingView style={styles.fullScreen}>
+        <View style={styles.fullScreen}>
+          <RichText editor={editor} />
+        </View>
+        <View style={styles.toolbarRow}>
+          <Toolbar editor={editor} />
+        </View>
+      </EditorKeyboardAvoidingView>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  fullScreen: { flex: 1 },
+  toolbarRow: { flexDirection: 'row' },
+});
+```
+
+`EditorKeyboardAvoidingView` keeps the toolbar on top of the keyboard without a `keyboardVerticalOffset`, also on edge-to-edge Android. See [Keyboard and caret](https://10play.github.io/10tap-editor/docs/setup/keyboard).
+
+## Example apps
+
+The repository has two example apps you can run:
+
+- [`example/`](https://github.com/10play/10tap-editor/tree/main/example): a React Native CLI app (React Native 0.81, new and old architecture) with every example in these docs, including custom keyboards, dynamic height, a navigation header and the [advanced setup](https://10play.github.io/10tap-editor/docs/setup/advancedSetup).
+- [`example-expo/`](https://github.com/10play/10tap-editor/tree/main/example-expo): an Expo app (development build) with the basic editor, dynamic height, custom keyboards in both layouts and two editors on one screen, in light and dark mode. It also runs on the web.
+
+Questions? Check the [FAQ](https://10play.github.io/10tap-editor/docs/faq).
+
+## Contributing
+
+See the [contributing guide](https://github.com/10play/10tap-editor/blob/main/CONTRIBUTING.md) to learn how to contribute to the repository and the development workflow.
+
+## License
+
+MIT
+
+---
+
+Made with [create-react-native-library](https://github.com/callstack/react-native-builder-bob)
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/mainConcepts
+
+# Main Concept
+
+`EditorBridge` - a bridge to control the editor from the native side - will be extended by `bridgeExtensions`
+
+`bridgeExtension` - a typed class that helps us communicate between the native part and the webview part
+
+There are two different ways to work with this lib: [simple](https://10play.github.io/10tap-editor/docs/mainConcepts#simple-usage) and [advanced](https://10play.github.io/10tap-editor/docs/mainConcepts#advanced-usage), simple should be good enough for most of the cases, we tried to make the API as simple as possible so people will be able to plug and play, on the other hand advanced usage requires a longer setup.
+
+## Simple usage
+
+With the simple usage you get all the standard rich text abilities as you can get from other libs like:
+
+[react-native-pell-rich-editor](https://www.npmjs.com/package/react-native-pell-rich-editor) /
+[react-native-cn-quill](https://github.com/imnapo/react-native-cn-quill)
+
+- ordered / bullet / check Lists
+- Bold/Italic/Underline
+- Placeholder
+- Image
+- color/highlight
+- and more...
+
+With the simple usage you have all of [these](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions) bridgeExtensions available.
+
+With tentap you can also control the scheme of your editor by passing the useBridgeEditor list of bridgeExtensions you want, so in case you build a chat app and you don't want to let users underline you should not pass the Underline bridgeExtension, that will make sure that even if the user will copy paste some text with underline, when pasted the underline will not be parsed.
+
+Custom keyboards - custom keyboards let you swap the system keyboard for a React Native view, for example a color picker or a sticker panel, while the editor keeps its focus, caret and selection. See the [color keyboard example](https://10play.github.io/10tap-editor/docs/examples/colorKeyboard) and the [custom keyboard example](https://10play.github.io/10tap-editor/docs/examples/customKeyboard).
+
+## Advanced usage
+
+In case you want to add your own tiptap extension / build your own bridgeExtension you will have to bundle the web editor by your own that way you will get full control of what running inside the webview.
+
+In this case we provide utils/components/hooks that can help you customize the editor but still get all the features and exp fixes tentap can offer.
+
+See the [advanced setup](https://10play.github.io/10tap-editor/docs/setup/advancedSetup)
+
+You can also see an example in [`example/src/Examples/Advanced`](https://github.com/10play/10tap-editor/tree/main/example/src/Examples/Advanced).
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/faq
+
+# FAQ
+
+### How do I get the content in `onChange`?
+
+`onChange` only tells you that the content changed. It doesn't pass the content, because sending the whole document from the WebView on every keystroke is expensive. Use [useEditorContent](https://10play.github.io/10tap-editor/docs/api/useEditorContent), which fetches it for you (debounced, and only when the content changes):
+
+```tsx
+const editor = useEditorBridge({ initialContent });
+const content = useEditorContent(editor, { type: 'html' }); // or 'text' | 'json'
+
+useEffect(() => {
+  if (content !== undefined) save(content);
+}, [content]);
+```
+
+Or call `await editor.getHTML()` (or `getText` / `getJSON`) inside `onChange`, ideally debounced. See [Working with content](https://10play.github.io/10tap-editor/docs/examples/workingWithContent).
+
+### Where is `toggleBold`? TypeScript says it doesn't exist on `EditorBridge`.
+
+`toggleBold` and the other formatting commands are added to `EditorBridge` by their bridge extensions. `toggleBold` comes from `BoldBridge`, which is part of the default `TenTapStartKit`. If you pass your own `bridgeExtensions`, include the bridges whose commands you use. All the commands are listed on [EditorBridge](https://10play.github.io/10tap-editor/docs/api/EditorBridge#togglebold).
+
+To build your own button, read the state with `useBridgeState`:
+
+```tsx
+const BoldButton = ({ editor }: { editor: EditorBridge }) => {
+  const { isBoldActive, canToggleBold } = useBridgeState(editor);
+  return (
+    <Button
+      title={isBoldActive ? 'Unbold' : 'Bold'}
+      disabled={!canToggleBold}
+      onPress={() => editor.toggleBold()}
+    />
+  );
+};
+```
+
+1.0 reported `Property 'toggleBold' does not exist on type 'EditorBridge'` with deep imports from `@10play/tentap-editor/src/...` or with `moduleResolution: "node"`. 1.1 fixes this. Importing from `@10play/tentap-editor` is still recommended.
+
+### Lists rendered with `react-native-render-html` have extra space
+
+TipTap wraps the content of every list item in a paragraph (`<li><p>…</p></li>`). `react-native-render-html` gives each `<p>` its default margins. Remove them for paragraphs inside list items with a custom renderer; see [Rendering editor HTML](https://10play.github.io/10tap-editor/docs/examples/renderHtml).
+
+### How do I put the editor inside a `ScrollView`?
+
+Turn on `dynamicHeight` so the editor is as tall as its content, and call `useScrollToCaret` so your `ScrollView` keeps the caret above the keyboard:
+
+```tsx
+const Form = () => {
+  const editor = useEditorBridge({ dynamicHeight: true });
+  const scrollViewRef = useRef<ScrollView>(null);
+  useScrollToCaret(editor, scrollViewRef);
+
+  return (
+    <EditorKeyboardAvoidingView style={{ flex: 1 }}>
+      <ScrollView ref={scrollViewRef} keyboardShouldPersistTaps="handled">
+        <TextInput placeholder="Title" />
+        <RichText editor={editor} />
+      </ScrollView>
+    </EditorKeyboardAvoidingView>
+  );
+};
+```
+
+See [Editor inside a ScrollView](https://10play.github.io/10tap-editor/docs/examples/scrollView), including how to cap the editor's height.
+
+### Images inside a paragraph are moved out of it
+
+Images are block nodes by default. Configure the `ImageBridge` to make them inline:
+
+```tsx
+const editor = useEditorBridge({
+  bridgeExtensions: [
+    ...TenTapStartKit,
+    ImageBridge.configureExtension({ inline: true }),
+  ],
+});
+```
+
+See [Inline images](https://10play.github.io/10tap-editor/docs/examples/configureExtensions#inline-images).
+
+### How do I use a custom font?
+
+Load it with an `@font-face` rule in `CoreBridge.configureCSS`, either from a local file (recommended for large fonts) or embedded as base64. See [Adding custom fonts](https://10play.github.io/10tap-editor/docs/examples/customCss#adding-custom-fonts). For Chinese, Japanese and Korean text that doesn't turn bold or italic, see [CJK text](https://10play.github.io/10tap-editor/docs/examples/customCss#chinese-japanese-and-korean-text).
+
+### The toolbar is hidden behind the keyboard, or floats above it
+
+Use `EditorKeyboardAvoidingView` instead of React Native's `KeyboardAvoidingView`. It measures how far the keyboard reaches into it, so it needs no `keyboardVerticalOffset` and also works below a header, above a tab bar and on edge-to-edge Android. See [Keyboard and caret](https://10play.github.io/10tap-editor/docs/setup/keyboard).
+
+### The line I'm typing goes under the toolbar
+
+`RichText` measures the keyboard and the library's `Toolbar` and keeps the caret above them. Mark your own toolbar with [useKeyboardAccessory](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils#usekeyboardaccessory). For other views over the editor, set [scrollBottomOffset](https://10play.github.io/10tap-editor/docs/api/useEditorBridge#scrollbottomoffset).
+
+### Do I have to wait for `isReady` before calling editor methods?
+
+No. Commands called before the editor has loaded are queued and sent in order once it is ready. `getHTML` and the other async methods wait for the editor too; set [rpcTimeoutMs](https://10play.github.io/10tap-editor/docs/api/useEditorBridge#rpctimeoutms) if they should give up.
+
+### Spaces in my HTML disappear
+
+ProseMirror collapses runs of whitespace in HTML. Pass `parseOptions: { preserveWhitespace: 'full' }` to `useEditorBridge` or to `setContent`. See [Keeping whitespace](https://10play.github.io/10tap-editor/docs/examples/workingWithContent#keeping-whitespace).
+
+### Do custom keyboards work in Expo Go?
+
+Yes, with a JavaScript fallback driver. A development build uses the native driver. See [Expo Go and the fallback driver](https://10play.github.io/10tap-editor/docs/examples/customKeyboard#expo-go-and-the-fallback-driver).
+
+### How do I show the content read-only?
+
+Pass `editable: false` to `useEditorBridge`. Changing it later calls `editor.setEditable`. To show saved HTML outside an editor, see [Rendering editor HTML](https://10play.github.io/10tap-editor/docs/examples/renderHtml).
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/setup/installation
+
+# Installation
+
+## React Native
+
+```bash
+yarn add @10play/tentap-editor react-native-webview
+cd ios && pod install
+```
+
+Then rebuild your app (`yarn ios` / `yarn android`).
+
+The package contains a small native module (`TenTapKeyboard`) used by [custom keyboards](https://10play.github.io/10tap-editor/docs/examples/customKeyboard). It is autolinked: `pod install` adds it on iOS and Gradle picks it up on Android, with no changes to your native code. The editor itself doesn't depend on it. If it is missing, for example in a build made before you installed the package, everything keeps working and custom keyboards use a JavaScript fallback driver.
+
+After upgrading the package, run `pod install` again and rebuild, so the native module matches the JavaScript.
+
+## Expo
+
+```bash
+npx expo install @10play/tentap-editor react-native-webview
+```
+
+- **Development build / prebuild (recommended):** everything works, including the native keyboard driver. No config plugin is needed. Rebuild your [development build](https://docs.expo.dev/develop/development-builds/introduction/) (`npx expo run:ios`, `npx expo run:android`, or EAS) after installing or upgrading. If you commit the native folders, run `npx expo prebuild` again.
+- **Expo Go:** the editor works. Expo Go can't load the native module, so custom keyboards use the JavaScript fallback driver automatically (see [Expo Go and the fallback driver](https://10play.github.io/10tap-editor/docs/examples/customKeyboard#expo-go-and-the-fallback-driver)). Expo Go also ships its own react-native-webview version, so test [an editor inside a ScrollView](https://10play.github.io/10tap-editor/docs/examples/scrollView) in a development build.
+
+The [advanced setup](https://10play.github.io/10tap-editor/docs/setup/advancedSetup) also needs a development build.
+
+Now you're ready to add tentap to your app! Continue with [Keyboard and caret](https://10play.github.io/10tap-editor/docs/setup/keyboard) for the screen layout, or jump to the [basic example](https://10play.github.io/10tap-editor/docs/examples/basic).
+
+## Requirements
+
+| | Supported |
+| --- | --- |
+| React Native | JavaScript: any version supported by `react-native-webview`. Native module: **0.74 or newer**, old and new architecture (bridge and bridgeless). |
+| Expo | SDK 51 or newer for development builds and prebuild. Expo Go is supported with the keyboard fallback. |
+| react-native-webview | 13.7 or newer. Use **13.13.3 or newer** on the new architecture if the editor is inside a `ScrollView` (see [Editor inside a ScrollView](https://10play.github.io/10tap-editor/docs/examples/scrollView)). |
+| iOS | 15.1 or newer (or your app's `min_ios_version_supported`) |
+| Android | The library builds with `minSdkVersion` 24. The editor is tested on Android 10 (API level 29) and newer, which we recommend as your minimum. `androidKeyboardMode="stable"` needs Android 11 (API level 30). |
+
+The React Native 0.74 floor is documented here and isn't enforced by the package. The Android native module needs `BaseReactPackage` (added in React Native 0.74) and doesn't compile on older versions. The peer dependencies (`react`, `react-native`, `react-native-webview`) are all `*`, as in 1.0, so your package manager won't warn you. Stay on 1.0.x if you can't upgrade React Native.
+
+The TipTap packages, `@tiptap/react` and `lodash` are regular dependencies and are installed for you. The built-in editor bundle already contains `react-dom`, and the native app never loads it. If your app targets the web or builds a [custom editor bundle](https://10play.github.io/10tap-editor/docs/setup/advancedSetup), add a `react-dom` that matches your `react` to your own `package.json`.
+
+## Example apps
+
+The repository has two example apps:
+
+- [`example/`](https://github.com/10play/10tap-editor/tree/main/example): React Native CLI (React Native 0.81), built on both the new and the old architecture. It has every example in these docs, including the advanced setup.
+- [`example-expo/`](https://github.com/10play/10tap-editor/tree/main/example-expo): Expo with a development build. It also runs on the web.
+
+### Expo Web
+
+For expo-web support follow this [guide](https://10play.github.io/10tap-editor/docs/setup/expoWeb)
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/setup/keyboard
+
+# Keyboard and caret
+
+This page shows the screen layout that keeps the toolbar on top of the keyboard and the line being typed above the toolbar, on iOS and Android, with or without a navigation header, on edge-to-edge Android and with custom keyboards.
+
+## Recommended layout
+
+Wrap the editor and the toolbar in an `EditorKeyboardAvoidingView`:
+
+```tsx
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  EditorKeyboardAvoidingView,
+  RichText,
+  Toolbar,
+  useEditorBridge,
+} from '@10play/tentap-editor';
+
+export const Editor = () => {
+  const editor = useEditorBridge({
+    autofocus: true,
+    avoidIosKeyboard: true,
+    initialContent: '<p>Start editing!</p>',
+  });
+
+  return (
+    <SafeAreaView style={styles.fullScreen}>
+      <EditorKeyboardAvoidingView style={styles.fullScreen}>
+        <View style={styles.fullScreen}>
+          <RichText editor={editor} />
+        </View>
+        <View style={styles.toolbarRow}>
+          <Toolbar editor={editor} />
+        </View>
+      </EditorKeyboardAvoidingView>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  fullScreen: {
+    flex: 1,
+  },
+  // The toolbar's default flex: 1 would share the column with the editor;
+  // in a row it only fills the width.
+  toolbarRow: {
+    flexDirection: 'row',
+  },
+});
+```
+
+[EditorKeyboardAvoidingView](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils#editorkeyboardavoidingview) measures where it ends in the window and pads its bottom by the part of it that the keyboard covers. The editor gets shorter, and the toolbar sits right on the keyboard:
+
+- **No `keyboardVerticalOffset`.** It works below a navigation header, above a tab bar and inside a `SafeAreaView`, because it measures its real position instead of relying on an offset.
+- **Edge-to-edge Android.** This is the default in Expo SDK 53+, and for apps targeting SDK 35+ on Android 15+. The keyboard there also covers the navigation bar, and React Native's keyboard height leaves that out. `EditorKeyboardAvoidingView` measures against the top of the keyboard, so the toolbar isn't partly hidden. This also works without the native module (Expo Go).
+- **`adjustResize`.** When the window already shrinks for the keyboard, it adds no padding.
+- **Custom keyboards.** The padding stays the same while you switch between the system keyboard and a [custom keyboard](https://10play.github.io/10tap-editor/docs/examples/customKeyboard), so the toolbar doesn't move.
+
+The `Toolbar` shows itself while the editor is focused and a keyboard is up. Pass `hidden` to control this yourself.
+
+The same layout works below a `react-navigation` header with no changes; see [Navigation header](https://10play.github.io/10tap-editor/docs/examples/navHeader).
+
+### The 1.0 layout
+
+The layout from the 1.0 docs still works: a React Native `KeyboardAvoidingView` with `behavior="padding"`, absolutely positioned at the bottom of the screen, around the `Toolbar`. It needs a `keyboardVerticalOffset` below a header. On edge-to-edge Android it can leave the toolbar partly behind the keyboard. You can switch to `EditorKeyboardAvoidingView` without other changes, and it accepts the same absolute style:
+
+```tsx
+<EditorKeyboardAvoidingView
+  style={{ position: 'absolute', width: '100%', bottom: 0 }}
+>
+  <Toolbar editor={editor} />
+</EditorKeyboardAvoidingView>;
+```
+
+## Keeping the caret visible
+
+You don't need any `paddingBottom` for the caret. While a keyboard is up, `RichText` measures how far the keyboard and the toolbar on it reach into the editor. It then keeps the line being typed about one line above the toolbar, also when the keyboard grows (an emoji or suggestion bar), after an image is inserted, after a keyboard switch, and in an editor that ends above the keyboard. See [avoidIosKeyboard](https://10play.github.io/10tap-editor/docs/api/useEditorBridge#avoidioskeyboard) for the details.
+
+- **Your own toolbar.** If you draw your own toolbar on the keyboard, mark it with [useKeyboardAccessory](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils#usekeyboardaccessory) so its height is measured exactly. The library's `Toolbar` does this itself.
+- **Other views over the editor.** For views that `RichText` can't measure, such as a floating button over the bottom of the editor, keep extra space below the caret with [scrollBottomOffset](https://10play.github.io/10tap-editor/docs/api/useEditorBridge#scrollbottomoffset):
+
+  ```tsx
+  const editor = useEditorBridge({ scrollBottomOffset: 60 });
+  ```
+
+- **`updateScrollThresholdAndMargin`** still works, but `RichText` overwrites the value when the keyboard opens or closes. Use `scrollBottomOffset` for a value that has to stay.
+
+## Editor inside a ScrollView
+
+A [dynamicHeight](https://10play.github.io/10tap-editor/docs/api/useEditorBridge#dynamicheight) editor grows with its content and doesn't scroll itself. Use [useScrollToCaret](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils#usescrolltocaret) so that your `ScrollView` keeps the caret above the keyboard. See [Editor inside a ScrollView](https://10play.github.io/10tap-editor/docs/examples/scrollView).
+
+## Android window modes
+
+| Window | What happens |
+| --- | --- |
+| Edge-to-edge (Expo SDK 53+; `targetSdk` 35+ on Android 15+) | The window never resizes. `EditorKeyboardAvoidingView` pads for the keyboard and the navigation bar under it. |
+| `adjustResize` (React Native's default without edge-to-edge) | The window shrinks for the system keyboard, and `EditorKeyboardAvoidingView` adds no padding for it. While switching to a custom keyboard, the toolbar can move for a moment; see [keeping the toolbar still](https://10play.github.io/10tap-editor/docs/examples/customKeyboard#android-keeping-the-toolbar-still). |
+| `adjustNothing` / `androidKeyboardMode="stable"` | The keyboard covers the window, as on iOS. |
+
+## Reading the keyboard state
+
+[useKeyboard](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils#usekeyboard) returns whether a keyboard (system or custom) is up, its height, how far it covers the window (`keyboardCoverHeight`) and where its top is (`keyboardTop`). Use it to build your own keyboard-aware views.
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/setup/advancedSetup
+
+# Advanced Setup
+
+Make sure you read the core concepts page before setup advance and check if the simple usage is good enough for you.
+
+See full working example here https://github.com/10play/10TapAdvancedExample
+
+## Setting Up Our Custom Editor Directory
+
+### Step 1 - creating the directory
+
+Create a new folder in your project called `editor-web` (or any other name) - advance setup will let you full control on what running inside the editor webview, so we need to create a separate folder that will include code that will run inside the webview and will have different build process and tsconfig
+
+### Step 2 - adding tsconfig
+
+Create `editor-web/tsconfig.json`:
+
+```ts title="editor-web/tsconfig.json"
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "_version": "2.0.0",
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "paths": {
+      "@10play/tentap-editor": [
+        "../node_modules/@10play/tentap-editor/lib-web/typescript/webEditorUtils/index.d.ts"
+      ]
+    },
+    "moduleResolution": "bundler",
+    "target": "es2015",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true
+  }
+}
+```
+
+It's important to configure `paths` so on web the web types will be used instead of native types.
+
+### Step 3 - updating root tsconfig
+
+Add exclude on the root tsconfig.json: `"exclude": ["./editor-web"]`
+
+### Step 4 - Add index.html AdvancedEditor.tsx and index.tsx
+
+Add the following files
+
+```html title="index.html"
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RichTextEditor</title>
+  </head>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    #root > div:nth-of-type(1) {
+      position: absolute;
+      height: 100%;
+      overflow: auto;
+      width: 100%;
+      top: 0;
+      bottom: 0;
+    }
+    #root > div.dynamic-height {
+      height: unset;
+    }
+
+    #root div .ProseMirror {
+      min-height: 100%;
+      overflow: visible;
+    }
+    #root div.dynamic-height .ProseMirror {
+      height: auto;
+      min-height: 0;
+      display: flow-root;
+    }
+    .ProseMirror:focus {
+      outline: none;
+    }
+    .highlight-background {
+      background-color: #e6e6ff;
+    }
+  </style>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
+```
+
+```tsx title="AdvancedEditor.tsx"
+import React from 'react';
+import { EditorContent, useTenTap, TenTapStartKit } from '@10play/tentap-editor';
+import { CounterBridge } from '../CounterBridge';
+
+/**
+ * Here we control the web side of our custom editor
+ */
+export const AdvancedEditor = () => {
+  const editor = useTenTap({
+    bridges: [...TenTapStartKit, CounterBridge],
+  });
+  return (
+    <EditorContent
+      editor={editor}
+      className={window.dynamicHeight ? 'dynamic-height' : undefined}
+    />
+  );
+};
+```
+
+```tsx title="index.tsx"
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { AdvancedEditor } from './AdvancedEditor';
+
+/**
+ * This is the entrypoint for the "web" part of our editor that will be built with vite
+ */
+
+declare global {
+  interface Window {
+    contentInjected: boolean | undefined;
+  }
+}
+
+/**
+ * On android - react-native-webview there is a bug where sometimes the content
+ * is injected after the window is loaded https://github.com/react-native-webview/react-native-webview/pull/2960
+ * To overcome this we will check if the content is injected before rendering the editor
+ */
+const contentInjected = () => window.contentInjected;
+let interval: NodeJS.Timeout;
+interval = setInterval(() => {
+  if (!contentInjected()) return;
+  // Once content is injected into the webview, we can render the editor
+  const container = document.getElementById('root');
+  const root = createRoot(container!);
+  root.render(<AdvancedEditor />);
+  clearInterval(interval);
+  return;
+}, 1);
+```
+
+### Step 5 - adding a bundler
+
+We chose to use vite as our bundler so first run
+
+```bash
+yarn add -D vite @vitejs/plugin-react vite-plugin-singlefile
+```
+
+And now let's create `vite.config.ts` and configure it
+
+```ts title="vite.config.ts"
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { viteSingleFile } from 'vite-plugin-singlefile';
+
+// This config is used to build the web editor into a single file
+
+export default defineConfig({
+  root: 'src/editor-web', // This should be the directory of your index.html
+  build: {
+    outDir: 'build',
+  },
+  resolve: {
+    alias: [
+      {
+        find: '@10play/tentap-editor', // On our web bundle we only want to include web related code
+        replacement: '@10play/tentap-editor/web',
+      },
+      // We alias tiptap view and state to use the internal version of tiptap to avoid this error https://github.com/ueberdostiptap/issues/3869#issuecomment-2167931620
+      {
+        find: '@tiptap/pm/view',
+        replacement: '@10play/tentap-editor/web',
+      },
+      {
+        find: '@tiptap/pm/state',
+        replacement: '@10play/tentap-editor/web',
+      },
+    ],
+  },
+  plugins: [react(), viteSingleFile()],
+  server: {
+    port: 3000,
+  },
+});
+```
+
+> It's important to have the `alias` configuration so vite will not load react-native code
+
+#### Sharing tiptap with `@10play/tentap-editor/web`
+
+`@10play/tentap-editor/web` is a prebuilt bundle with its own copy of tiptap and ProseMirror inlined. Code you import from `@tiptap/*` in your editor-web, such as extra extensions, is bundled separately, and the two copies don't recognize each other's objects. Bundler options such as vite's `resolve.dedupe` cannot merge them, because the copy inside `@10play/tentap-editor/web` is not a package in `node_modules`.
+
+- Import `EditorContent` (and `useEditor` if you need it) from `@10play/tentap-editor`, not from `@tiptap/react`, so the editor and the component that renders it come from the same copy.
+- Keep the `@tiptap/pm/view` and `@tiptap/pm/state` aliases above, so extensions share ProseMirror's view and state classes with the bundled editor.
+- Install extra `@tiptap/*` extensions at the same version that `@10play/tentap-editor` uses (`npm ls @tiptap/core` shows it).
+
+### Step 6 - adding build scripts
+
+Add scripts on package.json so it will be easy to run/build editor-web:
+
+```ts title="package.json"
+"scripts": {
+    ...
+    "editor:dev": "vite --config ./editor-web/vite.config.ts",
+    "editor:build": "vite --config ./editor-web/vite.config.ts build && yarn editor:post-build",
+    "editor:post-build":"node ./node_modules/@10play/tentap-editor/scripts/buildEditor.js ./editor-web/build/index.html",
+    "reverse-android": "adb reverse tcp:3000 tcp:3000",
+}
+```
+
+`editor:dev` - Run the editor web in dev mode  
+`editor:build` - Build the editor web, probably need to add to your deploy/build process  
+`editor:post-build` - This will take your built html file and write `editorHtml.js` (with `editorHtml.d.ts`), which exports it as the string `editorHtml`  
+ which we can then later use as the source of our RichText.  
+`reverse-android` - On android need to reverse ports so it will be able to work with DEV / DEV_SERVER_URL props
+
+### Step 7 - using our custom editor
+
+`Outside` of editor-web update your `EditorBridge` to used the html we just built.
+
+```tsx
+import { editorHtml } from './editor-web/build/editorHtml';
+const editor = useEditorBridge({
+  customSource: editorHtml,
+  // ...your other options
+});
+```
+
+### Step 8 - Install react-dom
+
+`yarn add react-dom`
+
+`yarn add -D @types/react-dom`
+
+Install the `react-dom` version that matches your `react`.
+
+You basically done with the advance setup now you have full control of the editor-web you can write your own bridgeExtensions add additional tiptapExtensions
+
+## useTenTap
+
+`useTenTap` creates the TipTap editor inside the WebView and connects it to React Native.
+
+```ts
+import { TenTapStartKit, useTenTap } from '@10play/tentap-editor';
+import { CounterBridge } from '../CounterBridge';
+
+const editor = useTenTap({
+  bridges: [...TenTapStartKit, CounterBridge],
+  tiptapOptions: {
+    editorProps: { attributes: { spellcheck: 'false' } },
+  },
+});
+```
+
+- `bridges`: the bridges the editor-web knows about. A bridge with a TipTap extension is enabled when the native side's `bridgeExtensions` contains a bridge with the same name. A bridge without one, such as a bridge that only adds to the editor state or handles your own messages, always runs. Bridges and extensions are resolved once, when the editor is created.
+- `tiptapOptions`: options passed to TipTap's `useEditor`. Its `extensions` are added after the bridges' extensions, so pass only extensions that none of your bridges adds. `CoreBridge` (part of `TenTapStartKit`) already adds `Document`, `Paragraph` and `Text`; passing them again makes TipTap warn about duplicate extension names. The event handlers `onUpdate`, `onSelectionUpdate` and `onTransaction` run **after** tentap's own handlers instead of replacing them, and `onCreate` is yours alone (tentap no longer uses it to announce the editor), so none of them can break the connection to React Native. Every other option, such as `content`, `editable`, `parseOptions`, `editorProps` or `shouldRerenderOnTransaction`, overrides tentap's default.
+- `stateUpdateDebounceMs`: how long editor state updates are debounced before they are sent to React Native. default: `10`. The first state update after the editor is created is always sent right away.
+
+`useTenTap` returns the TipTap `Editor` (or `null` before it exists). Its options type is exported as `UseTenTapArgs`.
+
+## Upgrading your editor-web
+
+Rebuild your editor bundle (`yarn editor:build`) whenever you upgrade `@10play/tentap-editor`. Bundles built with an older version keep working, but miss the newer web-side features: `insertContent`, `getSelectedText`, `parseOptions`, and the dynamic height and readiness fixes. `getSelectedText` rejects with `TentapUnsupportedError` on such a bundle.
+
+When upgrading from 1.0, also:
+
+- change `#root div.dynamic-height .ProseMirror` in your `index.html` to `height: auto; min-height: 0; display: flow-root;` as shown above, so dynamic height can shrink, doesn't loop on iOS and includes the first and last paragraph margins (1.1 also injects this rule, so a bundle that wasn't rebuilt yet gets it too);
+- preferably import `EditorContent` from `@10play/tentap-editor` instead of `@tiptap/react`, and follow [Sharing tiptap](https://10play.github.io/10tap-editor/docs/setup/advancedSetup#sharing-tiptap-with-10playtentap-editorweb).
+
+The `contentInjected` polling in `index.tsx` still works. In 1.1 the configuration is written into the `customSource` HTML before your script runs, so the first check already passes.
+
+## Alternative Setup
+
+> **Info**
+>
+> In case you are using Expo you have to use this Alternative Setup for dev mode on your advance setup editor
+>
+
+There is an alternative vite setup that does not require a vite dev server as suggested in [#80](https://github.com/10play/10tap-editor/issues/80). This setup does not require we add the `DEV` prop
+
+### Update vite.config.ts
+
+In `vite.config.ts`, add a plugin that runs `editor:post-build` after every build, and set `emptyOutDir: false`:
+
+```ts title="vite.config.ts"
+import { exec } from 'child_process';
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { viteSingleFile } from 'vite-plugin-singlefile';
+
+export default defineConfig({
+  root: 'src/editor-web',
+  build: {
+    outDir: 'build',
+    emptyOutDir: false,
+  },
+  resolve: {
+    // the same aliases as above
+  },
+  plugins: [
+    react(),
+    viteSingleFile(),
+    {
+      name: 'postbuild-commands',
+      closeBundle: async () => {
+        exec('yarn editor:post-build', (error) => {
+          if (error) console.error(`exec error: ${error}`);
+        });
+      },
+    },
+  ],
+});
+```
+
+### Update package.json
+
+Update the `editor:dev` script to watch the advanced editor instead of running a dev-server, the hot reload will be handled by metro and not vite.
+
+`"editor:dev": "vite --config ./editor-web/vite.config.ts -w build"`
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/setup/expoWeb
+
+# Expo Web Setup (Beta)
+
+Some additional steps are necessary for supporting expo web. The [`example-expo`](https://github.com/10play/10tap-editor/tree/main/example-expo) app in the repository runs on the web with this setup (`yarn example:expo web`); there is also a standalone example [here](https://github.com/10play/10tap-web-example).
+
+### Step 1 - Install required deps
+
+`npx expo install @10play/react-native-web-webview react-native-web react-dom expo-crypto`
+
+`expo-crypto` and the `crypto` alias below are only needed by older versions of `@10play/react-native-web-webview`; the `example-expo` app runs version 0.0.3 without them. Keeping them does no harm.
+
+Several editors on one page work with any version of `@10play/react-native-web-webview`: the shim delivers every editor's messages to every WebView on the page, so 1.1 tags each message with an editor id and every editor ignores messages meant for another one. A custom `onMessage` on `RichText` only receives its own editor's messages too.
+
+### Step 2 - Configuring your bundler
+
+Which bundler are you using?
+
+**Metro**
+
+Create config file if not already `npx expo customize metro.config.js`
+
+Into your `metro.config.js` add the following configuration
+
+```js
+const { getDefaultConfig } = require('expo/metro-config');
+
+/** @type {import('expo/metro-config').MetroConfig} */
+const config = getDefaultConfig(__dirname);
+
+const webAliases = {
+  'react-native': 'react-native-web',
+  'react-native-webview': '@10play/react-native-web-webview',
+  'react-native/Libraries/Utilities/codegenNativeComponent':
+    '@10play/react-native-web-webview/shim',
+  'crypto': 'expo-crypto',
+};
+
+config.resolver.resolveRequest = (
+  context,
+  realModuleName,
+  platform,
+  moduleName
+) => {
+  if (platform === 'web') {
+    const alias = webAliases[realModuleName];
+    if (alias) {
+      return {
+        filePath: require.resolve(alias),
+        type: 'sourceFile',
+      };
+    }
+  }
+  return context.resolveRequest(context, realModuleName, platform, moduleName);
+};
+
+module.exports = config;
+```
+
+**Webpack**
+
+Create config file if not already `npx expo customize webpack.config.js`
+
+Into your `webpack.config.js` add the following configuration
+
+```js
+const createExpoWebpackConfigAsync = require('@expo/webpack-config');
+
+module.exports = async function (env, argv) {
+  const config = await createExpoWebpackConfigAsync(env, argv);
+
+  // Alias react-native-webview and crypto
+  config.resolve.alias = {
+    ...config.resolve.alias,
+    'react-native': 'react-native-web',
+    'react-native-webview': '@10play/react-native-web-webview',
+    'crypto': 'expo-crypto',
+  };
+
+  // Shim codegenNativeComponent
+  config.resolve.fallback = {
+    ...config.resolve.fallback,
+    'react-native/Libraries/Utilities/codegenNativeComponent':
+      '@10play/react-native-web-webview/shim',
+  };
+
+  return config;
+};
+```
+
+### Step 3 - Restart Metro
+
+Restart metro for changes to take effect and the editor should load
+
+## Notes
+
+- `dynamicHeight` works on web: the height is applied to the iframe's `style`, which is the only style the shim reads.
+- [Custom keyboards](https://10play.github.io/10tap-editor/docs/examples/customKeyboard) render under the toolbar, but the browser's own keyboard isn't hidden on web. They use the JavaScript driver; there is no native module on web.
+- On web the `Toolbar` renders its items without a `FlatList`, so `ListComponent` isn't used.
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/migrations/v1.1
+
+# Migrating to v1.1
+
+1.1 is a minor release: nothing public was removed, and code written for 1.0 keeps compiling and running. **No code changes are required.** It rebuilds the editor core, fixes a long list of bugs, adds a few options and methods, and brings back custom keyboards. This page lists the upgrade steps, the optional improvements, and what behaves differently.
+
+## Upgrade steps
+
+1. Update the package (and react-native-webview, if it is older than 13.7):
+
+   ```bash
+   yarn add @10play/tentap-editor@^1.1.0
+   ```
+
+2. Rebuild your native app. 1.1 contains a small autolinked native module (`TenTapKeyboard`), used by custom keyboards. Until you rebuild, the editor works and custom keyboards use the JavaScript fallback driver.
+   - iOS: `cd ios && pod install`
+   - Android: a new Gradle build
+   - Expo: `npx expo prebuild`, or rebuild your dev client. Expo Go keeps working without a rebuild.
+3. If you use the [advanced setup](https://10play.github.io/10tap-editor/docs/setup/advancedSetup), rebuild your editor bundle and follow [Upgrading your editor-web](https://10play.github.io/10tap-editor/docs/setup/advancedSetup#upgrading-your-editor-web).
+   - Coming from 0.x, delete the old `editorHtml.ts` from your build folder (for example `editor-web/build/editorHtml.ts`). Since 1.0, `buildEditor.js` writes `editorHtml.js` and `editorHtml.d.ts` instead, and a Vite config with `emptyOutDir: false` keeps the old file. Metro resolves `.ts` before `.js`, so `import { editorHtml } from './editor-web/build/editorHtml'` would keep loading the 0.x bundle. `editor:build` prints a warning while such a file exists.
+4. Coming from 0.7.x, also follow the [1.0 migration guide](https://10play.github.io/10tap-editor/docs/migrations/v1.0). In particular, TipTap v3 renamed History to UndoRedo, so `HistoryBridge` is named `undoRedo`; code that looks bridges up by `'history'` must use `'undoRedo'`. 1.1 also sends the bridge's config under `history`, so a custom editor bundle built with 0.7.x still receives it.
+
+## Requirements
+
+- **React Native 0.74 or newer** (Expo SDK 51 or newer) for the native module. The Android module is built on `BaseReactPackage`, which was added in 0.74, so the Android build fails on older versions. The `react-native` peer dependency is still `*`, so package managers don't check this. Stay on 1.0.x if you can't upgrade React Native.
+- **react-native-webview 13.7 or newer.** Use 13.13.3 or newer on the new architecture if the editor is inside a `ScrollView`.
+- The Android package is still `com.tentap.TenTapViewPackage`, now written in Java. The library no longer applies the Kotlin Gradle plugin, which conflicted with AGP 9's built-in Kotlin support.
+- `package.json` declares a `codegenConfig` again (`RNTenTapSpec`, a native module). If a build fails on stale codegen output after upgrading, clean the build folders (`ios/build`, `android/app/build`) and rebuild.
+- `@tiptap/react` is still a dependency, so a 1.0 advanced setup that imports `EditorContent` from `@tiptap/react` keeps building. Importing it from `@10play/tentap-editor` instead is recommended ([Sharing tiptap](https://10play.github.io/10tap-editor/docs/setup/advancedSetup#sharing-tiptap-with-10playtentap-editorweb)).
+- `react-dom` is no longer installed with the package. 1.0.1 depended on `react-dom@^18.2.0`, and a React 19 app then got a second, nested `react-dom` 18, which `expo-doctor` reports as a duplicate (#315). The built-in editor is prebuilt with its own copy, and the native bundle never loads `react-dom`. Web apps and custom editor bundles keep a `react-dom` that matches their `react`, as in [advanced setup](https://10play.github.io/10tap-editor/docs/setup/advancedSetup#step-8---install-react-dom). A native-only app needs nothing extra. `@tiptap/react` still lists `react-dom` as a peer dependency, so a native-only install may print a peer warning; that warning is safe to ignore.
+
+## Optional: the new keyboard layout
+
+The 1.0 layout, a `KeyboardAvoidingView` around the `Toolbar` with a `keyboardVerticalOffset` below a header, keeps working. 1.1 adds `EditorKeyboardAvoidingView`, which needs no offset and also keeps the toolbar on the keyboard on edge-to-edge Android (the default in Expo SDK 53+). Swapping it in is a one-line change; see [Keyboard and caret](https://10play.github.io/10tap-editor/docs/setup/keyboard).
+
+## Custom keyboards are back
+
+`CustomKeyboard`, `ColorKeyboard`, `CustomKeyboardExtension`, the `colorKeyboard` theme and the `Color` / `ColorKeyboardTheme` types are exported again. See [Custom Keyboard Utils](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils).
+
+Coming from 0.7.x:
+
+- Your code compiles unchanged. `rootRef` is ignored and can be removed.
+- The keyboard component is now rendered in your app's own React tree. It can use your context providers and hooks, including `useBridgeState(editor)` to follow the editor state. It also receives `editor`, `close` and `keyboardHeight` props.
+- It works on the new architecture, including bridgeless mode and the React Native 0.79+ app templates.
+- `TenTapView` is a deprecated component that renders nothing. Remove it.
+- `colorKeyboard` is optional on `EditorTheme`, so a full theme object written for 1.0 still type-checks. `editor.theme`, `defaultEditorTheme` and `darkEditorTheme` are typed with it, so `editor.theme.colorKeyboard.keyboardRootColor` compiles as in 0.7.x.
+- The toolbar stays visible while a custom keyboard is open, so you can drop the `hidden` logic from the 0.7.x examples.
+
+## New options and methods
+
+| | |
+| --- | --- |
+| [`parseOptions`](../api/useEditorBridge.md#parseoptions) | ProseMirror parse options, e.g. to keep whitespace |
+| [`scrollBottomOffset`](../api/useEditorBridge.md#scrollbottomoffset) | extra space kept below the cursor |
+| [`avoidKeyboard`](../api/useEditorBridge.md#avoidkeyboard) | alias of `avoidIosKeyboard` |
+| [`mergeStyles`](../api/useEditorBridge.md#mergestyles) | merge the `RichText` `style` prop instead of replacing |
+| [`rpcTimeoutMs`](../api/useEditorBridge.md#rpctimeoutms) | timeout for `getHTML` and the other async methods |
+| [`insertContent`](../api/EditorBridge.md#insertcontent) | insert HTML, text or JSON at the cursor |
+| [`getSelectedText`](../api/EditorBridge.md#getselectedtext) | read the selected text |
+| [`setContent(content, options)`](../api/EditorBridge.md#setcontent) | `parseOptions` and `emitUpdate` per call |
+| [`Toolbar` `headingItems`](../api/Components.md#customizing-the-heading-toolbar) | customize the heading toolbar; `HEADING_ITEMS` and `ToolbarContext` are exported |
+| `TentapRpcTimeoutError`, `TentapUnsupportedError` | [errors](https://10play.github.io/10tap-editor/docs/api/EditorBridge#errors) thrown by the async methods |
+| `useRemoteEditorBridge` | subscribes to the most recently created editor |
+| [`Toolbar` `ListComponent`](../api/Components.md#toolbar) | render the toolbar with another list component, such as a bottom-sheet `FlatList` |
+| [`linkBarTheme.hintText`](../examples/customTheme.md#link-bar) | placeholder of the link bar input |
+| [`useTenTap` `stateUpdateDebounceMs`](../setup/advancedSetup.md#usetentap) | debounce of state updates from a custom editor bundle |
+
+## Behaviour changes
+
+These are fixes, but they change what some apps observe.
+
+**Editor identity**
+
+- `useEditorBridge` returns the same object on every render, so it is safe in dependency arrays; its option fields (`theme`, `dynamicHeight`, …) always read the latest render. `RichText` and `Toolbar` re-render when the options change, also under a `React.memo` parent. Your own memoized components that render from `editor.theme` or another option should take that value as a prop, since `editor` alone no longer changes.
+
+**Readiness and messaging**
+
+- `isReady` becomes `true` as soon as the editor is created, also when it is not editable and not focused. It goes back to `false` while the WebView reloads.
+- Commands called before the editor is ready are queued and sent in order once it is ready. They used to be dropped with an "Editor isn't ready yet" warning.
+- The web editor sends `editor-ready` followed by a full `stateUpdate` as soon as it is created.
+- If you read messages in your own `onMessage`: messages can carry extra fields (`editorId`, `v`) besides `type` and `payload`, `editor-ready` has a payload, and there are new message types (`boot-error`, `tentap-editor-press`). Ignore what you don't use. A development warning is logged when `onMessage` is passed without `exclusivelyUseCustomOnMessage`; the default is still `true`.
+- If the WebView's content process is killed, the editor reloads and restores its content and settings. Edits made since the content was last read can be lost.
+- On iOS, the WebView is remounted after its first load only with react-native-webview 13.12.3 and 13.12.4, which need the workaround.
+- `useEditorContent` fetches the content when it changes, not on every selection change.
+- Bridge configs containing quotes or `</script>` no longer break the editor.
+
+**Layout**
+
+- `style` and `containerStyle` passed to `RichText` still replace the editor's own styles, as in 1.0, unless you set the new `mergeStyles` option. The difference: with `dynamicHeight`, the content height is now applied after your `containerStyle`, so your styles can no longer switch dynamic height off by accident.
+- `RichText` throws a clear error when `editor` doesn't come from `useEditorBridge`. A spread copy such as `{ ...editor }` still works, as in 1.0, but its option fields are a snapshot, so prefer passing `editor` itself.
+- `dynamicHeight` works in any parent, shrinks when content is deleted, keeps the scroll position when the height is capped, and no longer adds keyboard padding.
+
+**Keyboard and caret**
+
+- `RichText` measures how far the keyboard and the toolbar on it reach into the editor, and keeps the line being typed about one line above the toolbar. In 1.0 the inset was derived from the keyboard height (iOS) or a fixed toolbar height (Android), so the caret could end up under the toolbar. The document padding and the scroll threshold now come from this measurement.
+- This applies to every editor without `dynamicHeight` while a keyboard is up, also without `avoidIosKeyboard`. An editor that ends above the keyboard keeps about one line of space below the caret. Until the first measurement, `avoidIosKeyboard` keeps its 1.0 value.
+- A toolbar of your own on the keyboard that isn't marked with [useKeyboardAccessory](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils#usekeyboardaccessory) gets the default toolbar height of room.
+- `useKeyboard()` keeps `keyboardHeight` while switching between the system and a custom keyboard, and returns new fields. `isKeyboardUp` and `keyboardHeight` behave as in 1.0 when no custom keyboard is used.
+
+**Editing**
+
+- `setImage` adds an empty paragraph after an image that ends the document and moves the cursor there.
+- Links without a scheme get `https://` (`www.google.com` → `https://www.google.com`), or the `defaultProtocol` passed to `LinkBridge.configureExtension`. Plain email addresses get `mailto:`.
+- CSS injected with `injectCSS` is re-applied when the WebView reloads.
+
+**Toolbar**
+
+- `shouldHideDisabledToolbarItems` also hides disabled heading items.
+- The link bar no longer closes when its input loses focus. The keyboard's Done key inserts the link.
+- Each toolbar context renders its own list, so the heading toolbar opens scrolled to the start.
+
+**Advanced setup**
+
+- `tiptapOptions.onCreate`, `onUpdate`, `onSelectionUpdate` and `onTransaction` passed to `useTenTap` run in addition to tentap's handlers instead of replacing them. If you overrode them on purpose to stop tentap's messages, that no longer works.
+- Bridges and extensions are resolved once, when the editor is created.
+
+## Type-level changes
+
+- `EditorBridge` (with `CoreBridge`) has two new required members, `insertContent` and `getSelectedText`. If you build `EditorBridge` objects by hand, for example as test mocks, add them.
+- `setContent` has a new optional second parameter.
+- `EditorTheme` has a new optional `colorKeyboard` key.
+- The source types are self-contained: deep imports from `@10play/tentap-editor/src/...` and `moduleResolution: "node"` no longer report missing bridge methods such as `toggleBold`. Importing from the package root is still recommended.
+- `extendEditorInstance` receives an optional sixth argument, `BridgeContext`. Existing five-argument bridges are unaffected.
+
+## Deprecations
+
+| Deprecated | Use instead |
+| --- | --- |
+| `CustomKeyboard` `rootRef` prop | nothing, it's ignored |
+| `TenTapView` | nothing, it renders nothing |
+| `CustomKeyboard` `onKeyboardHideAndroid` prop | `onClose` |
+
+Deprecated APIs keep working in 1.x. `avoidIosKeyboard` is not deprecated; `avoidKeyboard` is an alias with a clearer name.
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/migrations/v1.0
+
+# Migrating to v1.0
+
+This guide will help you migrate from pre-1.0 versions to v1.0 of 10tap-editor.
+
+## Breaking Changes
+
+### Custom Keyboard Removed
+
+> **Tip**
+> Custom keyboards are back in 1.1, with the same API. See the [1.1 migration guide](https://10play.github.io/10tap-editor/docs/migrations/v1.1).
+
+The custom keyboard functionality has been removed in v1.0. This includes:
+
+- `CustomKeyboard` component
+- `CustomKeyboardUtils` API
+- `ColorKeyboard` and `CustomKeyboardExtension`
+- the `TenTapView` native component
+- the `colorKeyboard` key of `EditorTheme`, and the `Color` and `ColorKeyboardTheme` types
+- the `codegenConfig` entry (`RNTenTapViewSpec`) in the package's `package.json`
+- Color keyboard example
+- Custom keyboard example
+
+### HistoryBridge Renamed
+
+TipTap v3 renamed its History extension to UndoRedo, so `HistoryBridge` is now named `undoRedo` instead of `history`. Code that looks bridges up by name, such as `TenTapStartKit.filter((b) => b.name !== 'history')`, must use `'undoRedo'`. Custom editor bundles built with 0.7.x didn't receive the HistoryBridge config from a 1.0 app; 1.1 sends it under both names.
+
+### KeyboardAvoidingView Behavior Changed
+
+The `behavior` prop for `KeyboardAvoidingView` has been simplified in v1.0.
+
+**Before (Pre-1.0):**
+```tsx
+<KeyboardAvoidingView
+  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  style={exampleStyles.keyboardAvoidingView}
+>
+  <Toolbar editor={editor} />
+</KeyboardAvoidingView>
+```
+
+**After (v1.0):**
+```tsx
+<KeyboardAvoidingView
+  behavior={'padding'}
+  style={exampleStyles.keyboardAvoidingView}
+>
+  <Toolbar editor={editor} />
+</KeyboardAvoidingView>
+```
+
+The platform-specific check is no longer needed - use `'padding'` for both iOS and Android.
+
+### SafeAreaView Import Changed
+
+`SafeAreaView` now uses `react-native-safe-area-context` instead of `react-native`.
+
+**Before (Pre-1.0):**
+```tsx
+import { SafeAreaView } from 'react-native';
+```
+
+**After (v1.0):**
+```tsx
+import { SafeAreaView } from 'react-native-safe-area-context';
+```
+
+Make sure you have `react-native-safe-area-context` installed and configured properly.
+
+## Updated Dependencies
+
+v1.0 is based on Tiptap v3, which brings improved performance and new features.
+
+Update your dependencies:
+```bash
+yarn add @10play/tentap-editor@latest react-native-webview@latest
+```
+
+For iOS, update pods:
+```bash
+cd ios && pod install
+```
+
+## Need Help?
+
+If you encounter issues during migration:
+
+- Check the [examples](https://10play.github.io/10tap-editor/docs/examples/basic) for updated usage patterns
+- Review the [API documentation](https://10play.github.io/10tap-editor/docs/api/useEditorBridge) for current methods
+- Open an issue on [GitHub](https://github.com/10play/10tap-editor/issues)
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/api/useEditorBridge
+
+# useEditorBridge
+
+a react hook that will return [EditorBridge](https://10play.github.io/10tap-editor/docs/api/EditorBridge)
+
+The returned `editor` keeps the same reference for the lifetime of the component, so it is safe to use in dependency arrays. Pass that object to [RichText](https://10play.github.io/10tap-editor/docs/api/Components#richtext). A spread copy such as `{ ...editor }` also works, but its option fields are a snapshot taken when it was made.
+
+#### bridgeExtensions
+
+`BridgeExtension[]`  
+default: `TenTapStartKit`
+A list of BridgeExtensions that will be added to the editor on the native side. Extensions with the same name are deduplicated and the last one wins, so spread `TenTapStartKit` first and put your configured bridges after it.
+
+Bridges are read when the editor is created. Adding a bridge to the list after mount has no effect (a warning is logged in development); remount the editor instead.
+
+#### initialContent
+
+`string | object`  
+default: `undefined`
+initial content that will be loaded first on the editor. A string is parsed as HTML, an object as TipTap JSON.
+
+#### parseOptions
+
+`{ preserveWhitespace?: boolean | 'full'; from?: number; to?: number; topOpen?: boolean }`  
+default: `undefined`
+The serializable subset of ProseMirror [parse options](https://prosemirror.net/docs/ref/#model.ParseOptions) used when HTML is parsed: for `initialContent`, for [insertContent](https://10play.github.io/10tap-editor/docs/api/EditorBridge#insertcontent) and for every [setContent](https://10play.github.io/10tap-editor/docs/api/EditorBridge#setcontent) call that doesn't pass its own. It is read when the editor loads.
+
+By default ProseMirror collapses runs of whitespace in HTML to a single space. Use `preserveWhitespace: 'full'` to keep them:
+
+```tsx
+const editor = useEditorBridge({
+  initialContent: "<a href='hello'>hello</a>  <a href='world'>world</a>",
+  parseOptions: { preserveWhitespace: 'full' },
+});
+```
+
+With `'full'`, newlines and indentation between tags in pretty-printed HTML also become content. If you round-trip content saved from the editor, storing it with `getJSON()` keeps whitespace exactly with no parse options.
+
+> **Note**
+> `parseOptions` needs the 1.1 web editor. If you use a [custom editor bundle](https://10play.github.io/10tap-editor/docs/setup/advancedSetup), rebuild it after upgrading.
+
+#### autofocus
+
+`boolean`  
+default: `false`
+when true the editor focuses at the end of its content when it becomes ready. It runs once per load, so it also refocuses after the WebView reloads.
+
+#### avoidIosKeyboard
+
+`boolean`  
+default: `false`
+This helps keep the cursor visible above the keyboard when the editor is full-screen and the virtual keyboard hides the bottom portion of the editor.
+
+While the keyboard is up, `RichText` measures how far the keyboard and the views drawn on it (the [Toolbar](https://10play.github.io/10tap-editor/docs/api/Components#toolbar), or your own toolbar marked with [useKeyboardAccessory](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils#usekeyboardaccessory)) reach into the editor, and then:
+- Adds that much bottom padding to the document, plus about one line
+- Sets ProseMirror's scroll threshold and margin to the same value, so the line being typed stays about one line above the toolbar
+- Scrolls the cursor back into view when the keyboard or toolbar moves over it
+- Removes the padding when the keyboard is dismissed
+
+This works the same for the system keyboard and an open custom keyboard, on iOS and Android, edge-to-edge or not, and wherever the editor ends: behind the keyboard, above a `KeyboardAvoidingView`, or inside one that already avoids the keyboard (where only the one-line margin is added). It is skipped when `dynamicHeight` is on, because the WebView is already only as tall as its content; see [useScrollToCaret](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils#usescrolltocaret) for an editor that grows inside a `ScrollView`.
+
+The measured inset applies to every editor, so an editor covered by the keyboard keeps its cursor visible even without this option. An editor that ends above the keyboard still keeps the line being typed about one line above its own bottom edge. If the editor reaches behind the keyboard and no view on the keyboard is marked, `RichText` assumes a toolbar of your own sits there and keeps the default toolbar height clear too; mark your toolbar with `useKeyboardAccessory` to measure it exactly. Until the first measurement, an editor with `avoidIosKeyboard` falls back to the 1.0 behaviour: the keyboard height on iOS (and wherever the keyboard overlays the window), or a fixed toolbar height on Android.
+
+#### avoidKeyboard
+
+`boolean`  
+default: `false`
+An alias of `avoidIosKeyboard` with a name that matches what it does. `avoidIosKeyboard` keeps working and wins when both are set.
+
+#### scrollBottomOffset
+
+`number`  
+default: `0`
+Extra space in px kept between the cursor and the bottom of the editor, on top of what `RichText` measures for the keyboard and toolbar. It is added to the scroll threshold and to the bottom padding, so new lines scroll into view before they reach something drawn over the editor that `RichText` cannot measure:
+
+```tsx
+const editor = useEditorBridge({
+  scrollBottomOffset: 60, // e.g. the height of your floating action bar
+});
+```
+
+The `Toolbar`, and views marked with [useKeyboardAccessory](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils#usekeyboardaccessory), are already measured while the keyboard is up, so they need no offset.
+
+Unlike calling [updateScrollThresholdAndMargin](https://10play.github.io/10tap-editor/docs/api/EditorBridge#updatescrollthresholdandmargin) yourself, this value is kept when the keyboard opens and closes.
+
+With `dynamicHeight` the padding is part of the content height, so the editor is that much taller than its text. A capped dynamic-height editor needs it to scroll its last line above something drawn over it (#308). Without it, a capped dynamic-height editor keeps about one line between the caret and its own bottom edge when it scrolls.
+
+#### dynamicHeight
+
+`boolean`  
+default: `false`
+when true the editor's webview keeps the same height as its content. It grows and shrinks with the content in any parent, not only inside a `ScrollView`.
+
+- A height cap such as `maxHeight` on the container is respected. Once the cap is reached the editor scrolls internally and keeps its scroll position.
+- Keyboard padding (`avoidIosKeyboard`) is not applied in this mode. When the editor grows inside a `ScrollView`, [useScrollToCaret](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils#usescrolltocaret) scrolls the `ScrollView` to keep the line being typed above the keyboard.
+- It can change after mount and the document is kept. A custom editor bundle built with a version before 1.1 keeps the value it loaded with and only the container height changes, as in 1.0. Rebuild the bundle to switch it at runtime.
+- The content height in px is also sent as a `document-height` message. To read it yourself, pass `onMessage` to [RichText](https://10play.github.io/10tap-editor/docs/api/Components#richtext) together with `exclusivelyUseCustomOnMessage={false}`.
+
+To scroll a long document together with other content, put the editor inside your own `ScrollView`. See [Editor inside a ScrollView](https://10play.github.io/10tap-editor/docs/examples/scrollView).
+
+#### disableColorHighlight
+
+`boolean`  
+default: `undefined`
+when true the selection highlight will be off and when false will be on, on android this will be off by default, please see:
+https://github.com/10play/10tap-editor/issues/184#issuecomment-2304826219
+
+#### theme
+
+`EditorTheme`  
+default: `defaultEditorTheme` (light theme)
+this prop can be used to customize default styles, see [theme example](https://10play.github.io/10tap-editor/docs/examples/customTheme)
+
+#### editable
+
+`boolean`  
+default: `true`
+When set to false the editor will be `readonly`. Changing it after mount calls `editor.setEditable`.
+
+#### onChange
+
+`() => void`  
+A callback that is called each time the editor's content has changed. The content itself is not passed, so that every keystroke doesn't send the whole document from the WebView to React Native.
+
+To keep the content in state, use [useEditorContent](https://10play.github.io/10tap-editor/docs/api/useEditorContent), which is debounced and handles this for you:
+
+```tsx
+const editor = useEditorBridge({ initialContent });
+const content = useEditorContent(editor, { type: 'html' });
+
+useEffect(() => {
+  if (content !== undefined) save(content);
+}, [content]);
+```
+
+If you prefer `onChange`, fetch the content inside it with `editor.getHTML`, `editor.getJSON` or `editor.getText`, ideally debounced. The latest `onChange` is always the one called, so it can close over fresh state. See [Working with content](https://10play.github.io/10tap-editor/docs/examples/workingWithContent).
+
+#### mergeStyles
+
+`boolean`  
+default: `false`
+By default the `style` and `containerStyle` props of [RichText](https://10play.github.io/10tap-editor/docs/api/Components#richtext) replace the editor's own styles (the default WebView styles and `theme.webview`, and `theme.webviewContainer`), as in 1.0. When `true`, your styles are merged on top of them instead. With `dynamicHeight` the content height is applied in both cases.
+
+#### rpcTimeoutMs
+
+`number`  
+default: `undefined` (no timeout)
+How long the async methods (`getHTML`, `getText`, `getJSON`, `getSelectedText`, and requests sent by custom bridges through `context.rpc`) wait for the WebView before rejecting with a `TentapRpcTimeoutError`. Without it they wait indefinitely, as in 1.0.
+
+The time counts from the call, including any wait for the editor to load and time after the editor unmounted, so requests pending at unmount still reject. The option is read when the editor is created.
+
+```tsx
+import { TentapRpcTimeoutError } from '@10play/tentap-editor';
+
+const editor = useEditorBridge({ rpcTimeoutMs: 5000 });
+
+try {
+  const html = await editor.getHTML();
+} catch (e) {
+  if (e instanceof TentapRpcTimeoutError) {
+    // the WebView didn't answer in time
+  }
+}
+```
+
+#### customSource
+
+`string`  
+default: `SimpleEditorBundleString`
+used in advance setup, an HTML string that will replace the default simple editor
+
+#### webviewBaseURL
+
+`string`  
+default: `undefined`
+The `baseUrl` of the WebView's HTML source. Relative URLs in your content and CSS (images, fonts) resolve against it. On iOS, point it at a `file://` directory to let the WebView read local files, for example [fonts loaded from a file](https://10play.github.io/10tap-editor/docs/examples/customCss#loading-fonts-from-a-file).
+
+#### DEV
+
+`boolean`  
+default: `false`
+prop used in advance setup, when true the webview will load DEV_SERVER_URL instead of the html string
+
+#### DEV_SERVER_URL
+
+`string`  
+default: `http://localhost:3000`
+prop used in advanced setup, a url string that points to the editor dev server
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/api/EditorBridge
+
+# EditorBridge
+
+An Interface of all the commands you can do with the editor on the react native side, can be extended with a [BridgeExtension](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions). With all of the bridges included in `TenTapStartKit` the EditorBridge will have the methods below.
+
+A method only exists when its bridge is in `bridgeExtensions`. For example, `toggleBold` is added by `BoldBridge`; if you pass your own `bridgeExtensions` array without it, `toggleBold` is missing from both the object and its type.
+
+Commands can be called right away, even before the editor has loaded. They are queued and sent in order once the editor is ready.
+
+#### focus
+
+`(pos?: 'start' | 'end' | 'all' | number | boolean | null) => void`
+a function that will focus the editor and open the keyboard. If a [custom keyboard](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils) is open, it closes and the system keyboard comes back.
+extended by [CoreBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#coreextension)
+
+#### blur
+
+a function that will blur the editor and close the keyboard
+extended by [CoreBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#coreextension)
+
+#### webviewRef
+
+`RefObject<WebView>`
+a ref for the webview that renders the editor
+extended by [CoreBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#coreextension)
+
+#### getEditorState
+
+`() => BridgeState`
+a function that will return the most up to date BridgeState
+extended by [CoreBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#coreextension)
+
+#### getHTML
+
+`() => Promise<string>`
+an async function that will return the content of the editor in html format. List items are always wrapped in a paragraph (`<li><p>…</p></li>`); see [Rendering editor HTML](https://10play.github.io/10tap-editor/docs/examples/renderHtml) if you display the HTML outside the editor.
+extended by [CoreBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#coreextension)
+
+#### getText
+
+`() => Promise<string>`
+an async function that will return the content of the editor in text format
+extended by [CoreBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#coreextension)
+
+#### getJSON
+
+`() => Promise<object>`
+an async function that will return the content of the editor in json format
+extended by [CoreBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#coreextension)
+
+#### getSelectedText
+
+`(range?: { from: number; to: number }) => Promise<string>`
+an async function that returns the text of the current selection, read from the live editor inside the WebView. Pass a `range` to read another part of the document instead. Blocks are separated by `\n`, matching what the system "Copy" gives you.
+
+```ts
+const selected = await editor.getSelectedText();
+const text = await editor.getSelectedText({ from: 1, to: 20 });
+```
+
+`from` and `to` are ProseMirror positions, the same numbers as [`BridgeState.selection`](./BridgeState.md#selection), not character offsets into `getText()`. Out of range values are clamped to the document.
+
+Rejects with `TentapUnsupportedError` when the editor runs a custom bundle built with an older version; rebuild the bundle to use it.
+extended by [CoreBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#coreextension)
+
+#### setContent
+
+`(content: Content, options?: { parseOptions?: ParseOptions; emitUpdate?: boolean }) => void`
+a function that gets html as string or document object and sets it as the editor's content.
+
+- `parseOptions` overrides the editor-level [parseOptions](https://10play.github.io/10tap-editor/docs/api/useEditorBridge#parseoptions) for this call, e.g. `{ preserveWhitespace: 'full' }`.
+- `emitUpdate` (default `true`) controls whether the change triggers `onChange` and [useEditorContent](https://10play.github.io/10tap-editor/docs/api/useEditorContent).
+
+extended by [CoreBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#coreextension)
+
+#### insertContent
+
+`(content: Content) => void`
+inserts HTML, plain text or TipTap JSON at the cursor, replacing the current selection if there is one, and focuses the editor. HTML is parsed with the editor's [parseOptions](https://10play.github.io/10tap-editor/docs/api/useEditorBridge#parseoptions). It works with the default editor, no custom bundle needed.
+
+```ts
+editor.insertContent('<strong>Hello</strong> world');
+editor.insertContent('just some text');
+```
+
+The content still has to fit the editor's schema: a custom node type needs a bridge extension that defines it ([advanced setup](https://10play.github.io/10tap-editor/docs/setup/advancedSetup)). A custom bundle built with an older version ignores the command; rebuild the bundle to use it.
+extended by [CoreBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#coreextension)
+
+#### setEditable
+
+`(editable: boolean) => void`
+a function that sets the editable state
+extended by [CoreBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#coreextension)
+
+#### setSelection
+
+`(from: number, to: number) => void`
+sets the selection of the editor
+extended by [CoreBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#coreextension)
+
+#### injectCSS
+
+`(css: string, tag?: string) => void`
+creates or updates the stylesheet with the given tag, see [Dynamically Updating CSS](https://10play.github.io/10tap-editor/docs/examples/customCss#dynamically-updating-css). The stylesheet is re-applied if the WebView reloads. For CSS that has to be there from the first paint, such as fonts, use `configureCSS` on a bridge instead.
+default `tag`: `custom-css`
+available on every editor, also without CoreBridge
+
+#### injectJS
+
+`(js: string) => void`
+inject custom javascript into the editor's webview. Calls made before the editor is ready are queued.
+extended by [CoreBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#coreextension)
+
+#### updateScrollThresholdAndMargin
+
+`(offset: number) => void`
+a function that gets offset in px and changes [scrollThreshold](https://prosemirror.net/docs/ref/#view.EditorProps.scrollThreshold) [scrollMargin](https://prosemirror.net/docs/ref/#view.EditorProps.scrollMargin). `RichText` sets this itself when the keyboard opens or closes; to keep extra space permanently, use the [scrollBottomOffset](https://10play.github.io/10tap-editor/docs/api/useEditorBridge#scrollbottomoffset) option.
+extended by [CoreBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#coreextension)
+
+#### toggleBold
+
+`() => void`
+will toggle bold on the editor if possible
+extended by [BoldBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#boldbridge)
+
+#### toggleItalic
+
+`() => void`
+will toggle italic on the editor if possible
+extended by [ItalicBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#italicbridge)
+
+#### toggleUnderline
+
+`() => void`
+will toggle underline on the editor if possible
+extended by [UnderlineBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#underlinebridge)
+
+#### toggleStrike
+
+`() => void`
+will toggle strikethrough on the editor if possible
+extended by [StrikeBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#strikebridge)
+
+#### toggleCode
+
+`() => void`
+will toggle inline code on the editor if possible
+extended by [CodeBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#codebridge)
+
+#### toggleBlockquote
+
+`() => void`
+will toggle blockquote on the editor if possible
+extended by [BlockquoteBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#blockquotebridge)
+
+#### toggleBulletList
+
+`() => void`
+will toggle bullet list on the editor if possible
+extended by [BulletListBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#bulletlistbridge)
+
+#### toggleOrderedList
+
+`() => void`
+will toggle order list on the editor if possible
+extended by [OrderedListBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#orderedlistbridge)
+
+#### toggleHeading
+
+`(level: 1 | 2 | 3 | 4 | 5 | 6) => void`
+gets level and toggles heading on the editor if possible
+extended by [HeadingBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#headingbridge)
+
+#### lift
+
+`() => void`
+will lift the list item on the editor if possible
+extended by [ListItemBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#listitembridge)
+
+#### sink
+
+`() => void`
+will sink the list item on the editor if possible
+extended by [ListItemBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#listitembridge)
+
+#### toggleTaskList
+
+`() => void`
+will toggle task list on the editor if possible
+extended by [TaskListBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#tasklistbridge)
+
+#### liftTaskListItem
+
+`() => void`
+will lift the task list item on the editor if possible
+extended by [TaskListBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#tasklistbridge)
+
+#### sinkTaskListItem
+
+`() => void`
+will sink the task list item on the editor if possible
+extended by [TaskListBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#tasklistbridge)
+
+#### undo
+
+`() => void`
+will undo the last history transaction if possible
+extended by [HistoryBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#historybridge)
+
+#### redo
+
+`() => void`
+will redo the last undo transaction if possible
+extended by [HistoryBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#historybridge)
+
+#### setColor
+
+`(color: string) => void`
+sets text color
+extended by [ColorBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#colorbridge)
+
+#### unsetColor
+
+`() => void`
+un-sets text color
+extended by [ColorBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#colorbridge)
+
+#### setHighlight
+
+`(color: string) => void`
+sets text highlight
+extended by [HighlightBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#highlightbridge)
+
+#### toggleHighlight
+
+`(color: string) => void`
+toggles text highlight
+extended by [HighlightBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#highlightbridge)
+
+#### unsetHighlight
+
+`() => void`
+un-sets text highlight
+extended by [HighlightBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#highlightbridge)
+
+#### setImage
+
+`(src: string) => void`
+gets image url string and inserts an image. If the image ends up as the last block of the document, an empty paragraph is added after it and the cursor moves there, so you can keep typing below it.
+extended by [ImageBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#imagebridge)
+
+#### setLink
+
+`(link: string | null) => void`
+gets link url as string and sets link. `''` removes the link and `null` does nothing. A URL without a scheme gets one added (`www.google.com` becomes `https://www.google.com`); see [LinkBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#linkbridge).
+extended by [LinkBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#linkbridge)
+
+#### setPlaceholder
+
+`(newPlaceholder: string) => void`
+will change the placeholder on run time
+extended by [PlaceholderBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#placeholderbridge)
+
+#### setHardBreak
+
+`() => void`
+inserts a line break (`<br>`) at the cursor
+extended by [HardBreakBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#hardbreakbridge)
+
+## Errors
+
+The async methods can reject with these errors, both exported from `@10play/tentap-editor`:
+
+| Error | When |
+| --- | --- |
+| `TentapRpcTimeoutError` | The WebView didn't answer within [rpcTimeoutMs](https://10play.github.io/10tap-editor/docs/api/useEditorBridge#rpctimeoutms). Has `requestType` and `timeoutMs`. |
+| `TentapUnsupportedError` | The editor bundle doesn't support the method, usually a custom bundle built with an older version. Has `capability`. |
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/api/BridgeState
+
+# BridgeState
+
+The BridgeState is the latest state of the editor webview on the native side, it's extendable by BridgeExtensions and is generally used with [useBridgeState](https://10play.github.io/10tap-editor/docs/api/BridgeState#usebridgestate)
+
+The list below is the interface of BridgeState in case you use `TenTapStarterkit` or using all the BridgeExtensions the lib exports, on each prop we specify what bridgeExtension adds it
+
+### BridgeState properties
+
+#### editable
+
+`boolean`
+Is the editor editable or not
+extended by [CoreBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#coreextension)
+
+#### empty
+
+`boolean`
+Is the editor empty or not
+extended by [CoreBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#coreextension)
+
+#### selection
+
+`{ from: number; to: number }`
+The selection on the editor-web. `from` and `to` are ProseMirror document positions, not character offsets: every block boundary adds a position, so they don't index into the string from `getText()`. To read the selected text use [getSelectedText](https://10play.github.io/10tap-editor/docs/api/EditorBridge#getselectedtext).
+extended by [CoreBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#coreextension)
+
+#### isFocused
+
+`boolean`
+true when the editor is focused
+extended by [CoreBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#coreextension)
+
+#### isReady
+
+`boolean`
+true when the editor is fully loaded and can receive commands. It becomes true as soon as the web editor is created, whether or not it is editable or focused, and goes back to false while the WebView reloads (for example after the system kills its content process). You don't have to wait for it before calling editor methods: commands sent earlier are queued.
+extended by [CoreBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#coreextension)
+
+#### isBlockquoteActive
+
+`boolean`
+true when the cursor is where blockquote is active
+extended by [BlockquoteBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#blockquotebridge)
+
+#### canToggleBlockquote
+
+`boolean`
+true when it's possible to toggle blockquote
+extended by [BlockquoteBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#blockquotebridge)
+
+#### isCodeActive
+
+`boolean`
+true when the cursor is where code is active
+extended by [CodeBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#codebridge)
+
+#### canToggleCode
+
+`boolean`
+true when it's possible to toggle code
+extended by [CodeBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#codebridge)
+
+#### isBoldActive
+
+`boolean`
+true when the cursor is where bold is active
+extended by [BoldBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#boldbridge)
+
+#### canToggleBold
+
+`boolean`
+true when it's possible to toggle bold
+extended by [BoldBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#boldbridge)
+
+#### isItalicActive
+
+`boolean`
+true when the cursor is where italic is active
+extended by [ItalicBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#italicbridge)
+
+#### canToggleItalic
+
+`boolean`
+true when it's possible to toggle italic
+extended by [ItalicBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#italicbridge)
+
+#### isUnderlineActive
+
+`boolean`
+true when the cursor is where underline is active
+extended by [UnderlineBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#underlinebridge)
+
+#### canToggleUnderline
+
+`boolean`
+true when it's possible to toggle underline
+extended by [UnderlineBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#underlinebridge)
+
+#### isStrikeActive
+
+`boolean`
+true when the cursor is where Strike is active
+extended by [StrikeBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#strikebridge)
+
+#### canToggleStrike
+
+`boolean`
+true when it's possible to toggle Strike
+extended by [StrikeBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#strikebridge)
+
+#### isBulletListActive
+
+`boolean`
+true when the cursor is where bullet list is active
+extended by [BulletListBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#bulletlistbridge)
+
+#### canToggleBulletList
+
+`boolean`
+true when it's possible to toggle bullet list
+extended by [BulletListBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#bulletlistbridge)
+
+#### isOrderedListActive
+
+`boolean`
+true when the cursor is where ordered list is active
+extended by [OrderedListBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#orderedlistbridge)
+
+#### canToggleOrderedList
+
+`boolean`
+true when it's possible to toggle ordered list
+extended by [OrderedListBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#orderedlistbridge)
+
+#### isTaskListActive
+
+`boolean`
+true when the cursor is where task list is active
+extended by [TaskListBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#tasklistbridge)
+
+#### canToggleTaskList
+
+`boolean`
+true when it's possible to toggle task list
+extended by [TaskListBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#tasklistbridge)
+
+#### canLiftTaskListItem
+
+`boolean`
+true when it's possible to lift a task list item
+extended by [TaskListBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#tasklistbridge)
+
+#### canSinkTaskListItem
+
+`boolean`
+true when it's possible to sink a task list item
+extended by [TaskListBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#tasklistbridge)
+
+#### headingLevel
+
+`number | undefined`
+undefined when no heading is applied, number of the heading level
+extended by [HeadingBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#headingbridge)
+
+#### canToggleHeading
+
+`boolean`
+true when it's possible to toggle heading
+extended by [HeadingBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#headingbridge)
+
+#### canLift
+
+`boolean`
+true when it's possible to lift list item
+extended by [ListItemBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#listitembridge)
+
+#### canSink
+
+`boolean`
+true when it's possible to sink a list item
+extended by [ListItemBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#listitembridge)
+
+#### canUndo
+
+`boolean`
+true when it's possible to undo the doc history stack
+extended by [HistoryBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#historybridge)
+
+#### canRedo
+
+`boolean`
+true when it's possible to redo the doc history stack
+extended by [HistoryBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#historybridge)
+
+#### activeColor
+
+`string | undefined`
+undefined when no color is applied, string of the color that is active on the selection
+extended by [ColorBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#colorbridge)
+
+#### activeHighlight
+
+`string | undefined`
+undefined when no highlight is applied, string of the highlight that active on the selection
+extended by [HighlightBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#highlightbridge)
+
+#### isLinkActive
+
+`boolean`
+true when the link is in the selection
+extended by [LinkBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#linkbridge)
+
+#### canSetLink
+
+`boolean`
+true when it's possible to add link, for example when there is no selection it not possible
+extended by [LinkBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#linkbridge)
+
+#### activeLink
+
+`string | undefined`
+undefined when there is no link, string of the link that active on the selection position
+extended by [LinkBridge](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions#linkbridge)
+
+### useBridgeState
+
+a react hook to subscribe to changes on the BridgeState. It takes the `EditorBridge` and returns the latest `BridgeState`, re-rendering when it changes.
+
+```tsx
+const editorState = useBridgeState(editor);
+
+<Button
+  title={editorState.isBoldActive ? 'Unbold' : 'Bold'}
+  onPress={() => editor.toggleBold()}
+  disabled={!editorState.canToggleBold}
+/>;
+```
+
+Before the editor is ready the core fields already have values (`isReady: false`, `isFocused: false`, `empty: true`, `selection: { from: 0, to: 0 }`, and `editable` from the option), so reading them never throws.
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/api/Components
+
+# Components
+
+## RichText
+
+a components that wraps the webview that renders the editor
+
+props:
+
+| name                          | type           | default | description                                                                                                                                                  |
+| ----------------------------- | -------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| editor                        | `EditorBridge` |         | The bridge instance that created with [useEditorBridge](https://10play.github.io/10tap-editor/docs/api/EditorBridge)                                                                                      |
+| exclusivelyUseCustomOnMessage | `boolean`      | true    | When true, if you pass an `onMessage` prop (webview) this will override tentap's own `onMessage` property. You probably want to disable this, it's here for compatibility. |
+
+`editor` must come from `useEditorBridge`; `RichText` throws an error for anything else. A spread copy such as `{ ...editor }` is still connected to the same WebView, but prefer passing `editor` itself.
+
+you can also override any of the regular [WebView props](https://github.com/react-native-webview/react-native-webview/blob/HEAD/docs/Reference.md) although this is not recommended
+
+### Passing your own onMessage
+
+With the default `exclusivelyUseCustomOnMessage={true}`, passing `onMessage` turns off tentap's own message handling: the editor state, `dynamicHeight` and `onChange` stop updating. Pass `exclusivelyUseCustomOnMessage={false}` to receive every message while tentap keeps working:
+
+```tsx
+<RichText
+  editor={editor}
+  exclusivelyUseCustomOnMessage={false}
+  onMessage={(event) => {
+    const message = JSON.parse(event.nativeEvent.data);
+    if (message.type === 'document-height') {
+      console.log('content height', message.payload);
+    }
+  }}
+/>
+```
+
+A warning is logged in development when `onMessage` is passed without `exclusivelyUseCustomOnMessage`. Messages may carry extra fields (such as `editorId`) besides `type` and `payload`; ignore the ones you don't use.
+
+### Styles
+
+- `style` replaces the editor's own WebView styles (including `theme.webview`), as in 1.0.
+- `containerStyle` replaces `theme.webviewContainer`, as in 1.0.
+- Set [mergeStyles](https://10play.github.io/10tap-editor/docs/api/useEditorBridge#mergestyles) to merge both on top of the defaults instead.
+- With `dynamicHeight`, the content height is always applied last, so a `flex: 1` or `height` in your styles doesn't override it. A `maxHeight` is respected.
+
+### Editor swaps and reloads
+
+Rendering a different `editor` in the same `RichText` mounts a new WebView for it. If the WebView's content process is killed by the system, `RichText` reloads it and restores the editor: queued commands, the last content set with `setContent` (or the last value read by [useEditorContent](https://10play.github.io/10tap-editor/docs/api/useEditorContent)), injected CSS and settings such as `setEditable` and `setPlaceholder` are re-sent, and pending `getHTML`-style requests are retried. Edits made since that content was last read can be lost in this case.
+
+## Toolbar
+
+A react component of a basic Toolbar that include these features:
+
+- Add link context
+- Change headling context
+
+- A lot of pre made toolbar items:
+  - link
+  - quote
+  - code
+  - bold
+  - italic
+  - checkList
+  - underline
+  - strikethrough
+  - h1
+  - h2
+  - h3
+  - h4
+  - h5
+  - h6
+  - orderedList
+  - bulletList
+  - sync
+  - lift
+  - undo
+  - redo
+
+props:
+
+| name   | type            | default               | description                                                             |
+| ------ | --------------- | --------------------- | ----------------------------------------------------------------------- |
+| editor | `EditorBridge`  |                       | The bridge instance that created with [useEditorBridge](https://10play.github.io/10tap-editor/docs/api/EditorBridge) |
+| hidden | `boolean`       |                       | a prop to control if toolbar shown. When not set, the toolbar is shown while the editor is focused and a keyboard (system or [custom](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils)) is up. |
+| items  | `ToolbarItem[]` | DEFAULT_TOOLBAR_ITEMS | array of ToolbarItem's that will be shown on the toolbar                |
+| headingItems | `ToolbarItem[]` | HEADING_ITEMS | array of ToolbarItem's shown in the heading context (after pressing `Aa`) |
+| shouldHideDisabledToolbarItems  | `boolean` | false | Indicates whether disabled items should be hidden. Applies to both `items` and `headingItems`. |
+| ListComponent | `ComponentType<FlatListProps<ToolbarItem>>` | `FlatList` | The list that renders the main and heading toolbars, for example a `FlatList` from a bottom-sheet library. Not used on web. |
+
+Each toolbar context (main, link, heading) renders its own list, so the heading toolbar always opens scrolled to the start.
+
+### Customizing the heading toolbar
+
+`HEADING_ITEMS` and `ToolbarContext` are exported, so you can build on the defaults. The first item of `HEADING_ITEMS` is the close button that goes back to the main toolbar:
+
+```tsx
+import { Toolbar, HEADING_ITEMS } from '@10play/tentap-editor';
+
+<Toolbar editor={editor} headingItems={HEADING_ITEMS.slice(0, 4)} />; // close + H1-H3
+```
+
+If you write your own list, include an item that calls `setToolbarContext(ToolbarContext.Main)` so users can get back to the main toolbar.
+
+### Link bar
+
+Pressing the link item opens the link bar. The link is inserted with the **Insert** button or the keyboard's **Done** key, and the link bar stays open when the input loses focus. The input's placeholder (default `Type your URL here...`) is set with the `toolbar.linkBarTheme.hintText` key of the [theme](https://10play.github.io/10tap-editor/docs/examples/customTheme#link-bar).
+
+> **Tip**
+> If the editor or the toolbar is inside a `ScrollView`, `FlatList` or `KeyboardAwareScrollView`, set `keyboardShouldPersistTaps="handled"` on it. Otherwise the first tap on a toolbar button only dismisses the keyboard.
+
+### ToolbarItem
+
+The item rendered by the toolbar component
+
+```ts
+export interface ToolbarItem {
+  onPress: ({ editor, editorState }: ArgsToolbarCB) => () => void;
+  active: ({ editor, editorState }: ArgsToolbarCB) => boolean;
+  disabled: ({ editor, editorState }: ArgsToolbarCB) => boolean;
+  image: ({ editor, editorState }: ArgsToolbarCB) => any;
+  // Accessibility label, read by screen readers and UI test tools
+  label?: string;
+}
+
+type ArgsToolbarCB = {
+  editor: EditorBridge;
+  editorState: BridgeState;
+  setToolbarContext: (
+    context: ToolbarContext | ((prev: ToolbarContext) => ToolbarContext)
+  ) => void;
+  toolbarContext: ToolbarContext;
+};
+```
+
+See how we add a custom toolbar item in the [color keyboard example](https://10play.github.io/10tap-editor/docs/examples/colorKeyboard)
+
+## Custom keyboard components
+
+`CustomKeyboard`, `ColorKeyboard` and `EditorKeyboardAvoidingView` are documented in [Custom Keyboard Utils](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils).
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/api/BridgeExtensions
+
+# Built-in BridgeExtensions
+
+tentap comes with multiple bridges extensions out of the box, in this page we will show all of them and show their relevant configurations, which can be configured with `BridgeExtension.configureExtension`:
+
+### CoreExtension
+
+uses `@tiptap/extension-document` `@tiptap/extension-paragraph` `@tiptap/extension-text`
+
+This bridge extension includes fundamental logic that is needed to interact with the editor
+
+### BlockquoteBridge
+
+uses `@tiptap/extension-blockquote`
+relevant configuration: https://tiptap.dev/docs/editor/api/nodes/blockquote#settings
+
+### CodeBridge
+
+uses `@tiptap/extension-code`
+relevant configuration: https://tiptap.dev/docs/editor/api/marks/code#settings
+
+### ItalicBridge
+
+uses `@tiptap/extension-italic`
+relevant configuration: https://tiptap.dev/docs/editor/api/marks/italic#settings
+
+### BoldBridge
+
+uses `@tiptap/extension-bold`
+relevant configuration: https://tiptap.dev/docs/editor/api/marks/bold#settings
+
+### StrikeBridge
+
+uses `@tiptap/extension-strike`
+relevant configuration: https://tiptap.dev/docs/editor/api/marks/strike#settings
+
+### BulletListBridge
+
+uses `BulletList` and `ListItem` from `@tiptap/extension-list`
+relevant configuration: https://tiptap.dev/docs/editor/api/nodes/bullet-list#settings
+
+### OrderedListBridge
+
+uses `OrderedList` and `ListItem` from `@tiptap/extension-list`
+relevant configuration: https://tiptap.dev/docs/editor/api/nodes/ordered-list#settings
+
+### HeadingBridge
+
+uses `@tiptap/extension-heading`
+relevant configuration: https://tiptap.dev/docs/editor/api/nodes/heading#settings
+
+### ListItemBridge
+
+You can use only OrderedListBridge/BulletListBridge for lists, use ListItemBridge in case you want to control lift/sink of lists
+uses `ListItem` from `@tiptap/extension-list`
+relevant configuration: https://tiptap.dev/docs/editor/api/nodes/list-item#settings
+
+List items always contain a paragraph, so `getHTML()` returns `<li><p>…</p></li>`. See [Rendering editor HTML](https://10play.github.io/10tap-editor/docs/examples/renderHtml).
+
+### HistoryBridge
+
+uses `UndoRedo` from `@tiptap/extensions` (TipTap v3 renamed the History extension to UndoRedo)
+relevant configuration: https://tiptap.dev/docs/editor/api/extensions/history#settings
+
+Since 1.0 the bridge's name is `undoRedo`. The bridge config is also sent under the old name `history`, so custom editor bundles built against 0.7.x still receive it. If you look a bridge up by name, for example `TenTapStartKit.filter((b) => b.name !== 'history')`, use `'undoRedo'`.
+
+### ColorBridge
+
+uses `@tiptap/extension-color` `@tiptap/extension-text-style`
+no relevant configuration
+
+### HighlightBridge
+
+uses `@tiptap/extension-highlight` `@tiptap/extension-text-style`
+no relevant configuration
+
+### ImageBridge
+
+uses `@tiptap/extension-image`
+relevant configuration: https://tiptap.dev/docs/editor/api/nodes/image#settings
+
+Images are **block** nodes by default, so an `<img>` inside a `<p>` is moved out of the paragraph when content is loaded. To keep images inline:
+
+```tsx
+const editor = useEditorBridge({
+  bridgeExtensions: [
+    ...TenTapStartKit,
+    ImageBridge.configureExtension({ inline: true }),
+  ],
+});
+```
+
+Attributes the image schema doesn't know, like `style` or `width`, are dropped when content is parsed. Add them with `ImageBridge.extendExtension` if you need them. When styling images with CSS, scope the rules as `img:not(.ProseMirror-separator)`: ProseMirror adds a hidden separator `<img>` after inline nodes at the end of a line.
+
+### LinkBridge
+
+uses `@tiptap/extension-link`, pre-configured with `{ openOnClick: false, autolink: true }`
+relevant configuration: https://tiptap.dev/docs/editor/api/marks/link#settings
+
+When a link is set from the toolbar or with `setLink`, a URL without a scheme gets `https://` added, so `www.google.com` becomes `https://www.google.com` instead of a relative link. A plain email address such as `support@acme.com` becomes a `mailto:` link. URLs that already have a scheme (`http:`, `https:`, `mailto:`, `tel:`, app schemes) and relative or anchor links (`/path`, `#section`, `?query`) are kept as they are. To use another default, configure `defaultProtocol`:
+
+```tsx
+LinkBridge.configureExtension({ openOnClick: false, autolink: true, defaultProtocol: 'http' });
+```
+
+### TaskListBridge
+
+uses `TaskList` and `TaskItem` from `@tiptap/extension-list`
+relevant configuration: https://tiptap.dev/docs/editor/api/nodes/task-list#settings
+
+### UnderlineBridge
+
+uses `@tiptap/extension-underline`
+relevant configuration: https://tiptap.dev/docs/editor/api/marks/underline#settings
+
+### PlaceholderBridge
+
+uses `Placeholder` from `@tiptap/extensions`
+relevant configuration: https://tiptap.dev/docs/editor/api/extensions/placeholder#settings
+
+### DropCursorBridge
+
+uses `Dropcursor` from `@tiptap/extensions`
+relevant configuration: https://tiptap.dev/docs/editor/api/extensions/dropcursor#settings
+
+### HardBreakBridge
+
+uses `@tiptap/extension-hard-break`
+relevant configuration: https://tiptap.dev/docs/editor/api/nodes/hard-break#settings
+
+## Writing your own bridge
+
+See the [advanced setup](https://10play.github.io/10tap-editor/docs/setup/advancedSetup) for building a bridge with its own TipTap extension. `extendEditorInstance` receives the same five arguments as in 1.0, plus an optional sixth `context` argument (type `BridgeContext`). It gives your bridge the same message queue the built-in bridges use, so commands sent before the editor is ready aren't lost:
+
+```ts
+import { BridgeExtension } from '@10play/tentap-editor';
+
+type MyMessage = { type: string; payload?: unknown };
+type MyEditorInstance = {
+  myCommand: () => void;
+  myQuery: () => Promise<string>;
+};
+
+declare module '@10play/tentap-editor' {
+  interface EditorBridge extends MyEditorInstance {}
+}
+
+export const MyBridge = new BridgeExtension<{}, MyEditorInstance, MyMessage>({
+  forceName: 'myBridge',
+  extendEditorInstance: (
+    sendBridgeMessage,
+    _webviewRef,
+    _editorState,
+    _setEditorState,
+    _platform,
+    context
+  ) => ({
+    myCommand: () => sendBridgeMessage({ type: 'my-command' }),
+    myQuery: () =>
+      context
+        ? context.rpc<string>({ type: 'my-query' })
+        : Promise.reject(new Error('Needs @10play/tentap-editor 1.1')),
+  }),
+});
+```
+
+`context.rpc` adds a `messageId` to the message payload and resolves with the `content` of the first reply whose `payload.messageId` matches, so the web side of your bridge answers with `sendMessageBack({ type: 'my-query-back', payload: { content, messageId } })`.
+
+`context.supports(capability)` tells you whether the editor bundle in the WebView supports a feature, which is useful when your app may run against a custom bundle built with an older version. The 1.1 web editor advertises `'insertContent'`, `'selectedText'`, `'parseOptions'`, `'styles'`, `'containerHeight'`, `'setDynamicHeight'` and `'inputMode'`; a bundle built with 1.0 or older advertises none. Until the editor is ready, `supports` returns `false`. `rpc` takes an optional second argument: with `{ capability }` it rejects with `TentapUnsupportedError` when the bundle lacks that capability (this is how `getSelectedText` handles older bundles), and `timeoutMs`, which overrides [rpcTimeoutMs](https://10play.github.io/10tap-editor/docs/api/useEditorBridge#rpctimeoutms) for that call. The `BridgeContext`, `RpcOptions`, `SendOptions`, `Capabilities` and `CapabilityName` types are exported from `@10play/tentap-editor`.
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/api/useEditorContent
+
+# useEditorContent
+
+The useEditorContent hook is designed to efficiently retrieve the content. It monitors changes to the editor's content, and reduces unnecessary data exchanges between web and native, optimizing performance and minimizing message traffic.
+
+#### editor
+
+`EditorBridge` (required)
+
+### options
+
+#### type
+
+`EditorContentType`  
+default: `'html'`
+The type of content to return, `html` and `text` return strings, `json` returns an object.
+
+#### debounceInterval
+
+`number`  
+default: `10`
+
+### Usage
+
+```tsx
+const content = useEditorContent(editor, { type: 'html' });
+useEffect(() => {
+  // Will render each time content is updated and call onSave
+  content && onSave(content);
+}, [content]);
+```
+
+Internally `useEditorContent` will get the content by calling `editor.getHTML` (or text/json depending on the `type` option). To reduce
+traffic it is called within a `debounce` with a default interval of `10`ms. This can be modified changing the `debounceInterval` option.
+
+The content is fetched once when the editor is ready and then again only when the content changes, not when the selection moves. If responses arrive out of order, an older one never overwrites a newer one, and nothing is fetched after the component unmounts.
+
+In addition we can also get the content as text or as a json.
+
+If you display the HTML outside the editor, for example with `react-native-render-html`, see [Rendering editor HTML](https://10play.github.io/10tap-editor/docs/examples/renderHtml).
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils
+
+# Custom Keyboard Utils
+
+A custom keyboard replaces the system keyboard with a React Native view, such as a color picker or a sticker panel, while the editor stays focused. In this page we will show the APIs of the custom keyboard utils.
+For examples please see: [Create custom keyboard](https://10play.github.io/10tap-editor/docs/examples/customKeyboard) or [Using the ColorKeyboard](https://10play.github.io/10tap-editor/docs/examples/colorKeyboard)
+
+## How it works
+
+The keyboard is an ordinary view rendered by `CustomKeyboard` in your own React tree, so it has access to your context providers, state and navigation, and it re-renders like any other component. When it opens, the system keyboard is hidden natively while the editor's WebView keeps focus, so the caret, the selection, a hardware keyboard and IME composition all survive switching between the system and the custom keyboard.
+
+Switching is done by a **driver**:
+
+- **Native driver** (default): uses the `TenTapKeyboard` native module that ships with the package. Needs a native rebuild after installing.
+- **Fallback driver**: JavaScript only. Used automatically when the native module isn't available (Expo Go, web, a build without the module), when the editor is inside a `Modal` on Android, and when the native driver fails its self-check. It hides the system keyboard with `inputmode="none"` on the editor. See [limitations](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils#limitations).
+
+## CustomKeyboard
+
+A react component that renders the active custom keyboard. Render it under your toolbar, as the last child of the same bottom [EditorKeyboardAvoidingView](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils#editorkeyboardavoidingview), or with `layout="overlay"` after it (see [Layouts](https://10play.github.io/10tap-editor/docs/examples/customKeyboard#layouts)). In development on iOS, a warning is logged if the inline keyboard doesn't end at the bottom of the window.
+
+#### keyboards
+
+`CustomKeyboardExtension[]`  
+list of [CustomKeyboardExtension's](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils#customkeyboardextension)
+
+#### activeKeyboardID
+
+`string | undefined`  
+the id of the custom keyboard to show. Changing it from an id to `undefined` closes the custom keyboard and brings the system keyboard back.
+
+#### setActiveKeyboardID
+
+`(id: string | undefined) => void`  
+called by `CustomKeyboard` when the keyboard closes on its own (see [closing](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils#closing)), so your state stays in sync. Usually the setter of a `useState`.
+
+#### editor
+
+`EditorBridge`  
+the editors `EditorBridge` instance
+
+#### rootBackground
+
+`ColorValue`  
+default: `editor.theme.colorKeyboard.keyboardRootColor`
+The background of the area the custom keyboard is drawn in, on both platforms.
+
+#### layout
+
+`'inline' | 'overlay'`  
+default: `'inline'`
+
+- `'inline'`: `CustomKeyboard` takes up the keyboard's height in the layout, so a `KeyboardAvoidingView` around the toolbar and the keyboard keeps the toolbar in place. This is the 0.7.x layout.
+- `'overlay'`: `CustomKeyboard` takes no space in the layout and draws the keyboard over the bottom of the screen. Lift your toolbar yourself, with [EditorKeyboardAvoidingView](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils#editorkeyboardavoidingview), [useCustomKeyboardHeight](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils#usecustomkeyboardheight) or [useKeyboard](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils#usekeyboard). Recommended for edge-to-edge apps and for apps using `react-native-keyboard-controller`.
+
+#### defaultHeight
+
+`number`  
+default: 38% of the window height
+The custom keyboard has the same height as the last system keyboard shown in the current orientation. `defaultHeight` is used before any system keyboard has been shown.
+
+#### closeOnEditorPress
+
+`boolean`  
+default: `true`
+Close the custom keyboard and bring back the system keyboard when the user taps the editor.
+
+#### androidKeyboardMode
+
+`'system' | 'stable'`  
+default: `'system'`
+Android only.
+
+- `'system'` never changes your window's `softInputMode`. With `adjustResize` the window resizes when the system keyboard hides, which can shift the toolbar for about a frame during the switch.
+- `'stable'` sets `adjustNothing` on the activity window while `CustomKeyboard` is mounted (API 30+, restored on unmount), so the switch has no shift. Other inputs on the same screen are then no longer resized for; use `EditorKeyboardAvoidingView` or `KeyboardAvoidingView` for them. Ignored below API 30 and inside a `Modal`.
+
+Edge-to-edge apps don't need `'stable'`: their window never resizes.
+
+#### forceFallback
+
+`boolean`  
+default: `false`
+Always use the JavaScript fallback driver, even when the native module is available.
+
+#### onOpen
+
+`(id: string) => void`  
+Called when a custom keyboard has finished opening, with its id.
+
+#### onClose
+
+`() => void`  
+Called when the custom keyboard has finished closing.
+
+#### onKeyboardError
+
+`(event: KeyboardErrorEvent) => void`
+
+```ts
+interface KeyboardErrorEvent {
+  reason: 'verify-timeout' | 'native-error';
+  driver: 'native' | 'fallback' | 'inline';
+  error?: unknown;
+}
+```
+
+- `'verify-timeout'`: the system keyboard was still up 600 ms after the driver tried to hide it. If the native driver failed, `CustomKeyboard` switches to the fallback driver for as long as it stays mounted. If the fallback failed too, the custom keyboard closes and the system keyboard stays.
+- `'native-error'`: the native module threw; `error` holds what it threw.
+
+A warning is also logged in development.
+
+#### onKeyboardHideAndroid
+
+`() => void`  
+**Deprecated**, use `onClose`. Kept from 0.7.x. Called on both platforms when the system keyboard comes back while a custom keyboard is up.
+
+#### rootRef
+
+`React.RefObject<any>`  
+**Deprecated, ignored.** Needed by the iOS keyboard in 0.7.x. You can remove it.
+
+## CustomKeyboardExtension
+
+A class that defines a custom keyboard.
+
+```tsx
+const StickerKeyboard = new CustomKeyboardExtension(
+  'keyboard.sticker',
+  StickerKeyboardComp,
+  { height: 280 } // optional
+);
+```
+
+#### id
+
+`string`  
+a unique key for the custom keyboard
+
+#### comp
+
+`ComponentType`  
+The custom keyboard component. It is rendered inside your app like any other component and receives:
+
+| prop | type | description |
+| --- | --- | --- |
+| `editor` | `EditorBridge` | the editor the keyboard belongs to |
+| `close` | `() => void` | closes the custom keyboard and brings back the system keyboard |
+| `keyboardHeight` | `number` | the height the keyboard is drawn at |
+
+The props type is exported as `CustomKeyboardComponentProps`. Components written for 0.7.x that take no props keep working.
+
+#### options.height
+
+`number`  
+optional
+A fixed height in dp for this keyboard, instead of following the system keyboard's height.
+
+The constructor still registers the component with `AppRegistry` under `id`, as in 0.7.x. tentap no longer uses that registration.
+
+## ColorKeyboard
+
+A ready-made `CustomKeyboardExtension` (id `keyboard.color`) with text color and highlight buttons. Picking a color applies it and focuses the editor, which returns to the system keyboard. Colors and styles come from the [`colorKeyboard` theme](../examples/customTheme.md#color-keyboard-theme). See the [ColorKeyboard example](https://10play.github.io/10tap-editor/docs/examples/colorKeyboard).
+
+## useCustomKeyboard
+
+```ts
+const { activeKeyboardID, open, close, dismiss } = useCustomKeyboard(); // or useCustomKeyboard(editor)
+```
+
+A hook to control the custom keyboard from your own components, such as a toolbar button or the keyboard itself. It can be called anywhere, not only inside `CustomKeyboard`. It controls:
+
+1. the `CustomKeyboard` of `editor`, when you pass one;
+2. otherwise, the `CustomKeyboard` rendering the component that calls it (inside a keyboard component);
+3. otherwise, the most recently mounted `CustomKeyboard`.
+
+When there is no matching `CustomKeyboard`, `activeKeyboardID` is `undefined` and the functions do nothing.
+
+`open` and `close` go through the same transitions as changing `activeKeyboardID`, and `setActiveKeyboardID` is called so your state follows.
+
+| field | type | description |
+| --- | --- | --- |
+| `activeKeyboardID` | `string \| undefined` | the open custom keyboard |
+| `open` | `(id: string) => void` | opens a custom keyboard. Switching from one custom keyboard to another just swaps the content. |
+| `close` | `(toSystem?: boolean) => void` | closes the custom keyboard. With `toSystem` (default `true`) the system keyboard comes back; with `false` both are dismissed. |
+| `dismiss` | `() => void` | same as `close(false)` |
+
+## useCustomKeyboardHeight
+
+```ts
+const height = useCustomKeyboardHeight(); // or useCustomKeyboardHeight(editor)
+```
+
+The height of the open custom keyboard, or `0`. Use it with `layout="overlay"` to add space under your toolbar or content, for example when another library already handles the system keyboard. It reads the `CustomKeyboard` of `editor`, or the most recently mounted one.
+
+## EditorKeyboardAvoidingView
+
+A view that adds bottom padding equal to the part of it whichever keyboard covers, system or custom, so the toolbar at its bottom sits fully on top of the keyboard. It measures where it ends in the window and compares that with the top of the keyboard (`useKeyboard().keyboardTop`), so it needs no `keyboardVerticalOffset` below a navigation header or above a tab bar, it covers the navigation bar an edge-to-edge Android keyboard reaches over (also without the native module, as in Expo Go), and it adds nothing where the window already resized for the keyboard (Android `adjustResize` without edge-to-edge). Unlike React Native's `KeyboardAvoidingView` it keeps the same padding while switching between the two keyboards, so the toolbar doesn't move. An inline `CustomKeyboard` inside it takes its own space, so the padding leaves that out.
+
+Place it around the editor and the toolbar (for example inside a `SafeAreaView` with `edges={['top']}`), and put the `Toolbar` in a row so its default `flex: 1` doesn't share the column with the editor:
+
+```tsx
+<SafeAreaView style={{ flex: 1 }} edges={['top']}>
+  <EditorKeyboardAvoidingView style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
+      <RichText editor={editor} />
+    </View>
+    <View style={{ flexDirection: 'row' }}>
+      <Toolbar editor={editor} />
+    </View>
+  </EditorKeyboardAvoidingView>
+  <CustomKeyboard layout="overlay" {...keyboardProps} />
+</SafeAreaView>
+```
+
+Props: all `View` props, plus
+
+| prop | type | default | description |
+| --- | --- | --- | --- |
+| `keyboardVerticalOffset` | `number` | `0` | distance in dp between the bottom of this view and the bottom of the window, subtracted from the padding until the view was measured. Not needed otherwise |
+| `enabled` | `boolean` | `true` | `false` removes the padding |
+
+## useKeyboardAccessory
+
+Marks a view that is drawn on top of the keyboard, such as your own toolbar, so that `RichText` keeps the line being typed about one line above it. The library's `Toolbar` does this itself. Pass `false` while the view is hidden.
+
+```tsx
+const MyToolbar = ({ editor }: { editor: EditorBridge }) => {
+  const { isKeyboardUp } = useKeyboard();
+  const accessory = useKeyboardAccessory(isKeyboardUp);
+  return <View onLayout={accessory.onLayout}>{/* buttons */}</View>;
+};
+```
+
+Views that start above the editor (a static toolbar at the top of the screen) are ignored. A toolbar that is not marked still gets the default toolbar height of room when the editor reaches behind the keyboard, but marking it keeps the margin exact.
+
+## useScrollToCaret
+
+A `dynamicHeight` editor is as tall as its content and does not scroll itself, so inside a `ScrollView` the line being typed can grow under the keyboard. `useScrollToCaret` scrolls the `ScrollView` to keep the caret about one line clear of the keyboard, the toolbar on it and the `ScrollView`'s edges:
+
+```tsx
+const EditorInScrollView = () => {
+  const editor = useEditorBridge({ dynamicHeight: true });
+  const scrollViewRef = useRef<ScrollView>(null);
+  useScrollToCaret(editor, scrollViewRef);
+
+  return (
+    <EditorKeyboardAvoidingView style={{ flex: 1 }}>
+      <ScrollView ref={scrollViewRef} keyboardShouldPersistTaps="handled">
+        <RichText editor={editor} />
+      </ScrollView>
+    </EditorKeyboardAvoidingView>
+  );
+};
+```
+
+It needs the web bundle of this version (custom bundles built before 1.1 do not report the caret).
+
+## useKeyboard
+
+```ts
+const {
+  isKeyboardUp,
+  keyboardHeight,
+  isCustomKeyboardOpen,
+  activeCustomKeyboardID,
+  systemKeyboardHeight,
+  lastKeyboardHeight,
+} = useKeyboard();
+```
+
+| field | description |
+| --- | --- |
+| `isKeyboardUp` | `true` while the system keyboard or a custom keyboard is up |
+| `keyboardHeight` | height of whichever keyboard is up. It doesn't drop to `0` while switching between the system and a custom keyboard. |
+| `isCustomKeyboardOpen` | `true` while a custom keyboard is open |
+| `activeCustomKeyboardID` | id of the open custom keyboard |
+| `systemKeyboardHeight` | height of the system keyboard, `0` while it is hidden |
+| `lastKeyboardHeight` | the last usable system keyboard height, kept after it hides; `0` before the first one |
+| `windowOverlaysKeyboard` | `true` when the keyboard covers the window instead of resizing it: iOS, Android edge-to-edge or `'stable'` mode |
+| `keyboardCoverHeight` | how far up from the bottom of the window the keyboard reaches: its height plus, on edge-to-edge Android, the navigation bar it also covers. `0` when no keyboard covers the window, including a system keyboard the window resizes for |
+| `inlineKeyboardHeight` | height of the slot an open inline `CustomKeyboard` takes in the layout, `0` for an overlay keyboard or none |
+| `keyboardTop` | top of whichever keyboard is up in window coordinates (the space of `measureInWindow`), or `null`. A view whose bottom is `viewBottom` in the window is covered by `Math.max(0, viewBottom - keyboardTop)`. A custom keyboard takes the place of the system keyboard |
+
+Its type is exported as `KeyboardState`.
+
+`isKeyboardUp` and `keyboardHeight` behave as in 1.0 when no custom keyboard is used. Heights are in dp.
+
+## TenTapView
+
+**Deprecated.** The native view used by the 0.7.x keyboard. It now renders nothing and logs a warning in development; remove it from your code.
+
+## Closing
+
+The custom keyboard closes, and `setActiveKeyboardID(undefined)` is called, when:
+
+- the user taps the editor (unless `closeOnEditorPress={false}`): the system keyboard comes back
+- you call `editor.focus()`: the system keyboard comes back
+- `activeKeyboardID` is set to `undefined`, or `close()` from `useCustomKeyboard` is called
+- the editor loses focus, or another input opens the system keyboard
+- the Android back button is pressed: both keyboards are dismissed
+- the editor's WebView reloads
+
+When `CustomKeyboard` unmounts, the system keyboard suppression is undone, but `setActiveKeyboardID` is not called.
+
+## Types
+
+`CustomKeyboardProps`, `CustomKeyboardComponentProps`, `CustomKeyboardExtensionOptions`, `AnyCustomKeyboardExtension`, `CustomKeyboardControls` (the return type of `useCustomKeyboard`), `EditorKeyboardAvoidingViewProps`, `AndroidKeyboardMode`, `KeyboardErrorEvent`, `KeyboardPhase`, `KeyboardDriverKind`, `KeyboardState` and `TenTapViewProps` are exported from `@10play/tentap-editor`.
+
+## Limitations
+
+- **Android `Modal`:** an editor inside a React Native `Modal` uses the fallback driver, because the modal is a separate window.
+- **Fallback driver on iOS:** while a custom keyboard is open, the globe key on a hardware keyboard doesn't work.
+- **Fallback driver on Android:** on Android System WebView older than 66, tapping the editor brings back the system keyboard, which closes the custom keyboard.
+- **Web:** the custom keyboard renders inline under the toolbar; the browser's keyboard isn't hidden.
+- **Floating, split and Stage Manager keyboards** on iPad are not mirrored: the custom keyboard uses the docked keyboard height.
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/examples/basic
+
+# Basic example
+
+In this example we will be creating a basic editor that contains all of the pre-built bridgeExtensions and a toolbar on top of the keyboard. [Jump To Full Example](https://10play.github.io/10tap-editor/docs/examples/basic#full-example)
+
+## Creating The Editor Bridge
+
+The first thing we want to do is create our [EditorBridge](https://10play.github.io/10tap-editor/docs/api/EditorBridge).
+To do this we will use the `useEditorBridge` hook. This by default will contain the `TenTapStartKit` which includes all of [the following bridge extensions](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions).
+Now we have added all of the pre-built bridgeExtensions provided by tentap, and our editor will support all of these bridgeExtensions features
+
+```tsx
+const editor = useEditorBridge();
+```
+
+This is the same as passing
+
+```tsx
+const editor = useEditorBridge({
+  bridgeExtensions: TenTapStartKit,
+});
+```
+
+## Adding the RichText component
+
+Now we will add our RichText component, this is simply a WebView that runs a pre-built tiptap bundle with some extensions, that is then communicated with via our bridgeExtensions
+
+The RichText component receives the EditorBridge we created before
+
+```tsx
+<SafeAreaView style={exampleStyles.fullScreen}>
+  <RichText editor={editor} />
+</SafeAreaView>;
+```
+
+## Adding a Toolbar on the keyboard
+
+Our RichText is pretty empty without a toolbar, so let's add one.
+We wrap the editor and the toolbar in an `EditorKeyboardAvoidingView`, which makes room for the keyboard so the toolbar sits right on top of it:
+
+```tsx
+<SafeAreaView style={exampleStyles.fullScreen}>
+  <EditorKeyboardAvoidingView style={exampleStyles.fullScreen}>
+    <View style={exampleStyles.fullScreen}>
+      <RichText editor={editor} />
+    </View>
+    <View style={exampleStyles.toolbarRow}>
+      <Toolbar editor={editor} />
+    </View>
+  </EditorKeyboardAvoidingView>
+</SafeAreaView>;
+```
+
+`EditorKeyboardAvoidingView` measures how far the keyboard reaches into it, so it needs no `keyboardVerticalOffset` below a navigation header and it also works on edge-to-edge Android. The `Toolbar` shows itself while the editor is focused and the keyboard is up, and the editor keeps the line being typed above it. See [Keyboard and caret](https://10play.github.io/10tap-editor/docs/setup/keyboard).
+
+> The 1.0 version of this example, with React Native's `KeyboardAvoidingView` absolutely positioned at the bottom of the screen, keeps working. See [the 1.0 layout](https://10play.github.io/10tap-editor/docs/setup/keyboard#the-10-layout).
+
+## Full Example
+
+```tsx
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  EditorKeyboardAvoidingView,
+  RichText,
+  Toolbar,
+  useEditorBridge,
+} from '@10play/tentap-editor';
+
+export const Basic = () => {
+  const editor = useEditorBridge({
+    autofocus: true,
+    avoidIosKeyboard: true,
+    initialContent,
+  });
+
+  return (
+    <SafeAreaView style={exampleStyles.fullScreen}>
+      <EditorKeyboardAvoidingView style={exampleStyles.fullScreen}>
+        <View style={exampleStyles.fullScreen}>
+          <RichText editor={editor} />
+        </View>
+        <View style={exampleStyles.toolbarRow}>
+          <Toolbar editor={editor} />
+        </View>
+      </EditorKeyboardAvoidingView>
+    </SafeAreaView>
+  );
+};
+
+const exampleStyles = StyleSheet.create({
+  fullScreen: {
+    flex: 1,
+  },
+  toolbarRow: {
+    flexDirection: 'row',
+  },
+});
+
+const initialContent = `<p>This is a basic example!</p>`;
+```
+
+More screens, including custom keyboards, dynamic height and a navigation header, are in the example apps: [`example/`](https://github.com/10play/10tap-editor/tree/main/example) (React Native CLI) and [`example-expo/`](https://github.com/10play/10tap-editor/tree/main/example-expo) (Expo dev client).
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/examples/workingWithContent
+
+# Working with content
+
+This page shows how to read, set and insert content, and how to read the selected text.
+
+## Keeping the content in state
+
+`onChange` tells you that the content changed, without sending the content itself, because sending the whole document from the WebView on every keystroke is expensive. The easiest way to keep the content in state is [useEditorContent](https://10play.github.io/10tap-editor/docs/api/useEditorContent):
+
+```tsx
+const editor = useEditorBridge({ initialContent });
+const content = useEditorContent(editor, { type: 'html' }); // or 'text' | 'json'
+
+useEffect(() => {
+  if (content !== undefined) saveDraft(content);
+}, [content]);
+```
+
+If you prefer `onChange`, fetch the content yourself, ideally debounced:
+
+```tsx
+const saveLater = useMemo(
+  () => debounce((html: string) => saveDraft(html), 500),
+  []
+);
+
+const editor = useEditorBridge({
+  onChange: async () => {
+    saveLater(await editor.getHTML());
+  },
+});
+```
+
+`onChange` is called with the latest version of your callback, so it can use fresh state.
+
+## Setting content
+
+```tsx
+editor.setContent('<p>New content</p>');
+editor.setContent({ type: 'doc', content: [/* TipTap JSON */] });
+```
+
+`setContent` triggers `onChange` and `useEditorContent` like a user edit. Pass `{ emitUpdate: false }` to replace the content silently, for example when loading a saved draft:
+
+```tsx
+editor.setContent(savedHtml, { emitUpdate: false });
+```
+
+### Keeping whitespace
+
+ProseMirror collapses runs of spaces in HTML. Pass `parseOptions` to keep them, for the whole editor or for one call:
+
+```tsx
+const editor = useEditorBridge({
+  initialContent: "<a href='hello'>hello</a>  <a href='world'>world</a>",
+  parseOptions: { preserveWhitespace: 'full' },
+});
+
+editor.setContent(html, { parseOptions: { preserveWhitespace: 'full' } });
+```
+
+With `'full'`, newlines and indentation between tags in pretty-printed HTML become content too. Content stored with `getJSON()` keeps its whitespace exactly without parse options.
+
+## Inserting content
+
+[insertContent](https://10play.github.io/10tap-editor/docs/api/EditorBridge#insertcontent) inserts HTML, text or TipTap JSON at the cursor, replacing the selection:
+
+```tsx
+<Button
+  title="Insert signature"
+  onPress={() => editor.insertContent('<p><em>Sent from my phone</em></p>')}
+/>
+```
+
+The content must fit the editor's schema. Unknown tags are dropped or converted, like when pasting.
+
+## Reading the selected text
+
+[getSelectedText](https://10play.github.io/10tap-editor/docs/api/EditorBridge#getselectedtext) reads the selection from the live editor:
+
+```tsx
+const selected = await editor.getSelectedText();
+```
+
+`editorState.selection.from` and `.to` from [useBridgeState](https://10play.github.io/10tap-editor/docs/api/BridgeState#usebridgestate) are ProseMirror positions, not offsets into `getText()`. To read the text of a range you stored earlier, pass it to `getSelectedText`:
+
+```tsx
+const { selection } = editor.getEditorState();
+// later
+const text = await editor.getSelectedText(selection);
+```
+
+> **Note: Custom editor bundles**
+> `parseOptions`, `insertContent` and `getSelectedText` need the 1.1 web editor. With the [advanced setup](https://10play.github.io/10tap-editor/docs/setup/advancedSetup), rebuild your editor bundle after upgrading. With an older bundle, `getSelectedText` rejects with `TentapUnsupportedError`.
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/examples/customCss
+
+# Custom CSS and Fonts
+
+In this example we will be adding custom css and fonts
+
+## Adding/Overriding CSS
+
+Each bridge, gives us the option to `configureCSS`. Some bridges come with css already configured in them, when we can override by configuring.
+Let's give an example by overriding the CodeBridge.
+
+First let's define the css
+
+```ts
+const customCodeBlockCSS = `
+code {
+    background-color: #ffdede;
+    border-radius: 0.25em;
+    border-color: #e45d5d;
+    border-width: 1px;
+    border-style: solid;
+    box-decoration-break: clone;
+    color: #cd4242;
+    font-size: 0.9rem;
+    padding: 0.25em;
+}
+`;
+```
+
+Now let's configure the CodeBridge to use this css
+
+```tsx
+const editor = useEditorBridge({
+  bridgeExtensions: [
+    // It is important to spread StarterKit BEFORE our extended plugin,
+    // as plugin duplicated will be ignored
+    ...TenTapStartKit,
+    CodeBridge.configureCSS(customCodeBlockCSS), // Custom codeblock css
+  ],
+});
+```
+
+> NOTE calling configureCSS more than once will override the previous css.
+
+## Dynamically Updating CSS
+
+Let's say we want to dynamically update css after the editor is initialized.
+We can do this with [injectCSS](https://10play.github.io/10tap-editor/docs/api/EditorBridge#injectcss).
+`injectCSS` receives two parameters:
+
+- `css`: the css to inject
+- `tag`: the tag of the stylesheet of which to inject the css into
+
+When we call `injectCSS` it gets or creates a stylesheet with the given `tag` and updates it's css.
+
+If we wanted to update our `CodeBridge` css after it has been initialized we could run
+
+```ts
+editor.injectCSS(ourCustomCSS, CodeBridge.name);
+```
+
+then this would replace or create the existing css with whatever we have given it.
+
+Now let's say that we don't want to override a bridges existing css, we could do this by providing a custom tag
+
+```ts
+editor.injectCSS(ourCustomCSS, 'our-custom-tag');
+```
+
+This will create a new stylesheet with `our-custom-tag` and it will not override any bridge's custom css.
+
+`injectCSS` can be called at any time: calls made before the editor has loaded are queued, and the stylesheet is applied again if the WebView reloads.
+
+## Adding Custom Fonts
+
+There are two ways to load a font into the editor: from a file (recommended), or embedded as base64 in the CSS.
+
+In both cases pass the CSS through `configureCSS` rather than `injectCSS`, so the font is part of the editor from the first paint.
+
+### Loading fonts from a file
+
+Loading the font from a local file avoids sending and parsing a large base64 string every time the editor loads.
+
+1. Get a local file URI for the font. With Expo, use `expo-asset`; in a bare app, copy the font into your app bundle and build the path yourself.
+2. Reference it from an `@font-face` rule and pass the CSS to `CoreBridge.configureCSS`.
+3. Allow the WebView to read local files. On iOS, also set [webviewBaseURL](https://10play.github.io/10tap-editor/docs/api/useEditorBridge#webviewbaseurl) to a `file://` directory that contains the font.
+4. Create the editor only once the URI is known, because bridge CSS is read when the editor is created.
+
+```tsx
+import { useAssets } from 'expo-asset';
+
+export const EditorWithFont = () => {
+  const [assets] = useAssets([require('./assets/Rubik-Regular.ttf')]);
+  const fontUri = assets?.[0]?.localUri;
+  if (!fontUri) return null;
+  return <Editor fontUri={fontUri} />;
+};
+
+const Editor = ({ fontUri }: { fontUri: string }) => {
+  const editor = useEditorBridge({
+    webviewBaseURL: fontUri.substring(0, fontUri.lastIndexOf('/') + 1),
+    bridgeExtensions: [
+      ...TenTapStartKit,
+      CoreBridge.configureCSS(`
+        @font-face {
+          font-family: 'Rubik';
+          src: url('${fontUri}');
+        }
+        * {
+          font-family: 'Rubik', sans-serif;
+        }
+      `),
+    ],
+  });
+
+  return (
+    <RichText
+      editor={editor}
+      allowFileAccess
+      allowFileAccessFromFileURLs
+    />
+  );
+};
+```
+
+### Embedding fonts as base64
+
+This needs no setup, at the cost of a larger editor HTML that is parsed on every load.
+
+So first we need to download and convert our font, so we can inject it into the webview:
+
+1. Upload your font files to https://transfonter.org and check the 'base64' option. When you download the zip file, there will be a `stylesheet.css` file there.
+2. Copy the contents of the `stylesheet.css` into a new ts file and export it as a string.
+
+```ts
+export const ProtestRiotFont = `
+  font-family: 'Protest Riot';
+  src: url('data:font/woff2;charset=utf-8;base64,..........
+  .......
+`;
+```
+
+Now we can use our font as follows
+
+```ts
+const customFont = `
+${ProtestRiotFont}
+* {
+    font-family: 'Protest Riot', sans-serif;
+}
+`;
+```
+
+And inside our `EditorBridge`
+
+```tsx
+const editor = useEditorBridge({
+  bridgeExtensions: [
+    // It is important to spread StarterKit BEFORE our extended plugin,
+    // as plugin duplicated will be ignored
+    ...TenTapStartKit,
+    CoreBridge.configureCSS(customFont), // Custom font
+  ],
+});
+```
+
+## Chinese, Japanese and Korean text
+
+The default editor doesn't set a font, so the WebView uses its default serif font. For CJK characters it then falls back to a system font that may have no bold or italic variant, and bold or italic text looks unchanged even though the marks are applied. Set a font stack that has CJK weights and let the WebView synthesize the missing styles:
+
+```tsx
+const editor = useEditorBridge({
+  bridgeExtensions: [
+    ...TenTapStartKit,
+    CoreBridge.configureCSS(`
+      .ProseMirror {
+        font-family: -apple-system, system-ui, 'PingFang SC', 'Hiragino Sans GB',
+          'Noto Sans CJK SC', 'Microsoft YaHei', sans-serif;
+        font-synthesis: weight style;
+      }
+    `),
+  ],
+});
+```
+
+The default font is unchanged in 1.x so existing editors look the same.
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/examples/fonts
+
+# Formatting
+
+> **Info**
+>
+> This is a Pro example. Get all pro examples, 1:1 support from the 10tap team, prioritized Github issues and keep 10tap under an MIT License with a 10tap Pro subscription. [See plans](https://10play.dev/products)
+>
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/examples/configureExtensions
+
+# Configuring and Extending Extensions
+
+In this example we will configure some extensions. Each bridge comes with the `configureExtension` function, that configures it's underline tiptap extension.
+For full list of available configurations for each bridge please see [BridgeExtensions](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions).
+
+## Configuring Placeholder and Link
+
+First we can check which options are available to extend on the tiptap docs. Links to them are available [here](https://10play.github.io/10tap-editor/docs/api/BridgeExtensions)
+In our case let's extend the placeholder to show custom text, and the link extension to not open links when clicking them
+
+```tsx
+const editor = useEditorBridge({
+  bridgeExtensions: [
+    ...TenTapStartKit,
+    PlaceholderBridge.configureExtension({
+      placeholder: 'Type something...',
+    }),
+    LinkBridge.configureExtension({ openOnClick: false }),
+  ],
+});
+```
+
+Bridges are deduplicated by name and the last one wins, so spread `TenTapStartKit` first and the configured bridges after it.
+
+## Extending Extension and updating Document Schema
+
+We can also extend the main `tiptapExtension` of each bridge with `extendExtension`.
+Let's say we want to update the Document extension of the CoreBridge to mandate a `heading` as the first node:
+
+We could do
+
+```tsx
+CoreBridge.extendExtension({ content: 'heading block+' });
+```
+
+Now the Document extension will be configured to have a heading node first followed by one or many "blocks"
+
+## Inline Images
+
+Images are block nodes by default, so an `<img>` inside a `<p>` in your `initialContent` is moved out of the paragraph, leaving an empty `<p></p>` behind. To keep images inside paragraphs, configure the ImageBridge:
+
+```tsx
+const editor = useEditorBridge({
+  bridgeExtensions: [
+    ...TenTapStartKit,
+    ImageBridge.configureExtension({ inline: true }),
+  ],
+  initialContent: '<p>Some text <img src="https://example.com/cat.png" /> more text</p>',
+});
+```
+
+Because extensions are deduplicated by name and the last one wins, the configured ImageBridge replaces the one from `TenTapStartKit`. Attributes like `style` or `width` on `<img>` are dropped unless you add them with `ImageBridge.extendExtension`.
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/examples/navHeader
+
+# Keyboard Avoiding Toolbar with Navigation Header
+
+Below a `react-navigation` header, a `KeyboardAvoidingView` needs a `keyboardVerticalOffset` equal to the header height plus the top inset, and that height changes between platforms and OS versions. A hard-coded value leaves the toolbar partly behind the keyboard.
+
+`EditorKeyboardAvoidingView` does not need the offset. It measures where it ends in the window and pads its bottom by the part of it the keyboard covers, system or custom, including the navigation bar an edge-to-edge Android keyboard also covers, so it works below any header and above a tab bar:
+
+```tsx
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import {
+  EditorKeyboardAvoidingView,
+  RichText,
+  Toolbar,
+  useEditorBridge,
+} from '@10play/tentap-editor';
+
+export const NavigationHeader = () => {
+  const editor = useEditorBridge({
+    autofocus: true,
+    avoidIosKeyboard: true,
+  });
+
+  return (
+    <EditorKeyboardAvoidingView style={styles.fullScreen}>
+      <View style={styles.fullScreen}>
+        <RichText editor={editor} />
+      </View>
+      <View style={styles.toolbarRow}>
+        <Toolbar editor={editor} />
+      </View>
+    </EditorKeyboardAvoidingView>
+  );
+};
+
+const styles = StyleSheet.create({
+  fullScreen: {
+    flex: 1,
+  },
+  // The toolbar's default flex: 1 would share the column with the editor;
+  // in a row it only fills the width.
+  toolbarRow: {
+    flexDirection: 'row',
+  },
+});
+```
+
+The editor keeps the line being typed about a line above the toolbar on its own: `RichText` measures how far the keyboard and the `Toolbar` reach into it, so no `paddingBottom` is needed.
+
+The full screen is in [`example/src/Examples/NavigationHeader.tsx`](https://github.com/10play/10tap-editor/tree/main/example/src/Examples/NavigationHeader.tsx).
+
+If you keep React Native's `KeyboardAvoidingView`, take the offset from the navigator instead of a constant, for example `useHeaderHeight()` from `@react-navigation/elements`.
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/examples/scrollView
+
+# Editor inside a ScrollView
+
+By default the editor fills its container and scrolls its own content. To place it in a form or a screen that scrolls as a whole, let the editor grow with its content and let your `ScrollView` do the scrolling. See [`example-expo/src/screens/DynamicHeight.tsx`](https://github.com/10play/10tap-editor/tree/main/example-expo/src/screens/DynamicHeight.tsx) for a runnable version.
+
+## Dynamic height
+
+With [dynamicHeight](https://10play.github.io/10tap-editor/docs/api/useEditorBridge#dynamicheight) the WebView is always as tall as its content. It grows as you type and shrinks when you delete, in a `ScrollView` or in a plain `View`.
+
+```tsx
+export const EditorInForm = () => {
+  const editor = useEditorBridge({
+    dynamicHeight: true,
+    initialContent: '<p>Tell us about yourself</p>',
+  });
+  const scrollViewRef = useRef<ScrollView>(null);
+  useScrollToCaret(editor, scrollViewRef);
+
+  return (
+    <EditorKeyboardAvoidingView style={{ flex: 1 }}>
+      <ScrollView ref={scrollViewRef} keyboardShouldPersistTaps="handled">
+        <TextInput placeholder="Title" />
+        <RichText editor={editor} />
+        <Button title="Save" onPress={save} />
+      </ScrollView>
+    </EditorKeyboardAvoidingView>
+  );
+};
+```
+
+- Leave `avoidIosKeyboard` off. In dynamic height mode the editor doesn't add keyboard padding, and the parent scroll view doesn't know where the cursor is: the editor is a WebView, not a native text input. Scroll views that follow the focused input, such as `KeyboardAwareScrollView` from `react-native-keyboard-controller`, track native text inputs, so they don't scroll to the cursor inside the editor either.
+- [useScrollToCaret](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils#usescrolltocaret) does that instead: it scrolls your `ScrollView` so the line being typed stays about one line above the keyboard and the toolbar on it. Without it the cursor of a growing editor ends up under the keyboard.
+- `EditorKeyboardAvoidingView` shrinks the scroll view above the keyboard, also on edge-to-edge Android, where the window does not resize. A `KeyboardAvoidingView` with `behavior="padding"` works too.
+- Alternatively, [cap the editor's height](https://10play.github.io/10tap-editor/docs/examples/scrollView#capping-the-height) so that it fits above the keyboard. Once it reaches the cap the editor scrolls itself and keeps the cursor in view.
+- `RichText` already passes `scrollEnabled={false}` to the WebView, so only your scroll view scrolls.
+- Set `keyboardShouldPersistTaps="handled"` on the scroll view, so taps on the toolbar and the link bar reach their buttons while the keyboard is open.
+
+> **Note: react-native-webview version**
+> On the new architecture, react-native-webview before 13.13.3 ignores `scrollEnabled={false}`, and WebKit scrolls the WebView to the caret when the keyboard opens. Use 13.13.3 or newer and rebuild your native app. Expo Go ships its own react-native-webview, so test this in a dev build.
+
+## Capping the height
+
+To let the editor grow up to a limit and then scroll internally, cap its container:
+
+```tsx
+const editor = useEditorBridge({ dynamicHeight: true });
+
+<RichText editor={editor} containerStyle={{ maxHeight: 300 }} />;
+```
+
+Once the cap is reached, the editor keeps its scroll position and the cursor stays in view while you type.
+
+## Reading the content height
+
+The editor reports its content height in px as a `document-height` message. If you need it, for example to animate a container, listen to the messages without turning off tentap's own handling:
+
+```tsx
+<RichText
+  editor={editor}
+  exclusivelyUseCustomOnMessage={false}
+  onMessage={(event) => {
+    const message = JSON.parse(event.nativeEvent.data);
+    if (message.type === 'document-height') setHeight(message.payload);
+  }}
+/>
+```
+
+On Expo web, each editor's `onMessage` only receives that editor's messages, so several editors with `dynamicHeight` can share a page; see [Expo Web Setup](https://10play.github.io/10tap-editor/docs/setup/expoWeb).
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/examples/renderHtml
+
+# Rendering editor HTML
+
+`getHTML()` and [useEditorContent](https://10play.github.io/10tap-editor/docs/api/useEditorContent) return the HTML that TipTap produces. When you display it outside the editor, for example in a read-only list with `react-native-render-html`, a few details of that HTML matter.
+
+## Paragraphs inside list items
+
+In TipTap and ProseMirror a list item always contains a paragraph, so lists come out as:
+
+```html
+<ul>
+  <li><p>First</p></li>
+  <li><p>Second</p></li>
+</ul>
+```
+
+Web editors hide the paragraph margins with CSS. `react-native-render-html` gives every `<p>` its default vertical margins and doesn't support selectors like `li > p`, so each list item gets extra space. The editor's output can't change without breaking saved content and nested lists, so remove the margins when rendering. A custom `p` renderer can drop them only inside list items:
+
+```tsx
+import RenderHtml, { type CustomBlockRenderer } from 'react-native-render-html';
+
+const ParagraphRenderer: CustomBlockRenderer = ({
+  TDefaultRenderer,
+  tnode,
+  style,
+  ...props
+}) => (
+  <TDefaultRenderer
+    tnode={tnode}
+    {...props}
+    style={[
+      style,
+      tnode.parent?.tagName === 'li' && { marginTop: 0, marginBottom: 0 },
+    ]}
+  />
+);
+
+const renderers = { p: ParagraphRenderer };
+
+<RenderHtml contentWidth={width} source={{ html }} renderers={renderers} />;
+```
+
+If you don't need paragraph spacing anywhere, `tagsStyles={{ p: { marginTop: 0, marginBottom: 0 } }}` is enough.
+
+## Task lists
+
+Task lists are `<ul data-type="taskList">` with `<li data-checked="true">` items that contain a `<label>` with a checkbox and a `<div>` with the content. Style or replace them the same way if you render them outside the editor.
+
+## Images
+
+The editor may add a hidden `<img class="ProseMirror-separator">` after an inline node at the end of a line. It is only part of the editor's DOM, not of `getHTML()`, but if you style images with CSS inside the editor, scope the rules as `img:not(.ProseMirror-separator)`.
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/examples/colorKeyboard
+
+# Using The ColorKeyboard
+
+In this example we will add the ColorKeyboard, and a custom button to toggle it in the Toolbar. The same screen is in [`example/src/Examples/Keyboard/WithKeyboard.tsx`](https://github.com/10play/10tap-editor/tree/main/example/src/Examples/Keyboard/WithKeyboard.tsx) and [`example-expo/src/screens/CustomKeyboard.tsx`](https://github.com/10play/10tap-editor/tree/main/example-expo/src/screens/CustomKeyboard.tsx).
+
+## Adding CustomKeyboard Component
+
+First we need a state of the current active keyboard id (used inside the toolbar to show and hide the color keyboard)
+
+```tsx
+const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
+```
+
+Then, into an `EditorKeyboardAvoidingView` at the bottom of the screen we add the `CustomKeyboard` component, right under the toolbar
+
+```tsx
+<EditorKeyboardAvoidingView style={exampleStyles.keyboardAvoidingView}>
+  <Toolbar editor={editor} />
+  <CustomKeyboard
+    activeKeyboardID={activeKeyboard}
+    setActiveKeyboardID={setActiveKeyboard}
+    keyboards={[ColorKeyboard]} // <-- here we add the color keyboard
+    editor={editor}
+  />
+</EditorKeyboardAvoidingView>;
+```
+
+## Adding Custom Toolbar
+
+Now that we have added the custom keyboard, we need to add a button to the toolbar so we can open it.
+We create a new component `ToolbarWithColor` that adds a button toggling the color keyboard in front of the default items.
+
+```tsx
+interface ToolbarWithColorProps {
+  editor: EditorBridge;
+  activeKeyboard: string | undefined;
+  setActiveKeyboard: (id: string | undefined) => void;
+}
+const ToolbarWithColor = ({
+  editor,
+  activeKeyboard,
+  setActiveKeyboard,
+}: ToolbarWithColorProps) => {
+  return (
+    <Toolbar
+      editor={editor}
+      items={[
+        {
+          onPress: () => () => {
+            const isActive = activeKeyboard === ColorKeyboard.id;
+            if (isActive) editor.focus();
+            setActiveKeyboard(isActive ? undefined : ColorKeyboard.id);
+          },
+          active: () => activeKeyboard === ColorKeyboard.id,
+          disabled: () => false,
+          image: () => Images.palette,
+        },
+        ...DEFAULT_TOOLBAR_ITEMS,
+      ]}
+    />
+  );
+};
+```
+
+The toolbar stays visible while the color keyboard is open. Picking a color applies it and brings the system keyboard back, and tapping the editor closes the color keyboard too.
+
+Then all that is left to replace `Toolbar` with our new `ToolbarWithColor` and we're done!
+
+```tsx
+<ToolbarWithColor
+  editor={editor}
+  activeKeyboard={activeKeyboard}
+  setActiveKeyboard={setActiveKeyboard}
+/>
+```
+
+## Full Example
+
+```tsx
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  ColorKeyboard,
+  CustomKeyboard,
+  DEFAULT_TOOLBAR_ITEMS,
+  EditorKeyboardAvoidingView,
+  Images,
+  RichText,
+  Toolbar,
+  useEditorBridge,
+  type EditorBridge,
+} from '@10play/tentap-editor';
+
+export const WithColorKeyboard = () => {
+  const editor = useEditorBridge({
+    autofocus: true,
+    avoidIosKeyboard: true,
+    initialContent: '<p>Select some text and pick a color</p>',
+  });
+  const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
+
+  return (
+    <SafeAreaView style={exampleStyles.fullScreen} edges={['top']}>
+      <View style={exampleStyles.fullScreen}>
+        <RichText editor={editor} />
+      </View>
+      <EditorKeyboardAvoidingView style={exampleStyles.keyboardAvoidingView}>
+        <ToolbarWithColor
+          editor={editor}
+          activeKeyboard={activeKeyboard}
+          setActiveKeyboard={setActiveKeyboard}
+        />
+        <CustomKeyboard
+          activeKeyboardID={activeKeyboard}
+          setActiveKeyboardID={setActiveKeyboard}
+          keyboards={[ColorKeyboard]}
+          editor={editor}
+        />
+      </EditorKeyboardAvoidingView>
+    </SafeAreaView>
+  );
+};
+
+interface ToolbarWithColorProps {
+  editor: EditorBridge;
+  activeKeyboard: string | undefined;
+  setActiveKeyboard: (id: string | undefined) => void;
+}
+
+const ToolbarWithColor = ({
+  editor,
+  activeKeyboard,
+  setActiveKeyboard,
+}: ToolbarWithColorProps) => {
+  return (
+    <Toolbar
+      editor={editor}
+      items={[
+        {
+          onPress: () => () => {
+            const isActive = activeKeyboard === ColorKeyboard.id;
+            if (isActive) editor.focus();
+            setActiveKeyboard(isActive ? undefined : ColorKeyboard.id);
+          },
+          active: () => activeKeyboard === ColorKeyboard.id,
+          disabled: () => false,
+          image: () => Images.palette,
+        },
+        ...DEFAULT_TOOLBAR_ITEMS,
+      ]}
+    />
+  );
+};
+
+const exampleStyles = StyleSheet.create({
+  fullScreen: {
+    flex: 1,
+  },
+  keyboardAvoidingView: {
+    position: 'absolute',
+    width: '100%',
+    bottom: 0,
+  },
+});
+```
+
+## Customizing the colors
+
+The colors, their labels and the keyboard's styles come from the `colorKeyboard` key of the editor theme. See [Color keyboard theme](https://10play.github.io/10tap-editor/docs/examples/customTheme#color-keyboard-theme).
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/examples/customKeyboard
+
+# Custom Keyboard
+
+In this example we will create and add a custom sticker keyboard 👯‍♀️
+We go through the code in small chunks; the [full solution](https://10play.github.io/10tap-editor/docs/examples/customKeyboard#full-solution) is at the end. For the API reference see [Custom Keyboard Utils](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils). Runnable versions are in [`example/src/Examples/Keyboard`](https://github.com/10play/10tap-editor/tree/main/example/src/Examples/Keyboard) and [`example-expo/src/screens`](https://github.com/10play/10tap-editor/tree/main/example-expo/src/screens) (inline and overlay layouts).
+
+### First, let's create a new CustomKeyboard
+
+```tsx
+const StickerKeyboardComp = ({ editor }: CustomKeyboardComponentProps) => {
+  return (
+    <View style={keyboardStyles.keyboardContainer}>
+      <StickerRow stickers={stickersTop} editor={editor} />
+      <StickerRow stickers={stickersBottom} editor={editor} />
+    </View>
+  );
+};
+
+export const StickerKeyboard = new CustomKeyboardExtension(
+  'keyboard.sticker',
+  StickerKeyboardComp
+);
+```
+
+- `StickerKeyboardComp` is the view that is shown in place of the system keyboard. It is rendered in your app's own React tree, so it can use your context providers and state, and it re-renders like any other component.
+- The keyboard component receives `editor`, `close` and `keyboardHeight` props, typed as `CustomKeyboardComponentProps`. Each sticker calls `editor.setImage(sticker)`.
+- `CustomKeyboardExtension` gives the keyboard the id `keyboard.sticker`.
+
+### Now we can use our custom keyboard
+
+```tsx
+export const CustomKeyboardExample = () => {
+  const editor = useEditorBridge({
+    avoidIosKeyboard: true,
+    autofocus: true,
+    bridgeExtensions: [
+      ...TenTapStartKit,
+      ImageBridge.configureExtension({ inline: true }),
+    ],
+  });
+  const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
+
+  return (
+    <SafeAreaView style={exampleStyles.fullScreen} edges={['top']}>
+      <View style={exampleStyles.fullScreen}>
+        <RichText editor={editor} />
+      </View>
+      <EditorKeyboardAvoidingView style={exampleStyles.keyboardAvoidingView}>
+        <StickerToolbar
+          activeKeyboard={activeKeyboard}
+          setActiveKeyboard={setActiveKeyboard}
+          editor={editor}
+        />
+        <CustomKeyboard
+          activeKeyboardID={activeKeyboard}
+          setActiveKeyboardID={setActiveKeyboard}
+          keyboards={[StickerKeyboard]} // <-- Add our custom keyboard to the keyboards prop
+          editor={editor}
+        />
+      </EditorKeyboardAvoidingView>
+    </SafeAreaView>
+  );
+};
+```
+
+- A react state controls which custom keyboard is shown. `CustomKeyboard` calls `setActiveKeyboard(undefined)` itself when the keyboard closes, for example when the user taps the editor.
+- `CustomKeyboard` goes right under the toolbar, as the last child of the same `EditorKeyboardAvoidingView`, so the toolbar stays where it is when the keyboards switch. `EditorKeyboardAvoidingView` pads for the system keyboard and leaves out the space the open `CustomKeyboard` takes itself. It also works on edge-to-edge Android (the default in Expo), where the window does not resize for the keyboard, so a React Native `KeyboardAvoidingView` with `behavior="height"` or no behavior, as in 0.7.x, leaves the toolbar behind the keyboard.
+
+### Add button that will toggle our custom keyboard
+
+```tsx
+const StickerToolbar = ({
+  editor,
+  activeKeyboard,
+  setActiveKeyboard,
+}: ToolbarWithStickersProps) => {
+  return (
+    <Toolbar
+      editor={editor}
+      items={[
+        {
+          onPress: () => () => {
+            const isActive = activeKeyboard === StickerKeyboard.id;
+            if (isActive) editor.focus();
+            setActiveKeyboard(isActive ? undefined : StickerKeyboard.id);
+          },
+          active: () => activeKeyboard === StickerKeyboard.id,
+          disabled: () => false,
+          image: () => Images.palette,
+        },
+        ...DEFAULT_TOOLBAR_ITEMS,
+      ]}
+    />
+  );
+};
+```
+
+- The [Toolbar](https://10play.github.io/10tap-editor/docs/api/Components#toolbar) stays visible while a custom keyboard is open, so no extra `hidden` logic is needed.
+- Pressing the button again calls `editor.focus()`, which brings the system keyboard back.
+
+> **Note: Upgrading from 0.7.x**
+> The 0.7.x version of this example still works: `rootRef` is ignored, and a toolbar that computes `hidden` from `useKeyboard()` and `activeKeyboard` keeps working. You can remove both.
+
+### Full solution
+
+```tsx
+import React from 'react';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  RichText,
+  Toolbar,
+  useEditorBridge,
+  type EditorBridge,
+  TenTapStartKit,
+  ImageBridge,
+  CustomKeyboard,
+  CustomKeyboardExtension,
+  EditorKeyboardAvoidingView,
+  DEFAULT_TOOLBAR_ITEMS,
+  Images,
+  type CustomKeyboardComponentProps,
+} from '@10play/tentap-editor';
+
+const stickersTop = [
+  'https://res.cloudinary.com/dkofpy6k6/image/upload/c_fill,g_auto,h_100,w_100/v1707657614/7c1d68c9-126c-4967-a6a4-7252e998802d.png',
+  'https://res.cloudinary.com/dkofpy6k6/image/upload/c_fill,g_auto,h_100,w_100/v1707657441/skel_uv9mo1.png',
+  'https://res.cloudinary.com/dkofpy6k6/image/upload/c_fill,g_auto,h_100,w_100/v1707657821/ecee86ed-6291-412c-9570-2b561314d723.png',
+];
+const stickersBottom = [
+  'https://res.cloudinary.com/dkofpy6k6/image/upload/c_fill,g_auto,h_100,w_100/v1707658182/53b06114-544c-4048-869f-fedbc6d51bb9.png',
+  'https://res.cloudinary.com/dkofpy6k6/image/upload/c_fill,g_auto,h_100,w_100/v1707658198/75fe11eb-1d93-45e4-bb97-d8e26dbe4335.png',
+  'https://res.cloudinary.com/dkofpy6k6/image/upload/c_fill,g_auto,h_100,w_100/v1707658214/c6cadcf3-785c-49ec-b34d-c6d8ea544153.png',
+];
+
+const StickerRow = ({
+  stickers,
+  editor,
+}: {
+  stickers: string[];
+  editor: EditorBridge;
+}) => {
+  return (
+    <View style={keyboardStyles.row}>
+      {stickers.map((sticker) => (
+        <TouchableOpacity
+          key={sticker}
+          style={keyboardStyles.sticker}
+          onPress={() => editor.setImage(sticker)}
+        >
+          <Image source={{ uri: sticker }} style={keyboardStyles.image} />
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+};
+
+const StickerKeyboardComp = ({ editor }: CustomKeyboardComponentProps) => {
+  return (
+    <View style={keyboardStyles.keyboardContainer}>
+      <StickerRow stickers={stickersTop} editor={editor} />
+      <StickerRow stickers={stickersBottom} editor={editor} />
+    </View>
+  );
+};
+
+export const StickerKeyboard = new CustomKeyboardExtension(
+  'keyboard.sticker',
+  StickerKeyboardComp
+);
+
+export const CustomKeyboardExample = () => {
+  const editor = useEditorBridge({
+    avoidIosKeyboard: true,
+    autofocus: true,
+    bridgeExtensions: [
+      ...TenTapStartKit,
+      ImageBridge.configureExtension({ inline: true }),
+    ],
+  });
+  const [activeKeyboard, setActiveKeyboard] = React.useState<string>();
+
+  return (
+    <SafeAreaView style={exampleStyles.fullScreen} edges={['top']}>
+      <View style={exampleStyles.fullScreen}>
+        <RichText editor={editor} />
+      </View>
+      <EditorKeyboardAvoidingView style={exampleStyles.keyboardAvoidingView}>
+        <StickerToolbar
+          activeKeyboard={activeKeyboard}
+          setActiveKeyboard={setActiveKeyboard}
+          editor={editor}
+        />
+        <CustomKeyboard
+          activeKeyboardID={activeKeyboard}
+          setActiveKeyboardID={setActiveKeyboard}
+          keyboards={[StickerKeyboard]}
+          editor={editor}
+        />
+      </EditorKeyboardAvoidingView>
+    </SafeAreaView>
+  );
+};
+
+interface ToolbarWithStickersProps {
+  editor: EditorBridge;
+  activeKeyboard: string | undefined;
+  setActiveKeyboard: (id: string | undefined) => void;
+}
+
+const StickerToolbar = ({
+  editor,
+  activeKeyboard,
+  setActiveKeyboard,
+}: ToolbarWithStickersProps) => {
+  return (
+    <Toolbar
+      editor={editor}
+      items={[
+        {
+          onPress: () => () => {
+            const isActive = activeKeyboard === StickerKeyboard.id;
+            if (isActive) editor.focus();
+            setActiveKeyboard(isActive ? undefined : StickerKeyboard.id);
+          },
+          active: () => activeKeyboard === StickerKeyboard.id,
+          disabled: () => false,
+          image: () => Images.palette,
+        },
+        ...DEFAULT_TOOLBAR_ITEMS,
+      ]}
+    />
+  );
+};
+
+const keyboardStyles = StyleSheet.create({
+  keyboardContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    width: '100%',
+  },
+  row: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sticker: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  image: { width: 100, height: 100 },
+});
+
+const exampleStyles = StyleSheet.create({
+  fullScreen: {
+    flex: 1,
+  },
+  keyboardAvoidingView: {
+    position: 'absolute',
+    width: '100%',
+    bottom: 0,
+  },
+});
+```
+
+## Layouts
+
+### Inline (default)
+
+The layout above: `CustomKeyboard` takes up the keyboard's height under the toolbar, and an `EditorKeyboardAvoidingView` around both keeps the toolbar in place for the system keyboard. This is the 0.7.x layout with `EditorKeyboardAvoidingView` in place of React Native's `KeyboardAvoidingView`; the 0.7.x version keeps working where the window resizes for the keyboard.
+
+### Overlay with EditorKeyboardAvoidingView
+
+`EditorKeyboardAvoidingView` pads its content by the height of whichever keyboard is up and keeps the same padding while switching, so it doesn't depend on the timing of React Native's keyboard events. Combine it with `layout="overlay"`, and render `CustomKeyboard` after it, outside the padded view:
+
+```tsx
+<SafeAreaView style={exampleStyles.fullScreen} edges={['top']}>
+  <EditorKeyboardAvoidingView style={exampleStyles.fullScreen}>
+    <View style={exampleStyles.fullScreen}>
+      <RichText editor={editor} />
+    </View>
+    {/* In a row, the toolbar's default flex: 1 only fills the width */}
+    <View style={{ flexDirection: 'row' }}>
+      <StickerToolbar
+        activeKeyboard={activeKeyboard}
+        setActiveKeyboard={setActiveKeyboard}
+        editor={editor}
+      />
+    </View>
+  </EditorKeyboardAvoidingView>
+  <CustomKeyboard
+    layout="overlay"
+    activeKeyboardID={activeKeyboard}
+    setActiveKeyboardID={setActiveKeyboard}
+    keyboards={[StickerKeyboard]}
+    editor={editor}
+  />
+</SafeAreaView>
+```
+
+Here the toolbar is part of the layout instead of being absolutely positioned, and the editor shrinks to make room for whichever keyboard is up.
+
+This is the recommended layout for edge-to-edge Android apps.
+
+### With react-native-keyboard-controller
+
+`react-native-keyboard-controller` only knows about the system keyboard, so its `KeyboardAvoidingView` and `KeyboardStickyView` drop to the bottom while a custom keyboard is open. Use `layout="overlay"` and add the custom keyboard's height yourself with `useCustomKeyboardHeight`:
+
+```tsx
+import { KeyboardStickyView } from 'react-native-keyboard-controller';
+import { useCustomKeyboardHeight } from '@10play/tentap-editor';
+
+const ToolbarArea = ({
+  editor,
+  activeKeyboard,
+  setActiveKeyboard,
+}: ToolbarWithStickersProps) => {
+  const customKeyboardHeight = useCustomKeyboardHeight();
+
+  return (
+    <KeyboardStickyView
+      style={{ position: 'absolute', width: '100%', bottom: 0 }}
+      offset={{ closed: -customKeyboardHeight }}
+    >
+      <StickerToolbar
+        editor={editor}
+        activeKeyboard={activeKeyboard}
+        setActiveKeyboard={setActiveKeyboard}
+      />
+    </KeyboardStickyView>
+  );
+};
+
+// somewhere below, outside the sticky view:
+<CustomKeyboard
+  layout="overlay"
+  activeKeyboardID={activeKeyboard}
+  setActiveKeyboardID={setActiveKeyboard}
+  keyboards={[StickerKeyboard]}
+  editor={editor}
+/>;
+```
+
+## Android: keeping the toolbar still
+
+With the default `androidKeyboardMode="system"` the window keeps your `softInputMode`. With `adjustResize` (the React Native default) the window resizes when the system keyboard hides, and the custom keyboard takes its space only once React Native reports the hide. The toolbar drops to the bottom and comes back up while switching to the custom keyboard, and is pushed up briefly while switching back. To avoid it:
+
+- use the [overlay layout](https://10play.github.io/10tap-editor/docs/examples/customKeyboard#overlay-with-editorkeyboardavoidingview), or
+- set `androidKeyboardMode="stable"` on `CustomKeyboard`. It switches the window to `adjustNothing` while `CustomKeyboard` is mounted (Android 11+), and restores your mode on unmount. It needs the native module, so it has no effect in Expo Go, with the fallback driver or inside a `Modal`. Other inputs on that screen then need a `KeyboardAvoidingView` or `EditorKeyboardAvoidingView`.
+
+Edge-to-edge apps (the default with `targetSdk` 36) are not affected: their window never resizes.
+
+## Expo Go and the fallback driver
+
+Expo Go can't load the native `TenTapKeyboard` module, so `CustomKeyboard` uses the JavaScript fallback driver automatically. No code changes are needed; build a dev client for the native driver. You can also force the fallback with `forceFallback` to compare the two.
+
+The fallback is also used inside a React Native `Modal` on Android, and when the native driver fails its self-check (reported through `onKeyboardError`). See the [limitations](https://10play.github.io/10tap-editor/docs/api/CustomKeyboardUtils#limitations).
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/examples/mentions
+
+# Mentions
+
+> **Info**
+>
+> This is a Pro example. Get all pro examples, 1:1 support from the 10tap team, prioritized Github issues and keep 10tap under an MIT License with a 10tap Pro subscription. [See plans](https://10play.dev/products)
+>
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/examples/search
+
+# Search
+
+> **Info**
+>
+> This is a Pro example. Get all pro examples, 1:1 support from the 10tap team, prioritized Github issues and keep 10tap under an MIT License with a 10tap Pro subscription. [See plans](https://10play.dev/products)
+>
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/examples/darkTheme
+
+# DarkMode
+
+In this example we will implement darkmode in the editor. This is similar to setting up [custom css](https://10play.github.io/10tap-editor/docs/examples/customCss).
+
+Dark mode has two parts:
+
+- the native side (toolbar, link bar, [color keyboard](https://10play.github.io/10tap-editor/docs/examples/colorKeyboard), WebView background), styled by the `theme` option;
+- the web side (the document inside the WebView), styled with CSS.
+
+## Adding Dark Theme
+
+To use the built-in dark theme on the native side, pass `darkEditorTheme`:
+
+```tsx
+const editor = useEditorBridge({
+  theme: darkEditorTheme,
+});
+```
+
+`darkEditorTheme` includes a dark toolbar and a dark `colorKeyboard` theme (`darkColorKeyboardTheme`), so the ColorKeyboard follows too.
+
+Now we just need to update the web-side css with `configureCSS`:
+
+```tsx
+import {
+  CoreBridge,
+  darkEditorCss,
+  darkEditorTheme,
+  TenTapStartKit,
+  useEditorBridge,
+} from '@10play/tentap-editor';
+
+const editor = useEditorBridge({
+  bridgeExtensions: [
+    ...TenTapStartKit,
+    CoreBridge.configureCSS(darkEditorCss), // <--- Add our dark mode css
+  ],
+  theme: darkEditorTheme, // <-- Add our dark mode theme
+});
+```
+
+## Following the system appearance
+
+`theme` is read on every render, so it can follow `useColorScheme()`. Bridges, and the CSS configured on them, are read once when the editor is created. To switch the web-side CSS at runtime, inject it with [injectCSS](https://10play.github.io/10tap-editor/docs/api/EditorBridge#injectcss) under its own tag:
+
+```tsx
+import React, { useEffect } from 'react';
+import { useColorScheme } from 'react-native';
+import {
+  darkEditorCss,
+  darkEditorTheme,
+  defaultEditorTheme,
+  RichText,
+  useEditorBridge,
+} from '@10play/tentap-editor';
+
+export const ThemedEditor = () => {
+  const dark = useColorScheme() === 'dark';
+  const editor = useEditorBridge({
+    theme: dark ? darkEditorTheme : defaultEditorTheme,
+  });
+
+  useEffect(() => {
+    // An empty string clears the stylesheet with this tag.
+    editor.injectCSS(dark ? darkEditorCss : '', 'dark-mode');
+  }, [dark, editor]);
+
+  return <RichText editor={editor} />;
+};
+```
+
+`injectCSS` calls made before the editor has loaded are queued, and the stylesheet is applied again if the WebView reloads. Alternatively, remount the screen with a `key` when the scheme changes and pick the bridges for that scheme, as the [`example-expo`](https://github.com/10play/10tap-editor/tree/main/example-expo) app does.
+
+## Customizing
+
+To change the colors, pass a partial theme; it is deep-merged into the default theme. See [Custom Theme](https://10play.github.io/10tap-editor/docs/examples/customTheme), including the [color keyboard theme](https://10play.github.io/10tap-editor/docs/examples/customTheme#color-keyboard-theme).
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/examples/customTheme
+
+# Custom Theme
+
+In this example we will add a custom theme
+
+## Adding Custom Theme
+
+We can also provide a custom theme
+
+```tsx
+useEditorBridge({
+  theme: {
+    toolbar: {
+      toolbarBody: {
+        borderTopColor: '#C6C6C6B3',
+        borderBottomColor: '#C6C6C6B3',
+        backgroundColor: '#474747',
+      },
+      // Check the ToolbarTheme type for all options
+    },
+    webview: {
+      backgroundColor: '#1C1C1E',
+    },
+    webviewContainer: {},
+  },
+});
+```
+
+The theme you pass is deep-merged into the default theme, so you only need to set the keys you change.
+
+## Link bar
+
+The link bar that opens from the toolbar's link button is styled by `toolbar.linkBarTheme`. Its `hintText` key sets the placeholder of the URL input:
+
+```tsx
+useEditorBridge({
+  theme: {
+    toolbar: {
+      linkBarTheme: {
+        hintText: 'Paste a link',
+        placeholderTextColor: '#8E8E93',
+      },
+    },
+  },
+});
+```
+
+## Color keyboard theme
+
+The [ColorKeyboard](https://10play.github.io/10tap-editor/docs/examples/colorKeyboard) is styled by the `colorKeyboard` key:
+
+```tsx
+useEditorBridge({
+  theme: {
+    colorKeyboard: {
+      keyboardRootColor: 'white', // background of the keyboard area
+      colorSelection: [
+        // Custom colors in color keyboard
+        {
+          name: 'Custom Color',
+          value: '#E5112B',
+          displayColor: '#E5112B', // Optional - the color that will be displayed on ui (if left empty will default to use value)
+        },
+      ],
+      // Check the ColorKeyboardTheme type for all options
+    },
+  },
+});
+```
+
+`colorSelection` and `highlightSelection` **replace** the default lists instead of being merged with them, so the example above shows a single color. `colorKeyboard` is optional on `EditorTheme`; when it's missing, the default color keyboard theme is used. `darkEditorTheme` includes a dark color keyboard theme.
+
+The `Color` and `ColorKeyboardTheme` types, and the built-in `defaultColorKeyboardTheme` and `darkColorKeyboardTheme`, are exported from `@10play/tentap-editor`, so you can build on the default lists:
+
+```tsx
+import { defaultColorKeyboardTheme } from '@10play/tentap-editor';
+
+useEditorBridge({
+  theme: {
+    colorKeyboard: {
+      colorSelection: [
+        ...defaultColorKeyboardTheme.colorSelection,
+        { name: 'Brand', value: '#E5112B' },
+      ],
+    },
+  },
+});
+```
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/examples/realtimeCollab
+
+# Real-time collaboration
+
+> **Info**
+>
+> This is a Pro example. Get all pro examples, 1:1 support from the 10tap team, prioritized Github issues and keep 10tap under an MIT License with a 10tap Pro subscription. [See plans](https://10play.dev/products)
+>
+
+---
+
+Source: https://10play.github.io/10tap-editor/docs/examples/comments
+
+# Comments
+
+> **Info**
+>
+> This is a Pro example. Get all pro examples, 1:1 support from the 10tap team, prioritized Github issues and keep 10tap under an MIT License with a 10tap Pro subscription. [See plans](https://10play.dev/products)
+>
