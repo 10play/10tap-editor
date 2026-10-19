@@ -48,7 +48,7 @@ jobs:
 
       # npm publish runs prepack (editor and web utils) and then prepare (lib).
       - name: Release
-        run: yarn release --ci
+        run: yarn release --ci --npm.skipChecks
         env:
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}

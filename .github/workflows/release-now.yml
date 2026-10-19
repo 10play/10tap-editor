@@ -28,7 +28,7 @@ jobs:
 
       # package.json is already 1.1.0, so do not bump it again.
       - name: Release
-        run: yarn release --ci --no-increment
+        run: yarn release --ci --no-increment --npm.skipChecks
         env:
           NPM_CONFIG_PROVENANCE: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
