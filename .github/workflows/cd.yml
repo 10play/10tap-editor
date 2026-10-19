@@ -41,10 +41,10 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
-      - name: Authenticate with npm
-        run: npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # Trusted publishing needs npm 11.5.1+. Node 22 ships an older npm.
+      # No NPM_TOKEN: npm uses the GitHub OIDC token for this workflow.
+      - name: Install npm for trusted publishing
+        run: npm install --global npm@^11.5.1
 
       # npm publish runs prepack (editor and web utils) and then prepare (lib).
       - name: Release
