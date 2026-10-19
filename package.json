@@ -214,8 +214,7 @@
     "@tiptap/pm": "^3.11.0",
     "@tiptap/react": "^3.11.0",
     "@tiptap/starter-kit": "^3.11.0",
-    "lodash": "^4.17.21",
-    "react-dom": "^18.2.0"
+    "lodash": "^4.17.21"
   },
   "codegenConfig": {
     "name": "RNTenTapSpec",

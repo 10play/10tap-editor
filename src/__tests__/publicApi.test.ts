@@ -91,7 +91,7 @@ describe('root entry compatibility with 1.0.1', () => {
     expect(current).toMatchObject(v101Root.manifest);
   });
 
-  it('still installs every 1.0.1 dependency and adds no peer dependency', () => {
+  it('still installs the 1.0.1 runtime dependencies and adds no peer dependency', () => {
     const v101Dependencies = [
       '@tiptap/core',
       '@tiptap/extension-blockquote',
@@ -116,7 +116,6 @@ describe('root entry compatibility with 1.0.1', () => {
       '@tiptap/react',
       '@tiptap/starter-kit',
       'lodash',
-      'react-dom',
     ];
 
     expect(Object.keys(packageJson.dependencies)).toEqual(
@@ -130,10 +129,15 @@ describe('root entry compatibility with 1.0.1', () => {
     expect(packageJson).not.toHaveProperty('peerDependenciesMeta');
   });
 
-  it('keeps the 1.0.1 react-dom range so installs resolve the same packages', () => {
-    // A wider range makes yarn v1 and npm nest the newest react-dom (and print
-    // peer warnings) in apps that pin their own react-dom.
-    expect(packageJson.dependencies['react-dom']).toBe('^18.2.0');
+  it('leaves react-dom out of the published dependencies', () => {
+    // The built-in editor imports react-dom/client only while building
+    // editorHtml. A runtime dependency installs a second copy next to the
+    // app's own (nested react-dom 18 in a React 19 app), which expo-doctor
+    // reports as a duplicate (#315). A wider range still duplicates when the
+    // app pins an exact 19.x. The editor build uses the devDependency.
+    expect(packageJson.dependencies).not.toHaveProperty('react-dom');
+    expect(packageJson.devDependencies['react-dom']).toBe('19.1.1');
+    expect(packageJson.peerDependencies).not.toHaveProperty('react-dom');
   });
 });
 

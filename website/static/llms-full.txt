@@ -301,7 +301,7 @@ Now you're ready to add tentap to your app! Continue with [Keyboard and caret](h
 
 The React Native 0.74 floor is documented here and isn't enforced by the package. The Android native module needs `BaseReactPackage` (added in React Native 0.74) and doesn't compile on older versions. The peer dependencies (`react`, `react-native`, `react-native-webview`) are all `*`, as in 1.0, so your package manager won't warn you. Stay on 1.0.x if you can't upgrade React Native.
 
-The TipTap packages, `@tiptap/react`, `react-dom` and `lodash` are regular dependencies and are installed for you. If your app also targets the web or builds a [custom editor bundle](https://10play.github.io/10tap-editor/docs/setup/advancedSetup), keep a `react-dom` that matches your `react` in your own `package.json`.
+The TipTap packages, `@tiptap/react` and `lodash` are regular dependencies and are installed for you. The built-in editor bundle already contains `react-dom`, and the native app never loads it. If your app targets the web or builds a [custom editor bundle](https://10play.github.io/10tap-editor/docs/setup/advancedSetup), add a `react-dom` that matches your `react` to your own `package.json`.
 
 ## Example apps
 
@@ -895,8 +895,8 @@ Source: https://10play.github.io/10tap-editor/docs/migrations/v1.1
 - **react-native-webview 13.7 or newer.** Use 13.13.3 or newer on the new architecture if the editor is inside a `ScrollView`.
 - The Android package is still `com.tentap.TenTapViewPackage`, now written in Java. The library no longer applies the Kotlin Gradle plugin, which conflicted with AGP 9's built-in Kotlin support.
 - `package.json` declares a `codegenConfig` again (`RNTenTapSpec`, a native module). If a build fails on stale codegen output after upgrading, clean the build folders (`ios/build`, `android/app/build`) and rebuild.
-- `@tiptap/react` and `react-dom` are still dependencies, so a 1.0 advanced setup that imports `EditorContent` from `@tiptap/react` keeps building. Importing it from `@10play/tentap-editor` instead is recommended ([Sharing tiptap](https://10play.github.io/10tap-editor/docs/setup/advancedSetup#sharing-tiptap-with-10playtentap-editorweb)).
-- The `react-dom` dependency range is unchanged (`^18.2.0`), so installing 1.1 resolves the same packages as 1.0.1. In a React 19 app your package manager keeps a nested `react-dom` 18 under `@10play/tentap-editor`, as it did with 1.0.1. The native bundle never includes it. If your app targets the web or builds a custom editor bundle, keep a `react-dom` that matches your `react` in your own `package.json`; Vite with `@vitejs/plugin-react` then bundles only your copy.
+- `@tiptap/react` is still a dependency, so a 1.0 advanced setup that imports `EditorContent` from `@tiptap/react` keeps building. Importing it from `@10play/tentap-editor` instead is recommended ([Sharing tiptap](https://10play.github.io/10tap-editor/docs/setup/advancedSetup#sharing-tiptap-with-10playtentap-editorweb)).
+- `react-dom` is no longer installed with the package. 1.0.1 depended on `react-dom@^18.2.0`, and a React 19 app then got a second, nested `react-dom` 18, which `expo-doctor` reports as a duplicate (#315). The built-in editor is prebuilt with its own copy, and the native bundle never loads `react-dom`. Web apps and custom editor bundles keep a `react-dom` that matches their `react`, as in [advanced setup](https://10play.github.io/10tap-editor/docs/setup/advancedSetup#step-8---install-react-dom). A native-only app needs nothing extra. `@tiptap/react` still lists `react-dom` as a peer dependency, so a native-only install may print a peer warning; that warning is safe to ignore.
 
 ## Optional: the new keyboard layout
 

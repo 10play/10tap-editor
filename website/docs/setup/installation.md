@@ -44,7 +44,7 @@ Now you're ready to add tentap to your app! Continue with [Keyboard and caret](.
 
 The React Native 0.74 floor is documented here and isn't enforced by the package. The Android native module needs `BaseReactPackage` (added in React Native 0.74) and doesn't compile on older versions. The peer dependencies (`react`, `react-native`, `react-native-webview`) are all `*`, as in 1.0, so your package manager won't warn you. Stay on 1.0.x if you can't upgrade React Native.
 
-The TipTap packages, `@tiptap/react`, `react-dom` and `lodash` are regular dependencies and are installed for you. If your app also targets the web or builds a [custom editor bundle](./advancedSetup.md), keep a `react-dom` that matches your `react` in your own `package.json`.
+The TipTap packages, `@tiptap/react` and `lodash` are regular dependencies and are installed for you. The built-in editor bundle already contains `react-dom`, and the native app never loads it. If your app targets the web or builds a [custom editor bundle](./advancedSetup.md), add a `react-dom` that matches your `react` to your own `package.json`.
 
 ## Example apps
 
